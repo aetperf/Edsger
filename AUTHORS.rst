@@ -2,4 +2,4 @@
 Contributors
 ============
 
-* djfrancesco <pacullfrancois@gmail.com>
+* Francois Pacull <pacullfrancois@gmail.com>
