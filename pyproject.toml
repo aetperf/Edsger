@@ -1,9 +1,26 @@
 [build-system]
-# AVOID CHANGING REQUIRES: IT WILL BE UPDATED BY PYSCAFFOLD!
-requires = ["setuptools>=46.1.0", "setuptools_scm[toml]>=5"]
+requires = ["setuptools>=61.0", "setuptools_scm[toml]>=5", "numpy", "cython"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "edsger"
+authors = [
+  { name="Francois Pacull", email="francois.pacull@architecture-performance.com" },
+]
+description = "Graph-related algorithms in Python"
+dynamic = ['version']
+readme = "README.rst"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/aetperf/Edsger"
+
 [tool.setuptools_scm]
-# For smarter version schemes and other configuration options,
-# check out https://github.com/pypa/setuptools_scm
 version_scheme = "no-guess-dev"
+write_to = "src/edsger/_version.py"
+write_to_template = '__version__ = "{version}"'

@@ -1,21 +1,26 @@
+"""setup python file for edsger.
 """
-    Setup file for edsger.
-    Use setup.cfg to configure your project.
 
-    This file was generated with PyScaffold 4.3.1.
-    PyScaffold helps you to put up the scaffold of your new Python project.
-    Learn more under: https://pyscaffold.org/
-"""
-from setuptools import setup
+import numpy as np
+from Cython.Build import cythonize
+from setuptools import Extension, setup
 
-if __name__ == "__main__":
-    try:
-        setup(use_scm_version={"version_scheme": "no-guess-dev"})
-    except:  # noqa
-        print(
-            "\n\nAn error occurred while building the project, "
-            "please ensure you have the most updated version of setuptools, "
-            "setuptools_scm and wheel with:\n"
-            "   pip install -U setuptools setuptools_scm wheel\n\n"
-        )
-        raise
+extra_compile_args = ["-Ofast"]
+
+extensions = [
+    Extension(
+        "edsger.pqueue_imp_bin_dec_1b",
+        ["src/edsger/pqueue_imp_bin_dec_1b.pyx"],
+        extra_compile_args=extra_compile_args,
+        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+    ),
+]
+
+setup(
+    ext_modules=cythonize(
+        extensions,
+        compiler_directives={"language_level": "3"},
+        include_path=["src/edsger/"],
+    ),
+    include_dirs=[np.get_include()],
+)
