@@ -4,7 +4,7 @@
     - Binary heap is implicit, implemented with a static array.
     - Indices are 0-based.
     
-author : François Pacull
+author : Francois Pacull
 copyright : Architecture & Performance
 license : MIT
 """
