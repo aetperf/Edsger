@@ -2,4 +2,4 @@
 Contributors
 ============
 
-* Francois Pacull <pacullfrancois@gmail.com>
+* François Pacull <francois.pacull@architecture-performance.fr>
