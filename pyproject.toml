@@ -21,4 +21,6 @@ classifiers = [
 "Homepage" = "https://github.com/aetperf/Edsger"
 
 [tool.setuptools_scm]
+version_scheme = "no-guess-dev"
 write_to = "src/edsger/_version.py"
+write_to_template = '__version__ = "{version}"'
