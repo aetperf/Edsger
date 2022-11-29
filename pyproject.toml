@@ -4,21 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "edsger"
-description = "Graph-related algorithms in Python"
-authors = [
-  { name="Francois Pacull", email="francois.pacull@architecture-performance.com" },
-]
 readme = "README.rst"
-requires-python = ">=3.7"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-]
 dynamic = ["version"]
-
-[project.urls]
-"Homepage" = "https://github.com/aetperf/Edsger"
 
 [tool.setuptools_scm]
 version_scheme = "no-guess-dev"
