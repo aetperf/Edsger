@@ -296,7 +296,6 @@ cdef void _decrease_key_from_node_index(
     pqueue.Elements[pqueue.A[i]].key = key_new
     while i > 0: 
         j = (i - 1) // 2  
-        # j = (i - 1) >> 1
         key_j = pqueue.Elements[pqueue.A[j]].key
         if key_j > key_new:
             _exchange_nodes(pqueue, i, j)
