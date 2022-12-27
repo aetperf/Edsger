@@ -20,7 +20,7 @@ setup(
     ext_modules=cythonize(
         extensions,
         compiler_directives={"language_level": "3"},
-        include_path=["src/edsger/"],
+        include_path=["src/edsger/", "tests/"],
     ),
     include_dirs=[np.get_include()],
 )
