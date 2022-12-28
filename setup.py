@@ -25,7 +25,14 @@ extensions = [
 setup(
     ext_modules=cythonize(
         extensions,
-        compiler_directives={"language_level": "3"},
+        compiler_directives={
+            "language_level": "3",
+            "boundscheck": False,
+            "wraparound": False,
+            "embedsignature": False,
+            "cdivision": True,
+            "initializedcheck": False,
+        },
         include_path=["src/edsger/"],
     ),
     include_dirs=[np.get_include()],
