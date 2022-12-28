@@ -9,8 +9,6 @@ email: francois.pacull@architecture-performance.fr
 license : MIT
 """
 
-# cython: boundscheck=False, wraparound=False, embedsignature=False, cdivision=True, initializedcheck=False
-
 cimport numpy as cnp
 from libc.stdlib cimport free, malloc
 
