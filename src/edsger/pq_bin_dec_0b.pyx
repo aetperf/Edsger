@@ -12,30 +12,12 @@ license : MIT
 
 # cython: boundscheck=False, wraparound=False, embedsignature=False, initializedcheck=False
 
-import numpy as np
-
 cimport numpy as cnp
 from libc.stdlib cimport free, malloc
 
-# data type for the key value
-ctypedef cnp.float64_t DTYPE_t
-cdef DTYPE_t DTYPE_INF = <DTYPE_t>np.finfo(dtype=np.float64).max
-
-cdef enum ElementState:
-   SCANNED     # popped from the heap
-   NOT_IN_HEAP # never been in the heap
-   IN_HEAP     # in the heap
-
-cdef struct Element:
-    ElementState state # element state wrt the heap
-    size_t node_idx   # index of the corresponding node in the tree
-    DTYPE_t key        # key value
-
-cdef struct PriorityQueue:
-    size_t  length    # maximum heap size
-    size_t  size      # number of elements in the heap
-    size_t* A         # array storing the binary tree
-    Element* Elements  # array storing the elements
+from edsger.commons cimport (
+    DTYPE, DTYPE_INF, IN_HEAP, NOT_IN_HEAP, SCANNED, DTYPE_t
+)
 
 
 cdef void init_heap(
