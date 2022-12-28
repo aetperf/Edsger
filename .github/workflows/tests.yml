@@ -8,15 +8,10 @@ on:
 jobs:
   build:
 
-    runs-on: ${{ matrix.platform }}
     strategy:
       fail-fast: false
       matrix:
-        # https://help.github.com/articles/virtual-environments-for-github-actions
-        platform:
-          - ubuntu-latest  # ubuntu-20.04
-          # - macos-latest  # macOS-10.15
-          # - windows-latest  # windows-2019
+        os: ubuntu-latest  #[ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.10"]  # ["3.7", "3.8", "3.9", "3.10"]
     steps:
       - uses: actions/checkout@v3
