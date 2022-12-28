@@ -9,7 +9,7 @@ email: francois.pacull@architecture-performance.fr
 license : MIT
 """
 
-# cython: boundscheck=False, wraparound=False, embedsignature=False, initializedcheck=False
+# cython: boundscheck=False, wraparound=False, embedsignature=False, cdivision=True, initializedcheck=False
 
 cimport numpy as cnp
 from libc.stdlib cimport free, malloc
@@ -19,7 +19,7 @@ from edsger.commons cimport (
 )
 
 
-cdef void init_heap(
+cdef void init_pqueue(
     PriorityQueue* pqueue,
     size_t length) nogil:
     """Initialize the binary heap.
@@ -55,7 +55,7 @@ cdef void _initialize_element(
     pqueue.Elements[element_idx].node_idx = pqueue.length
 
 
-cdef void free_heap(
+cdef void free_pqueue(
     PriorityQueue* pqueue) nogil:
     """Free the binary heap.
 
@@ -322,13 +322,15 @@ cdef cnp.ndarray copy_keys_to_numpy(
 import numpy as np
 
 
-cpdef init_01():
+cpdef init_01(int length=4):
+    """ Initialize an empty priority queue.
+    """
 
     cdef: 
         PriorityQueue pqueue
-        size_t l = 4
+        size_t l = <size_t>length
 
-    init_heap(&pqueue, l)
+    init_pqueue(&pqueue, l)
 
     assert pqueue.length == l
     assert pqueue.size == 0
@@ -338,19 +340,18 @@ cpdef init_01():
         assert pqueue.Elements[i].state == NOT_IN_HEAP
         assert pqueue.Elements[i].node_idx == pqueue.length
 
-    free_heap(&pqueue)
+    free_pqueue(&pqueue)
 
 
 cpdef insert_01():
-    """ Testing a single insertion into an empty binary heap 
-    of length 1.
+    """ Insert an element into an empty priority queue of length 1.
     """
 
     cdef: 
         PriorityQueue pqueue
         DTYPE_t key
 
-    init_heap(&pqueue, 1)
+    init_pqueue(&pqueue, 1)
     assert pqueue.length == 1
     key = 1.0
     insert(&pqueue, 0, key)
@@ -360,16 +361,18 @@ cpdef insert_01():
     assert pqueue.Elements[0].state == IN_HEAP
     assert pqueue.Elements[0].node_idx == 0
 
-    free_heap(&pqueue)
+    free_pqueue(&pqueue)
 
 
 cpdef insert_02():
+    """ Insert 4 elements into an empty priority queue of length 4.
+    """
 
     cdef: 
         PriorityQueue pqueue
         DTYPE_t key
 
-    init_heap(&pqueue, 4)
+    init_pqueue(&pqueue, 4)
 
     elem_idx = 1
     key = 3.0
@@ -421,50 +424,56 @@ cpdef insert_02():
     assert pqueue.Elements[3].node_idx == 2
     assert pqueue.size == 4
 
-    free_heap(&pqueue)
+    free_pqueue(&pqueue)
 
-cpdef insert_03(n=4):
-    """ Inserting nodes with identical keys.
+
+cpdef insert_03(int length=4):
+    """ Insert elements with equal key values.
     """
+
     cdef: 
         PriorityQueue pqueue
-        size_t i
+        size_t i, l = <size_t>length
         DTYPE_t key = 1.0
 
-    init_heap(&pqueue, n)
-    for i in range(n):
+    init_pqueue(&pqueue, l)
+    for i in range(l):
         insert(&pqueue, i, key)
-    for i in range(n):
+    for i in range(l):
         assert pqueue.A[i] == i
 
-    free_heap(&pqueue)
+    free_pqueue(&pqueue)
+
 
 cpdef peek_01():
+    """ Successively insert elements into a priority queue and
+        check the min element of the priority without extracting it.
+    """
 
     cdef PriorityQueue pqueue
 
-    init_heap(&pqueue, 6)
+    init_pqueue(&pqueue, 4)
 
     insert(&pqueue, 0, 9.0)
     assert peek(&pqueue) == 9.0
     insert(&pqueue, 1, 9.0)
     assert peek(&pqueue) == 9.0
-    insert(&pqueue, 2, 9.0)
-    assert peek(&pqueue) == 9.0
-    insert(&pqueue, 3, 5.0)
+    insert(&pqueue, 2, 5.0)
     assert peek(&pqueue) == 5.0
-    insert(&pqueue, 4, 3.0)
+    insert(&pqueue, 3, 3.0)
     assert peek(&pqueue) == 3.0
-    insert(&pqueue, 5, 1.0)
-    assert peek(&pqueue) == 1.0
 
-    free_heap(&pqueue)
+    free_pqueue(&pqueue)
+
 
 cpdef extract_min_01():
+    """ Insert 4 elements into a priority queue and 
+        extract them all.
+    """
     
     cdef PriorityQueue pqueue
 
-    init_heap(&pqueue, 4)
+    init_pqueue(&pqueue, 4)
     insert(&pqueue, 1, 3.0)
     insert(&pqueue, 0, 2.0)
     insert(&pqueue, 3, 4.0)
@@ -486,13 +495,16 @@ cpdef extract_min_01():
     assert pqueue.size == 0
     assert pqueue.Elements[idx].state == SCANNED
 
-    free_heap(&pqueue)
+    free_pqueue(&pqueue)
+
 
 cpdef is_empty_01():
+    """ Insert an element and extract it.
+    """
     
     cdef PriorityQueue pqueue
 
-    init_heap(&pqueue, 4)
+    init_pqueue(&pqueue, 2)
 
     assert is_empty(&pqueue) == 1
     insert(&pqueue, 1, 3.0)
@@ -500,14 +512,17 @@ cpdef is_empty_01():
     idx = extract_min(&pqueue)
     assert is_empty(&pqueue) == 1
 
-    free_heap(&pqueue)
+    free_pqueue(&pqueue)
 
 
 cpdef decrease_key_01():
+    """ Insert elements into a priority queue and decrease the largest 
+        key value to become the smallest.
+    """
 
     cdef PriorityQueue pqueue
 
-    init_heap(&pqueue, 4)
+    init_pqueue(&pqueue, 4)
 
     insert(&pqueue, 1, 3.0)
     insert(&pqueue, 0, 2.0)
@@ -549,21 +564,23 @@ cpdef decrease_key_01():
         assert pqueue.Elements[i].state == IN_HEAP
         assert pqueue.Elements[i].key == key_ref[i]
 
-    free_heap(&pqueue)
+    free_pqueue(&pqueue)
 
 
 cdef void heapsort(DTYPE_t[:] values_in, DTYPE_t[:] values_out) nogil:
+    """
+    """
 
     cdef:
         size_t i, l = <size_t>values_in.shape[0]
         PriorityQueue pqueue
     
-    init_heap(&pqueue, l)
+    init_pqueue(&pqueue, l)
     for i in range(l):
         insert(&pqueue, i, values_in[i])
     for i in range(l):
         values_out[i] = pqueue.Elements[extract_min(&pqueue)].key
-    free_heap(&pqueue)
+    free_pqueue(&pqueue)
 
 
 cpdef sort_01(int n, random_seed=124):

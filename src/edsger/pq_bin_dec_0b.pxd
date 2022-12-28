@@ -1,3 +1,12 @@
+""" Priority queue based on a minimum binary heap.
+
+    header file
+
+author : Francois Pacull
+copyright : Architecture & Performance
+email: francois.pacull@architecture-performance.fr
+license : MIT
+"""
 
 cimport numpy as cnp
 
@@ -15,8 +24,8 @@ cdef struct PriorityQueue:
     size_t* A  # array storing the binary tree
     Element* Elements  # array storing the elements
 
-cdef void init_heap(PriorityQueue*, size_t) nogil
-cdef void free_heap(PriorityQueue*) nogil
+cdef void init_pqueue(PriorityQueue*, size_t) nogil
+cdef void free_pqueue(PriorityQueue*) nogil
 cdef void insert(PriorityQueue*, size_t, DTYPE_t) nogil
 cdef DTYPE_t peek(PriorityQueue*) nogil
 cdef size_t extract_min(PriorityQueue*) nogil

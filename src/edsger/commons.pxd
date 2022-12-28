@@ -1,3 +1,13 @@
+""" Common definitions.
+
+   header file
+
+author : Francois Pacull
+copyright : Architecture & Performance
+email: francois.pacull@architecture-performance.fr
+license : MIT
+"""
+
 cimport numpy as cnp
 
 cdef DTYPE
