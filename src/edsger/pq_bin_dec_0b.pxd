@@ -17,9 +17,9 @@ cdef struct PriorityQueue:
 
 cdef void init_heap(PriorityQueue*, size_t) nogil
 cdef void free_heap(PriorityQueue*) nogil
-cdef void min_heap_insert(PriorityQueue*, size_t, DTYPE_t) nogil
+cdef void insert(PriorityQueue*, size_t, DTYPE_t) nogil
 cdef DTYPE_t peek(PriorityQueue*) nogil
 cdef size_t extract_min(PriorityQueue*) nogil
 cdef bint is_empty(PriorityQueue*) nogil
-cdef void decrease_key_from_element_index(PriorityQueue*, size_t, DTYPE_t) nogil
+cdef void decrease_key(PriorityQueue*, size_t, DTYPE_t) nogil
 cdef cnp.ndarray copy_keys_to_numpy(PriorityQueue*, size_t)
