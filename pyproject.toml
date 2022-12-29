@@ -24,3 +24,8 @@ classifiers = [
 version_scheme = "no-guess-dev"
 write_to = "src/edsger/_version.py"
 write_to_template = '__version__ = "{version}"'
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests"
+]

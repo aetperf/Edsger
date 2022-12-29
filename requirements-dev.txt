@@ -1,0 +1,9 @@
+# Runtime requirements
+--requirement requirements.txt
+
+# Testing
+pytest
+
+# Linting/Tooling
+
+# Documentation

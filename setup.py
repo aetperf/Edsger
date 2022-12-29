@@ -22,18 +22,28 @@ extensions = [
     ),
 ]
 
-setup(
-    ext_modules=cythonize(
-        extensions,
-        compiler_directives={
-            "language_level": "3",
-            "boundscheck": False,
-            "wraparound": False,
-            "embedsignature": False,
-            "cdivision": True,
-            "initializedcheck": False,
-        },
-        include_path=["src/edsger/"],
-    ),
-    include_dirs=[np.get_include()],
-)
+with open("requirements.txt") as fp:
+    install_requires = fp.read().strip().split("\n")
+
+
+def setup_package():
+    setup(
+        ext_modules=cythonize(
+            extensions,
+            compiler_directives={
+                "language_level": "3",
+                "boundscheck": False,
+                "wraparound": False,
+                "embedsignature": False,
+                "cdivision": True,
+                "initializedcheck": False,
+            },
+            include_path=["src/edsger/"],
+        ),
+        install_requires=install_requires,
+        include_dirs=[np.get_include()],
+    )
+
+
+if __name__ == "__main__":
+    setup_package()
