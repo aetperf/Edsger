@@ -25,7 +25,7 @@ jobs:
         python -m pip install tox tox-gh-actions
     - name: Install
       run: |
-        # Install minimal dependencies and confirm that `import optuna` is successful.
+        # Install minimal dependencies and confirm that `import edsger` is successful.
         pip install .
         python -c 'import edsger'
     - name: Test with tox
