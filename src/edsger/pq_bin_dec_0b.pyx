@@ -565,8 +565,9 @@ cpdef decrease_key_01():
     free_pqueue(&pqueue)
 
 
-cdef void heapsort(DTYPE_t[:] values_in, DTYPE_t[:] values_out) nogil:
-    """
+cdef void heapsort(DTYPE_t[::1] values_in, DTYPE_t[::1] values_out) nogil:
+    """ Heap sort by inerting all the values into the priority queue,
+        and extracting them.
     """
 
     cdef:
@@ -582,13 +583,15 @@ cdef void heapsort(DTYPE_t[:] values_in, DTYPE_t[:] values_out) nogil:
 
 
 cpdef sort_01(int n, random_seed=124):
+    """ Create an array of random number, sort it with the heapsort function 
+        and with the numpy default sort function, compare the results.
+    """
     
     cdef PriorityQueue pqueue
 
-    np.random.seed(random_seed)
-    values_in = np.random.sample(size=n)
+    rng = np.random.default_rng(random_seed)
+    values_in = rng.random(size=n)
     values_out = np.empty_like(values_in, dtype=DTYPE)
     heapsort(values_in, values_out)
     values_in_sorted = np.sort(values_in)
     np.testing.assert_array_equal(values_in_sorted, values_out)
-
