@@ -2,27 +2,40 @@
 
 cimport numpy as cnp
 
-from edsger.pq_bin_dec_0b as pq_bd0
-
+from edsger.commons cimport (
+    DTYPE_INF, NOT_IN_HEAP, SCANNED, DTYPE_t, ElementState)
+from edsger.pq_bin_dec_0b as pq_bd0  # priority queue based on a binary heap
 
 cpdef cnp.ndarray compute_sssp_pq_bd0(
     cnp.uint32_t[::1] csr_indices,
     cnp.uint32_t[::1] csr_indptr,
     DTYPE_t[::1] csr_data,
-    int origin_vert_in,
+    int source_vert_idx,
     int vertex_count):
     """ Compute single-source shortest path (from one vertex to all vertices)
         using the pq_bin_dec_0b priority queue.
 
-       Does not return predecessors.
+        Does not return predecessors.
+
+    input
+    =====
+    * cnp.uint32_t[::1] csr_indices : indices in the CSR format
+    * cnp.uint32_t[::1] csr_indptr : pointers in the CSR format
+    * DTYPE_t[::1] csr_data :  data (edge weights) in the CSR format
+    * int source_vert_idx : source vertex index
+    * int vertex_count : vertex count
+
+    output
+    ======
+    * cnp.ndarray : shortest path length for each vertex
     """
 
     cdef:
-        size_t tail_vert_idx, head_vert_idx, idx  # indices
-        DTYPE_t tail_vert_val, head_vert_val  # vertex travel times
-        pq_bd0.PriorityQueue pqueue 
-        ElementState vert_state  # vertex state
-        size_t origin_vert = <size_t>origin_vert_in
+        size_t tail_vert_idx, head_vert_idx, idx
+        DTYPE_t tail_vert_val, head_vert_val
+        pq_bd0.PriorityQueue pqueue
+        ElementState vert_state
+        size_t source = <size_t>source_vert_idx
 
     with nogil:
 
@@ -32,7 +45,7 @@ cpdef cnp.ndarray compute_sssp_pq_bd0(
 
         # the key is set to zero for the origin vertex,
         # which is inserted into the heap
-        pq_bd0.insert(&pqueue, origin_vert, 0.0)
+        pq_bd0.insert(&pqueue, source, 0.0)
 
         # main loop
         while pqueue.size > 0:
@@ -40,7 +53,9 @@ cpdef cnp.ndarray compute_sssp_pq_bd0(
             tail_vert_val = pqueue.Elements[tail_vert_idx].key
 
             # loop on outgoing edges
-            for idx in range(<size_t>csr_indptr[tail_vert_idx], <size_t>csr_indptr[tail_vert_idx + 1]):
+            for idx in range(<size_t>csr_indptr[tail_vert_idx], 
+                <size_t>csr_indptr[tail_vert_idx + 1]):
+
                 head_vert_idx = <size_t>csr_indices[idx]
                 vert_state = pqueue.Elements[head_vert_idx].state
                 if vert_state != SCANNED:
