@@ -43,3 +43,6 @@ def test_decrease_key_01():
 
 def test_sort_01():
     sort_01(1000)
+
+def test_fail():
+    assert False
