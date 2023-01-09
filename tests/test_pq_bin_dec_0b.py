@@ -1,4 +1,4 @@
-""" Tests for pq_bin_dec_0b.
+""" Tests for pq_bin_dec_0b.pyx.
 
 author : Francois Pacull
 copyright : Architecture & Performance
