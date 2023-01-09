@@ -81,6 +81,17 @@ cpdef cnp.ndarray compute_sssp_pq_bd0(
 from edsger.commons cimport DTYPE
 import numpy as np
 
+cdef generate_braess_network_csr():
+    """ Generate a Braess-like network in CSR format.
+    """
+
+    csr_indptr = np.array([0, 2, 4, 5, 5], dtype=np.uint32)
+    csr_indices = np.array([1, 2, 2, 3, 3], dtype=np.uint32)
+    csr_data = np.array([1., 2., 0., 2., 1.], dtype=DTYPE)
+
+    return csr_indptr, csr_indices, csr_data
+
+
 cpdef compute_sssp_pq_bd0_01():
     """ A single edge from vertex 0 to vertex 1, with weight 1.0.
     """
@@ -88,10 +99,39 @@ cpdef compute_sssp_pq_bd0_01():
     csr_indices = np.array([1], dtype=np.uint32)
     csr_data = np.array([1.], dtype=DTYPE)
 
+    # from vertex 0
     path_lengths = compute_sssp_pq_bd0(csr_indptr, csr_indices, csr_data, 0, 2)
     path_lengths_ref = np.array([0., 1.], dtype=DTYPE)
     assert np.allclose(path_lengths_ref, path_lengths)
 
+    # from vertex 1
     path_lengths = compute_sssp_pq_bd0(csr_indptr, csr_indices, csr_data, 1, 2)
     path_lengths_ref = np.array([DTYPE_INF, 0.], dtype=DTYPE)
+    assert np.allclose(path_lengths_ref, path_lengths)
+
+
+cpdef compute_sssp_pq_bd0_02():
+    """ Small network with 5 edges and 4 vertices.
+    """
+
+    csr_indptr, csr_indices, csr_data = generate_braess_network_csr()
+
+    # from vertex 0
+    path_lengths = compute_sssp_pq_bd0(csr_indptr, csr_indices, csr_data, 0, 4)
+    path_lengths_ref = np.array([0., 1., 1., 2.], dtype=DTYPE)
+    assert np.allclose(path_lengths_ref, path_lengths)
+
+    # from vertex 1
+    path_lengths = compute_sssp_pq_bd0(csr_indptr, csr_indices, csr_data, 1, 4)
+    path_lengths_ref = np.array([DTYPE_INF, 0., 0., 1.], dtype=DTYPE)
+    assert np.allclose(path_lengths_ref, path_lengths)
+
+    # from vertex 2
+    path_lengths = compute_sssp_pq_bd0(csr_indptr, csr_indices, csr_data, 2, 4)
+    path_lengths_ref = np.array([DTYPE_INF, DTYPE_INF, 0., 1.], dtype=DTYPE)
+    assert np.allclose(path_lengths_ref, path_lengths)
+
+    # from vertex 3
+    path_lengths = compute_sssp_pq_bd0(csr_indptr, csr_indices, csr_data, 3, 4)
+    path_lengths_ref = np.array([DTYPE_INF, DTYPE_INF, DTYPE_INF, 0.], dtype=DTYPE)
     assert np.allclose(path_lengths_ref, path_lengths)

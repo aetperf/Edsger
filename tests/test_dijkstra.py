@@ -10,3 +10,6 @@ from edsger.dijkstra import *
 
 def test_compute_sssp_pq_bd0_01():
     compute_sssp_pq_bd0_01()
+
+def test_compute_sssp_pq_bd0_02():
+    compute_sssp_pq_bd0_02()
