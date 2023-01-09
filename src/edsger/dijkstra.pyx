@@ -4,11 +4,11 @@ cimport numpy as cnp
 
 from edsger.commons cimport (
     DTYPE_INF, NOT_IN_HEAP, SCANNED, DTYPE_t, ElementState)
-from edsger.pq_bin_dec_0b as pq_bd0  # priority queue based on a binary heap
+cimport edsger.pq_bin_dec_0b as pq_bd0  # priority queue based on a binary heap
 
 cpdef cnp.ndarray compute_sssp_pq_bd0(
-    cnp.uint32_t[::1] csr_indices,
     cnp.uint32_t[::1] csr_indptr,
+    cnp.uint32_t[::1] csr_indices,
     DTYPE_t[::1] csr_data,
     int source_vert_idx,
     int vertex_count):
@@ -72,3 +72,26 @@ cpdef cnp.ndarray compute_sssp_pq_bd0(
     pq_bd0.free_pqueue(&pqueue)  
 
     return path_lengths
+
+
+# ============================================================================ #
+# tests                                                                        #
+# ============================================================================ #
+
+from edsger.commons cimport DTYPE
+import numpy as np
+
+cpdef compute_sssp_pq_bd0_01():
+    """ A single edge from vertex 0 to vertex 1, with weight 1.0.
+    """
+    csr_indptr = np.array([0, 1, 1], dtype=np.uint32)
+    csr_indices = np.array([1], dtype=np.uint32)
+    csr_data = np.array([1.], dtype=DTYPE)
+
+    path_lengths = compute_sssp_pq_bd0(csr_indptr, csr_indices, csr_data, 0, 2)
+    path_lengths_ref = np.array([0., 1.], dtype=DTYPE)
+    assert np.allclose(path_lengths_ref, path_lengths)
+
+    path_lengths = compute_sssp_pq_bd0(csr_indptr, csr_indices, csr_data, 1, 2)
+    path_lengths_ref = np.array([DTYPE_INF, 0.], dtype=DTYPE)
+    assert np.allclose(path_lengths_ref, path_lengths)
