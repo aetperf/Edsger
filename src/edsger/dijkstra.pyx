@@ -81,8 +81,24 @@ cpdef cnp.ndarray compute_sssp_pq_bd0(
 from edsger.commons cimport DTYPE
 import numpy as np
 
+
+cdef generate_single_edge_network_csr():
+    """  Generate a single edge network in CSR format.
+
+        This network has 1 edge and 2 vertices.
+    """
+
+    csr_indptr = np.array([0, 1, 1], dtype=np.uint32)
+    csr_indices = np.array([1], dtype=np.uint32)
+    csr_data = np.array([1.], dtype=DTYPE)
+
+    return csr_indptr, csr_indices, csr_data
+
+
 cdef generate_braess_network_csr():
     """ Generate a Braess-like network in CSR format.
+
+        This network hs 5 edges and 4 vertices.
     """
 
     csr_indptr = np.array([0, 2, 4, 5, 5], dtype=np.uint32)
@@ -93,11 +109,11 @@ cdef generate_braess_network_csr():
 
 
 cpdef compute_sssp_pq_bd0_01():
-    """ A single edge from vertex 0 to vertex 1, with weight 1.0.
+    """ Compute SSSP with the compute_sssp_pq_bd0 routine on a single edge 
+        network.
     """
-    csr_indptr = np.array([0, 1, 1], dtype=np.uint32)
-    csr_indices = np.array([1], dtype=np.uint32)
-    csr_data = np.array([1.], dtype=DTYPE)
+
+    csr_indptr, csr_indices, csr_data = generate_single_edge_network_csr()
 
     # from vertex 0
     path_lengths = compute_sssp_pq_bd0(csr_indptr, csr_indices, csr_data, 0, 2)
@@ -111,7 +127,8 @@ cpdef compute_sssp_pq_bd0_01():
 
 
 cpdef compute_sssp_pq_bd0_02():
-    """ Small network with 5 edges and 4 vertices.
+    """ Compute SSSP with the compute_sssp_pq_bd0 routine on Braess-like 
+        network.
     """
 
     csr_indptr, csr_indices, csr_data = generate_braess_network_csr()
