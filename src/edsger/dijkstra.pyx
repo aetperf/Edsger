@@ -43,7 +43,7 @@ cpdef cnp.ndarray compute_sssp_pq_bd0(
         # all nodes have INFINITY key and UNLABELED state
         pq_bd0.init_pqueue(&pqueue, <size_t>vertex_count, <size_t>vertex_count)
 
-        # the key is set to zero for the origin vertex,
+        # the key is set to zero for the source vertex,
         # which is inserted into the heap
         pq_bd0.insert(&pqueue, source, 0.0)
 
@@ -72,6 +72,75 @@ cpdef cnp.ndarray compute_sssp_pq_bd0(
     pq_bd0.free_pqueue(&pqueue)  
 
     return path_lengths
+
+
+cpdef cnp.ndarray compute_stsp_pq_bd0(
+    cnp.uint32_t[::1] csc_indptr,
+    cnp.uint32_t[::1] csc_indices,
+    DTYPE_t[::1] csr_data,
+    int target_vert_idx,
+    int vertex_count):
+    """ Compute single-target shortest path (from all vertices to one vertex)
+        using the pq_bin_dec_0b priority queue.
+
+        Does not return successors.
+
+    input
+    =====
+    * cnp.uint32_t[::1] csc_indices : indices in the CSC format
+    * cnp.uint32_t[::1] csc_indptr : pointers in the CSC format
+    * DTYPE_t[::1] csc_data :  data (edge weights) in the CSC format
+    * int target_vert_idx : source vertex index
+    * int vertex_count : vertex count
+
+    output
+    ======
+    * cnp.ndarray : shortest path length for each vertex
+    """
+
+    cdef:
+        size_t tail_vert_idx, head_vert_idx, idx
+        DTYPE_t tail_vert_val, head_vert_val
+        pq_bd0.PriorityQueue pqueue
+        ElementState vert_state
+        size_t target = <size_t>target_vert_idx
+
+    with nogil:
+
+        # initialization of the heap elements 
+        # all nodes have INFINITY key and UNLABELED state
+        pq_bd0.init_pqueue(&pqueue, <size_t>vertex_count, <size_t>vertex_count)
+
+        # the key is set to zero for the target vertex,
+        # which is inserted into the heap
+        pq_bd0.insert(&pqueue, target, 0.0)
+
+        # main loop
+        while pqueue.size > 0:
+            head_vert_idx = pq_bd0.extract_min(&pqueue)
+            head_vert_val = pqueue.Elements[head_vert_idx].key
+
+            # loop on incoming edges
+            for idx in range(<size_t>csc_indptr[head_vert_idx], 
+                <size_t>csc_indptr[head_vert_idx + 1]):
+
+                tail_vert_idx = <size_t>csc_indices[idx]
+                vert_state = pqueue.Elements[tail_vert_idx].state
+                if vert_state != SCANNED:
+                    tail_vert_val = head_vert_val + csc_data[idx]
+                    if vert_state == UNLABELED:
+                        pq_bd0.insert(&pqueue, tail_vert_idx, tail_vert_val)
+                    elif pqueue.Elements[tail_vert_idx].key > tail_vert_val:
+                        pq_bd0.decrease_key(&pqueue, tail_vert_idx, tail_vert_val)
+
+    # copy the results into a numpy array
+    path_lengths = pq_bd0.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
+
+    # cleanup
+    pq_bd0.free_pqueue(&pqueue)  
+
+    return path_lengths
+
 
 
 # ============================================================================ #
