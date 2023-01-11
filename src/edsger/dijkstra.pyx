@@ -77,7 +77,7 @@ cpdef cnp.ndarray compute_sssp_pq_bd0(
 cpdef cnp.ndarray compute_stsp_pq_bd0(
     cnp.uint32_t[::1] csc_indptr,
     cnp.uint32_t[::1] csc_indices,
-    DTYPE_t[::1] csr_data,
+    DTYPE_t[::1] csc_data,
     int target_vert_idx,
     int vertex_count):
     """ Compute single-target shortest path (from all vertices to one vertex)
@@ -164,6 +164,19 @@ cdef generate_single_edge_network_csr():
     return csr_indptr, csr_indices, csr_data
 
 
+cdef generate_single_edge_network_csc():
+    """  Generate a single edge network in CSC format.
+
+        This network has 1 edge and 2 vertices.
+    """
+
+    csc_indptr = np.array([0, 0, 1], dtype=np.uint32)
+    csc_indices = np.array([0], dtype=np.uint32)
+    csc_data = np.array([1.], dtype=DTYPE)
+
+    return csc_indptr, csc_indices, csc_data
+
+
 cdef generate_braess_network_csr():
     """ Generate a Braess-like network in CSR format.
 
@@ -175,6 +188,19 @@ cdef generate_braess_network_csr():
     csr_data = np.array([1., 2., 0., 2., 1.], dtype=DTYPE)
 
     return csr_indptr, csr_indices, csr_data
+
+
+cdef generate_braess_network_csc():
+    """ Generate a Braess-like network in CSC format.
+
+        This network hs 5 edges and 4 vertices.
+    """
+
+    csc_indptr = np.array([0, 0, 1, 3, 5], dtype=np.uint32)
+    csc_indices = np.array([0, 0, 1, 1, 2], dtype=np.uint32)
+    csc_data = np.array([1., 2., 0., 2., 1.], dtype=DTYPE)
+
+    return csc_indptr, csc_indices, csc_data
 
 
 cpdef compute_sssp_pq_bd0_01():
@@ -192,6 +218,24 @@ cpdef compute_sssp_pq_bd0_01():
     # from vertex 1
     path_lengths = compute_sssp_pq_bd0(csr_indptr, csr_indices, csr_data, 1, 2)
     path_lengths_ref = np.array([DTYPE_INF, 0.], dtype=DTYPE)
+    assert np.allclose(path_lengths_ref, path_lengths)
+
+
+cpdef compute_stsp_pq_bd0_01():
+    """ Compute TSSP with the compute_stsp_pq_bd0 routine on a single edge 
+        network.
+    """
+
+    csc_indptr, csc_indices, csc_data = generate_single_edge_network_csc()
+
+    # from vertex 0
+    path_lengths = compute_stsp_pq_bd0(csc_indptr, csc_indices, csc_data, 0, 2)
+    path_lengths_ref = np.array([0., DTYPE_INF], dtype=DTYPE)
+    assert np.allclose(path_lengths_ref, path_lengths)
+
+    # from vertex 1
+    path_lengths = compute_stsp_pq_bd0(csc_indptr, csc_indices, csc_data, 1, 2)
+    path_lengths_ref = np.array([1., 0.], dtype=DTYPE)
     assert np.allclose(path_lengths_ref, path_lengths)
 
 
@@ -220,4 +264,32 @@ cpdef compute_sssp_pq_bd0_02():
     # from vertex 3
     path_lengths = compute_sssp_pq_bd0(csr_indptr, csr_indices, csr_data, 3, 4)
     path_lengths_ref = np.array([DTYPE_INF, DTYPE_INF, DTYPE_INF, 0.], dtype=DTYPE)
+    assert np.allclose(path_lengths_ref, path_lengths)
+
+
+cpdef compute_stsp_pq_bd0_02():
+    """ Compute STSP with the compute_stsp_pq_bd0 routine on Braess-like 
+        network.
+    """
+
+    csc_indptr, csc_indices, csc_data = generate_braess_network_csc()
+
+    # from vertex 0
+    path_lengths = compute_stsp_pq_bd0(csc_indptr, csc_indices, csc_data, 0, 4)
+    path_lengths_ref = np.array([0., DTYPE_INF, DTYPE_INF, DTYPE_INF], dtype=DTYPE)
+    assert np.allclose(path_lengths_ref, path_lengths)
+
+    # from vertex 1
+    path_lengths = compute_stsp_pq_bd0(csc_indptr, csc_indices, csc_data, 1, 4)
+    path_lengths_ref = np.array([1., 0., DTYPE_INF, DTYPE_INF], dtype=DTYPE)
+    assert np.allclose(path_lengths_ref, path_lengths)
+
+    # from vertex 2
+    path_lengths = compute_stsp_pq_bd0(csc_indptr, csc_indices, csc_data, 2, 4)
+    path_lengths_ref = np.array([1., 0., 0., DTYPE_INF], dtype=DTYPE)
+    assert np.allclose(path_lengths_ref, path_lengths)
+
+    # from vertex 3
+    path_lengths = compute_stsp_pq_bd0(csc_indptr, csc_indices, csc_data, 3, 4)
+    path_lengths_ref = np.array([2., 1.0, 1., 0.], dtype=DTYPE)
     assert np.allclose(path_lengths_ref, path_lengths)

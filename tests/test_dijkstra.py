@@ -8,8 +8,18 @@ license : MIT
 
 from edsger.dijkstra import *
 
+
 def test_compute_sssp_pq_bd0_01():
     compute_sssp_pq_bd0_01()
 
+
+def test_compute_stsp_pq_bd0_01():
+    compute_stsp_pq_bd0_01()
+
+
 def test_compute_sssp_pq_bd0_02():
     compute_sssp_pq_bd0_02()
+
+
+def test_compute_stsp_pq_bd0_02():
+    compute_stsp_pq_bd0_02()
