@@ -19,24 +19,33 @@ from edsger.commons cimport (
 
 cdef void init_pqueue(
     PriorityQueue* pqueue,
-    size_t length) nogil:
+    size_t heap_length,
+    size_t element_count) nogil:
     """Initialize the binary heap.
 
     input
     =====
     * PriorityQueue* pqueue : binary heap
     * size_t length : length (maximum size) of the heap
+    * size_t element_count : element count
+
+    assumptions
+    ===========
+    * heap_length <= element_count
     """
     cdef size_t i
 
-    pqueue.length = length
+    pqueue.length = heap_length
     pqueue.size = 0
-    pqueue.A = <size_t*> malloc(length * sizeof(size_t))
-    pqueue.Elements = <Element*> malloc(length * sizeof(Element))
+    pqueue.A = <size_t*> malloc(heap_length * sizeof(size_t))
+    pqueue.Elements = <Element*> malloc(element_count * sizeof(Element))
 
-    for i in range(length):
-        pqueue.A[i] = length
+    for i in range(heap_length):
+        pqueue.A[i] = heap_length
         _initialize_element(pqueue, i)
+    for i in range(heap_length, element_count):
+        _initialize_element(pqueue, i)
+
 
 cdef void _initialize_element(
     PriorityQueue* pqueue,
@@ -328,7 +337,7 @@ cpdef init_01(int length=4):
         PriorityQueue pqueue
         size_t l = <size_t>length
 
-    init_pqueue(&pqueue, l)
+    init_pqueue(&pqueue, l, l)
 
     assert pqueue.length == l
     assert pqueue.size == 0
@@ -349,7 +358,7 @@ cpdef insert_01():
         PriorityQueue pqueue
         DTYPE_t key
 
-    init_pqueue(&pqueue, 1)
+    init_pqueue(&pqueue, 1, 1)
     assert pqueue.length == 1
     key = 1.0
     insert(&pqueue, 0, key)
@@ -370,7 +379,7 @@ cpdef insert_02():
         PriorityQueue pqueue
         DTYPE_t key
 
-    init_pqueue(&pqueue, 4)
+    init_pqueue(&pqueue, 4, 4)
 
     elem_idx = 1
     key = 3.0
@@ -434,7 +443,7 @@ cpdef insert_03(int length=4):
         size_t i, l = <size_t>length
         DTYPE_t key = 1.0
 
-    init_pqueue(&pqueue, l)
+    init_pqueue(&pqueue, l, l)
     for i in range(l):
         insert(&pqueue, i, key)
     for i in range(l):
@@ -450,7 +459,7 @@ cpdef peek_01():
 
     cdef PriorityQueue pqueue
 
-    init_pqueue(&pqueue, 4)
+    init_pqueue(&pqueue, 4, 4)
 
     insert(&pqueue, 0, 9.0)
     assert peek(&pqueue) == 9.0
@@ -471,7 +480,7 @@ cpdef extract_min_01():
     
     cdef PriorityQueue pqueue
 
-    init_pqueue(&pqueue, 4)
+    init_pqueue(&pqueue, 4, 4)
     insert(&pqueue, 1, 3.0)
     insert(&pqueue, 0, 2.0)
     insert(&pqueue, 3, 4.0)
@@ -502,7 +511,7 @@ cpdef is_empty_01():
     
     cdef PriorityQueue pqueue
 
-    init_pqueue(&pqueue, 2)
+    init_pqueue(&pqueue, 2, 2)
 
     assert is_empty(&pqueue) == 1
     insert(&pqueue, 1, 3.0)
@@ -520,7 +529,7 @@ cpdef decrease_key_01():
 
     cdef PriorityQueue pqueue
 
-    init_pqueue(&pqueue, 4)
+    init_pqueue(&pqueue, 4, 4)
 
     insert(&pqueue, 1, 3.0)
     insert(&pqueue, 0, 2.0)
@@ -574,7 +583,7 @@ cdef void heapsort(DTYPE_t[::1] values_in, DTYPE_t[::1] values_out) nogil:
         size_t i, l = <size_t>values_in.shape[0]
         PriorityQueue pqueue
     
-    init_pqueue(&pqueue, l)
+    init_pqueue(&pqueue, l, l)
     for i in range(l):
         insert(&pqueue, i, values_in[i])
     for i in range(l):

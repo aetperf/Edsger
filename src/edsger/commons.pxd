@@ -16,5 +16,5 @@ cdef DTYPE_t DTYPE_INF
 
 cdef enum ElementState:
    SCANNED
-   NOT_IN_HEAP
-   IN_HEAP
+   UNLABELED
+   LABELED

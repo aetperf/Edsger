@@ -41,7 +41,7 @@ cpdef cnp.ndarray compute_sssp_pq_bd0(
 
         # initialization of the heap elements 
         # all nodes have INFINITY key and UNLABELED state
-        pq_bd0.init_pqueue(&pqueue, <size_t>vertex_count)
+        pq_bd0.init_pqueue(&pqueue, <size_t>vertex_count, <size_t>vertex_count)
 
         # the key is set to zero for the origin vertex,
         # which is inserted into the heap
