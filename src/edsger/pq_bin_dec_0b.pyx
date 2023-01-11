@@ -13,7 +13,7 @@ cimport numpy as cnp
 from libc.stdlib cimport free, malloc
 
 from edsger.commons cimport (
-    DTYPE, DTYPE_INF, IN_HEAP, NOT_IN_HEAP, SCANNED, DTYPE_t
+    DTYPE, DTYPE_INF, LABELED, UNLABELED, SCANNED, DTYPE_t
 )
 
 
@@ -49,7 +49,7 @@ cdef void _initialize_element(
     * size_t element_idx : index of the element in the element array
     """
     pqueue.Elements[element_idx].key = DTYPE_INF
-    pqueue.Elements[element_idx].state = NOT_IN_HEAP
+    pqueue.Elements[element_idx].state = UNLABELED
     pqueue.Elements[element_idx].node_idx = pqueue.length
 
 
@@ -85,7 +85,7 @@ cdef void insert(
     cdef size_t node_idx = pqueue.size
 
     pqueue.size += 1
-    pqueue.Elements[element_idx].state = IN_HEAP
+    pqueue.Elements[element_idx].state = LABELED
     pqueue.Elements[element_idx].node_idx = node_idx
     pqueue.A[node_idx] = element_idx
     _decrease_key_from_node_index(pqueue, node_idx, key)
@@ -335,7 +335,7 @@ cpdef init_01(int length=4):
     for i in range(l):
         assert pqueue.A[i] == pqueue.length
         assert pqueue.Elements[i].key == DTYPE_INF
-        assert pqueue.Elements[i].state == NOT_IN_HEAP
+        assert pqueue.Elements[i].state == UNLABELED
         assert pqueue.Elements[i].node_idx == pqueue.length
 
     free_pqueue(&pqueue)
@@ -356,7 +356,7 @@ cpdef insert_01():
     assert pqueue.size == 1
     assert pqueue.A[0] == 0
     assert pqueue.Elements[0].key == key
-    assert pqueue.Elements[0].state == IN_HEAP
+    assert pqueue.Elements[0].state == LABELED
     assert pqueue.Elements[0].node_idx == 0
 
     free_pqueue(&pqueue)
@@ -379,7 +379,7 @@ cpdef insert_02():
     for i in range(4):
         assert pqueue.A[i] == A_ref[i]
     assert pqueue.Elements[elem_idx].key == key
-    assert pqueue.Elements[elem_idx].state == IN_HEAP
+    assert pqueue.Elements[elem_idx].state == LABELED
     assert pqueue.Elements[1].node_idx == 0
     assert pqueue.size == 1
 
@@ -390,7 +390,7 @@ cpdef insert_02():
     for i in range(4):
         assert pqueue.A[i] == A_ref[i]
     assert pqueue.Elements[elem_idx].key == key
-    assert pqueue.Elements[elem_idx].state == IN_HEAP
+    assert pqueue.Elements[elem_idx].state == LABELED
     assert pqueue.Elements[0].node_idx == 0
     assert pqueue.Elements[1].node_idx == 1
     assert pqueue.size == 2
@@ -402,7 +402,7 @@ cpdef insert_02():
     for i in range(4):
         assert pqueue.A[i] == A_ref[i]
     assert pqueue.Elements[elem_idx].key == key
-    assert pqueue.Elements[elem_idx].state == IN_HEAP
+    assert pqueue.Elements[elem_idx].state == LABELED
     assert pqueue.Elements[0].node_idx == 0
     assert pqueue.Elements[1].node_idx == 1
     assert pqueue.Elements[3].node_idx == 2
@@ -415,7 +415,7 @@ cpdef insert_02():
     for i in range(4):
         assert pqueue.A[i] == A_ref[i]
     assert pqueue.Elements[2].key == key
-    assert pqueue.Elements[2].state == IN_HEAP
+    assert pqueue.Elements[2].state == LABELED
     assert pqueue.Elements[0].node_idx == 1
     assert pqueue.Elements[1].node_idx == 3
     assert pqueue.Elements[2].node_idx == 0
@@ -534,7 +534,7 @@ cpdef decrease_key_01():
     for i in range(4):
         assert pqueue.A[i] == A_ref[i]
         assert pqueue.Elements[i].node_idx == n_ref[i]
-        assert pqueue.Elements[i].state == IN_HEAP
+        assert pqueue.Elements[i].state == LABELED
         assert pqueue.Elements[i].key == key_ref[i]
 
     decrease_key(&pqueue, 3, 0.0)
@@ -546,7 +546,7 @@ cpdef decrease_key_01():
     for i in range(4):
         assert pqueue.A[i] == A_ref[i]
         assert pqueue.Elements[i].node_idx == n_ref[i]
-        assert pqueue.Elements[i].state == IN_HEAP
+        assert pqueue.Elements[i].state == LABELED
         assert pqueue.Elements[i].key == key_ref[i]
 
 
@@ -559,7 +559,7 @@ cpdef decrease_key_01():
     for i in range(4):
         assert pqueue.A[i] == A_ref[i]
         assert pqueue.Elements[i].node_idx == n_ref[i]
-        assert pqueue.Elements[i].state == IN_HEAP
+        assert pqueue.Elements[i].state == LABELED
         assert pqueue.Elements[i].key == key_ref[i]
 
     free_pqueue(&pqueue)

@@ -3,7 +3,7 @@
 cimport numpy as cnp
 
 from edsger.commons cimport (
-    DTYPE_INF, NOT_IN_HEAP, SCANNED, DTYPE_t, ElementState)
+    DTYPE_INF, UNLABELED, SCANNED, DTYPE_t, ElementState)
 cimport edsger.pq_bin_dec_0b as pq_bd0  # priority queue based on a binary heap
 
 cpdef cnp.ndarray compute_sssp_pq_bd0(
@@ -40,7 +40,7 @@ cpdef cnp.ndarray compute_sssp_pq_bd0(
     with nogil:
 
         # initialization of the heap elements 
-        # all nodes have INFINITY key and NOT_IN_HEAP state
+        # all nodes have INFINITY key and UNLABELED state
         pq_bd0.init_pqueue(&pqueue, <size_t>vertex_count)
 
         # the key is set to zero for the origin vertex,
@@ -60,7 +60,7 @@ cpdef cnp.ndarray compute_sssp_pq_bd0(
                 vert_state = pqueue.Elements[head_vert_idx].state
                 if vert_state != SCANNED:
                     head_vert_val = tail_vert_val + csr_data[idx]
-                    if vert_state == NOT_IN_HEAP:
+                    if vert_state == UNLABELED:
                         pq_bd0.insert(&pqueue, head_vert_idx, head_vert_val)
                     elif pqueue.Elements[head_vert_idx].key > head_vert_val:
                         pq_bd0.decrease_key(&pqueue, head_vert_idx, head_vert_val)
