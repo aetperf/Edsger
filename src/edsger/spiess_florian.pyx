@@ -32,11 +32,11 @@ cdef void compute_SF(
         # vertex properties
         np.ndarray u_i = np.zeros(vertex_count, dtype=DTYPE)  # vertex least travel time
         np.ndarray f_i = np.zeros(vertex_count, dtype=DTYPE)  # vertex frequency (inverse of the maximum delay)
-        np.ndarray v_i = np.zeros(vertex_count, dtype=DTYPE)  # vertex volume
+        # np.ndarray v_i = np.zeros(vertex_count, dtype=DTYPE)  # vertex volume
         # edge properties
-        np.ndarray c_a = np.zeros(edge_count, dtype=DTYPE)  # uncongested edge travel time
-        np.ndarray f_a = np.zeros(edge_count, dtype=DTYPE)  # edge frequency (inverse of the maximum delay)
-        np.ndarray h_a = np.zeros(edge_count, dtype=bint)  # edge belonging to hyperpath
+        np.ndarray c_a = np.zeros(edge_count, dtype=DTYPE)    # uncongested edge travel time
+        np.ndarray f_a = np.zeros(edge_count, dtype=DTYPE)    # edge frequency (inverse of the maximum delay)
+        np.ndarray h_a = np.zeros(edge_count, dtype=bint)     # edge belonging to hyperpath
 
         size_t target = <size_t>target_vert_idx
         pq.PriorityQueue pqueue
