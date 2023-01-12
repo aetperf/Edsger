@@ -1,10 +1,16 @@
-
+""" An implementation of Dijkstra's algorithm.
+    
+author : Francois Pacull
+copyright : Architecture & Performance
+email: francois.pacull@architecture-performance.fr
+license : MIT
+"""
 
 cimport numpy as cnp
 
 from edsger.commons cimport (
     DTYPE_INF, UNLABELED, SCANNED, DTYPE_t, ElementState)
-cimport edsger.pq_bin_dec_0b as pq  # priority queue based on a binary heap
+cimport edsger.pq_bin_dec_0b as pq  # priority queue
 
 cpdef cnp.ndarray compute_sssp(
     cnp.uint32_t[::1] csr_indptr,
