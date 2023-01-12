@@ -74,10 +74,8 @@ cdef void compute_SF(
         # all nodes have INFINITY key and UNLABELED state
         pq.init_pqueue(&pqueue, <size_t>edge_count, <size_t>edge_count)
 
-        # the key is set to zero for the target vertex,
-        # which is inserted into the heap
-
-        # pq.insert(&pqueue, target, 0.0)
+        # only the incoming edges of the target vertex are inserted into the 
+        # priority queue
         for edge_idx in range(<size_t>csc_indptr[<size_t>target_vert_idx], 
             <size_t>csc_indptr[<size_t>(target_vert_idx + 1)]):
             pq.insert(&pqueue, edge_idx, c_a[edge_idx])
