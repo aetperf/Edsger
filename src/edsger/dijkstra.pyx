@@ -4,9 +4,9 @@ cimport numpy as cnp
 
 from edsger.commons cimport (
     DTYPE_INF, UNLABELED, SCANNED, DTYPE_t, ElementState)
-cimport edsger.pq_bin_dec_0b as pq_bd0  # priority queue based on a binary heap
+cimport edsger.pq_bin_dec_0b as pq  # priority queue based on a binary heap
 
-cpdef cnp.ndarray compute_sssp_pq_bd0(
+cpdef cnp.ndarray compute_sssp(
     cnp.uint32_t[::1] csr_indptr,
     cnp.uint32_t[::1] csr_indices,
     DTYPE_t[::1] csr_data,
@@ -33,7 +33,7 @@ cpdef cnp.ndarray compute_sssp_pq_bd0(
     cdef:
         size_t tail_vert_idx, head_vert_idx, idx
         DTYPE_t tail_vert_val, head_vert_val
-        pq_bd0.PriorityQueue pqueue
+        pq.PriorityQueue pqueue
         ElementState vert_state
         size_t source = <size_t>source_vert_idx
 
@@ -41,15 +41,15 @@ cpdef cnp.ndarray compute_sssp_pq_bd0(
 
         # initialization of the heap elements 
         # all nodes have INFINITY key and UNLABELED state
-        pq_bd0.init_pqueue(&pqueue, <size_t>vertex_count, <size_t>vertex_count)
+        pq.init_pqueue(&pqueue, <size_t>vertex_count, <size_t>vertex_count)
 
         # the key is set to zero for the source vertex,
         # which is inserted into the heap
-        pq_bd0.insert(&pqueue, source, 0.0)
+        pq.insert(&pqueue, source, 0.0)
 
         # main loop
         while pqueue.size > 0:
-            tail_vert_idx = pq_bd0.extract_min(&pqueue)
+            tail_vert_idx = pq.extract_min(&pqueue)
             tail_vert_val = pqueue.Elements[tail_vert_idx].key
 
             # loop on outgoing edges
@@ -61,20 +61,20 @@ cpdef cnp.ndarray compute_sssp_pq_bd0(
                 if vert_state != SCANNED:
                     head_vert_val = tail_vert_val + csr_data[idx]
                     if vert_state == UNLABELED:
-                        pq_bd0.insert(&pqueue, head_vert_idx, head_vert_val)
+                        pq.insert(&pqueue, head_vert_idx, head_vert_val)
                     elif pqueue.Elements[head_vert_idx].key > head_vert_val:
-                        pq_bd0.decrease_key(&pqueue, head_vert_idx, head_vert_val)
+                        pq.decrease_key(&pqueue, head_vert_idx, head_vert_val)
 
     # copy the results into a numpy array
-    path_lengths = pq_bd0.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
+    path_lengths = pq.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
 
     # cleanup
-    pq_bd0.free_pqueue(&pqueue)  
+    pq.free_pqueue(&pqueue)  
 
     return path_lengths
 
 
-cpdef cnp.ndarray compute_stsp_pq_bd0(
+cpdef cnp.ndarray compute_stsp(
     cnp.uint32_t[::1] csc_indptr,
     cnp.uint32_t[::1] csc_indices,
     DTYPE_t[::1] csc_data,
@@ -101,7 +101,7 @@ cpdef cnp.ndarray compute_stsp_pq_bd0(
     cdef:
         size_t tail_vert_idx, head_vert_idx, idx
         DTYPE_t tail_vert_val, head_vert_val
-        pq_bd0.PriorityQueue pqueue
+        pq.PriorityQueue pqueue
         ElementState vert_state
         size_t target = <size_t>target_vert_idx
 
@@ -109,15 +109,15 @@ cpdef cnp.ndarray compute_stsp_pq_bd0(
 
         # initialization of the heap elements 
         # all nodes have INFINITY key and UNLABELED state
-        pq_bd0.init_pqueue(&pqueue, <size_t>vertex_count, <size_t>vertex_count)
+        pq.init_pqueue(&pqueue, <size_t>vertex_count, <size_t>vertex_count)
 
         # the key is set to zero for the target vertex,
         # which is inserted into the heap
-        pq_bd0.insert(&pqueue, target, 0.0)
+        pq.insert(&pqueue, target, 0.0)
 
         # main loop
         while pqueue.size > 0:
-            head_vert_idx = pq_bd0.extract_min(&pqueue)
+            head_vert_idx = pq.extract_min(&pqueue)
             head_vert_val = pqueue.Elements[head_vert_idx].key
 
             # loop on incoming edges
@@ -129,15 +129,15 @@ cpdef cnp.ndarray compute_stsp_pq_bd0(
                 if vert_state != SCANNED:
                     tail_vert_val = head_vert_val + csc_data[idx]
                     if vert_state == UNLABELED:
-                        pq_bd0.insert(&pqueue, tail_vert_idx, tail_vert_val)
+                        pq.insert(&pqueue, tail_vert_idx, tail_vert_val)
                     elif pqueue.Elements[tail_vert_idx].key > tail_vert_val:
-                        pq_bd0.decrease_key(&pqueue, tail_vert_idx, tail_vert_val)
+                        pq.decrease_key(&pqueue, tail_vert_idx, tail_vert_val)
 
     # copy the results into a numpy array
-    path_lengths = pq_bd0.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
+    path_lengths = pq.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
 
     # cleanup
-    pq_bd0.free_pqueue(&pqueue)  
+    pq.free_pqueue(&pqueue)  
 
     return path_lengths
 
@@ -203,93 +203,93 @@ cdef generate_braess_network_csc():
     return csc_indptr, csc_indices, csc_data
 
 
-cpdef compute_sssp_pq_bd0_01():
-    """ Compute SSSP with the compute_sssp_pq_bd0 routine on a single edge 
+cpdef compute_sssp_01():
+    """ Compute SSSP with the compute_sssp routine on a single edge 
         network.
     """
 
     csr_indptr, csr_indices, csr_data = generate_single_edge_network_csr()
 
     # from vertex 0
-    path_lengths = compute_sssp_pq_bd0(csr_indptr, csr_indices, csr_data, 0, 2)
+    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 0, 2)
     path_lengths_ref = np.array([0., 1.], dtype=DTYPE)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 1
-    path_lengths = compute_sssp_pq_bd0(csr_indptr, csr_indices, csr_data, 1, 2)
+    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 1, 2)
     path_lengths_ref = np.array([DTYPE_INF, 0.], dtype=DTYPE)
     assert np.allclose(path_lengths_ref, path_lengths)
 
 
-cpdef compute_stsp_pq_bd0_01():
-    """ Compute TSSP with the compute_stsp_pq_bd0 routine on a single edge 
+cpdef compute_stsp_01():
+    """ Compute TSSP with the compute_stsp routine on a single edge 
         network.
     """
 
     csc_indptr, csc_indices, csc_data = generate_single_edge_network_csc()
 
     # from vertex 0
-    path_lengths = compute_stsp_pq_bd0(csc_indptr, csc_indices, csc_data, 0, 2)
+    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 0, 2)
     path_lengths_ref = np.array([0., DTYPE_INF], dtype=DTYPE)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 1
-    path_lengths = compute_stsp_pq_bd0(csc_indptr, csc_indices, csc_data, 1, 2)
+    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 1, 2)
     path_lengths_ref = np.array([1., 0.], dtype=DTYPE)
     assert np.allclose(path_lengths_ref, path_lengths)
 
 
-cpdef compute_sssp_pq_bd0_02():
-    """ Compute SSSP with the compute_sssp_pq_bd0 routine on Braess-like 
+cpdef compute_sssp_02():
+    """ Compute SSSP with the compute_sssp routine on Braess-like 
         network.
     """
 
     csr_indptr, csr_indices, csr_data = generate_braess_network_csr()
 
     # from vertex 0
-    path_lengths = compute_sssp_pq_bd0(csr_indptr, csr_indices, csr_data, 0, 4)
+    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 0, 4)
     path_lengths_ref = np.array([0., 1., 1., 2.], dtype=DTYPE)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 1
-    path_lengths = compute_sssp_pq_bd0(csr_indptr, csr_indices, csr_data, 1, 4)
+    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 1, 4)
     path_lengths_ref = np.array([DTYPE_INF, 0., 0., 1.], dtype=DTYPE)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 2
-    path_lengths = compute_sssp_pq_bd0(csr_indptr, csr_indices, csr_data, 2, 4)
+    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 2, 4)
     path_lengths_ref = np.array([DTYPE_INF, DTYPE_INF, 0., 1.], dtype=DTYPE)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 3
-    path_lengths = compute_sssp_pq_bd0(csr_indptr, csr_indices, csr_data, 3, 4)
+    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 3, 4)
     path_lengths_ref = np.array([DTYPE_INF, DTYPE_INF, DTYPE_INF, 0.], dtype=DTYPE)
     assert np.allclose(path_lengths_ref, path_lengths)
 
 
-cpdef compute_stsp_pq_bd0_02():
-    """ Compute STSP with the compute_stsp_pq_bd0 routine on Braess-like 
+cpdef compute_stsp_02():
+    """ Compute STSP with the compute_stsp routine on Braess-like 
         network.
     """
 
     csc_indptr, csc_indices, csc_data = generate_braess_network_csc()
 
     # from vertex 0
-    path_lengths = compute_stsp_pq_bd0(csc_indptr, csc_indices, csc_data, 0, 4)
+    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 0, 4)
     path_lengths_ref = np.array([0., DTYPE_INF, DTYPE_INF, DTYPE_INF], dtype=DTYPE)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 1
-    path_lengths = compute_stsp_pq_bd0(csc_indptr, csc_indices, csc_data, 1, 4)
+    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 1, 4)
     path_lengths_ref = np.array([1., 0., DTYPE_INF, DTYPE_INF], dtype=DTYPE)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 2
-    path_lengths = compute_stsp_pq_bd0(csc_indptr, csc_indices, csc_data, 2, 4)
+    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 2, 4)
     path_lengths_ref = np.array([1., 0., 0., DTYPE_INF], dtype=DTYPE)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 3
-    path_lengths = compute_stsp_pq_bd0(csc_indptr, csc_indices, csc_data, 3, 4)
+    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 3, 4)
     path_lengths_ref = np.array([2., 1.0, 1., 0.], dtype=DTYPE)
     assert np.allclose(path_lengths_ref, path_lengths)
