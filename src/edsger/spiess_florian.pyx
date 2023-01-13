@@ -20,8 +20,8 @@ cimport edsger.pq_bin_dec_0b as pq  # priority queue
 cdef void compute_SF(
     cnp.uint32_t[::1] csc_indptr,
     cnp.uint32_t[::1] csc_indices,
-    DTYPE_t[::1] csc_trav_time,
-    DTYPE_t[::1] csc_freq,
+    # DTYPE_t[::1] csc_trav_time,
+    # DTYPE_t[::1] csc_freq,
     cnp.uint32_t[::1] tail_indices,
     int target_vert_idx,
     int vertex_count,
@@ -52,18 +52,18 @@ cdef void compute_SF(
     # ===== #
 
     # initialize c_a and f_a
-    for i in range(<size_t>edge_count):
+    # for i in range(<size_t>edge_count):
 
-        c_a[i] = csc_trav_time[i]
+    #     c_a[i] = csc_trav_time[i]
 
-        # replace infinite values with very large finite values
-        if (freq[i] > INFFREQ):
-            f_a[i] = INFFREQ
-        # replace zeros with very small values
-        elif (freq[i] < MINFREQ):
-            f_a[i] = MINFREQ
-        else:
-            f_a[i] = freq[i]
+    #     # replace infinite values with very large finite values
+    #     if (freq[i] > INFFREQ):
+    #         f_a[i] = INFFREQ
+    #     # replace zeros with very small values
+    #     elif (freq[i] < MINFREQ):
+    #         f_a[i] = MINFREQ
+    #     else:
+    #         f_a[i] = freq[i]
 
     # first pass #
     #------------#
