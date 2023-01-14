@@ -17,18 +17,18 @@ from edsger.commons cimport (
 cimport edsger.pq_bin_dec_0b as pq  # priority queue
 
 
-cpdef void coo_tocsc_SF(
+cpdef void coo_tocsc_uint32(
     cnp.uint32_t [::1] Ai,
     cnp.uint32_t [::1] Aj,
-    cnp.unint32_t[::1] Ai1,
-    cnp.float64_t[::1] Ax1,
-    cnp.float64_t[::1] Ax2,    
+    cnp.uint32_t [::1] Ax,    
     cnp.uint32_t [::1] Bp,
     cnp.uint32_t [::1] Bi,
-    cnp.unint32_t[::1] Bi1,
-    cnp.float64_t[::1] Bx1
-    cnp.float64_t[::1] Bx2, 
+    cnp.uint32_t [::1] Bx,
     ) nogil:
+    """
+
+        Data vector is of unint32 type.
+    """
 
     cdef:
         size_t i, col, dest
@@ -50,9 +50,7 @@ cpdef void coo_tocsc_SF(
         col  = <size_t>Aj[i]
         dest = <size_t>Bp[col]
         Bi[dest] = Ai[i]
-        Bi1[dest] = Ai1[i]        
-        Bx1[dest] = Ax1[i]
-        Bx2[dest] = Ax2[i]
+        Bx[dest] = Ax[i] 
         Bp[col] += 1
 
     last = 0
@@ -62,13 +60,12 @@ cpdef void coo_tocsc_SF(
         last = temp
 
 
-
 cdef void compute_SF(
-    cnp.uint32_t[::1] csc_indptr,    # Bp,
-    cnp.uint32_t[::1] csc_indices,   # Bi,
-    cnp.uint32_t[::1] csc_edge_idx,  # Bi1,
-    DTYPE_t[::1] csc_c_a,            # Bx1
-    DTYPE_t[::1] csc_d_a,            # Bx2,
+    cnp.uint32_t[::1] csc_indptr,    # Bp
+    cnp.uint32_t[::1] csc_indices,   # Bi
+    cnp.uint32_t[::1] csc_edge_idx,  # Bx
+    DTYPE_t[::1] c_a,
+    DTYPE_t[::1] f_a,
     cnp.uint32_t[::1] tail_indices,
     int target_vert_idx,
     int vertex_count,
