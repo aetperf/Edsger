@@ -1,10 +1,64 @@
 """ Path-related methods.
 """
 
+import numpy as np
+import pandas as pd
+
+
 class HyperpathGenerating:
-	def __init__(self, edges_df, tail="tail", head="head", trav_time="trav_time", freq="freq"):
+    def __init__(
+        self,
+        edges_df,
+        tail="tail",
+        head="head",
+        trav_time="trav_time",
+        freq="freq",
+        check_edges=False,
+        algo="SF",
+    ):
 
+        # load the edges
+        if check_edges:
+            self._check_edges(edges_df, tail, head, trav_time, freq)
+        self._edges = edges_df.copy(deep=True)
 
+        # remove inf values in any
+        for col in [trav_time, freq]:
+            self._edges[col] = np.where(
+                np.isinf(self._edges[col]), DTYPE_INF_PY, self._edges[col]
+            )
+
+    def _check_edges(self, edges_df, tail, head, trav_time, freq):
+
+        if type(edges_df) != pd.core.frame.DataFrame:
+            raise TypeError("edges_df should be a pandas DataFrame")
+
+        for col in [tail, head, trav_time, freq]:
+            if col not in edges_df:
+                raise KeyError(
+                    f"edge column '{col}' not found in graph edges dataframe"
+                )
+
+        if edges_df[[tail, head, trav_time, freq]].isna().any().any():
+            raise ValueError(
+                " ".join(
+                    [
+                        f"edges_df[[{tail}, {head}, {trav_time}, {freq}]] ",
+                        "should not have any missing value",
+                    ]
+                )
+            )
+
+        for col in [tail, head]:
+            if not pd.api.types.is_integer_dtype(edges_df[col].dtype):
+                raise TypeError(f"column '{col}' should be of integer type")
+
+        for col in [trav_time, freq]:
+            if not pd.api.types.is_numeric_dtype(edges_df[col].dtype):
+                raise TypeError(f"column '{col}' should be of numeric type")
+
+            if edges_df[col].min() < 0.0:
+                raise ValueError(f"column '{col}' should be nonnegative")
 
 
 # class ShortestPath:
@@ -112,11 +166,6 @@ class HyperpathGenerating:
 #         if not np.isfinite(edges_df[weight]).all():
 #             raise ValueError(f"edges_df['{weight}'] should be finite")
 
-#         # the graph must be a simple directed graphs
-#         if edges_df.duplicated(subset=[source, target]).any():
-#             raise ValueError("there should be no parallel edges in the graph")
-#         if (edges_df[source] == edges_df[target]).any():
-#             raise ValueError("there should be no loop in the graph")
 
 #     def _permute_graph(self, source, target):
 #         """Create a vertex table and reindex the vertices."""
