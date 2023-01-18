@@ -6,6 +6,7 @@ import pandas as pd
 
 from edsger.commons import DTYPE_INF_PY
 from edsger.networks import create_Spiess_network
+from edsger.star import coo_tocsr_uint32, coo_tocsc_uint32
 
 
 class HyperpathGenerating:
@@ -18,18 +19,42 @@ class HyperpathGenerating:
         freq="freq",
         check_edges=False,
         algo="SF",
+        orientation="many-to-one",
     ):
 
         # load the edges
         if check_edges:
             self._check_edges(edges_df, tail, head, trav_time, freq)
-        self._edges = edges_df.copy(deep=True)
+        self._edges = edges_df[[tail, head, trav_time, freq]].copy(deep=True)
 
         # remove inf values if any
         for col in [trav_time, freq]:
             self._edges[col] = np.where(
                 np.isinf(self._edges[col]), DTYPE_INF_PY, self._edges[col]
             )
+
+        # create an edge index column
+        self._edges = self._edges.reset_index(drop=True)
+        self._edges["edge_idx"] = self._edges.index
+
+        # convert to CSR/CSC format
+        assert orientation in ["one-to-many", "many-to-one"]
+        self._orientation = orientation
+        # if self._orientation == "one-to-many":
+        #     fs_indptr, fs_indices, fs_data = coo_tocsr_uint32(
+        #         self._edges, source, target, weight, self.n_vertices, self.n_edges
+        #     )
+        #     self._indices = fs_indices.astype(np.uint32)
+        #     self._indptr = fs_indptr.astype(np.uint32)
+        #     self._edge_weights = fs_data.astype(DTYPE_PY)
+        # else:
+        #     rs_indptr, rs_indices, rs_data = coo_tocsc_uint32(
+        #         self._edges, source, target, weight, self.n_vertices, self.n_edges
+        #     )
+        #     self._indices = rs_indices.astype(np.uint32)
+        #     self._indptr = rs_indptr.astype(np.uint32)
+        #     self._edge_weights = rs_data.astype(DTYPE_PY)
+        #     raise NotImplementedError("one-to_all shortest path not implemented yet")
 
     def _check_edges(self, edges_df, tail, head, trav_time, freq):
 
