@@ -26,6 +26,12 @@ extensions = [
         extra_compile_args=extra_compile_args,
         define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
     ),
+    Extension(
+        "edsger.star",
+        ["src/edsger/star.pyx"],
+        extra_compile_args=extra_compile_args,
+        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+    ),
 ]
 
 with open("requirements.txt") as fp:
