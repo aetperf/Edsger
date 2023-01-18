@@ -8,11 +8,9 @@ import pandas as pd
 def create_Spiess_network(
     dwell_time=5.0, a_very_small_time_interval=1.0e-06, board_alight_ratio=0.5
 ):
-    """Example network from Heinz Spiess, Michael Florian,
-    Optimal strategies: A new assignment model for transit networks,
-    Transportation Research Part B: Methodological,
-    Volume 23, Issue 2, 1989, Pages 83-102, ISSN 0191-2615,
-    https://doi.org/10.1016/0191-2615(89)90034-9.
+    """Example network from Spiess, H. and Florian, M. (1989). 
+    Optimal strategies: A new assignment model for transit networks. 
+    Transportation Research Part B 23(2), 83-102.
 
     This network has 13 vertices and 24 edges.
     """
