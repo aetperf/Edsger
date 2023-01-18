@@ -6,7 +6,7 @@ import pandas as pd
 
 from edsger.commons import DTYPE_INF_PY
 from edsger.networks import create_Spiess_network
-from edsger.star import coo_tocsr_uint32, coo_tocsc_uint32
+from edsger.star import convert_graph_to_csr_uint32, convert_graph_to_csc_uint32
 
 
 class HyperpathGenerating:
@@ -26,6 +26,7 @@ class HyperpathGenerating:
         if check_edges:
             self._check_edges(edges_df, tail, head, trav_time, freq)
         self._edges = edges_df[[tail, head, trav_time, freq]].copy(deep=True)
+        self.edge_count = len(self._edges)
 
         # remove inf values if any
         for col in [trav_time, freq]:
@@ -35,26 +36,30 @@ class HyperpathGenerating:
 
         # create an edge index column
         self._edges = self._edges.reset_index(drop=True)
-        self._edges["edge_idx"] = self._edges.index
+        data_col = "edge_idx"
+        self._edges[data_col] = self._edges.index
 
         # convert to CSR/CSC format
+        self.vertex_count = self._edges[[tail, head]].max().max() + 1
         assert orientation in ["one-to-many", "many-to-one"]
         self._orientation = orientation
-        # if self._orientation == "one-to-many":
-        #     fs_indptr, fs_indices, fs_data = coo_tocsr_uint32(
-        #         self._edges, source, target, weight, self.n_vertices, self.n_edges
-        #     )
-        #     self._indices = fs_indices.astype(np.uint32)
-        #     self._indptr = fs_indptr.astype(np.uint32)
-        #     self._edge_weights = fs_data.astype(DTYPE_PY)
-        # else:
-        #     rs_indptr, rs_indices, rs_data = coo_tocsc_uint32(
-        #         self._edges, source, target, weight, self.n_vertices, self.n_edges
-        #     )
-        #     self._indices = rs_indices.astype(np.uint32)
-        #     self._indptr = rs_indptr.astype(np.uint32)
-        #     self._edge_weights = rs_data.astype(DTYPE_PY)
-        #     raise NotImplementedError("one-to_all shortest path not implemented yet")
+        if self._orientation == "one-to-many":
+            fs_indptr, fs_indices, fs_data = convert_graph_to_csr_uint32(
+                self._edges, tail, head, data_col, self.vertex_count, self.edge_count
+            )
+            self._indices = fs_indices.astype(np.uint32)
+            self._indptr = fs_indptr.astype(np.uint32)
+            self._edge_idx = fs_data.astype(np.uint32)
+            raise NotImplementedError(
+                "one-to-many Spiess & Florian's algorithm not implemented yet"
+            )
+        else:
+            rs_indptr, rs_indices, rs_data = convert_graph_to_csc_uint32(
+                self._edges, tail, head, data_col, self.vertex_count, self.edge_count
+            )
+            self._indices = rs_indices.astype(np.uint32)
+            self._indptr = rs_indptr.astype(np.uint32)
+            self._edge_idx = rs_data.astype(np.uint32)
 
     def _check_edges(self, edges_df, tail, head, trav_time, freq):
 

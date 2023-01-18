@@ -1,10 +1,31 @@
 """ Forward and reverse star representations of networks.
 """
 
+import numpy as np
 cimport numpy as cnp
 
 
-cpdef void coo_tocsr_uint32(
+cpdef convert_graph_to_csr_uint32(edges_df, head, tail, data, vertex_count, edge_count):
+
+    fs_indptr = np.zeros(
+        vertex_count + 1, dtype=np.uint32
+    )  # make sure it is filled with zeros
+    fs_indices = np.empty(edge_count, dtype=np.uint32)
+    fs_data = np.empty(edge_count, dtype=np.uint32)
+
+    coo_tocsr_uint32(
+        edges_df[tail].values.astype(np.uint32),
+        edges_df[head].values.astype(np.uint32),
+        edges_df[data].values.astype(np.uint32),
+        fs_indptr,
+        fs_indices,
+        fs_data,
+    )
+
+    return fs_indptr, fs_indices, fs_data
+
+
+cdef void coo_tocsr_uint32(
     cnp.uint32_t [::1] Ai,
     cnp.uint32_t [::1] Aj,
     cnp.uint32_t [::1] Ax,
@@ -46,7 +67,27 @@ cpdef void coo_tocsr_uint32(
         last = temp
 
 
-cpdef void coo_tocsc_uint32(
+cpdef convert_graph_to_csc_uint32(edges_df, tail, head, data, vertex_count, edge_count):
+
+    rs_indptr = np.zeros(
+        vertex_count + 1, dtype=np.uint32
+    )  # make sure it is filled with zeros
+    rs_indices = np.empty(edge_count, dtype=np.uint32)
+    rs_data = np.empty(edge_count, dtype=np.uint32)
+
+    coo_tocsc_uint32(
+        edges_df[tail].values.astype(np.uint32),
+        edges_df[head].values.astype(np.uint32),
+        edges_df[data].values.astype(np.uint32),
+        rs_indptr,
+        rs_indices,
+        rs_data,
+    )
+
+    return rs_indptr, rs_indices, rs_data
+
+
+cdef void coo_tocsc_uint32(
     cnp.uint32_t [::1] Ai,
     cnp.uint32_t [::1] Aj,
     cnp.uint32_t [::1] Ax,   
