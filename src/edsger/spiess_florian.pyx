@@ -17,47 +17,6 @@ from edsger.commons cimport (
 cimport edsger.pq_bin_dec_0b as pq  # priority queue
 
 
-cpdef void coo_tocsc_uint32(
-    cnp.uint32_t [::1] Ai,
-    cnp.uint32_t [::1] Aj,
-    cnp.uint32_t [::1] Ax,    
-    cnp.uint32_t [::1] Bp,
-    cnp.uint32_t [::1] Bi,
-    cnp.uint32_t [::1] Bx,
-    ) nogil:
-    """
-
-        Data vector is of unint32 type.
-    """
-
-    cdef:
-        size_t i, col, dest
-        size_t n_vert = <size_t>(Bp.shape[0] - 1)
-        size_t n_edge = <size_t>Bi.shape[0]
-        cnp.uint32_t temp, cumsum, last
-
-    for i in range(n_edge):
-        Bp[<size_t>Aj[i]] += 1
-
-    cumsum = 0
-    for i in range(n_vert):
-        temp = Bp[i]
-        Bp[i] = cumsum
-        cumsum += temp
-    Bp[<size_t>n_vert] = <cnp.uint32_t>n_edge 
-
-    for i in range(n_edge):
-        col  = <size_t>Aj[i]
-        dest = <size_t>Bp[col]
-        Bi[dest] = Ai[i]
-        Bx[dest] = Ax[i] 
-        Bp[col] += 1
-
-    last = 0
-    for i in range(n_vert + 1):
-        temp = Bp[i]
-        Bp[i] = last
-        last = temp
 
 
 cdef void compute_SF(
