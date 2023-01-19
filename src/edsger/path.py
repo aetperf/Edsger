@@ -1,4 +1,5 @@
-""" Path-related methods.
+""" 
+Path-related methods.
 """
 
 import numpy as np
@@ -61,6 +62,30 @@ class HyperpathGenerating:
             self._indptr = rs_indptr.astype(np.uint32)
             self._edge_idx = rs_data.astype(np.uint32)
 
+        # edge attributes
+        self._trav_time = self._edges[trav_time].values
+        self._freq = self._edges[freq].values
+
+    def run(self, origin, destination, return_inf=False, heap_length_ratio=1.0):
+
+        if self._orientation == "one-to-many":
+            _check_vertex_idx(origin)
+            if type(destination) is not list:
+                destination = [destination]
+            for item in destination:
+                _check_vertex_idx(item)
+        elif self._orientation == "many-to_one":
+            if type(origin) is not list:
+                origin = [origin]
+            for item in origin:
+                _check_vertex_idx(item)
+            _check_vertex_idx(destination)
+
+    def _check_vertex_idx(idx):
+        assert isinstance(idx, int)
+        assert idx >= 0
+        assert idx < self.vertex_count
+
     def _check_edges(self, edges, tail, head, trav_time, freq):
 
         if type(edges) != pd.core.frame.DataFrame:
@@ -99,6 +124,7 @@ if __name__ == "__main__":
     edges = create_Spiess_network()
     hp = HyperpathGenerating(edges, check_edges=True)
     print(hp._edges)
+    hp.run(origin=0, destination=12)
     print("done")
 
 
