@@ -12,7 +12,7 @@ from edsger.star import convert_graph_to_csr_uint32, convert_graph_to_csc_uint32
 class HyperpathGenerating:
     def __init__(
         self,
-        edges_df,
+        edges,
         tail="tail",
         head="head",
         trav_time="trav_time",
@@ -24,8 +24,8 @@ class HyperpathGenerating:
 
         # load the edges
         if check_edges:
-            self._check_edges(edges_df, tail, head, trav_time, freq)
-        self._edges = edges_df[[tail, head, trav_time, freq]].copy(deep=True)
+            self._check_edges(edges, tail, head, trav_time, freq)
+        self._edges = edges[[tail, head, trav_time, freq]].copy(deep=True)
         self.edge_count = len(self._edges)
 
         # remove inf values if any
@@ -45,7 +45,7 @@ class HyperpathGenerating:
         self._orientation = orientation
         if self._orientation == "one-to-many":
             fs_indptr, fs_indices, fs_data = convert_graph_to_csr_uint32(
-                self._edges, tail, head, data_col, self.vertex_count, self.edge_count
+                self._edges, tail, head, data_col, self.vertex_count
             )
             self._indices = fs_indices.astype(np.uint32)
             self._indptr = fs_indptr.astype(np.uint32)
@@ -55,49 +55,49 @@ class HyperpathGenerating:
             )
         else:
             rs_indptr, rs_indices, rs_data = convert_graph_to_csc_uint32(
-                self._edges, tail, head, data_col, self.vertex_count, self.edge_count
+                self._edges, tail, head, data_col, self.vertex_count
             )
             self._indices = rs_indices.astype(np.uint32)
             self._indptr = rs_indptr.astype(np.uint32)
             self._edge_idx = rs_data.astype(np.uint32)
 
-    def _check_edges(self, edges_df, tail, head, trav_time, freq):
+    def _check_edges(self, edges, tail, head, trav_time, freq):
 
-        if type(edges_df) != pd.core.frame.DataFrame:
-            raise TypeError("edges_df should be a pandas DataFrame")
+        if type(edges) != pd.core.frame.DataFrame:
+            raise TypeError("edges should be a pandas DataFrame")
 
         for col in [tail, head, trav_time, freq]:
-            if col not in edges_df:
+            if col not in edges:
                 raise KeyError(
                     f"edge column '{col}' not found in graph edges dataframe"
                 )
 
-        if edges_df[[tail, head, trav_time, freq]].isna().any().any():
+        if edges[[tail, head, trav_time, freq]].isna().any().any():
             raise ValueError(
                 " ".join(
                     [
-                        f"edges_df[[{tail}, {head}, {trav_time}, {freq}]] ",
+                        f"edges[[{tail}, {head}, {trav_time}, {freq}]] ",
                         "should not have any missing value",
                     ]
                 )
             )
 
         for col in [tail, head]:
-            if not pd.api.types.is_integer_dtype(edges_df[col].dtype):
+            if not pd.api.types.is_integer_dtype(edges[col].dtype):
                 raise TypeError(f"column '{col}' should be of integer type")
 
         for col in [trav_time, freq]:
-            if not pd.api.types.is_numeric_dtype(edges_df[col].dtype):
+            if not pd.api.types.is_numeric_dtype(edges[col].dtype):
                 raise TypeError(f"column '{col}' should be of numeric type")
 
-            if edges_df[col].min() < 0.0:
+            if edges[col].min() < 0.0:
                 raise ValueError(f"column '{col}' should be nonnegative")
 
 
 if __name__ == "__main__":
 
-    edges_df = create_Spiess_network()
-    hp = HyperpathGenerating(edges_df, check_edges=True)
+    edges = create_Spiess_network()
+    hp = HyperpathGenerating(edges, check_edges=True)
     print(hp._edges)
     print("done")
 
