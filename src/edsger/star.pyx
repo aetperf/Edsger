@@ -1,22 +1,46 @@
-""" Forward and reverse star representations of networks.
+"""
+Forward and reverse star representations of networks.
 """
 
 import numpy as np
 cimport numpy as cnp
 
 
-cpdef convert_graph_to_csr_uint32(edges_df, head, tail, data, vertex_count, edge_count):
+cpdef convert_graph_to_csr_uint32(edges, tail, head, data, vertex_count):
+    """
+    Convert an edge dataframe in COO format into CSR format.
+
+    The data vector is of uint32 type.
+
+    Parameters
+    ----------
+    edges : pandas.core.frame.DataFrame
+        The edges dataframe.
+    tail : str
+        The column name in the edges dataframe for the tail vertex index.
+    head : str
+        The column name in the edges dataframe for the head vertex index.
+    data : str
+        The column name in the edges dataframe for the int edge attribute.
+    vertex_count : int
+        The vertex count in the given network edges.
+
+    Returns
+    -------
+    tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]
+    """
 
     fs_indptr = np.zeros(
         vertex_count + 1, dtype=np.uint32
     )  # make sure it is filled with zeros
+    edge_count = len(edges)
     fs_indices = np.empty(edge_count, dtype=np.uint32)
     fs_data = np.empty(edge_count, dtype=np.uint32)
 
-    coo_tocsr_uint32(
-        edges_df[tail].values.astype(np.uint32),
-        edges_df[head].values.astype(np.uint32),
-        edges_df[data].values.astype(np.uint32),
+    _coo_tocsr_uint32(
+        edges[tail].values.astype(np.uint32),
+        edges[head].values.astype(np.uint32),
+        edges[data].values.astype(np.uint32),
         fs_indptr,
         fs_indices,
         fs_data,
@@ -25,17 +49,142 @@ cpdef convert_graph_to_csr_uint32(edges_df, head, tail, data, vertex_count, edge
     return fs_indptr, fs_indices, fs_data
 
 
-cdef void coo_tocsr_uint32(
+cpdef convert_graph_to_csc_uint32(edges, tail, head, data, vertex_count):
+    """
+    Convert an edge dataframe in COO format into CSC format.
+
+    The data vector is of uint32 type.
+
+    Parameters
+    ----------
+    edges : pandas.core.frame.DataFrame
+        The edges dataframe.
+    tail : str
+        The column name in the edges dataframe for the tail vertex index.
+    head : str
+        The column name in the edges dataframe for the head vertex index.
+    data : str
+        The column name in the edges dataframe for the int edge attribute.
+    vertex_count : int
+        The vertex count in the given network edges.
+
+    Returns
+    -------
+    tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]
+    """
+
+    rs_indptr = np.zeros(
+        vertex_count + 1, dtype=np.uint32
+    )  # make sure it is filled with zeros
+    edge_count = len(edges)
+    rs_indices = np.empty(edge_count, dtype=np.uint32)
+    rs_data = np.empty(edge_count, dtype=np.uint32)
+
+    _coo_tocsc_uint32(
+        edges[tail].values.astype(np.uint32),
+        edges[head].values.astype(np.uint32),
+        edges[data].values.astype(np.uint32),
+        rs_indptr,
+        rs_indices,
+        rs_data,
+    )
+
+    return rs_indptr, rs_indices, rs_data
+
+
+cpdef convert_graph_to_csr_float64(edges, tail, head, data, vertex_count):
+    """
+    Convert an edge dataframe in COO format into CSR format.
+
+    The data vector is of float64 type.
+
+    Parameters
+    ----------
+    edges : pandas.core.frame.DataFrame
+        The edges dataframe.
+    tail : str
+        The column name in the edges dataframe for the tail vertex index.
+    head : str
+        The column name in the edges dataframe for the head vertex index.
+    data : str
+        The column name in the edges dataframe for the real edge attribute.
+    vertex_count : int
+        The vertex count in the given network edges.
+
+    Returns
+    -------
+    tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]
+    """
+
+    fs_indptr = np.zeros(
+        vertex_count + 1, dtype=np.uint32
+    )  # make sure it is filled with zeros
+    edge_count = len(edges)
+    fs_indices = np.empty(edge_count, dtype=np.uint32)
+    fs_data = np.empty(edge_count, dtype=np.float64)
+
+    _coo_tocsr_float64(
+        edges[tail].values.astype(np.uint32),
+        edges[head].values.astype(np.uint32),
+        edges[data].values.astype(np.float64),
+        fs_indptr,
+        fs_indices,
+        fs_data,
+    )
+
+    return fs_indptr, fs_indices, fs_data
+
+
+cpdef convert_graph_to_csc_float64(edges, tail, head, data, vertex_count):
+    """
+    Convert an edge dataframe in COO format into CSC format.
+
+    The data vector is of float64 type.
+
+    Parameters
+    ----------
+    edges : pandas.core.frame.DataFrame
+        The edges dataframe.
+    tail : str
+        The column name in the edges dataframe for the tail vertex index.
+    head : str
+        The column name in the edges dataframe for the head vertex index.
+    data : str
+        The column name in the edges dataframe for the real edge attribute.
+    vertex_count : int
+        The vertex count in the given network edges.
+
+    Returns
+    -------
+    tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]
+    """
+
+    rs_indptr = np.zeros(
+        vertex_count + 1, dtype=np.uint32
+    )  # make sure it is filled with zeros
+    edge_count = len(edges)
+    rs_indices = np.empty(edge_count, dtype=np.uint32)
+    rs_data = np.empty(edge_count, dtype=np.float64)
+
+    _coo_tocsc_float64(
+        edges[tail].values.astype(np.uint32),
+        edges[head].values.astype(np.uint32),
+        edges[data].values.astype(np.float64),
+        rs_indptr,
+        rs_indices,
+        rs_data,
+    )
+
+    return rs_indptr, rs_indices, rs_data
+
+
+cdef void _coo_tocsr_uint32(
     cnp.uint32_t [::1] Ai,
     cnp.uint32_t [::1] Aj,
     cnp.uint32_t [::1] Ax,
     cnp.uint32_t [::1] Bp,
     cnp.uint32_t [::1] Bj,
     cnp.uint32_t [::1] Bx) nogil:    
-    """ Convert to Forward star representation : COO to CSR sparse format.
-
-        Data vector is of uint32 type.
-    """
 
     cdef:
         size_t i, row, dest
@@ -67,37 +216,13 @@ cdef void coo_tocsr_uint32(
         last = temp
 
 
-cpdef convert_graph_to_csc_uint32(edges_df, tail, head, data, vertex_count, edge_count):
-
-    rs_indptr = np.zeros(
-        vertex_count + 1, dtype=np.uint32
-    )  # make sure it is filled with zeros
-    rs_indices = np.empty(edge_count, dtype=np.uint32)
-    rs_data = np.empty(edge_count, dtype=np.uint32)
-
-    coo_tocsc_uint32(
-        edges_df[tail].values.astype(np.uint32),
-        edges_df[head].values.astype(np.uint32),
-        edges_df[data].values.astype(np.uint32),
-        rs_indptr,
-        rs_indices,
-        rs_data,
-    )
-
-    return rs_indptr, rs_indices, rs_data
-
-
-cdef void coo_tocsc_uint32(
+cdef void _coo_tocsc_uint32(
     cnp.uint32_t [::1] Ai,
     cnp.uint32_t [::1] Aj,
     cnp.uint32_t [::1] Ax,   
     cnp.uint32_t [::1] Bp,
     cnp.uint32_t [::1] Bi,
     cnp.uint32_t [::1] Bx) nogil:
-    """ Convert to Reverse star representation : COO to CSC sparse format.
-
-        Data vector is of uint32 type.
-    """
 
     cdef:
         size_t i, col, dest
@@ -129,17 +254,13 @@ cdef void coo_tocsc_uint32(
         last = temp
 
 
-cpdef void coo_tocsr_float64(
-    cnp.uint32_t [::1] Ai,
-    cnp.uint32_t [::1] Aj,
-    cnp.float64_t[::1] Ax,
-    cnp.uint32_t [::1] Bp,
-    cnp.uint32_t [::1] Bj,
-    cnp.float64_t[::1] Bx) nogil:
-    """ Convert to Forward star representation : COO to CSR sparse format.
-
-        Data vector is of float64 type.
-    """
+cpdef void _coo_tocsr_float64(
+    cnp.uint32_t  [::1] Ai,
+    cnp.uint32_t  [::1] Aj,
+    cnp.float64_t [::1] Ax,
+    cnp.uint32_t  [::1] Bp,
+    cnp.uint32_t  [::1] Bj,
+    cnp.float64_t [::1] Bx) nogil:
 
     cdef:
         size_t i, row, dest
@@ -171,17 +292,13 @@ cpdef void coo_tocsr_float64(
         last = temp
 
 
-cpdef void coo_tocsc_float64(
-    cnp.uint32_t [::1] Ai,
-    cnp.uint32_t [::1] Aj,
-    cnp.float64_t[::1] Ax,
-    cnp.uint32_t [::1] Bp,
-    cnp.uint32_t [::1] Bi,
-    cnp.float64_t[::1] Bx) nogil:
-    """ Convert to Reverse star representation : COO to CSC sparse format.
-
-        Data vector is of float64 type.
-    """
+cpdef void _coo_tocsc_float64(
+    cnp.uint32_t  [::1] Ai,
+    cnp.uint32_t  [::1] Aj,
+    cnp.float64_t [::1] Ax,
+    cnp.uint32_t  [::1] Bp,
+    cnp.uint32_t  [::1] Bi,
+    cnp.float64_t [::1] Bx) nogil:
 
     cdef:
         size_t i, col, dest
