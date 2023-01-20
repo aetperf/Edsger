@@ -1,6 +1,5 @@
-""" Common definitions.
-
-   header file
+""" 
+Common definitions.
 
 author : Francois Pacull
 copyright : Architecture & Performance
@@ -10,7 +9,6 @@ license : MIT
 
 cimport numpy as cnp
 
-cdef DTYPE
 ctypedef cnp.float64_t DTYPE_t
 cdef DTYPE_t DTYPE_INF
 

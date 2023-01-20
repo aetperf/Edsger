@@ -1,6 +1,5 @@
-""" Common definitions.
-
-   header file
+""" 
+Common definitions.
 
 author : Francois Pacull
 copyright : Architecture & Performance
@@ -10,6 +9,6 @@ license : MIT
 
 import numpy as np
 
-DTYPE = np.float64
-DTYPE_INF = <DTYPE_t>np.finfo(dtype=DTYPE).max
+DTYPE_PY = np.float64
+DTYPE_INF = <DTYPE_t>np.finfo(dtype=DTYPE_PY).max
 DTYPE_INF_PY = DTYPE_INF
