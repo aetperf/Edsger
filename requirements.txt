@@ -1,3 +1,7 @@
 # Runtime requirements
+importlib-metadata; python_version<"3.8"
+setuptools
 numpy
 Cython
+pandas
+loguru
