@@ -9,50 +9,53 @@ email: francois.pacull@architecture-performance.fr
 license : MIT
 """
 
-import nuympy as np
+import numpy as np
 cimport numpy as cnp
 
+from edsger.commons import DTYPE_PY
 from edsger.commons cimport (
-    DTYPE_INF, UNLABELED, SCANNED, DTYPE, DTYPE_t, ElementState)
+    DTYPE_INF, UNLABELED, SCANNED, DTYPE_t, ElementState)
 cimport edsger.pq_bin_dec_0b as pq  # priority queue
 
 
 
 
-cdef void compute_SF(
+cpdef void compute_SF_in(
     cnp.uint32_t[::1] csc_indptr,    # Bp
     cnp.uint32_t[::1] csc_indices,   # Bi
     cnp.uint32_t[::1] csc_edge_idx,  # Bx
     DTYPE_t[::1] c_a,
     DTYPE_t[::1] f_a,
     cnp.uint32_t[::1] tail_indices,
-    int target_vert_idx,
-    int vertex_count,
-    int edge_count
+    # int target_vert_idx,
+    # int vertex_count,
+    # int edge_count
 ):
 
-    cdef:
-        # vertex properties
-        np.ndarray u_i = np.zeros(vertex_count, dtype=DTYPE)  # vertex least travel time
-        np.ndarray f_i = np.zeros(vertex_count, dtype=DTYPE)  # vertex frequency (inverse of the maximum delay)
-        # np.ndarray v_i = np.zeros(vertex_count, dtype=DTYPE)  # vertex volume
-        # edge properties
-        np.ndarray c_a = np.zeros(edge_count, dtype=DTYPE)    # uncongested edge travel time
-        np.ndarray f_a = np.zeros(edge_count, dtype=DTYPE)    # edge frequency (inverse of the maximum delay)
-        np.ndarray h_a = np.zeros(edge_count, dtype=bint)     # edge belonging to hyperpath
+    # cdef:
+    #     # vertex properties
+    #     np.ndarray u_i = np.zeros(vertex_count, dtype=DTYPE)  # vertex least travel time
+    #     np.ndarray f_i = np.zeros(vertex_count, dtype=DTYPE)  # vertex frequency (inverse of the maximum delay)
+    #     # np.ndarray v_i = np.zeros(vertex_count, dtype=DTYPE)  # vertex volume
+    #     # edge properties
+    #     np.ndarray c_a = np.zeros(edge_count, dtype=DTYPE)    # uncongested edge travel time
+    #     np.ndarray f_a = np.zeros(edge_count, dtype=DTYPE)    # edge frequency (inverse of the maximum delay)
+    #     np.ndarray h_a = np.zeros(edge_count, dtype=bint)     # edge belonging to hyperpath
 
-        size_t target = <size_t>target_vert_idx
-        pq.PriorityQueue pqueue
-        DTYPE_t ujpca, ujpca_new  # u_j + c_a
-        DTYPE_t ui, fi, fa, beta
-        size_t min_edge_idx
-        size_t tail_vert_index
-        size_t edge_idx
-        ElementState edge_state
-        DTYPE_t edge_val
+    #     size_t target = <size_t>target_vert_idx
+    #     pq.PriorityQueue pqueue
+    #     DTYPE_t ujpca, ujpca_new  # u_j + c_a
+    #     DTYPE_t ui, fi, fa, beta
+    #     size_t min_edge_idx
+    #     size_t tail_vert_index
+    #     size_t edge_idx
+    #     ElementState edge_state
+    #     DTYPE_t edge_val
 
     # setup #
     # ===== #
+    _ = 0
+
 
     # initialize c_a and f_a
     # for i in range(<size_t>edge_count):
@@ -71,61 +74,61 @@ cdef void compute_SF(
     # first pass #
     #------------#
 
-    # initialization of the heap elements 
-    # all nodes have INFINITY key and UNLABELED state
-    pq.init_pqueue(&pqueue, <size_t>edge_count, <size_t>edge_count)
+    # # initialization of the heap elements 
+    # # all nodes have INFINITY key and UNLABELED state
+    # pq.init_pqueue(&pqueue, <size_t>edge_count, <size_t>edge_count)
 
-    # only the incoming edges of the target vertex are inserted into the 
-    # priority queue
-    for edge_idx in range(<size_t>csc_indptr[<size_t>target_vert_idx], 
-        <size_t>csc_indptr[<size_t>(target_vert_idx + 1)]):
-        pq.insert(&pqueue, edge_idx, c_a[edge_idx])
+    # # only the incoming edges of the target vertex are inserted into the 
+    # # priority queue
+    # for edge_idx in range(<size_t>csc_indptr[<size_t>target_vert_idx], 
+    #     <size_t>csc_indptr[<size_t>(target_vert_idx + 1)]):
+    #     pq.insert(&pqueue, edge_idx, c_a[edge_idx])
 
-    # first pass
-    while pqueue.size > 0:
+    # # first pass
+    # while pqueue.size > 0:
 
-        min_edge_idx = pq.extract_min(&pqueue)
-        ujpca = pqueue.Elements[min_edge_idx].key
-        tail_vert_index = <size_t>tail_indices[min_edge_idx]
-        ui = u_i[tail_vert_index]
+    #     min_edge_idx = pq.extract_min(&pqueue)
+    #     ujpca = pqueue.Elements[min_edge_idx].key
+    #     tail_vert_index = <size_t>tail_indices[min_edge_idx]
+    #     ui = u_i[tail_vert_index]
 
-        if (ui >= ujpca):
+    #     if (ui >= ujpca):
 
-            fi = f_i[tail_vert_index]
-            fa = f_a[min_edge_idx]
+    #         fi = f_i[tail_vert_index]
+    #         fa = f_a[min_edge_idx]
 
-            # compute the beta coefficient
-            if (ui < DTYPE_INF) | (fi > 0.0):
+    #         # compute the beta coefficient
+    #         if (ui < DTYPE_INF) | (fi > 0.0):
 
-                beta = fi * ui
+    #             beta = fi * ui
 
-            else:
+    #         else:
 
-                beta = 1.0
+    #             beta = 1.0
 
-            # update u_i
-            ui_new = (beta + fa * ujpca) / (fi + fa)
-            u_i[tail_vert_index] = ui_new
+    #         # update u_i
+    #         ui_new = (beta + fa * ujpca) / (fi + fa)
+    #         u_i[tail_vert_index] = ui_new
 
-            # loop on incoming edges
-            for edge_idx in range(<size_t>csc_indptr[tail_vert_index], 
-                <size_t>csc_indptr[tail_vert_index + 1]):
+    #         # loop on incoming edges
+    #         for edge_idx in range(<size_t>csc_indptr[tail_vert_index], 
+    #             <size_t>csc_indptr[tail_vert_index + 1]):
 
-                edge_state = pqueue.Elements[edge_idx].state
+    #             edge_state = pqueue.Elements[edge_idx].state
 
-                if (edge_state != SCANNED):
+    #             if (edge_state != SCANNED):
 
-                    ujpca_new = ui_new + c_a[edge_idx]
-                    if (edge_state == UNLABELED):
-                        pq.insert(&pqueue, edge_idx, ujpca_new)
-                    elif (pqueue.Elements[edge_idx].key > ujpca_new):
-                        decrease_val(heap, edge_idx, ujpca_new)
+    #                 ujpca_new = ui_new + c_a[edge_idx]
+    #                 if (edge_state == UNLABELED):
+    #                     pq.insert(&pqueue, edge_idx, ujpca_new)
+    #                 elif (pqueue.Elements[edge_idx].key > ujpca_new):
+    #                     decrease_val(heap, edge_idx, ujpca_new)
 
-            # update f_i
-            f_i[tail_vert_index] = fi + fa
+    #         # update f_i
+    #         f_i[tail_vert_index] = fi + fa
 
-            # add the edge to hyperpath
-            h_a[min_edge_idx] = 1
+    #         # add the edge to hyperpath
+    #         h_a[min_edge_idx] = 1
 
     # second pass #
 
