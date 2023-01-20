@@ -20,7 +20,7 @@ class HyperpathGenerating:
         freq="freq",
         check_edges=False,
         algo="SF",
-        orientation="many-to-one",
+        orientation="in",
     ):
 
         # load the edges
@@ -42,9 +42,9 @@ class HyperpathGenerating:
 
         # convert to CSR/CSC format
         self.vertex_count = self._edges[[tail, head]].max().max() + 1
-        assert orientation in ["one-to-many", "many-to-one"]
+        assert orientation in ["out", "in"]
         self._orientation = orientation
-        if self._orientation == "one-to-many":
+        if self._orientation == "out":
             fs_indptr, fs_indices, fs_data = convert_graph_to_csr_uint32(
                 self._edges, tail, head, data_col, self.vertex_count
             )
@@ -68,20 +68,24 @@ class HyperpathGenerating:
 
     def run(self, origin, destination, return_inf=False, heap_length_ratio=1.0):
 
-        if self._orientation == "one-to-many":
-            _check_vertex_idx(origin)
+        # input check
+        if self._orientation == "out":
+            self._check_vertex_idx(origin)
             if type(destination) is not list:
                 destination = [destination]
             for item in destination:
                 _check_vertex_idx(item)
-        elif self._orientation == "many-to_one":
+        elif self._orientation == "in":
             if type(origin) is not list:
                 origin = [origin]
             for item in origin:
-                _check_vertex_idx(item)
-            _check_vertex_idx(destination)
+                self._check_vertex_idx(item)
+            self._check_vertex_idx(destination)
+        assert isinstance(return_inf, bool)
+        heap_length_ratio = float(heap_length_ratio)
+        assert (heap_length_ratio > 0) and (heap_length_ratio <= 1.0)
 
-    def _check_vertex_idx(idx):
+    def _check_vertex_idx(self, idx):
         assert isinstance(idx, int)
         assert idx >= 0
         assert idx < self.vertex_count
