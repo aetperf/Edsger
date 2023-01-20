@@ -1,6 +1,4 @@
-""" Priority queue based on a minimum binary heap.
-
-    header file
+""" Priority queue based on a minimum binary heap. Header file.
 
 author : Francois Pacull
 copyright : Architecture & Performance

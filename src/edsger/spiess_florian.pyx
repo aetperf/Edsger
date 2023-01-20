@@ -12,35 +12,40 @@ license : MIT
 import numpy as np
 cimport numpy as cnp
 
-from edsger.commons import DTYPE_PY
+from edsger.commons import DTYPE_PY, DTYPE_INF_PY
 from edsger.commons cimport (
     DTYPE_INF, UNLABELED, SCANNED, DTYPE_t, ElementState)
 cimport edsger.pq_bin_dec_0b as pq  # priority queue
 
 
-
-
 cpdef void compute_SF_in(
-    cnp.uint32_t[::1] csc_indptr,    # Bp
-    cnp.uint32_t[::1] csc_indices,   # Bi
-    cnp.uint32_t[::1] csc_edge_idx,  # Bx
+    cnp.uint32_t[::1] csc_indptr,  
+    cnp.uint32_t[::1] csc_indices, 
+    cnp.uint32_t[::1] csc_edge_idx,
     DTYPE_t[::1] c_a,
-    DTYPE_t[::1] f_a,
+    DTYPE_t[::1] f_a_vec,
     cnp.uint32_t[::1] tail_indices,
-    # int target_vert_idx,
-    # int vertex_count,
-    # int edge_count
+    int vertex_count,
+    list orig_vert_indices,
+    int dest_vert_index,
+    list volumes,
 ):
 
-    # cdef:
-    #     # vertex properties
-    #     np.ndarray u_i = np.zeros(vertex_count, dtype=DTYPE)  # vertex least travel time
-    #     np.ndarray f_i = np.zeros(vertex_count, dtype=DTYPE)  # vertex frequency (inverse of the maximum delay)
-    #     # np.ndarray v_i = np.zeros(vertex_count, dtype=DTYPE)  # vertex volume
-    #     # edge properties
-    #     np.ndarray c_a = np.zeros(edge_count, dtype=DTYPE)    # uncongested edge travel time
-    #     np.ndarray f_a = np.zeros(edge_count, dtype=DTYPE)    # edge frequency (inverse of the maximum delay)
-    #     np.ndarray h_a = np.zeros(edge_count, dtype=bint)     # edge belonging to hyperpath
+    cdef:
+        int edge_count = tail_indices.shape[0]
+
+    # vertex properties
+    u_i_vec = DTYPE_INF_PY * np.ones(vertex_count, dtype=DTYPE_PY)  # vertex least travel time
+    f_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)  # vertex frequency (inverse of the maximum delay)
+    v_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)  # vertex volume
+    
+    # edge properties
+    c_a_vec = np.zeros(edge_count, dtype=DTYPE_PY)    # uncongested edge travel time
+    h_a_vec = np.zeros(edge_count, dtype=bool)    # edge belonging to hyperpath
+
+    u_i_vec[<size_t>dest_vert_index] = 0.0
+    for i, vert_idx in enumerate(orig_vert_indices):
+        v_i_vec[vert_idx] = volumes[i]
 
     #     size_t target = <size_t>target_vert_idx
     #     pq.PriorityQueue pqueue

@@ -34,6 +34,9 @@ class HyperpathGenerating:
             self._edges[col] = np.where(
                 np.isinf(self._edges[col]), DTYPE_INF_PY, self._edges[col]
             )
+            self._edges[col] = np.where(
+                self._edges[col] > DTYPE_INF_PY, DTYPE_INF_PY, self._edges[col]
+            )
 
         # create an edge index column
         self._edges = self._edges.reset_index(drop=True)
@@ -65,20 +68,26 @@ class HyperpathGenerating:
         self._tail = self._edges[tail].values.astype(np.uint32)
         self._head = self._edges[head].values.astype(np.uint32)
 
-    def run(self, origin, destination, return_inf=False, heap_length_ratio=1.0):
+    def run(
+        self, origin, destination, volumes, return_inf=False, heap_length_ratio=1.0
+    ):
 
         # input check
         if self._orientation == "out":
             self._check_vertex_idx(origin)
             if type(destination) is not list:
                 destination = [destination]
-            for item in destination:
-                _check_vertex_idx(item)
+            assert len(origin) == len(volumes)
+            for i, item in enumerate(destination):
+                self._check_vertex_idx(item)
+                self._check_volume(volumes[i])
         elif self._orientation == "in":
             if type(origin) is not list:
                 origin = [origin]
-            for item in origin:
+            assert len(origin) == len(volumes)
+            for i, item in enumerate(origin):
                 self._check_vertex_idx(item)
+                self._check_volume(volumes[i])
             self._check_vertex_idx(destination)
         assert isinstance(return_inf, bool)
         heap_length_ratio = float(heap_length_ratio)
@@ -96,12 +105,20 @@ class HyperpathGenerating:
                 self._trav_time,
                 self._freq,
                 self._tail,
+                self.vertex_count,
+                origin,
+                destination,
+                volumes,
             )
 
     def _check_vertex_idx(self, idx):
         assert isinstance(idx, int)
         assert idx >= 0
         assert idx < self.vertex_count
+
+    def _check_volume(self, v):
+        assert isinstance(v, float)
+        assert v >= 0.0
 
     def _check_edges(self, edges, tail, head, trav_time, freq):
 

@@ -1,5 +1,5 @@
 """ 
-Common definitions.
+Common definitions. Header file.
 
 author : Francois Pacull
 copyright : Architecture & Performance
