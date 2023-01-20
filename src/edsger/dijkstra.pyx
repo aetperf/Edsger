@@ -154,7 +154,7 @@ cpdef cnp.ndarray compute_stsp(
 # tests                                                                        #
 # ============================================================================ #
 
-from edsger.commons cimport DTYPE
+from edsger.commons import DTYPE_PY
 import numpy as np
 
 
@@ -166,7 +166,7 @@ cdef generate_single_edge_network_csr():
 
     csr_indptr = np.array([0, 1, 1], dtype=np.uint32)
     csr_indices = np.array([1], dtype=np.uint32)
-    csr_data = np.array([1.], dtype=DTYPE)
+    csr_data = np.array([1.], dtype=DTYPE_PY)
 
     return csr_indptr, csr_indices, csr_data
 
@@ -179,7 +179,7 @@ cdef generate_single_edge_network_csc():
 
     csc_indptr = np.array([0, 0, 1], dtype=np.uint32)
     csc_indices = np.array([0], dtype=np.uint32)
-    csc_data = np.array([1.], dtype=DTYPE)
+    csc_data = np.array([1.], dtype=DTYPE_PY)
 
     return csc_indptr, csc_indices, csc_data
 
@@ -192,7 +192,7 @@ cdef generate_braess_network_csr():
 
     csr_indptr = np.array([0, 2, 4, 5, 5], dtype=np.uint32)
     csr_indices = np.array([1, 2, 2, 3, 3], dtype=np.uint32)
-    csr_data = np.array([1., 2., 0., 2., 1.], dtype=DTYPE)
+    csr_data = np.array([1., 2., 0., 2., 1.], dtype=DTYPE_PY)
 
     return csr_indptr, csr_indices, csr_data
 
@@ -205,7 +205,7 @@ cdef generate_braess_network_csc():
 
     csc_indptr = np.array([0, 0, 1, 3, 5], dtype=np.uint32)
     csc_indices = np.array([0, 0, 1, 1, 2], dtype=np.uint32)
-    csc_data = np.array([1., 2., 0., 2., 1.], dtype=DTYPE)
+    csc_data = np.array([1., 2., 0., 2., 1.], dtype=DTYPE_PY)
 
     return csc_indptr, csc_indices, csc_data
 
@@ -219,12 +219,12 @@ cpdef compute_sssp_01():
 
     # from vertex 0
     path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 0, 2)
-    path_lengths_ref = np.array([0., 1.], dtype=DTYPE)
+    path_lengths_ref = np.array([0., 1.], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 1
     path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 1, 2)
-    path_lengths_ref = np.array([DTYPE_INF, 0.], dtype=DTYPE)
+    path_lengths_ref = np.array([DTYPE_INF, 0.], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
 
@@ -237,12 +237,12 @@ cpdef compute_stsp_01():
 
     # from vertex 0
     path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 0, 2)
-    path_lengths_ref = np.array([0., DTYPE_INF], dtype=DTYPE)
+    path_lengths_ref = np.array([0., DTYPE_INF], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 1
     path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 1, 2)
-    path_lengths_ref = np.array([1., 0.], dtype=DTYPE)
+    path_lengths_ref = np.array([1., 0.], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
 
@@ -255,22 +255,22 @@ cpdef compute_sssp_02():
 
     # from vertex 0
     path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 0, 4)
-    path_lengths_ref = np.array([0., 1., 1., 2.], dtype=DTYPE)
+    path_lengths_ref = np.array([0., 1., 1., 2.], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 1
     path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 1, 4)
-    path_lengths_ref = np.array([DTYPE_INF, 0., 0., 1.], dtype=DTYPE)
+    path_lengths_ref = np.array([DTYPE_INF, 0., 0., 1.], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 2
     path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 2, 4)
-    path_lengths_ref = np.array([DTYPE_INF, DTYPE_INF, 0., 1.], dtype=DTYPE)
+    path_lengths_ref = np.array([DTYPE_INF, DTYPE_INF, 0., 1.], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 3
     path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 3, 4)
-    path_lengths_ref = np.array([DTYPE_INF, DTYPE_INF, DTYPE_INF, 0.], dtype=DTYPE)
+    path_lengths_ref = np.array([DTYPE_INF, DTYPE_INF, DTYPE_INF, 0.], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
 
@@ -283,20 +283,20 @@ cpdef compute_stsp_02():
 
     # from vertex 0
     path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 0, 4)
-    path_lengths_ref = np.array([0., DTYPE_INF, DTYPE_INF, DTYPE_INF], dtype=DTYPE)
+    path_lengths_ref = np.array([0., DTYPE_INF, DTYPE_INF, DTYPE_INF], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 1
     path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 1, 4)
-    path_lengths_ref = np.array([1., 0., DTYPE_INF, DTYPE_INF], dtype=DTYPE)
+    path_lengths_ref = np.array([1., 0., DTYPE_INF, DTYPE_INF], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 2
     path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 2, 4)
-    path_lengths_ref = np.array([1., 0., 0., DTYPE_INF], dtype=DTYPE)
+    path_lengths_ref = np.array([1., 0., 0., DTYPE_INF], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 3
     path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 3, 4)
-    path_lengths_ref = np.array([2., 1.0, 1., 0.], dtype=DTYPE)
+    path_lengths_ref = np.array([2., 1.0, 1., 0.], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
