@@ -5,8 +5,8 @@ Path-related methods.
 import numpy as np
 import pandas as pd
 
-from edsger.commons import DTYPE_INF_PY
-from edsger.networks import create_Spiess_network
+from edsger.commons import DTYPE_PY, DTYPE_INF_PY
+from edsger.spiess_florian import compute_SF_in
 from edsger.star import convert_graph_to_csr_uint32, convert_graph_to_csc_uint32
 
 
@@ -48,23 +48,22 @@ class HyperpathGenerating:
             fs_indptr, fs_indices, fs_data = convert_graph_to_csr_uint32(
                 self._edges, tail, head, data_col, self.vertex_count
             )
-            self._indices = fs_indices.astype(np.uint32)
             self._indptr = fs_indptr.astype(np.uint32)
+            self._indices = fs_indices.astype(np.uint32)
             self._edge_idx = fs_data.astype(np.uint32)
-            raise NotImplementedError(
-                "one-to-many Spiess & Florian's algorithm not implemented yet"
-            )
         else:
             rs_indptr, rs_indices, rs_data = convert_graph_to_csc_uint32(
                 self._edges, tail, head, data_col, self.vertex_count
             )
-            self._indices = rs_indices.astype(np.uint32)
             self._indptr = rs_indptr.astype(np.uint32)
+            self._indices = rs_indices.astype(np.uint32)
             self._edge_idx = rs_data.astype(np.uint32)
 
         # edge attributes
-        self._trav_time = self._edges[trav_time].values
-        self._freq = self._edges[freq].values
+        self._trav_time = self._edges[trav_time].values.astype(DTYPE_PY)
+        self._freq = self._edges[freq].values.astype(DTYPE_PY)
+        self._tail = self._edges[tail].values.astype(np.uint32)
+        self._head = self._edges[head].values.astype(np.uint32)
 
     def run(self, origin, destination, return_inf=False, heap_length_ratio=1.0):
 
@@ -84,6 +83,20 @@ class HyperpathGenerating:
         assert isinstance(return_inf, bool)
         heap_length_ratio = float(heap_length_ratio)
         assert (heap_length_ratio > 0) and (heap_length_ratio <= 1.0)
+
+        if self._orientation == "out":
+            raise NotImplementedError(
+                "one-to-many Spiess & Florian's algorithm not implemented yet"
+            )
+        elif self._orientation == "in":
+            compute_SF_in(
+                self._indptr,
+                self._indices,
+                self._edge_idx,
+                self._trav_time,
+                self._freq,
+                self._tail,
+            )
 
     def _check_vertex_idx(self, idx):
         assert isinstance(idx, int)
@@ -124,6 +137,8 @@ class HyperpathGenerating:
 
 
 if __name__ == "__main__":
+
+    from edsger.networks import create_Spiess_network
 
     edges = create_Spiess_network()
     hp = HyperpathGenerating(edges, check_edges=True)
