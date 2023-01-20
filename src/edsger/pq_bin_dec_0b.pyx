@@ -12,8 +12,9 @@ license : MIT
 cimport numpy as cnp
 from libc.stdlib cimport free, malloc
 
+from edsger.commons import DTYPE_PY
 from edsger.commons cimport (
-    DTYPE, DTYPE_INF, LABELED, UNLABELED, SCANNED, DTYPE_t
+    DTYPE_INF, LABELED, UNLABELED, SCANNED, DTYPE_t
 )
 
 
@@ -308,7 +309,7 @@ cdef cnp.ndarray copy_keys_to_numpy(
     * cnp.ndarray : NumPy array with all the keys
     """
 
-    path_lengths = cnp.ndarray(vertex_count, dtype=DTYPE)
+    path_lengths = cnp.ndarray(vertex_count, dtype=DTYPE_PY)
 
     cdef:
         size_t i  # loop counter
@@ -600,7 +601,7 @@ cpdef sort_01(int n, random_seed=124):
 
     rng = np.random.default_rng(random_seed)
     values_in = rng.random(size=n)
-    values_out = np.empty_like(values_in, dtype=DTYPE)
+    values_out = np.empty_like(values_in, dtype=DTYPE_PY)
     heapsort(values_in, values_out)
     values_in_sorted = np.sort(values_in)
     np.testing.assert_array_equal(values_in_sorted, values_out)
