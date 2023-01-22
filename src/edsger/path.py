@@ -68,32 +68,44 @@ class HyperpathGenerating:
         self._tail = self._edges[tail].values.astype(np.uint32)
         self._head = self._edges[head].values.astype(np.uint32)
 
-    def run(
-        self, origin, destination, volumes, return_inf=False, heap_length_ratio=1.0
-    ):
+    def run(self, origin, destination, volume, return_inf=False, heap_length_ratio=1.0):
 
         # input check
+        if type(volume) is not list:
+            volume = [volume]
         if self._orientation == "out":
             self._check_vertex_idx(origin)
             if type(destination) is not list:
                 destination = [destination]
-            assert len(origin) == len(volumes)
+            assert len(destination) == len(volume)
             for i, item in enumerate(destination):
                 self._check_vertex_idx(item)
-                self._check_volume(volumes[i])
+                self._check_volume(volume[i])
         elif self._orientation == "in":
             if type(origin) is not list:
                 origin = [origin]
-            assert len(origin) == len(volumes)
+            assert len(origin) == len(volume)
             for i, item in enumerate(origin):
                 self._check_vertex_idx(item)
-                self._check_volume(volumes[i])
+                self._check_volume(volume[i])
             self._check_vertex_idx(destination)
         assert isinstance(return_inf, bool)
         heap_length_ratio = float(heap_length_ratio)
         assert (heap_length_ratio > 0) and (heap_length_ratio <= 1.0)
 
         if self._orientation == "out":
+            # compute_SF_out(
+            #     self._indptr,
+            #     self._indices,
+            #     self._edge_idx,
+            #     self._trav_time,
+            #     self._freq,
+            #     self._head,
+            #     self.vertex_count,
+            #     origin,
+            #     destination,
+            #     volume,
+            # )
             raise NotImplementedError(
                 "one-to-many Spiess & Florian's algorithm not implemented yet"
             )
@@ -108,7 +120,7 @@ class HyperpathGenerating:
                 self.vertex_count,
                 origin,
                 destination,
-                volumes,
+                volume,
             )
 
     def _check_vertex_idx(self, idx):
@@ -160,7 +172,7 @@ if __name__ == "__main__":
     edges = create_Spiess_network()
     hp = HyperpathGenerating(edges, check_edges=True)
     print(hp._edges)
-    hp.run(origin=0, destination=12)
+    hp.run(origin=0, destination=12, volume=1.0)
     print("done")
 
 
