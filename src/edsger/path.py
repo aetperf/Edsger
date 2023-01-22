@@ -32,9 +32,6 @@ class HyperpathGenerating:
         # remove inf values if any
         for col in [trav_time, freq]:
             self._edges[col] = np.where(
-                np.isinf(self._edges[col]), DTYPE_INF_PY, self._edges[col]
-            )
-            self._edges[col] = np.where(
                 self._edges[col] > DTYPE_INF_PY, DTYPE_INF_PY, self._edges[col]
             )
 
@@ -68,7 +65,7 @@ class HyperpathGenerating:
         self._tail = self._edges[tail].values.astype(np.uint32)
         self._head = self._edges[head].values.astype(np.uint32)
 
-    def run(self, origin, destination, volume, return_inf=False, heap_length_ratio=1.0):
+    def run(self, origin, destination, volume, return_inf=False):
 
         # input check
         if type(volume) is not list:
@@ -90,8 +87,6 @@ class HyperpathGenerating:
                 self._check_volume(volume[i])
             self._check_vertex_idx(destination)
         assert isinstance(return_inf, bool)
-        heap_length_ratio = float(heap_length_ratio)
-        assert (heap_length_ratio > 0) and (heap_length_ratio <= 1.0)
 
         if self._orientation == "out":
             # compute_SF_out(
@@ -104,7 +99,7 @@ class HyperpathGenerating:
             #     self.vertex_count,
             #     origin,
             #     destination,
-            #     volume,
+            #     volume
             # )
             raise NotImplementedError(
                 "one-to-many Spiess & Florian's algorithm not implemented yet"

@@ -28,11 +28,15 @@ cpdef void compute_SF_in(
     int vertex_count,
     list orig_vert_indices,
     int dest_vert_index,
-    list volumes,
+    list volumes
 ):
 
     cdef:
         int edge_count = tail_indices.shape[0]
+        pq.PriorityQueue pqueue
+        ElementState edge_state
+        size_t edge_idx, min_edge_idx, tail_vert_idx
+        DTYPE_t u_j_c_a, u_i, f_i, beta, u_i_new
 
     # vertex properties
     u_i_vec = DTYPE_INF_PY * np.ones(vertex_count, dtype=DTYPE_PY)  # vertex least travel time
@@ -47,8 +51,6 @@ cpdef void compute_SF_in(
     for i, vert_idx in enumerate(orig_vert_indices):
         v_i_vec[vert_idx] = volumes[i]
 
-    #     size_t target = <size_t>target_vert_idx
-    #     pq.PriorityQueue pqueue
     #     DTYPE_t ujpca, ujpca_new  # u_j + c_a
     #     DTYPE_t ui, fi, fa, beta
     #     size_t min_edge_idx
@@ -57,85 +59,66 @@ cpdef void compute_SF_in(
     #     ElementState edge_state
     #     DTYPE_t edge_val
 
-    # setup #
-    # ===== #
-    _ = 0
-
-
-    # initialize c_a and f_a
-    # for i in range(<size_t>edge_count):
-
-    #     c_a[i] = csc_trav_time[i]
-
-    #     # replace infinite values with very large finite values
-    #     if (freq[i] > INFFREQ):
-    #         f_a[i] = INFFREQ
-    #     # replace zeros with very small values
-    #     elif (freq[i] < MINFREQ):
-    #         f_a[i] = MINFREQ
-    #     else:
-    #         f_a[i] = freq[i]
-
     # first pass #
     #------------#
 
-    # # initialization of the heap elements 
-    # # all nodes have INFINITY key and UNLABELED state
-    # pq.init_pqueue(&pqueue, <size_t>edge_count, <size_t>edge_count)
+    # initialization of the heap elements 
+    # all nodes have INFINITY key and UNLABELED state
+    pq.init_pqueue(&pqueue, <size_t>edge_count, <size_t>edge_count)
 
-    # # only the incoming edges of the target vertex are inserted into the 
-    # # priority queue
-    # for edge_idx in range(<size_t>csc_indptr[<size_t>target_vert_idx], 
-    #     <size_t>csc_indptr[<size_t>(target_vert_idx + 1)]):
-    #     pq.insert(&pqueue, edge_idx, c_a[edge_idx])
+    # only the incoming edges of the target vertex are inserted into the 
+    # priority queue
+    for edge_idx in range(<size_t>csc_indptr[<size_t>dest_vert_index], 
+        <size_t>csc_indptr[<size_t>(dest_vert_index + 1)]):
+        pq.insert(&pqueue, edge_idx, c_a_vec[edge_idx])
 
-    # # first pass
-    # while pqueue.size > 0:
+    # first pass
+    while pqueue.size > 0:
 
-    #     min_edge_idx = pq.extract_min(&pqueue)
-    #     ujpca = pqueue.Elements[min_edge_idx].key
-    #     tail_vert_index = <size_t>tail_indices[min_edge_idx]
-    #     ui = u_i[tail_vert_index]
+        min_edge_idx = pq.extract_min(&pqueue)
+        u_j_c_a = pqueue.Elements[min_edge_idx].key
+        tail_vert_idx = <size_t>tail_indices[min_edge_idx]
+        u_i = u_i_vec[tail_vert_idx]
+        u_i_new = u_i
 
-    #     if (ui >= ujpca):
+        if u_i >= u_j_c_a:
 
-    #         fi = f_i[tail_vert_index]
-    #         fa = f_a[min_edge_idx]
+            f_i = f_i_vec[tail_vert_idx]
 
-    #         # compute the beta coefficient
-    #         if (ui < DTYPE_INF) | (fi > 0.0):
+            # compute the beta coefficient
+            if (u_i < DTYPE_INF) | (f_i > 0.0):
 
-    #             beta = fi * ui
+                beta = f_i * u_i
 
-    #         else:
+            else:
 
-    #             beta = 1.0
+                beta = 1.0
 
-    #         # update u_i
-    #         ui_new = (beta + fa * ujpca) / (fi + fa)
-    #         u_i[tail_vert_index] = ui_new
+            # update u_i
+            f_a = f_a_vec[min_edge_idx]
+            u_i_new = (beta + f_a * u_j_c_a) / (f_i + f_a)
+            u_i_vec[tail_vert_idx] = u_i_new
 
-    #         # loop on incoming edges
-    #         for edge_idx in range(<size_t>csc_indptr[tail_vert_index], 
-    #             <size_t>csc_indptr[tail_vert_index + 1]):
+            # update f_i
+            f_i_vec[tail_vert_idx] = f_i + f_a
 
-    #             edge_state = pqueue.Elements[edge_idx].state
+            # add the edge to hyperpath
+            h_a_vec[min_edge_idx] = 1
 
-    #             if (edge_state != SCANNED):
+        # loop on incoming edges
+        for edge_idx in range(<size_t>csc_indptr[tail_vert_idx], 
+            <size_t>csc_indptr[tail_vert_idx + 1]):
 
-    #                 ujpca_new = ui_new + c_a[edge_idx]
-    #                 if (edge_state == UNLABELED):
-    #                     pq.insert(&pqueue, edge_idx, ujpca_new)
-    #                 elif (pqueue.Elements[edge_idx].key > ujpca_new):
-    #                     decrease_val(heap, edge_idx, ujpca_new)
+            edge_state = pqueue.Elements[edge_idx].state
 
-    #         # update f_i
-    #         f_i[tail_vert_index] = fi + fa
+            if edge_state != SCANNED:
 
-    #         # add the edge to hyperpath
-    #         h_a[min_edge_idx] = 1
+                u_j_c_a = u_i_new + c_a[edge_idx]
+                if edge_state == UNLABELED:
+                    pq.insert(&pqueue, edge_idx, u_j_c_a)
+                elif (pqueue.Elements[edge_idx].key > u_j_c_a):
+                    pq.decrease_key(&pqueue, edge_idx, u_j_c_a)
+
+    pq.free_pqueue(&pqueue)
 
     # second pass #
-
-
-
