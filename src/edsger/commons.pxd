@@ -9,6 +9,9 @@ license : MIT
 
 cimport numpy as cnp
 
+# priority queue
+# --------------
+
 ctypedef cnp.float64_t DTYPE_t
 cdef DTYPE_t DTYPE_INF
 

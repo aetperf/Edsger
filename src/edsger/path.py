@@ -5,7 +5,7 @@ Path-related methods.
 import numpy as np
 import pandas as pd
 
-from edsger.commons import DTYPE_PY, DTYPE_INF_PY
+from edsger.commons import DTYPE_PY, DTYPE_INF_PY, MIN_FREQ_PY, INF_FREQ_PY
 from edsger.spiess_florian import compute_SF_in
 from edsger.star import convert_graph_to_csr_uint32, convert_graph_to_csc_uint32
 
@@ -29,11 +29,18 @@ class HyperpathGenerating:
         self._edges = edges[[tail, head, trav_time, freq]].copy(deep=True)
         self.edge_count = len(self._edges)
 
-        # remove inf values if any
-        for col in [trav_time, freq]:
-            self._edges[col] = np.where(
-                self._edges[col] > DTYPE_INF_PY, DTYPE_INF_PY, self._edges[col]
-            )
+        # remove inf values if any, and values closed to zero
+        self._edges[trav_time] = np.where(
+            self._edges[trav_time] > DTYPE_INF_PY, DTYPE_INF_PY, self._edges[trav_time]
+        )
+        self._edges[freq] = np.where(
+            self._edges[freq] > INF_FREQ_PY, INF_FREQ_PY, self._edges[freq]
+        )
+        self._edges[freq] = np.where(
+            self._edges[freq] < MIN_FREQ_PY, MIN_FREQ_PY, self._edges[freq]
+        )
+
+        print(MIN_FREQ_PY, INF_FREQ_PY)
 
         # create an edge index column
         self._edges = self._edges.reset_index(drop=True)
