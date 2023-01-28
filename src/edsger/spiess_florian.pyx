@@ -41,16 +41,12 @@ cpdef void compute_SF_in(
 
     # vertex properties
     u_i_vec = DTYPE_INF_PY * np.ones(vertex_count, dtype=DTYPE_PY)  # vertex least travel time
+    u_i_vec[<size_t>dest_vert_index] = 0.0
     f_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)  # vertex frequency (inverse of the maximum delay)
     v_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)  # vertex volume
     
     # edge properties
-    # c_a_vec = np.zeros(edge_count, dtype=DTYPE_PY)    # uncongested edge travel time
     h_a_vec = np.zeros(edge_count, dtype=bool)    # edge belonging to hyperpath
-
-    u_i_vec[<size_t>dest_vert_index] = 0.0
-    for i, vert_idx in enumerate(orig_vert_indices):
-        v_i_vec[vert_idx] = volumes[i]
 
     # first pass #
     #------------#
@@ -122,8 +118,18 @@ cpdef void compute_SF_in(
         DTYPE_t u_r
         # size_t demand_origin_count
 
+    # init
+
+    # copy the Python lists into numpy arrays
     demand_origins = np.array(orig_vert_indices, dtype=np.uint32)
     demand_values = np.array(volumes, dtype=DTYPE_PY)
+    for i, vert_idx in enumerate(demand_origins):
+        v_i_vec[<size_t>vert_idx] = demand_values[i]
+
     # demand_origin_count = <size_t>demand_origins.shape[0]
     u_r = np.min(u_i_vec[demand_origins])
-    print(u_r)
+
+    # if the destination can be reached from any of the origins
+    if (u_r < DTYPE_INF_PY):
+
+        print(u_r)

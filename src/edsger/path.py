@@ -40,8 +40,6 @@ class HyperpathGenerating:
             self._edges[freq] < MIN_FREQ_PY, MIN_FREQ_PY, self._edges[freq]
         )
 
-        print(MIN_FREQ_PY, INF_FREQ_PY)
-
         # create an edge index column
         self._edges = self._edges.reset_index(drop=True)
         data_col = "edge_idx"
