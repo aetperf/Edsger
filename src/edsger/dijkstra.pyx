@@ -1,4 +1,5 @@
-""" An implementation of Dijkstra's algorithm.
+""" 
+An implementation of Dijkstra's algorithm.
     
 author : Francois Pacull
 copyright : Architecture & Performance
@@ -19,10 +20,11 @@ cpdef cnp.ndarray compute_sssp_pq_bd0(
     DTYPE_t[::1] csr_data,
     int source_vert_idx,
     int vertex_count):
-    """ Compute single-source shortest path (from one vertex to all vertices)
-        using the pq_bin_dec_0b priority queue.
+    """ 
+    Compute single-source shortest path (from one vertex to all vertices)
+    using the pq_bin_dec_0b priority queue.
 
-        Does not return predecessors.
+    Does not return predecessors.
 
     input
     =====
@@ -87,10 +89,11 @@ cpdef cnp.ndarray compute_stsp_pq_bd0(
     DTYPE_t[::1] csc_data,
     int target_vert_idx,
     int vertex_count):
-    """ Compute single-target shortest path (from all vertices to one vertex)
-        using the pq_bin_dec_0b priority queue.
+    """ 
+    Compute single-target shortest path (from all vertices to one vertex)
+    using the pq_bin_dec_0b priority queue.
 
-        Does not return successors.
+    Does not return successors.
 
     input
     =====
@@ -159,9 +162,10 @@ import numpy as np
 
 
 cdef generate_single_edge_network_csr():
-    """  Generate a single edge network in CSR format.
+    """  
+    Generate a single edge network in CSR format.
 
-        This network has 1 edge and 2 vertices.
+    This network has 1 edge and 2 vertices.
     """
 
     csr_indptr = np.array([0, 1, 1], dtype=np.uint32)
@@ -172,9 +176,10 @@ cdef generate_single_edge_network_csr():
 
 
 cdef generate_single_edge_network_csc():
-    """  Generate a single edge network in CSC format.
+    """  
+    Generate a single edge network in CSC format.
 
-        This network has 1 edge and 2 vertices.
+    This network has 1 edge and 2 vertices.
     """
 
     csc_indptr = np.array([0, 0, 1], dtype=np.uint32)
@@ -185,9 +190,10 @@ cdef generate_single_edge_network_csc():
 
 
 cdef generate_braess_network_csr():
-    """ Generate a Braess-like network in CSR format.
+    """ 
+    Generate a Braess-like network in CSR format.
 
-        This network hs 5 edges and 4 vertices.
+    This network hs 5 edges and 4 vertices.
     """
 
     csr_indptr = np.array([0, 2, 4, 5, 5], dtype=np.uint32)
@@ -198,9 +204,10 @@ cdef generate_braess_network_csr():
 
 
 cdef generate_braess_network_csc():
-    """ Generate a Braess-like network in CSC format.
+    """ 
+    Generate a Braess-like network in CSC format.
 
-        This network hs 5 edges and 4 vertices.
+    This network hs 5 edges and 4 vertices.
     """
 
     csc_indptr = np.array([0, 0, 1, 3, 5], dtype=np.uint32)
@@ -211,8 +218,9 @@ cdef generate_braess_network_csc():
 
 
 cpdef compute_sssp_pq_bd0_01():
-    """ Compute SSSP with the compute_sssp_pq_bd0 routine on a single edge 
-        network.
+    """ 
+    Compute SSSP with the compute_sssp_pq_bd0 routine on a single edge 
+    network.
     """
 
     csr_indptr, csr_indices, csr_data = generate_single_edge_network_csr()
@@ -229,8 +237,9 @@ cpdef compute_sssp_pq_bd0_01():
 
 
 cpdef compute_stsp_pq_bd0_01():
-    """ Compute TSSP with the compute_stsp_pq_bd0 routine on a single edge 
-        network.
+    """ 
+    Compute TSSP with the compute_stsp_pq_bd0 routine on a single edge 
+    network.
     """
 
     csc_indptr, csc_indices, csc_data = generate_single_edge_network_csc()
@@ -247,8 +256,9 @@ cpdef compute_stsp_pq_bd0_01():
 
 
 cpdef compute_sssp_pq_bd0_02():
-    """ Compute SSSP with the compute_sssp_pq_bd0 routine on Braess-like 
-        network.
+    """ 
+    Compute SSSP with the compute_sssp_pq_bd0 routine on Braess-like 
+    network.
     """
 
     csr_indptr, csr_indices, csr_data = generate_braess_network_csr()
@@ -275,8 +285,9 @@ cpdef compute_sssp_pq_bd0_02():
 
 
 cpdef compute_stsp_pq_bd0_02():
-    """ Compute STSP with the compute_stsp_pq_bd0 routine on Braess-like 
-        network.
+    """ 
+    Compute STSP with the compute_stsp_pq_bd0 routine on Braess-like 
+    network.
     """
 
     csc_indptr, csc_indices, csc_data = generate_braess_network_csc()
