@@ -159,6 +159,7 @@ def create_Spiess_network(
     head.append(7)
     freq.append(np.inf)
     trav_time.append(alighting_time)
+    vol.append(0.0)
 
     # edge 12
     # stop Y : from line 2
