@@ -72,6 +72,8 @@ class HyperpathGenerating:
 
     def run(self, origin, destination, volume, return_inf=False):
 
+        self._edges["volume"] = 0.0
+
         # input check
         if type(volume) is not list:
             volume = [volume]
@@ -109,7 +111,8 @@ class HyperpathGenerating:
             #     self.vertex_count,
             #     demand_indices,
             #     origin,
-            #     demand_values
+            #     demand_values,
+            #     self._edges["volumes"].values
             # )
             raise NotImplementedError(
                 "one-to-many Spiess & Florian's algorithm not implemented yet"
@@ -128,6 +131,7 @@ class HyperpathGenerating:
                 demand_indices,
                 destination,
                 demand_values,
+                self._edges["volume"].values,
             )
 
     def _check_vertex_idx(self, idx):
@@ -170,14 +174,3 @@ class HyperpathGenerating:
 
             if edges[col].min() < 0.0:
                 raise ValueError(f"column '{col}' should be nonnegative")
-
-
-if __name__ == "__main__":
-
-    from edsger.networks import create_Spiess_network
-
-    edges = create_Spiess_network()
-    hp = HyperpathGenerating(edges, check_edges=True)
-    print(hp._edges)
-    hp.run(origin=0, destination=12, volume=1.0)
-    print("done")
