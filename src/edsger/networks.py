@@ -51,6 +51,7 @@ def create_Spiess_network(
     head = []
     trav_time = []
     freq = []
+    vol = []
 
     # edge 0
     # stop A : to line 1
@@ -59,6 +60,7 @@ def create_Spiess_network(
     head.append(2)
     freq.append(line1_freq)
     trav_time.append(boarding_time)
+    vol.append(0.5)
 
     # edge 1
     # stop A : to line 2
@@ -67,6 +69,7 @@ def create_Spiess_network(
     head.append(1)
     freq.append(line2_freq)
     trav_time.append(boarding_time)
+    vol.append(0.5)
 
     # edge 2
     # line 1 : first segment
@@ -75,6 +78,7 @@ def create_Spiess_network(
     head.append(15)
     freq.append(np.inf)
     trav_time.append(25.0 * 60.0)
+    vol.append(0.5)
 
     # edge 3
     # line 2 : first segment
@@ -83,6 +87,7 @@ def create_Spiess_network(
     head.append(5)
     freq.append(np.inf)
     trav_time.append(7.0 * 60.0)
+    vol.append(0.5)
 
     # edge 4
     # stop X : from line 2
@@ -91,6 +96,7 @@ def create_Spiess_network(
     head.append(3)
     freq.append(np.inf)
     trav_time.append(alighting_time)
+    vol.append(0.0)
 
     # edge 5
     # stop X : in line 2
@@ -99,6 +105,7 @@ def create_Spiess_network(
     head.append(6)
     freq.append(np.inf)
     trav_time.append(dwell_time)
+    vol.append(0.5)
 
     # edge 6
     # stop X : from line 2 to line 3
@@ -107,6 +114,7 @@ def create_Spiess_network(
     head.append(4)
     freq.append(line3_freq)
     trav_time.append(dwell_time)
+    vol.append(0.0)
 
     # edge 7
     # stop X : to line 2
@@ -115,6 +123,7 @@ def create_Spiess_network(
     head.append(6)
     freq.append(line2_freq)
     trav_time.append(boarding_time)
+    vol.append(0.0)
 
     # edge 8
     # stop X : to line 3
@@ -123,6 +132,7 @@ def create_Spiess_network(
     head.append(4)
     freq.append(line3_freq)
     trav_time.append(boarding_time)
+    vol.append(0.0)
 
     # edge 9
     # line 2 : second segment
@@ -131,6 +141,7 @@ def create_Spiess_network(
     head.append(11)
     freq.append(np.inf)
     trav_time.append(6.0 * 60.0)
+    vol.append(0.5)
 
     # edge 10
     # line 3 : first segment
@@ -139,6 +150,7 @@ def create_Spiess_network(
     head.append(9)
     freq.append(np.inf)
     trav_time.append(4.0 * 60.0)
+    vol.append(0.0)
 
     # edge 11
     # stop Y : from line 3
@@ -155,6 +167,7 @@ def create_Spiess_network(
     head.append(7)
     freq.append(np.inf)
     trav_time.append(alighting_time)
+    vol.append(0.0)
 
     # edge 13
     # stop Y : from line 2 to line 3
@@ -163,6 +176,7 @@ def create_Spiess_network(
     head.append(10)
     freq.append(line3_freq)
     trav_time.append(dwell_time)
+    vol.append(0.0833333333333)
 
     # edge 14
     # stop Y : from line 2 to line 4
@@ -171,6 +185,7 @@ def create_Spiess_network(
     head.append(8)
     freq.append(line4_freq)
     trav_time.append(dwell_time)
+    vol.append(0.4166666666666)
 
     # edge 15
     # stop Y : from line 3 to line 4
@@ -179,6 +194,7 @@ def create_Spiess_network(
     head.append(8)
     freq.append(line4_freq)
     trav_time.append(dwell_time)
+    vol.append(0.0)
 
     # edge 16
     # stop Y : in line 3
@@ -187,6 +203,7 @@ def create_Spiess_network(
     head.append(10)
     freq.append(np.inf)
     trav_time.append(dwell_time)
+    vol.append(0.0)
 
     # edge 17
     # stop Y : to line 3
@@ -195,6 +212,7 @@ def create_Spiess_network(
     head.append(10)
     freq.append(line3_freq)
     trav_time.append(boarding_time)
+    vol.append(0.0)
 
     # edge 18
     # stop Y : to line 4
@@ -203,6 +221,7 @@ def create_Spiess_network(
     head.append(8)
     freq.append(line4_freq)
     trav_time.append(boarding_time)
+    vol.append(0.0)
 
     # edge 19
     # line 3 : second segment
@@ -211,6 +230,7 @@ def create_Spiess_network(
     head.append(14)
     freq.append(np.inf)
     trav_time.append(4.0 * 60.0)
+    vol.append(0.0833333333333)
 
     # edge 20
     # line 4 : first segment
@@ -219,6 +239,7 @@ def create_Spiess_network(
     head.append(13)
     freq.append(np.inf)
     trav_time.append(10.0 * 60.0)
+    vol.append(0.4166666666666)
 
     # edge 21
     # stop Y : from line 1
@@ -227,6 +248,7 @@ def create_Spiess_network(
     head.append(12)
     freq.append(np.inf)
     trav_time.append(alighting_time)
+    vol.append(0.5)
 
     # edge 22
     # stop Y : from line 3
@@ -235,6 +257,7 @@ def create_Spiess_network(
     head.append(12)
     freq.append(np.inf)
     trav_time.append(alighting_time)
+    vol.append(0.0833333333333)
 
     # edge 23
     # stop Y : from line 4
@@ -243,9 +266,16 @@ def create_Spiess_network(
     head.append(12)
     freq.append(np.inf)
     trav_time.append(alighting_time)
+    vol.append(0.4166666666666)
 
     edges_df = pd.DataFrame(
-        data={"tail": tail, "head": head, "trav_time": trav_time, "freq": freq}
+        data={
+            "tail": tail,
+            "head": head,
+            "trav_time": trav_time,
+            "freq": freq,
+            "volume": vol,
+        }
     )
 
     return edges_df
