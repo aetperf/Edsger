@@ -72,6 +72,8 @@ class HyperpathGenerating:
 
     def run(self, origin, destination, volume, return_inf=False):
 
+        self._edges["volume"] = 0.0
+
         # input check
         if type(volume) is not list:
             volume = [volume]
@@ -83,6 +85,7 @@ class HyperpathGenerating:
             for i, item in enumerate(destination):
                 self._check_vertex_idx(item)
                 self._check_volume(volume[i])
+            demand_indices = np.array(destination, dtype=np.uint32)
         elif self._orientation == "in":
             if type(origin) is not list:
                 origin = [origin]
@@ -91,7 +94,10 @@ class HyperpathGenerating:
                 self._check_vertex_idx(item)
                 self._check_volume(volume[i])
             self._check_vertex_idx(destination)
+            demand_indices = np.array(origin, dtype=np.uint32)
         assert isinstance(return_inf, bool)
+
+        demand_values = np.array(volume, dtype=DTYPE_PY)
 
         if self._orientation == "out":
             # compute_SF_out(
@@ -100,16 +106,19 @@ class HyperpathGenerating:
             #     self._edge_idx,
             #     self._trav_time,
             #     self._freq,
+            #     self._tail
             #     self._head,
             #     self.vertex_count,
+            #     demand_indices,
             #     origin,
-            #     destination,
-            #     volume
+            #     demand_values,
+            #     self._edges["volumes"].values
             # )
             raise NotImplementedError(
                 "one-to-many Spiess & Florian's algorithm not implemented yet"
             )
         elif self._orientation == "in":
+
             compute_SF_in(
                 self._indptr,
                 self._indices,
@@ -117,10 +126,12 @@ class HyperpathGenerating:
                 self._trav_time,
                 self._freq,
                 self._tail,
+                self._head,
                 self.vertex_count,
-                origin,
+                demand_indices,
                 destination,
-                volume,
+                demand_values,
+                self._edges["volume"].values,
             )
 
     def _check_vertex_idx(self, idx):
@@ -163,14 +174,3 @@ class HyperpathGenerating:
 
             if edges[col].min() < 0.0:
                 raise ValueError(f"column '{col}' should be nonnegative")
-
-
-if __name__ == "__main__":
-
-    from edsger.networks import create_Spiess_network
-
-    edges = create_Spiess_network()
-    hp = HyperpathGenerating(edges, check_edges=True)
-    print(hp._edges)
-    hp.run(origin=0, destination=12, volume=1.0)
-    print("done")
