@@ -104,6 +104,7 @@ class HyperpathGenerating:
             #     self._edge_idx,
             #     self._trav_time,
             #     self._freq,
+            #     self._tail
             #     self._head,
             #     self.vertex_count,
             #     demand_indices,
@@ -122,6 +123,7 @@ class HyperpathGenerating:
                 self._trav_time,
                 self._freq,
                 self._tail,
+                self._head,
                 self.vertex_count,
                 demand_indices,
                 destination,
