@@ -1,7 +1,9 @@
-""" An implementation of Spiess and Florian's hyperpath generating algorithm.
+""" 
+An implementation of Spiess and Florian's hyperpath generating algorithm.
 
-Spiess, H. and Florian, M. (1989). Optimal strategies: A new assignment model 
-for transit networks. Transportation Research Part B 23(2), 83-102.
+reference: Spiess, H. and Florian, M. (1989). Optimal strategies: A new 
+assignment model for transit networks. Transportation Research Part B 23(2), 
+83-102.
     
 author : Francois Pacull
 copyright : Architecture & Performance
@@ -27,9 +29,9 @@ cpdef void compute_SF_in(
     DTYPE_t[::1] f_a_vec,
     cnp.uint32_t[::1] tail_indices,
     int vertex_count,
-    list orig_vert_indices,
+    cnp.uint32_t[::1] demand_indices,
     int dest_vert_index,
-    list volumes
+    DTYPE_t[::1] demand_values
 ):
 
     cdef:
@@ -43,13 +45,12 @@ cpdef void compute_SF_in(
     u_i_vec = DTYPE_INF_PY * np.ones(vertex_count, dtype=DTYPE_PY)  # vertex least travel time
     u_i_vec[<size_t>dest_vert_index] = 0.0
     f_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)  # vertex frequency (inverse of the maximum delay)
-    v_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)  # vertex volume
     
     # edge properties
     h_a_vec = np.zeros(edge_count, dtype=bool)    # edge belonging to hyperpath
 
     # first pass #
-    #------------#
+    # ---------- #
 
     # initialization of the heap elements 
     # all nodes have INFINITY key and UNLABELED state
@@ -77,11 +78,8 @@ cpdef void compute_SF_in(
 
             # compute the beta coefficient
             if (u_i < DTYPE_INF) | (f_i > 0.0):
-
                 beta = f_i * u_i
-
             else:
-
                 beta = 1.0
 
             # update u_i
@@ -113,21 +111,18 @@ cpdef void compute_SF_in(
     pq.free_pqueue(&pqueue)
 
     # second pass #
+    # ----------- #
 
     cdef:
         DTYPE_t u_r
-        # size_t demand_origin_count
 
-    # init
+    v_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)  # vertex volume
 
-    # copy the Python lists into numpy arrays
-    demand_origins = np.array(orig_vert_indices, dtype=np.uint32)
-    demand_values = np.array(volumes, dtype=DTYPE_PY)
-    for i, vert_idx in enumerate(demand_origins):
+    for i, vert_idx in enumerate(demand_indices):
         v_i_vec[<size_t>vert_idx] = demand_values[i]
 
     # demand_origin_count = <size_t>demand_origins.shape[0]
-    u_r = np.min(u_i_vec[demand_origins])
+    u_r = np.min(u_i_vec[demand_indices])
 
     # if the destination can be reached from any of the origins
     if (u_r < DTYPE_INF_PY):

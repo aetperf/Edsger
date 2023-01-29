@@ -83,6 +83,7 @@ class HyperpathGenerating:
             for i, item in enumerate(destination):
                 self._check_vertex_idx(item)
                 self._check_volume(volume[i])
+            demand_indices = np.array(destination, dtype=np.uint32)
         elif self._orientation == "in":
             if type(origin) is not list:
                 origin = [origin]
@@ -91,7 +92,10 @@ class HyperpathGenerating:
                 self._check_vertex_idx(item)
                 self._check_volume(volume[i])
             self._check_vertex_idx(destination)
+            demand_indices = np.array(origin, dtype=np.uint32)
         assert isinstance(return_inf, bool)
+
+        demand_values = np.array(volume, dtype=DTYPE_PY)
 
         if self._orientation == "out":
             # compute_SF_out(
@@ -102,14 +106,15 @@ class HyperpathGenerating:
             #     self._freq,
             #     self._head,
             #     self.vertex_count,
+            #     demand_indices,
             #     origin,
-            #     destination,
-            #     volume
+            #     demand_values
             # )
             raise NotImplementedError(
                 "one-to-many Spiess & Florian's algorithm not implemented yet"
             )
         elif self._orientation == "in":
+
             compute_SF_in(
                 self._indptr,
                 self._indices,
@@ -118,9 +123,9 @@ class HyperpathGenerating:
                 self._freq,
                 self._tail,
                 self.vertex_count,
-                origin,
+                demand_indices,
                 destination,
-                volume,
+                demand_values,
             )
 
     def _check_vertex_idx(self, idx):
