@@ -32,7 +32,8 @@ cpdef void compute_SF_in(
     int vertex_count,
     cnp.uint32_t[::1] demand_indices,
     int dest_vert_index,
-    DTYPE_t[::1] demand_values
+    DTYPE_t[::1] demand_values,
+    DTYPE_t[::1] v_a_vec
 ):
 
     cdef:
@@ -124,7 +125,6 @@ cpdef void compute_SF_in(
         size_t h_a_count
 
     v_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)  # vertex volume
-    v_a_vec = np.zeros(edge_count, dtype=DTYPE_PY)  # edge volume
 
     for i, vert_idx in enumerate(demand_indices):
         v_i_vec[<size_t>vert_idx] = demand_values[i]
@@ -151,6 +151,3 @@ cpdef void compute_SF_in(
             v_a_new = v_i * f_a / f_i
             v_a_vec[edge_idx] = v_a_new
             v_i_vec[<size_t>head_indices[edge_idx]] += v_a_new
-
-    for i in range(<size_t>edge_count):
-        print(f"edge {i} : {v_a_vec[i]}")
