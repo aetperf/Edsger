@@ -269,7 +269,7 @@ def create_Spiess_network(
     trav_time.append(alighting_time)
     vol.append(0.4166666666666)
 
-    edges_df = pd.DataFrame(
+    edges = pd.DataFrame(
         data={
             "tail": tail,
             "head": head,
@@ -279,4 +279,4 @@ def create_Spiess_network(
         }
     )
 
-    return edges_df
+    return edges
