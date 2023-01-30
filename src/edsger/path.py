@@ -108,11 +108,11 @@ class HyperpathGenerating:
             #     self._freq,
             #     self._tail
             #     self._head,
-            #     self.vertex_count,
             #     demand_indices,
-            #     origin,
             #     demand_values,
             #     self._edges["volumes"].values
+            #     self.vertex_count,
+            #     origin,
             # )
             raise NotImplementedError(
                 "one-to-many Spiess & Florian's algorithm not implemented yet"
@@ -127,11 +127,11 @@ class HyperpathGenerating:
                 self._freq,
                 self._tail,
                 self._head,
-                self.vertex_count,
                 demand_indices,
-                destination,
                 demand_values,
                 self._edges["volume"].values,
+                self.vertex_count,
+                destination,
             )
 
     def _check_vertex_idx(self, idx):
