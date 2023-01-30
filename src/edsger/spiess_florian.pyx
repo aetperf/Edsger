@@ -158,6 +158,8 @@ cpdef void compute_SF_in(
 # ============================================================================ #
 
 
+from edsger.commons import MIN_FREQ_PY, INF_FREQ_PY
+
 cpdef compute_SF_in_01():
     """  
     Single edge network.
@@ -167,11 +169,13 @@ cpdef compute_SF_in_01():
 
     volume = 1.0
 
+    f_a = MIN_FREQ_PY
+
     csc_indptr = np.array([0, 0, 1], dtype=np.uint32)
     csc_indices = np.array([0], dtype=np.uint32)
     csc_edge_idx = np.array([0], dtype=np.uint32)
     c_a_vec = np.array([1.0], dtype=DTYPE_PY)
-    f_a_vec = np.array([1.0], dtype=DTYPE_PY)
+    f_a_vec = np.array([f_a], dtype=DTYPE_PY)
     v_a_vec = np.array([0.0], dtype=DTYPE_PY)
     tail_indices = np.array([0], dtype=np.uint32)
     head_indices = np.array([1], dtype=np.uint32)
@@ -179,6 +183,27 @@ cpdef compute_SF_in_01():
     demand_values = np.array([volume], dtype=DTYPE_PY)
     vertex_count = 2
     dest_vert_index = 1
+
+    compute_SF_in(
+        csc_indptr,  
+        csc_indices, 
+        csc_edge_idx,
+        c_a_vec,
+        f_a_vec,
+        tail_indices,
+        head_indices,
+        demand_indices,
+        demand_values,
+        v_a_vec,
+        vertex_count,
+        dest_vert_index,
+    )
+
+    assert v_a_vec[0] == volume
+    assert v_a_vec.shape[0] == 1
+
+    f_a = INF_FREQ_PY
+    f_a_vec = np.array([f_a], dtype=DTYPE_PY)
 
     compute_SF_in(
         csc_indptr,  
