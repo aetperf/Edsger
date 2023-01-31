@@ -140,6 +140,8 @@ class HyperpathGenerating:
                 destination,
             )
 
+        self.u_i_vec = u_i_vec
+
     def _check_vertex_idx(self, idx):
         assert isinstance(idx, int)
         assert idx >= 0

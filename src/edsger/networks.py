@@ -6,7 +6,7 @@ import pandas as pd
 
 
 def create_Spiess_network(
-    dwell_time=5.0, a_very_small_time_interval=1.0e-06, board_alight_ratio=0.5
+    dwell_time=1.0e-6, a_very_small_time_interval=1.0e-06, board_alight_ratio=0.5
 ):
     """Example network from Spiess, H. and Florian, M. (1989).
     Optimal strategies: A new assignment model for transit networks.
@@ -278,5 +278,7 @@ def create_Spiess_network(
             "volume": vol,
         }
     )
+    # waiting time is in average half of the period
+    edges["freq"] *= 2.0
 
     return edges
