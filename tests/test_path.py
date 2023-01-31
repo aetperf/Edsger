@@ -14,7 +14,7 @@ from edsger.path import HyperpathGenerating
 
 def test_SF_in_01():
 
-    edges = create_Spiess_network(dwell_time=1.0e-8, a_very_small_time_interval=1.0e-8)
+    edges = create_Spiess_network(dwell_time=0.0, a_very_small_time_interval=0.0)
     hp = HyperpathGenerating(edges, check_edges=False)
     hp.run(origin=0, destination=12, volume=1.0)
 

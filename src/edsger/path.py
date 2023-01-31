@@ -5,7 +5,13 @@ Path-related methods.
 import numpy as np
 import pandas as pd
 
-from edsger.commons import DTYPE_PY, DTYPE_INF_PY, MIN_FREQ_PY, INF_FREQ_PY
+from edsger.commons import (
+    DTYPE_PY,
+    DTYPE_INF_PY,
+    MIN_FREQ_PY,
+    INF_FREQ_PY,
+    A_VERY_SMALL_TIME_INTERVAL_PY,
+)
 from edsger.spiess_florian import compute_SF_in
 from edsger.star import convert_graph_to_csr_uint32, convert_graph_to_csc_uint32
 
@@ -32,6 +38,11 @@ class HyperpathGenerating:
         # remove inf values if any, and values close to zero
         self._edges[trav_time] = np.where(
             self._edges[trav_time] > DTYPE_INF_PY, DTYPE_INF_PY, self._edges[trav_time]
+        )
+        self._edges[trav_time] = np.where(
+            self._edges[trav_time] < A_VERY_SMALL_TIME_INTERVAL_PY,
+            A_VERY_SMALL_TIME_INTERVAL_PY,
+            self._edges[trav_time],
         )
         self._edges[freq] = np.where(
             self._edges[freq] > INF_FREQ_PY, INF_FREQ_PY, self._edges[freq]
