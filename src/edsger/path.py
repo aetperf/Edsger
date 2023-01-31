@@ -75,6 +75,9 @@ class HyperpathGenerating:
         # column storing the resulting edge volumes
         self._edges["volume"] = 0.0
 
+        # vertex least travel time
+        u_i_vec = DTYPE_INF_PY * np.ones(self.vertex_count, dtype=DTYPE_PY)
+
         # input check
         if type(volume) is not list:
             volume = [volume]
@@ -111,7 +114,8 @@ class HyperpathGenerating:
             #     self._head,
             #     demand_indices,  # destination vertex indices
             #     demand_values,
-            #     self._edges["volumes"].values
+            #     self._edges["volumes"].values,
+            #     u_i_vec,
             #     self.vertex_count,
             #     origin,
             # )
@@ -131,6 +135,7 @@ class HyperpathGenerating:
                 demand_indices,  # source vertex indices
                 demand_values,
                 self._edges["volume"].values,
+                u_i_vec,
                 self.vertex_count,
                 destination,
             )

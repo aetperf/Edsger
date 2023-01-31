@@ -32,6 +32,7 @@ cpdef void compute_SF_in(
     cnp.uint32_t[::1] demand_indices,
     DTYPE_t[::1] demand_values,
     DTYPE_t[::1] v_a_vec,
+    DTYPE_t[::1] u_i_vec,
     int vertex_count,
     int dest_vert_index,
 ):
@@ -44,7 +45,6 @@ cpdef void compute_SF_in(
         DTYPE_t u_j_c_a, u_i, f_i, beta, u_i_new, f_a
 
     # vertex properties
-    u_i_vec = DTYPE_INF_PY * np.ones(vertex_count, dtype=DTYPE_PY)  # vertex least travel time
     u_i_vec[<size_t>dest_vert_index] = 0.0
     f_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)  # vertex frequency (inverse of the maximum delay)
     u_j_c_a_vec = DTYPE_INF_PY * np.ones(edge_count, dtype=DTYPE_PY)    
@@ -126,11 +126,14 @@ cpdef void compute_SF_in(
 
     v_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)  # vertex volume
 
+    u_r = DTYPE_INF_PY
     for i, vert_idx in enumerate(demand_indices):
         v_i_vec[<size_t>vert_idx] = demand_values[i]
+        u_i = u_i_vec[<size_t>vert_idx]
+        if u_i < u_r:
+            u_r = u_i
 
     # if the destination can be reached from any of the origins
-    u_r = np.min(u_i_vec[demand_indices])
     if (u_r < DTYPE_INF_PY):
 
         # sort the links with descreasing order of u_j + c_a
@@ -182,6 +185,7 @@ cpdef compute_SF_in_01():
     demand_indices = np.array([0], dtype=np.uint32)
     demand_values = np.array([volume], dtype=DTYPE_PY)
     vertex_count = 2
+    u_i_vec = DTYPE_INF_PY * np.ones(vertex_count, dtype=DTYPE_PY)
     dest_vert_index = 1
 
     compute_SF_in(
@@ -195,6 +199,7 @@ cpdef compute_SF_in_01():
         demand_indices,
         demand_values,
         v_a_vec,
+        u_i_vec,
         vertex_count,
         dest_vert_index,
     )
@@ -204,6 +209,7 @@ cpdef compute_SF_in_01():
 
     f_a = INF_FREQ_PY
     f_a_vec = np.array([f_a], dtype=DTYPE_PY)
+    u_i_vec = DTYPE_INF_PY * np.ones(vertex_count, dtype=DTYPE_PY)
 
     compute_SF_in(
         csc_indptr,  
@@ -216,6 +222,7 @@ cpdef compute_SF_in_01():
         demand_indices,
         demand_values,
         v_a_vec,
+        u_i_vec,
         vertex_count,
         dest_vert_index,
     )
@@ -244,6 +251,7 @@ cpdef compute_SF_in_02():
     demand_indices = np.array([0], dtype=np.uint32)
     demand_values = np.array([volume], dtype=DTYPE_PY)
     vertex_count = 2
+    u_i_vec = DTYPE_INF_PY * np.ones(vertex_count, dtype=DTYPE_PY)
     dest_vert_index = 1
 
     compute_SF_in(
@@ -257,6 +265,7 @@ cpdef compute_SF_in_02():
         demand_indices,
         demand_values,
         v_a_vec,
+        u_i_vec,
         vertex_count,
         dest_vert_index,
     )
