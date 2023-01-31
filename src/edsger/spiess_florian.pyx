@@ -17,7 +17,7 @@ cimport numpy as cnp
 from edsger.commons import DTYPE_PY, DTYPE_INF_PY
 from edsger.commons cimport (
     DTYPE_INF, UNLABELED, SCANNED, DTYPE_t, ElementState)
-cimport edsger.pq_bin_dec_0b as pq  # priority queue
+cimport edsger.pq_4ary_dec_0b as pq  # priority queue
 
 
 
