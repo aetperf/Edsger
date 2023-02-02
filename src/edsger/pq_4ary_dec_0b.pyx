@@ -22,11 +22,12 @@ cdef void init_pqueue(
     PriorityQueue* pqueue,
     size_t heap_length,
     size_t element_count) nogil:
-    """Initialize the priority queue.
+    """
+    Initialize the priority queue.
 
     input
     =====
-    * PriorityQueue* pqueue : 4-ary heap based priority queue
+    * PriorityQueue* pqueue : priority queue
     * size_t length : length (maximum size) of the heap
     * size_t element_count : element count
 
@@ -51,11 +52,12 @@ cdef void init_pqueue(
 cdef void _initialize_element(
     PriorityQueue* pqueue,
     size_t element_idx) nogil:
-    """Initialize a single element.
+    """
+    Initialize a single element.
 
     input
     =====
-    * PriorityQueue* pqueue : 4-ary heap based priority queue
+    * PriorityQueue* pqueue : priority queue
     * size_t element_idx : index of the element in the element array
     """
     pqueue.Elements[element_idx].key = DTYPE_INF
@@ -65,11 +67,12 @@ cdef void _initialize_element(
 
 cdef void free_pqueue(
     PriorityQueue* pqueue) nogil:
-    """Free the priority queue.
+    """
+    Free the priority queue.
 
     input
     =====
-    * PriorityQueue* pqueue : 4-ary heap based priority queue
+    * PriorityQueue* pqueue : priority queue
     """
     free(pqueue.A)
     free(pqueue.Elements)
@@ -79,11 +82,12 @@ cdef void insert(
     PriorityQueue* pqueue,
     size_t element_idx,
     DTYPE_t key) nogil:
-    """Insert an element into the heap and reorder the heap.
+    """
+    Insert an element into the heap and reorder the heap.
 
     input
     =====
-    * PriorityQueue* pqueue : 4-ary heap based priority queue
+    * PriorityQueue* pqueue : priority queue
     * size_t element_idx : index of the element in the element array
     * DTYPE_t key : key value of the element
 
@@ -105,11 +109,12 @@ cdef void decrease_key(
     PriorityQueue* pqueue, 
     size_t element_idx, 
     DTYPE_t key_new) nogil:
-    """Decrease the key of a element in the heap, given its element index.
+    """
+    Decrease the key of a element in the heap, given its element index.
 
     input
     =====
-    * PriorityQueue* pqueue : 4-ary heap based priority queue
+    * PriorityQueue* pqueue : priority queue
     * size_t element_idx : index of the element in the element array
     * DTYPE_t key_new : new value of the element key 
 
@@ -124,11 +129,12 @@ cdef void decrease_key(
 
 
 cdef DTYPE_t peek(PriorityQueue* pqueue) nogil:
-    """Find heap min key.
+    """
+    Find heap min key.
 
     input
     =====
-    * PriorityQueue* pqueue : 4-ary heap based priority queue
+    * PriorityQueue* pqueue : priority queue
 
     output
     ======
@@ -143,11 +149,12 @@ cdef DTYPE_t peek(PriorityQueue* pqueue) nogil:
 
 
 cdef bint is_empty(PriorityQueue* pqueue) nogil:
-    """Check whether the heap is empty.
+    """
+    Check whether the heap is empty.
 
     input
     =====
-    * PriorityQueue* pqueue : 4-ary heap based priority queue
+    * PriorityQueue* pqueue : priority queue
     """
     cdef bint isempty = 0
 
@@ -158,12 +165,13 @@ cdef bint is_empty(PriorityQueue* pqueue) nogil:
 
 
 cdef size_t extract_min(PriorityQueue* pqueue) nogil:
-    """Extract element with min keay from the heap, 
+    """
+    Extract element with min keay from the heap, 
     and return its element index.
 
     input
     =====
-    * PriorityQueue* pqueue : 4-ary heap based priority queue
+    * PriorityQueue* pqueue : priority queue
 
     output
     ======
@@ -176,8 +184,6 @@ cdef size_t extract_min(PriorityQueue* pqueue) nogil:
     cdef: 
         size_t element_idx = pqueue.A[0]  # min element index
         size_t node_idx = pqueue.size - 1  # last leaf node index
-
-    # printf("%d\n", pqueue.size)
 
     # exchange the root node with the last leaf node
     _exchange_nodes(pqueue, 0, node_idx)
@@ -197,11 +203,12 @@ cdef void _exchange_nodes(
     PriorityQueue* pqueue, 
     size_t node_i,
     size_t node_j) nogil:
-    """Exchange two nodes in the heap.
+    """
+    Exchange two nodes in the heap.
 
     input
     =====
-    * PriorityQueue* pqueue : 4-ary heap based priority queue
+    * PriorityQueue* pqueue : priority queue
     * size_t node_i: first node index
     * size_t node_j: second node index
     """
@@ -221,12 +228,13 @@ cdef void _exchange_nodes(
 cdef void _min_heapify(
     PriorityQueue* pqueue,
     size_t node_idx) nogil:
-    """Re-order sub-tree under a given node (given its node index) 
+    """
+    Re-order sub-tree under a given node (given its node index) 
     until it satisfies the heap property.
 
     input
     =====
-    * PriorityQueue* pqueue : 4-ary heap based priority queue
+    * PriorityQueue* pqueue : priority queue
     * size_t node_idx : node index
     """
     cdef: 
@@ -297,11 +305,12 @@ cdef void _decrease_key_from_node_index(
     PriorityQueue* pqueue,
     size_t node_idx, 
     DTYPE_t key_new) nogil:
-    """Decrease the key of an element in the heap, given its tree index.
+    """
+    Decrease the key of an element in the heap, given its tree index.
 
     input
     =====
-    * PriorityQueue* pqueue : 4-ary heap based priority queue
+    * PriorityQueue* pqueue : priority queue
     * size_t node_idx : node index
     * DTYPE_t key_new : new key value
 
@@ -328,11 +337,12 @@ cdef cnp.ndarray copy_keys_to_numpy(
     PriorityQueue* pqueue,
     size_t vertex_count
 ):
-    """Copy the keys into a numpy array.
+    """
+    Copy the keys into a numpy array.
 
     input
     =====
-    * PriorityQueue* pqueue : 4-ary heap based priority queue
+    * PriorityQueue* pqueue : priority queue
     * int vertex_count : vertex count
     * int num_threads : number of threads for the parallel job
 
@@ -363,7 +373,8 @@ import numpy as np
 
 
 cpdef init_01(int length=4):
-    """ Initialize an empty priority queue.
+    """ 
+    Initialize an empty priority queue.
     """
 
     cdef: 
@@ -384,7 +395,8 @@ cpdef init_01(int length=4):
 
 
 cpdef insert_01():
-    """ Insert an element into an empty priority queue of length 1.
+    """ 
+    Insert an element into an empty priority queue of length 1.
     """
 
     cdef: 
@@ -405,7 +417,8 @@ cpdef insert_01():
 
 
 # cpdef insert_02():
-#     """ Insert 4 elements into an empty priority queue of length 4.
+#     """ 
+#     Insert 4 elements into an empty priority queue of length 4.
 #     """
 
 #     cdef: 
@@ -468,7 +481,8 @@ cpdef insert_01():
 
 
 cpdef insert_03(int length=4):
-    """ Insert elements with equal key values.
+    """ 
+    Insert elements with equal key values.
     """
 
     cdef: 
@@ -486,8 +500,9 @@ cpdef insert_03(int length=4):
 
 
 cpdef peek_01():
-    """ Successively insert elements into a priority queue and
-        check the min element of the priority without extracting it.
+    """ 
+    Successively insert elements into a priority queue and
+    check the min element of the priority without extracting it.
     """
 
     cdef PriorityQueue pqueue
@@ -507,8 +522,9 @@ cpdef peek_01():
 
 
 cpdef extract_min_01():
-    """ Insert 4 elements into a priority queue and 
-        extract them all.
+    """ 
+    Insert 4 elements into a priority queue and 
+    extract them all.
     """
     
     cdef PriorityQueue pqueue
@@ -539,7 +555,8 @@ cpdef extract_min_01():
 
 
 cpdef is_empty_01():
-    """ Insert an element and extract it.
+    """ 
+    Insert an element and extract it.
     """
     
     cdef PriorityQueue pqueue
@@ -556,8 +573,9 @@ cpdef is_empty_01():
 
 
 # cpdef decrease_key_01():
-#     """ Insert elements into a priority queue and decrease the largest 
-#         key value to become the smallest.
+#     """ 
+#     Insert elements into a priority queue and decrease the largest 
+#     key value to become the smallest.
 #     """
 
 #     cdef PriorityQueue pqueue
@@ -607,8 +625,9 @@ cpdef is_empty_01():
 
 
 cdef void heapsort(DTYPE_t[::1] values_in, DTYPE_t[::1] values_out) nogil:
-    """ Heap sort by inerting all the values into the priority queue,
-        and extracting them.
+    """ 
+    Heap sort by inerting all the values into the priority queue,
+    and extracting them.
     """
 
     cdef:
@@ -624,8 +643,9 @@ cdef void heapsort(DTYPE_t[::1] values_in, DTYPE_t[::1] values_out) nogil:
 
 
 cpdef sort_01(int n, random_seed=124):
-    """ Create an array of random number, sort it with the heapsort function 
-        and with the numpy default sort function, compare the results.
+    """ 
+    Create an array of random number, sort it with the heapsort function 
+    and with the numpy default sort function, compare the results.
     """
     
     cdef PriorityQueue pqueue

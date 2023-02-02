@@ -25,7 +25,6 @@ class HyperpathGenerating:
         trav_time="trav_time",
         freq="freq",
         check_edges=False,
-        algo="SF",
         orientation="in",
     ):
 
@@ -85,6 +84,7 @@ class HyperpathGenerating:
 
         # column storing the resulting edge volumes
         self._edges["volume"] = 0.0
+        self.u_i_vec = None
 
         # vertex least travel time
         u_i_vec = DTYPE_INF_PY * np.ones(self.vertex_count, dtype=DTYPE_PY)
@@ -115,26 +115,10 @@ class HyperpathGenerating:
         demand_values = np.array(volume, dtype=DTYPE_PY)
 
         if self._orientation == "out":
-            # compute_SF_out(
-            #     self._indptr,
-            #     self._indices,
-            #     self._edge_idx,
-            #     self._trav_time,
-            #     self._freq,
-            #     self._tail
-            #     self._head,
-            #     demand_indices,  # destination vertex indices
-            #     demand_values,
-            #     self._edges["volumes"].values,
-            #     u_i_vec,
-            #     self.vertex_count,
-            #     origin,
-            # )
             raise NotImplementedError(
                 "one-to-many Spiess & Florian's algorithm not implemented yet"
             )
         elif self._orientation == "in":
-
             compute_SF_in(
                 self._indptr,
                 self._indices,
@@ -150,8 +134,7 @@ class HyperpathGenerating:
                 self.vertex_count,
                 destination,
             )
-
-        self.u_i_vec = u_i_vec
+            self.u_i_vec = u_i_vec
 
     def _check_vertex_idx(self, idx):
         assert isinstance(idx, int)
