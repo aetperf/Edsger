@@ -1,7 +1,8 @@
-""" Priority queue based on a minimum 4-ary heap.
+""" 
+Priority queue based on a minimum 4-ary heap.
 
-    - dec: priority queue with decrease-key operation.
-    - 0b: indices are 0-based
+- dec: priority queue with decrease-key operation.
+- 0b: indices are 0-based
     
 author : Francois Pacull
 copyright : Architecture & Performance
@@ -150,7 +151,7 @@ cdef DTYPE_t peek(PriorityQueue* pqueue) nogil:
 
 cdef bint is_empty(PriorityQueue* pqueue) nogil:
     """
-    Check whether the heap is empty.
+    Check if the heap is empty.
 
     input
     =====
