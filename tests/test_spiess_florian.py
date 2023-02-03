@@ -13,5 +13,6 @@ from edsger.spiess_florian import *
 def test_compute_SF_in_01():
     compute_SF_in_01()
 
+
 def test_compute_SF_in_02():
     compute_SF_in_02()

@@ -5,10 +5,11 @@ import numpy as np
 import pandas as pd
 
 
-def create_Spiess_network(
+def create_SF_network(
     dwell_time=1.0e-6, a_very_small_time_interval=1.0e-06, board_alight_ratio=0.5
 ):
-    """Example network from Spiess, H. and Florian, M. (1989).
+    """
+    Example network from Spiess, H. and Florian, M. (1989).
     Optimal strategies: A new assignment model for transit networks.
     Transportation Research Part B 23(2), 83-102.
 
