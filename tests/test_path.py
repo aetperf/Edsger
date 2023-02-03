@@ -8,13 +8,13 @@ license : MIT
 
 import numpy as np
 
-from edsger.networks import create_Spiess_network
+from edsger.networks import create_SF_network
 from edsger.path import HyperpathGenerating
 
 
 def test_SF_in_01():
 
-    edges = create_Spiess_network(dwell_time=0.0, a_very_small_time_interval=0.0)
+    edges = create_SF_network(dwell_time=0.0, a_very_small_time_interval=0.0)
     hp = HyperpathGenerating(edges, check_edges=False)
     hp.run(origin=0, destination=12, volume=1.0)
 
