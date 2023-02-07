@@ -276,7 +276,7 @@ def create_SF_network(
             "head": head,
             "trav_time": trav_time,
             "freq": freq,
-            "volume": vol,
+            "volume_ref": vol,
         }
     )
     # waiting time is in average half of the period

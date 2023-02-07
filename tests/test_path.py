@@ -18,7 +18,7 @@ def test_SF_in_01():
     hp = HyperpathGenerating(edges, check_edges=False)
     hp.run(origin=0, destination=12, volume=1.0)
 
-    assert np.allclose(edges["volume"].values, hp._edges["volume"].values)
+    assert np.allclose(edges["volume_ref"].values, hp._edges["volume"].values)
 
     u_i_vec_ref = np.array(
         [
