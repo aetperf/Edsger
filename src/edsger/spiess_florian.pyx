@@ -50,7 +50,7 @@ cpdef void compute_SF_in(
     u_j_c_a_vec = DTYPE_INF_PY * np.ones(edge_count, dtype=DTYPE_PY)    
     
     # edge properties
-    h_a_vec = np.zeros(edge_count, dtype=bool)    # edge belonging to hyperpath
+    h_a_vec = np.zeros(edge_count, dtype=bool)  # edge belonging to hyperpath
 
     # first pass #
     # ---------- #
@@ -116,6 +116,10 @@ cpdef void compute_SF_in(
                     u_j_c_a_vec[edge_idx] = u_j_c_a
 
     pq.free_pqueue(&pqueue)
+
+    f_i_vec = np.where(
+        f_i_vec < MIN_FREQ_PY, MIN_FREQ_PY, f_i_vec
+    )
 
     # second pass #
     # ----------- #
