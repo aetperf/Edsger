@@ -121,7 +121,7 @@ class HyperpathGenerating:
         elif self._orientation == "in":
             compute_SF_in(
                 self._indptr,
-                self._indices,
+                # self._indices,
                 self._edge_idx,
                 self._trav_time,
                 self._freq,

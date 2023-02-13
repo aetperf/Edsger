@@ -19,15 +19,15 @@ DTYPE_INF_PY = DTYPE_INF
 # infinite frequency is defined here numerically
 # this must be a very large number depending on the precision on the computation
 # INF_FREQ << DTYPE_INF
-cdef DTYPE_t INF_FREQ = 1.0e+20
+INF_FREQ = 1.0e+20
 INF_FREQ_PY = INF_FREQ
 
 # smallest frequency
 # WARNING: this must be small but not too small 
 # 1 / MIN_FREQ << DTYPE_INF
-cdef DTYPE_t MIN_FREQ = 1.0e-20
+MIN_FREQ = 1.0 / INF_FREQ
 MIN_FREQ_PY =  MIN_FREQ
 
 # a very small time interval
-cdef DTYPE_t A_VERY_SMALL_TIME_INTERVAL = 1.0e-12
+A_VERY_SMALL_TIME_INTERVAL = 1.0e+08 * MIN_FREQ
 A_VERY_SMALL_TIME_INTERVAL_PY = A_VERY_SMALL_TIME_INTERVAL

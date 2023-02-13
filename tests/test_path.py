@@ -14,11 +14,11 @@ from edsger.path import HyperpathGenerating
 
 def test_SF_in_01():
 
-    edges = create_SF_network(dwell_time=0.0, a_very_small_time_interval=0.0)
+    edges = create_SF_network(dwell_time=0.0)
     hp = HyperpathGenerating(edges, check_edges=False)
     hp.run(origin=0, destination=12, volume=1.0)
 
-    assert np.allclose(edges["volume"].values, hp._edges["volume"].values)
+    assert np.allclose(edges["volume_ref"].values, hp._edges["volume"].values)
 
     u_i_vec_ref = np.array(
         [
@@ -40,4 +40,4 @@ def test_SF_in_01():
             0.00000000e00,
         ]
     )
-    assert np.allclose(u_i_vec_ref, hp.u_i_vec, rtol=1e-06, atol=1e-06)
+    assert np.allclose(u_i_vec_ref, hp.u_i_vec, rtol=1e-08, atol=1e-08)

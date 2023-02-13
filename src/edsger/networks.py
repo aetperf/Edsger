@@ -5,9 +5,7 @@ import numpy as np
 import pandas as pd
 
 
-def create_SF_network(
-    dwell_time=1.0e-6, a_very_small_time_interval=1.0e-06, board_alight_ratio=0.5
-):
+def create_SF_network(dwell_time=1.0e-6, board_alight_ratio=0.5):
     """
     Example network from Spiess, H. and Florian, M. (1989).
     Optimal strategies: A new assignment model for transit networks.
@@ -17,7 +15,7 @@ def create_SF_network(
     """
 
     boarding_time = board_alight_ratio * dwell_time
-    alighting_time = board_alight_ratio * dwell_time + a_very_small_time_interval
+    alighting_time = board_alight_ratio * dwell_time
 
     line1_freq = 1.0 / (60.0 * 12.0)
     line2_freq = 1.0 / (60.0 * 12.0)
@@ -276,7 +274,7 @@ def create_SF_network(
             "head": head,
             "trav_time": trav_time,
             "freq": freq,
-            "volume": vol,
+            "volume_ref": vol,
         }
     )
     # waiting time is in average half of the period
