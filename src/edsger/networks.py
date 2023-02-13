@@ -5,9 +5,7 @@ import numpy as np
 import pandas as pd
 
 
-def create_SF_network(
-    dwell_time=1.0e-6, board_alight_ratio=0.5
-):
+def create_SF_network(dwell_time=1.0e-6, board_alight_ratio=0.5):
     """
     Example network from Spiess, H. and Florian, M. (1989).
     Optimal strategies: A new assignment model for transit networks.
