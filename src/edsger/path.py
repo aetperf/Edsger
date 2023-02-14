@@ -13,7 +13,220 @@ from edsger.commons import (
     A_VERY_SMALL_TIME_INTERVAL_PY,
 )
 from edsger.spiess_florian import compute_SF_in
-from edsger.star import convert_graph_to_csr_uint32, convert_graph_to_csc_uint32
+from edsger.star import (
+    convert_graph_to_csr_uint32,
+    convert_graph_to_csc_uint32,
+    convert_graph_to_csr_float64,
+    convert_graph_to_csc_float64,
+)
+
+
+class Dijkstra:
+    def __init__(
+        self,
+        edges,
+        source="source",
+        target="target",
+        weight="weight",
+        orientation="out",
+        check_edges=True,
+        permute=False,
+    ):
+        self._return_Series = True
+
+        # load the edges
+        if check_edges:
+            self._check_edges(edges, source, target, weight)
+        self._edges = edges[[tail, head, weight]].copy(deep=True)
+        self.n_edges = len(self._edges)
+
+        # reindex the vertices
+        self._permute = permute
+        if self._permute:
+            self._vertices = self._permute_graph(source, target)
+            self.n_vertices = len(self._vertices)
+        else:
+            self.n_vertices = self._edges[[source, target]].max().max() + 1
+
+        # convert to CSR/CSC
+        self._check_orientation(orientation)
+        self._orientation = orientation
+        if self._orientation == "out":
+            fs_indptr, fs_indices, fs_data = convert_graph_to_csr_float64(
+                self._edges, source, target, weight, self.n_vertices
+            )
+            self._indices = fs_indices.astype(np.uint32)
+            self._indptr = fs_indptr.astype(np.uint32)
+            self._edge_weights = fs_data.astype(DTYPE_PY)
+        else:
+            rs_indptr, rs_indices, rs_data = convert_graph_to_csc_float64(
+                self._edges, source, target, weight, self.n_vertices
+            )
+            self._indices = rs_indices.astype(np.uint32)
+            self._indptr = rs_indptr.astype(np.uint32)
+            self._edge_weights = rs_data.astype(DTYPE_PY)
+            raise NotImplementedError("one-to_all shortest path not implemented yet")
+
+    def _check_edges(self, edges, source, target, weight):
+
+        if type(edges) != pd.core.frame.DataFrame:
+            raise TypeError("edges should be a pandas DataFrame")
+
+        if source not in edges:
+            raise KeyError(
+                f"edge source column '{source}'  not found in graph edges dataframe"
+            )
+
+        if target not in edges:
+            raise KeyError(
+                f"edge target column '{target}' not found in graph edges dataframe"
+            )
+
+        if weight not in edges:
+            raise KeyError(
+                f"edge weight column '{weight}' not found in graph edges dataframe"
+            )
+
+        if edges[[source, target, weight]].isna().any().any():
+            raise ValueError(
+                " ".join(
+                    [
+                        f"edges[[{source}, {target}, {weight}]] ",
+                        "should not have any missing value",
+                    ]
+                )
+            )
+
+        for col in [source, target]:
+            if not pd.api.types.is_integer_dtype(edges[col].dtype):
+                raise TypeError(f"edges['{col}'] should be of integer type")
+
+        if not pd.api.types.is_numeric_dtype(edges[weight].dtype):
+            raise TypeError(f"edges['{weight}'] should be of numeric type")
+
+        if edges[weight].min() < 0.0:
+            raise ValueError(f"edges['{weight}'] should be nonnegative")
+
+        if not np.isfinite(edges[weight]).all():
+            raise ValueError(f"edges['{weight}'] should be finite")
+
+        # the graph must be a simple directed graphs
+        if edges.duplicated(subset=[source, target]).any():
+            raise ValueError("there should be no parallel edges in the graph")
+        if (edges[source] == edges[target]).any():
+            raise ValueError("there should be no loop in the graph")
+
+    def _permute_graph(self, source, target):
+        """Create a vertex table and reindex the vertices."""
+
+        vertices = pd.DataFrame(
+            data={
+                "vert_idx": np.union1d(
+                    self._edges[source].values, self._edges[target].values
+                )
+            }
+        )
+        vertices["vert_idx_new"] = vertices.index
+        vertices.index.name = "index"
+
+        self._edges = pd.merge(
+            self._edges,
+            vertices[["vert_idx", "vert_idx_new"]],
+            left_on=source,
+            right_on="vert_idx",
+            how="left",
+        )
+        self._edges.drop([source, "vert_idx"], axis=1, inplace=True)
+        self._edges.rename(columns={"vert_idx_new": source}, inplace=True)
+
+        self._edges = pd.merge(
+            self._edges,
+            vertices[["vert_idx", "vert_idx_new"]],
+            left_on=target,
+            right_on="vert_idx",
+            how="left",
+        )
+        self._edges.drop([target, "vert_idx"], axis=1, inplace=True)
+        self._edges.rename(columns={"vert_idx_new": target}, inplace=True)
+
+        vertices.rename(columns={"vert_idx": "vert_idx_old"}, inplace=True)
+        vertices.reset_index(drop=True, inplace=True)
+        vertices.sort_values(by="vert_idx_new", inplace=True)
+
+        vertices.index.name = "index"
+        self._edges.index.name = "index"
+
+        return vertices
+
+    def _check_orientation(self, orientation):
+        if orientation not in ["in", "out"]:
+            raise ValueError(f"orientation should be either 'in' on 'out'")
+
+    def run(
+        self, vertex_idx, return_inf=False, return_Series=True, heap_length_ratio=1.0
+    ):
+
+        self._return_Series = return_Series
+
+        # check the source/target vertex
+        if self._permute:
+            if vertex_idx not in self._vertices.vert_idx_old.values:
+                raise ValueError(f"vertex {vertex_idx} not found in graph")
+            vertex_new = self._vertices.loc[
+                self._vertices.vert_idx_old == vertex_idx, "vert_idx_new"
+            ]
+        else:
+            if vertex_idx >= self.n_vertices:
+                raise ValueError(f"vertex {vertex_idx} not found in graph")
+            vertex_new = vertex_idx
+
+        # compute path length
+        if self._orientation == "out":
+            path_length_values = path_length_from_4ary(
+                self._indices,
+                self._indptr,
+                self._edge_weights,
+                vertex_new,
+                self.n_vertices,
+            )
+
+        # deal with infinity
+        if return_inf:
+            path_length_values = np.where(
+                path_length_values == DTYPE_INF_PY, np.inf, path_length_values
+            )
+
+        # reorder results
+        if self._return_Series:
+
+            if self._permute:
+                self._vertices["path_length"] = path_length_values
+                path_lengths_df = self._vertices[
+                    ["vert_idx_old", "path_length"]
+                ].sort_values(by="vert_idx_old")
+                path_lengths_df.set_index("vert_idx_old", drop=True, inplace=True)
+                path_lengths_df.index.name = "vertex_idx"
+                path_lengths_series = path_lengths_df.path_length
+            else:
+                path_lengths_series = pd.Series(path_length_values)
+                path_lengths_series.index.name = "vertex_idx"
+                path_lengths_series.name = "path_length"
+
+            return path_lengths_series
+
+        else:
+
+            if self._permute:
+                self._vertices["path_length"] = path_length_values
+                path_lengths_df = self._vertices[
+                    ["vert_idx_old", "path_length"]
+                ].sort_values(by="vert_idx_old")
+                path_lengths_df.set_index("vert_idx_old", drop=True, inplace=True)
+                path_lengths_df.index.name = "vertex_idx"
+                path_lengths_series = path_lengths_df.path_length
+                path_length_values = path_lengths_series.values
+
+            return path_length_values
 
 
 class HyperpathGenerating:
