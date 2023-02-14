@@ -12,6 +12,7 @@ from edsger.commons import (
     INF_FREQ_PY,
     A_VERY_SMALL_TIME_INTERVAL_PY,
 )
+from edsger.dijkstra import compute_sssp, compute_stsp
 from edsger.spiess_florian import compute_SF_in
 from edsger.star import (
     convert_graph_to_csr_uint32,
@@ -162,9 +163,7 @@ class Dijkstra:
         if orientation not in ["in", "out"]:
             raise ValueError(f"orientation should be either 'in' on 'out'")
 
-    def run(
-        self, vertex_idx, return_inf=False, return_Series=True, heap_length_ratio=1.0
-    ):
+    def run(self, vertex_idx, return_inf=False, return_Series=True):
 
         self._return_Series = return_Series
 
@@ -181,10 +180,18 @@ class Dijkstra:
             vertex_new = vertex_idx
 
         # compute path length
-        if self._orientation == "out":
-            path_length_values = path_length_from_4ary(
-                self._indices,
+        if self._orientation == "in":
+            path_length_values = compute_stsp(
                 self._indptr,
+                self._indices,
+                self._edge_weights,
+                vertex_new,
+                self.n_vertices,
+            )
+        else:
+            path_length_values = compute_sssp(
+                self._indptr,
+                self._indices,
                 self._edge_weights,
                 vertex_new,
                 self.n_vertices,
