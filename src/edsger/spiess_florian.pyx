@@ -46,12 +46,14 @@ cpdef void compute_SF_in(
     # vertex properties
     f_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)  # vertex frequency (inverse of the maximum delay)
     u_j_c_a_vec = DTYPE_INF_PY * np.ones(edge_count, dtype=DTYPE_PY)    
+    v_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)  # vertex volume
     
     # edge properties
     h_a_vec = np.zeros(edge_count, dtype=bool)  # edge belonging to hyperpath
 
     # first pass #
     # ---------- #
+
     _SF_in_first_pass(
         csc_indptr,
         csc_edge_idx,
@@ -95,21 +97,18 @@ cpdef void compute_SF_in(
         # sort the links with descreasing order of u_j + c_a
         h_a_count = h_a_vec.sum()
         masked_a = np.ma.array(-u_j_c_a_vec, mask=~h_a_vec)
-        indices = np.argsort(masked_a)
-        
-        for i in range(h_a_count):
+        edge_indices = np.argsort(masked_a).astype(np.uint32)
 
-            edge_idx = <size_t>indices[i]
-            tail_vert_idx = <size_t>tail_indices[edge_idx]
-
-            v_i = v_i_vec[tail_vert_idx]
-            f_i = f_i_vec[tail_vert_idx]
-            f_a = f_a_vec[edge_idx]
-
-            # update v_a
-            v_a_new = v_i * f_a / f_i
-            v_a_vec[edge_idx] = v_a_new
-            v_i_vec[<size_t>head_indices[edge_idx]] += v_a_new
+        _SF_in_second_pass(
+            edge_indices,
+            tail_indices,
+            head_indices,
+            v_i_vec,
+            v_a_vec,
+            f_i_vec,
+            f_a_vec,
+            h_a_count
+        )
 
 
 cdef void _SF_in_first_pass(
@@ -203,6 +202,36 @@ cdef void _SF_in_first_pass(
                     u_j_c_a_vec[edge_idx] = u_j_c_a
 
     pq.free_pqueue(&pqueue)
+
+
+cdef void _SF_in_second_pass(
+    cnp.uint32_t[::1] edge_indices,
+    cnp.uint32_t[::1] tail_indices,
+    cnp.uint32_t[::1] head_indices,
+    DTYPE_t[::1] v_i_vec,
+    DTYPE_t[::1] v_a_vec,
+    DTYPE_t[::1] f_i_vec,
+    DTYPE_t[::1] f_a_vec,
+    size_t h_a_count
+) nogil:
+
+    cdef:
+        size_t i, edge_idx, vert_idx
+        DTYPE_t v_i, f_i, f_a, v_a_new
+
+    for i in range(h_a_count):
+
+        edge_idx = <size_t>edge_indices[i]
+        vert_idx = <size_t>tail_indices[edge_idx]
+
+        v_i = v_i_vec[vert_idx]
+        f_i = f_i_vec[vert_idx]
+        f_a = f_a_vec[edge_idx]
+
+        # update v_a
+        v_a_new = v_i * f_a / f_i
+        v_a_vec[edge_idx] = v_a_new
+        v_i_vec[<size_t>head_indices[edge_idx]] += v_a_new
 
 
 # ============================================================================ #
