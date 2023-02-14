@@ -176,25 +176,3 @@ class HyperpathGenerating:
 
             if edges[col].min() < 0.0:
                 raise ValueError(f"column '{col}' should be nonnegative")
-
-
-# if __name__ == "__main__":
-
-#     tail = [0, 0]
-#     head = [1, 1]
-#     trav_time = [1.0, 1.0]
-#     freq = [2.0, 1.0]
-#     vol = [0.666666666, 0.333333333]
-#     edges = pd.DataFrame(
-#         data={
-#             "tail": tail,
-#             "head": head,
-#             "trav_time": trav_time,
-#             "freq": freq,
-#             "volume": vol,
-#         }
-#     )
-#     hp = HyperpathGenerating(edges, check_edges=True)
-#     print(hp._indptr)
-#     print(hp._indices)
-#     print(hp._edge_idx)
