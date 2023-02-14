@@ -573,56 +573,57 @@ cpdef is_empty_01():
     free_pqueue(&pqueue)
 
 
-# cpdef decrease_key_01():
-#     """ 
-#     Insert elements into a priority queue and decrease the largest 
-#     key value to become the smallest.
-#     """
+cpdef decrease_key_01():
+    """ 
+    Insert elements into a priority queue and decrease the largest 
+    key value to become the smallest.
+    """
 
-#     cdef PriorityQueue pqueue
+    cdef PriorityQueue pqueue
 
-#     init_pqueue(&pqueue, 4, 4)
+    init_pqueue(&pqueue, 4, 4)
 
-#     insert(&pqueue, 1, 3.0)
-#     insert(&pqueue, 0, 2.0)
-#     insert(&pqueue, 3, 4.0)
-#     insert(&pqueue, 2, 1.0)
+    insert(&pqueue, 1, 3.0)
+    insert(&pqueue, 0, 2.0)
+    insert(&pqueue, 3, 4.0)
+    insert(&pqueue, 2, 1.0)
 
-#     assert pqueue.size == 4
-#     A_ref = [2, 0, 3, 1]
-#     n_ref = [1, 3, 0, 2]
-#     key_ref = [2.0, 3.0, 1.0, 4.0]
-#     for i in range(4):
-#         assert pqueue.A[i] == A_ref[i]
-#         assert pqueue.Elements[i].node_idx == n_ref[i]
-#         assert pqueue.Elements[i].state == LABELED
-#         assert pqueue.Elements[i].key == key_ref[i]
+    assert pqueue.size == 4
+    A_ref = [2, 1, 3, 0]
+    n_ref = [3, 1, 0, 2]
+    key_ref = [2.0, 3.0, 1.0, 4.0]
+    for i in range(4):
+        assert pqueue.A[i] == A_ref[i]
+        assert pqueue.Elements[i].node_idx == n_ref[i]
+        assert pqueue.Elements[i].state == LABELED
+        assert pqueue.Elements[i].key == key_ref[i]
 
-#     decrease_key(&pqueue, 3, 0.0)
+    decrease_key(&pqueue, 3, 0.0)
 
-#     assert pqueue.size == 4
-#     A_ref = [3, 0, 2, 1]
-#     n_ref = [1, 3, 2, 0]
-#     key_ref = [2.0, 3.0, 1.0, 0.0]
-#     for i in range(4):
-#         assert pqueue.A[i] == A_ref[i]
-#         assert pqueue.Elements[i].node_idx == n_ref[i]
-#         assert pqueue.Elements[i].state == LABELED
-#         assert pqueue.Elements[i].key == key_ref[i]
+    assert pqueue.size == 4
+    A_ref = [3, 1, 2, 0]
+    n_ref = [3, 1, 2, 0]
+    key_ref = [2.0, 3.0, 1.0, 0.0]
+    for i in range(4):
+        assert pqueue.A[i] == A_ref[i]
+        assert pqueue.Elements[i].node_idx == n_ref[i]
+        assert pqueue.Elements[i].state == LABELED
+        assert pqueue.Elements[i].key == key_ref[i]
 
-#     decrease_key(&pqueue, 1, -1.0)
+    decrease_key(&pqueue, 1, -1.0)
 
-#     assert pqueue.size == 4
-#     A_ref = [1, 3, 2, 0]
-#     n_ref = [3, 0, 2, 1]
-#     key_ref = [2.0, -1.0, 1.0, 0.0]
-#     for i in range(4):
-#         assert pqueue.A[i] == A_ref[i]
-#         assert pqueue.Elements[i].node_idx == n_ref[i]
-#         assert pqueue.Elements[i].state == LABELED
-#         assert pqueue.Elements[i].key == key_ref[i]
+    assert pqueue.size == 4
+    A_ref = [1, 3, 2, 0]
+    n_ref = [3, 0, 2, 1]
+    key_ref = [2.0, -1.0, 1.0, 0.0]
+    for i in range(4):
+        assert pqueue.A[i] == A_ref[i]
+        assert pqueue.Elements[i].node_idx == n_ref[i]
+        assert pqueue.Elements[i].state == LABELED
+        print(pqueue.Elements[i].key)
+        assert pqueue.Elements[i].key == key_ref[i]
 
-#     free_pqueue(&pqueue)
+    free_pqueue(&pqueue)
 
 
 cdef void heapsort(DTYPE_t[::1] values_in, DTYPE_t[::1] values_out) nogil:
