@@ -5,29 +5,22 @@ Path-related methods.
 import numpy as np
 import pandas as pd
 
-from edsger.commons import (
-    DTYPE_PY,
-    DTYPE_INF_PY,
-    MIN_FREQ_PY,
-    INF_FREQ_PY,
-    A_VERY_SMALL_TIME_INTERVAL_PY,
-)
+from edsger.commons import (A_VERY_SMALL_TIME_INTERVAL_PY, DTYPE_INF_PY,
+                            DTYPE_PY, INF_FREQ_PY, MIN_FREQ_PY)
 from edsger.dijkstra import compute_sssp, compute_stsp
 from edsger.spiess_florian import compute_SF_in
-from edsger.star import (
-    convert_graph_to_csr_uint32,
-    convert_graph_to_csc_uint32,
-    convert_graph_to_csr_float64,
-    convert_graph_to_csc_float64,
-)
+from edsger.star import (convert_graph_to_csc_float64,
+                         convert_graph_to_csc_uint32,
+                         convert_graph_to_csr_float64,
+                         convert_graph_to_csr_uint32)
 
 
 class Dijkstra:
     def __init__(
         self,
         edges,
-        source="source",
-        target="target",
+        tail="tail",
+        head="head",
         weight="weight",
         orientation="out",
         check_edges=True,
@@ -37,50 +30,50 @@ class Dijkstra:
 
         # load the edges
         if check_edges:
-            self._check_edges(edges, source, target, weight)
+            self._check_edges(edges, tail, head, weight)
         self._edges = edges[[tail, head, weight]].copy(deep=True)
         self.n_edges = len(self._edges)
 
         # reindex the vertices
         self._permute = permute
         if self._permute:
-            self._vertices = self._permute_graph(source, target)
+            self._vertices = self._permute_graph(tail, head)
             self.n_vertices = len(self._vertices)
         else:
-            self.n_vertices = self._edges[[source, target]].max().max() + 1
+            self.n_vertices = self._edges[[tail, head]].max().max() + 1
 
         # convert to CSR/CSC
         self._check_orientation(orientation)
         self._orientation = orientation
         if self._orientation == "out":
             fs_indptr, fs_indices, fs_data = convert_graph_to_csr_float64(
-                self._edges, source, target, weight, self.n_vertices
+                self._edges, tail, head, weight, self.n_vertices
             )
             self._indices = fs_indices.astype(np.uint32)
             self._indptr = fs_indptr.astype(np.uint32)
             self._edge_weights = fs_data.astype(DTYPE_PY)
         else:
             rs_indptr, rs_indices, rs_data = convert_graph_to_csc_float64(
-                self._edges, source, target, weight, self.n_vertices
+                self._edges, tail, head, weight, self.n_vertices
             )
             self._indices = rs_indices.astype(np.uint32)
             self._indptr = rs_indptr.astype(np.uint32)
             self._edge_weights = rs_data.astype(DTYPE_PY)
             raise NotImplementedError("one-to_all shortest path not implemented yet")
 
-    def _check_edges(self, edges, source, target, weight):
+    def _check_edges(self, edges, tail, head, weight):
 
         if type(edges) != pd.core.frame.DataFrame:
             raise TypeError("edges should be a pandas DataFrame")
 
-        if source not in edges:
+        if tail not in edges:
             raise KeyError(
-                f"edge source column '{source}'  not found in graph edges dataframe"
+                f"edge tail column '{tail}'  not found in graph edges dataframe"
             )
 
-        if target not in edges:
+        if head not in edges:
             raise KeyError(
-                f"edge target column '{target}' not found in graph edges dataframe"
+                f"edge head column '{head}' not found in graph edges dataframe"
             )
 
         if weight not in edges:
@@ -88,17 +81,17 @@ class Dijkstra:
                 f"edge weight column '{weight}' not found in graph edges dataframe"
             )
 
-        if edges[[source, target, weight]].isna().any().any():
+        if edges[[tail, head, weight]].isna().any().any():
             raise ValueError(
                 " ".join(
                     [
-                        f"edges[[{source}, {target}, {weight}]] ",
+                        f"edges[[{tail}, {head}, {weight}]] ",
                         "should not have any missing value",
                     ]
                 )
             )
 
-        for col in [source, target]:
+        for col in [tail, head]:
             if not pd.api.types.is_integer_dtype(edges[col].dtype):
                 raise TypeError(f"edges['{col}'] should be of integer type")
 
@@ -112,18 +105,18 @@ class Dijkstra:
             raise ValueError(f"edges['{weight}'] should be finite")
 
         # the graph must be a simple directed graphs
-        if edges.duplicated(subset=[source, target]).any():
+        if edges.duplicated(subset=[tail, head]).any():
             raise ValueError("there should be no parallel edges in the graph")
-        if (edges[source] == edges[target]).any():
+        if (edges[tail] == edges[head]).any():
             raise ValueError("there should be no loop in the graph")
 
-    def _permute_graph(self, source, target):
+    def _permute_graph(self, tail, head):
         """Create a vertex table and reindex the vertices."""
 
         vertices = pd.DataFrame(
             data={
                 "vert_idx": np.union1d(
-                    self._edges[source].values, self._edges[target].values
+                    self._edges[tail].values, self._edges[head].values
                 )
             }
         )
@@ -133,22 +126,22 @@ class Dijkstra:
         self._edges = pd.merge(
             self._edges,
             vertices[["vert_idx", "vert_idx_new"]],
-            left_on=source,
+            left_on=tail,
             right_on="vert_idx",
             how="left",
         )
-        self._edges.drop([source, "vert_idx"], axis=1, inplace=True)
-        self._edges.rename(columns={"vert_idx_new": source}, inplace=True)
+        self._edges.drop([tail, "vert_idx"], axis=1, inplace=True)
+        self._edges.rename(columns={"vert_idx_new": tail}, inplace=True)
 
         self._edges = pd.merge(
             self._edges,
             vertices[["vert_idx", "vert_idx_new"]],
-            left_on=target,
+            left_on=head,
             right_on="vert_idx",
             how="left",
         )
-        self._edges.drop([target, "vert_idx"], axis=1, inplace=True)
-        self._edges.rename(columns={"vert_idx_new": target}, inplace=True)
+        self._edges.drop([head, "vert_idx"], axis=1, inplace=True)
+        self._edges.rename(columns={"vert_idx_new": head}, inplace=True)
 
         vertices.rename(columns={"vert_idx": "vert_idx_old"}, inplace=True)
         vertices.reset_index(drop=True, inplace=True)
@@ -167,7 +160,7 @@ class Dijkstra:
 
         self._return_Series = return_Series
 
-        # check the source/target vertex
+        # check the tail/head vertex
         if self._permute:
             if vertex_idx not in self._vertices.vert_idx_old.values:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
