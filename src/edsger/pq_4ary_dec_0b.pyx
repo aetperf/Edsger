@@ -417,68 +417,68 @@ cpdef insert_01():
     free_pqueue(&pqueue)
 
 
-# cpdef insert_02():
-#     """ 
-#     Insert 4 elements into an empty priority queue of length 4.
-#     """
+cpdef insert_02():
+    """ 
+    Insert 4 elements into an empty priority queue of length 4.
+    """
 
-#     cdef: 
-#         PriorityQueue pqueue
-#         DTYPE_t key
+    cdef: 
+        PriorityQueue pqueue
+        DTYPE_t key
 
-#     init_pqueue(&pqueue, 4, 4)
+    init_pqueue(&pqueue, 4, 4)
 
-#     elem_idx = 1
-#     key = 3.0
-#     insert(&pqueue, elem_idx, key)
-#     A_ref = [1, 4, 4, 4]
-#     for i in range(4):
-#         assert pqueue.A[i] == A_ref[i]
-#     assert pqueue.Elements[elem_idx].key == key
-#     assert pqueue.Elements[elem_idx].state == LABELED
-#     assert pqueue.Elements[1].node_idx == 0
-#     assert pqueue.size == 1
+    elem_idx = 1
+    key = 3.0
+    insert(&pqueue, elem_idx, key)
+    A_ref = [1, 4, 4, 4]
+    for i in range(4):
+        assert pqueue.A[i] == A_ref[i]
+    assert pqueue.Elements[elem_idx].key == key
+    assert pqueue.Elements[elem_idx].state == LABELED
+    assert pqueue.Elements[1].node_idx == 0
+    assert pqueue.size == 1
 
-#     elem_idx = 0
-#     key = 2.0
-#     insert(&pqueue, elem_idx, key)
-#     A_ref = [0, 1, 4, 4]
-#     for i in range(4):
-#         assert pqueue.A[i] == A_ref[i]
-#     assert pqueue.Elements[elem_idx].key == key
-#     assert pqueue.Elements[elem_idx].state == LABELED
-#     assert pqueue.Elements[0].node_idx == 0
-#     assert pqueue.Elements[1].node_idx == 1
-#     assert pqueue.size == 2
+    elem_idx = 0
+    key = 2.0
+    insert(&pqueue, elem_idx, key)
+    A_ref = [0, 1, 4, 4]
+    for i in range(4):
+        assert pqueue.A[i] == A_ref[i]
+    assert pqueue.Elements[elem_idx].key == key
+    assert pqueue.Elements[elem_idx].state == LABELED
+    assert pqueue.Elements[0].node_idx == 0
+    assert pqueue.Elements[1].node_idx == 1
+    assert pqueue.size == 2
 
-#     elem_idx = 3
-#     key = 4.0
-#     insert(&pqueue, elem_idx, key)
-#     A_ref = [0, 1, 3, 4]
-#     for i in range(4):
-#         assert pqueue.A[i] == A_ref[i]
-#     assert pqueue.Elements[elem_idx].key == key
-#     assert pqueue.Elements[elem_idx].state == LABELED
-#     assert pqueue.Elements[0].node_idx == 0
-#     assert pqueue.Elements[1].node_idx == 1
-#     assert pqueue.Elements[3].node_idx == 2
-#     assert pqueue.size == 3
+    elem_idx = 3
+    key = 4.0
+    insert(&pqueue, elem_idx, key)
+    A_ref = [0, 1, 3, 4]
+    for i in range(4):
+        assert pqueue.A[i] == A_ref[i]
+    assert pqueue.Elements[elem_idx].key == key
+    assert pqueue.Elements[elem_idx].state == LABELED
+    assert pqueue.Elements[0].node_idx == 0
+    assert pqueue.Elements[1].node_idx == 1
+    assert pqueue.Elements[3].node_idx == 2
+    assert pqueue.size == 3
 
-#     elem_idx = 2
-#     key = 1.0
-#     insert(&pqueue, elem_idx, key)
-#     A_ref = [2, 0, 3, 1]
-#     for i in range(4):
-#         assert pqueue.A[i] == A_ref[i]
-#     assert pqueue.Elements[2].key == key
-#     assert pqueue.Elements[2].state == LABELED
-#     assert pqueue.Elements[0].node_idx == 1
-#     assert pqueue.Elements[1].node_idx == 3
-#     assert pqueue.Elements[2].node_idx == 0
-#     assert pqueue.Elements[3].node_idx == 2
-#     assert pqueue.size == 4
+    elem_idx = 2
+    key = 1.0
+    insert(&pqueue, elem_idx, key)
+    A_ref = [2, 1, 3, 0]
+    for i in range(4):
+        assert pqueue.A[i] == A_ref[i]
+    assert pqueue.Elements[2].key == key
+    assert pqueue.Elements[2].state == LABELED
+    assert pqueue.Elements[0].node_idx == 3
+    assert pqueue.Elements[1].node_idx == 1
+    assert pqueue.Elements[2].node_idx == 0
+    assert pqueue.Elements[3].node_idx == 2
+    assert pqueue.size == 4
 
-#     free_pqueue(&pqueue)
+    free_pqueue(&pqueue)
 
 
 cpdef insert_03(int length=4):

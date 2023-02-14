@@ -17,8 +17,8 @@ def test_insert_01():
     insert_01()
 
 
-# def test_insert_02():
-#     insert_02()
+def test_insert_02():
+    insert_02()
 
 
 def test_insert_03():
