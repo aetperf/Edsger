@@ -23,7 +23,6 @@ cimport edsger.pq_4ary_dec_0b as pq  # priority queue
 
 cpdef void compute_SF_in(
     cnp.uint32_t[::1] csc_indptr,  
-    # cnp.uint32_t[::1] csc_indices, 
     cnp.uint32_t[::1] csc_edge_idx,
     DTYPE_t[::1] c_a_vec,
     DTYPE_t[::1] f_a_vec,
@@ -253,7 +252,6 @@ cpdef compute_SF_in_01():
     f_a = MIN_FREQ_PY
 
     csc_indptr = np.array([0, 0, 1], dtype=np.uint32)
-    # csc_indices = np.array([0], dtype=np.uint32)
     csc_edge_idx = np.array([0], dtype=np.uint32)
     c_a_vec = np.array([1.0], dtype=DTYPE_PY)
     f_a_vec = np.array([f_a], dtype=DTYPE_PY)
@@ -268,7 +266,6 @@ cpdef compute_SF_in_01():
 
     compute_SF_in(
         csc_indptr,  
-        # csc_indices, 
         csc_edge_idx,
         c_a_vec,
         f_a_vec,
@@ -291,7 +288,6 @@ cpdef compute_SF_in_01():
 
     compute_SF_in(
         csc_indptr,  
-        # csc_indices, 
         csc_edge_idx,
         c_a_vec,
         f_a_vec,
@@ -319,7 +315,6 @@ cpdef compute_SF_in_02():
     volume = 1.0
 
     csc_indptr = np.array([0, 0, 2], dtype=np.uint32)
-    # csc_indices = np.array([0, 0], dtype=np.uint32)
     csc_edge_idx = np.array([0, 1], dtype=np.uint32)
     c_a_vec = np.array([1.0, 1.0], dtype=DTYPE_PY)
     f_a_vec = np.array([2.0, 1.0], dtype=DTYPE_PY)
@@ -334,7 +329,6 @@ cpdef compute_SF_in_02():
 
     compute_SF_in(
         csc_indptr,  
-        # csc_indices, 
         csc_edge_idx,
         c_a_vec,
         f_a_vec,

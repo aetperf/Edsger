@@ -60,18 +60,16 @@ class HyperpathGenerating:
         assert orientation in ["out", "in"]
         self._orientation = orientation
         if self._orientation == "out":
-            fs_indptr, fs_indices, fs_data = convert_graph_to_csr_uint32(
+            fs_indptr, _, fs_data = convert_graph_to_csr_uint32(
                 self._edges, tail, head, data_col, self.vertex_count
             )
             self._indptr = fs_indptr.astype(np.uint32)
-            self._indices = fs_indices.astype(np.uint32)
             self._edge_idx = fs_data.astype(np.uint32)
         else:
-            rs_indptr, rs_indices, rs_data = convert_graph_to_csc_uint32(
+            rs_indptr, _, rs_data = convert_graph_to_csc_uint32(
                 self._edges, tail, head, data_col, self.vertex_count
             )
             self._indptr = rs_indptr.astype(np.uint32)
-            self._indices = rs_indices.astype(np.uint32)
             self._edge_idx = rs_data.astype(np.uint32)
 
         # edge attributes
@@ -121,7 +119,6 @@ class HyperpathGenerating:
         elif self._orientation == "in":
             compute_SF_in(
                 self._indptr,
-                # self._indices,
                 self._edge_idx,
                 self._trav_time,
                 self._freq,
