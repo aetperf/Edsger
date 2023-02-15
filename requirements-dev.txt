@@ -2,6 +2,7 @@
 --requirement requirements.txt
 
 # Testing
+scipy
 pytest
 
 # Linting/Tooling
