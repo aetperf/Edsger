@@ -5,14 +5,14 @@ Example :
 > python dijkstra_dimacs.py -n USA -r 4 -c True
 """
 
-from argparse import ArgumentParser
 import os
 import sys
+from argparse import ArgumentParser
 from time import perf_counter
 
-from loguru import logger
 import numpy as np
 import pandas as pd
+from loguru import logger
 from scipy.sparse import coo_array
 from scipy.sparse.csgraph import dijkstra
 
