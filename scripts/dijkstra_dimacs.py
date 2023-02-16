@@ -1,5 +1,5 @@
 """
-Run Dijkstra's algorithm on DIMACS networks.
+Run Dijkstra's algorithm (SSSP) on DIMACS networks.
 
 Example :
 > python dijkstra_dimacs.py -n USA -r 4 -c True
@@ -181,6 +181,8 @@ df = pd.DataFrame.from_records(results)
 logger.info(f"Edsger min elapsed time : {df.elapsed_time.min():8.4f} s")
 
 if check_result:
+    logger.info(f"result check")
+
     # SciPy
     logger.info("SciPy init")
     data = edges["weight"].values
@@ -200,4 +202,7 @@ if check_result:
     end = perf_counter()
     elapsed_time = end - start
     logger.info(f"SciPy Dijkstra - Elapsed time: {elapsed_time:8.4f} s")
-    logger.info(f"result check : {np.allclose(dist_matrix, dist_matrix_ref)}")
+    logger.info(f"isinf : {np.isinf(dist_matrix_ref).any()}")
+    logger.info(
+        f"allclose : {np.allclose(dist_matrix_ref, dist_matrix, equal_nan=True)}"
+    )
