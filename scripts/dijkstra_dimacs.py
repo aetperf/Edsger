@@ -2,7 +2,7 @@
 Run Dijkstra's algorithm on DIMACS networks.
 
 Example :
-> python benchmark.py -n USA -r 4 -c True
+> python dijkstra_dimacs.py -n USA -r 4 -c True
 """
 
 from argparse import ArgumentParser
