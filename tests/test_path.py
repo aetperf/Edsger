@@ -15,6 +15,7 @@ from scipy.sparse.csgraph import dijkstra
 from edsger.commons import DTYPE_INF_PY
 from edsger.networks import create_SF_network
 from edsger.path import Dijkstra, HyperpathGenerating
+from edsger.commons import A_VERY_SMALL_TIME_INTERVAL_PY
 
 
 @pytest.fixture
@@ -303,4 +304,34 @@ def test_SF_dwell_and_transfer_01():
             0.0,
         ]
     )
+    assert np.allclose(u_i_vec_ref, hp.u_i_vec, rtol=1e-08, atol=1e-08)
+
+    # now we change the dwell edge into a transfer edge
+    freq[0] = line_freq
+
+    # vol = 3*[0.5]
+    edges = pd.DataFrame(
+        data={
+            "tail": tail,
+            "head": head,
+            "trav_time": trav_time,
+            "freq": freq,
+            "volume_ref": vol,
+        }
+    )
+    # waiting time is in average half of the period
+    edges["freq"] *= 2.0
+
+    # SF
+    hp = HyperpathGenerating(edges, check_edges=False)
+    hp.run(origin=0, destination=2, volume=1.0)
+
+    # edges 1 and 2 are note used because edge 1 does not have
+    # a real infinite frequency but INF_FREQ value, for numerical reasons.
+    # This implies a small resistance to the path going through vertex 1.
+    # If we decrease by a tiny amount the frequency of edge 0, the flow goes
+    # though vertex 1.
+    assert np.allclose(edges["volume_ref"].values, hp._edges["volume"].values)
+
+    u_i_vec_ref = [305.0, 302.5, 0.0]
     assert np.allclose(u_i_vec_ref, hp.u_i_vec, rtol=1e-08, atol=1e-08)
