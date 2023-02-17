@@ -48,7 +48,6 @@ def test_check_edges_01():
 
 
 def test_check_edges_02(braess):
-
     edges = braess
 
     with pytest.raises(TypeError, match=r"pandas DataFrame"):
@@ -68,7 +67,6 @@ def test_check_edges_02(braess):
 
 
 def test_check_edges_03(braess):
-
     edges = braess
     sp = Dijkstra(edges, orientation="out", check_edges=True)
     assert (sp._indices == [1, 2, 2, 3, 3]).all()
@@ -77,7 +75,6 @@ def test_check_edges_03(braess):
 
 
 def test_run_01(braess):
-
     edges = braess
     edges[["tail", "head"]] = edges[["tail", "head"]].astype(np.uint32)
     sp = Dijkstra(edges, orientation="out", check_edges=False)
@@ -89,7 +86,6 @@ def test_run_01(braess):
 
 
 def test_run_02(random_seed=124, n=1000):
-
     np.random.seed(random_seed)
     tail = np.random.randint(0, int(n / 5), n)
     head = np.random.randint(0, int(n / 5), n)
@@ -194,7 +190,6 @@ def test_run_03(random_seed=124, n=100, index_offset=10):
 
 
 def test_SF_in_01():
-
     edges = create_SF_network(dwell_time=0.0)
     hp = HyperpathGenerating(edges, check_edges=False)
     hp.run(origin=0, destination=12, volume=1.0)
@@ -219,6 +214,93 @@ def test_SF_in_01():
             0.00000000e00,
             0.00000000e00,
             0.00000000e00,
+        ]
+    )
+    assert np.allclose(u_i_vec_ref, hp.u_i_vec, rtol=1e-08, atol=1e-08)
+
+
+def test_SF_dwell_and_transfer_01():
+    """
+    One line, one stop case. We look at what is happening at a given stop.
+    Do people use the dwell edge (what they should do) or the alighting and
+    boarding edges.
+
+            0
+      0 --------> 2
+        \\      ^
+        1\\    /2
+          \\  /
+           V /
+            1
+
+    Network with 3 vertices and 3 edges.
+    """
+
+    # line 1
+    line_freq = 1.0 / 600.0
+    dwell_time = 5.0
+
+    # stop A
+    # 0 alighting vertex
+    # 1 stop vertex
+    # 2 boarding vertex
+
+    tail = []
+    head = []
+    trav_time = []
+    freq = []
+    vol = []
+
+    # edge 0
+    # stop A : in line 1
+    # dwell edge
+    tail.append(0)
+    head.append(2)
+    freq.append(np.inf)
+    trav_time.append(dwell_time)
+    vol.append(1.0)
+
+    # edge 1
+    # stop A : from line 1
+    # alighting edge
+    tail.append(0)
+    head.append(1)
+    freq.append(np.inf)
+    trav_time.append(0.5 * dwell_time)
+    vol.append(0.0)
+
+    # edge 2
+    # stop A : to line 1
+    # boarding edge
+    tail.append(1)
+    head.append(2)
+    freq.append(line_freq)
+    trav_time.append(0.5 * dwell_time)
+    vol.append(0.0)
+
+    edges = pd.DataFrame(
+        data={
+            "tail": tail,
+            "head": head,
+            "trav_time": trav_time,
+            "freq": freq,
+            "volume_ref": vol,
+        }
+    )
+    # waiting time is in average half of the period
+    edges["freq"] *= 2.0
+
+    # SF
+    hp = HyperpathGenerating(edges, check_edges=False)
+    hp.run(origin=0, destination=2, volume=1.0)
+
+    assert np.allclose(edges["volume_ref"].values, hp._edges["volume"].values)
+
+    u_i_vec_ref = np.array(
+        [
+            dwell_time,
+            0.5 * (1.0 / line_freq + dwell_time),
+            0.0,
         ]
     )
     assert np.allclose(u_i_vec_ref, hp.u_i_vec, rtol=1e-08, atol=1e-08)
