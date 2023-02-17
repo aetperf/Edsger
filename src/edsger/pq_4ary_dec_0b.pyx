@@ -620,7 +620,6 @@ cpdef decrease_key_01():
         assert pqueue.A[i] == A_ref[i]
         assert pqueue.Elements[i].node_idx == n_ref[i]
         assert pqueue.Elements[i].state == LABELED
-        print(pqueue.Elements[i].key)
         assert pqueue.Elements[i].key == key_ref[i]
 
     free_pqueue(&pqueue)
