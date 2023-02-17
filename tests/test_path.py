@@ -326,7 +326,7 @@ def test_SF_dwell_and_transfer_01():
     hp = HyperpathGenerating(edges, check_edges=False)
     hp.run(origin=0, destination=2, volume=1.0)
 
-    # edges 1 and 2 are note used because edge 1 does not have
+    # edges 1 and 2 are not used because edge 1 does not have
     # a real infinite frequency but INF_FREQ value, for numerical reasons.
     # This implies a small resistance to the path going through vertex 1.
     # If we decrease by a tiny amount the frequency of edge 0, the flow goes
