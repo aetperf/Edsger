@@ -83,6 +83,81 @@ cpdef cnp.ndarray compute_sssp(
     return path_lengths
 
 
+cpdef cnp.ndarray compute_sssp_w_path(
+    cnp.uint32_t[::1] csr_indptr,
+    cnp.uint32_t[::1] csr_indices,
+    DTYPE_t[::1] csr_data,
+    cnp.uint32_t[::1] predecessor,
+    int source_vert_idx,
+    int vertex_count):
+    """ 
+    Compute single-source shortest path (from one vertex to all vertices)
+    using the pq_bin_dec_0b priority queue.
+
+    Compute predecessors.
+
+    input
+    =====
+    * cnp.uint32_t[::1] csr_indices : indices in the CSR format
+    * cnp.uint32_t[::1] csr_indptr : pointers in the CSR format
+    * DTYPE_t[::1] csr_data :  data (edge weights) in the CSR format
+    * cnp.uint32_t[::1] predecessor :  array of indices, one for each vertex of 
+        the graph. Each vertex' entry contains the index of its predecessor in 
+        a path from the source, through the graph. 
+    * int source_vert_idx : source vertex index
+    * int vertex_count : vertex count
+
+    output
+    ======
+    * cnp.ndarray : shortest path length for each vertex
+    """
+
+    cdef:
+        size_t tail_vert_idx, head_vert_idx, idx
+        DTYPE_t tail_vert_val, head_vert_val
+        pq.PriorityQueue pqueue
+        ElementState vert_state
+        size_t source = <size_t>source_vert_idx
+
+    with nogil:
+
+        # initialization of the heap elements 
+        # all nodes have INFINITY key and UNLABELED state
+        pq.init_pqueue(&pqueue, <size_t>vertex_count, <size_t>vertex_count)
+
+        # the key is set to zero for the source vertex,
+        # which is inserted into the heap
+        pq.insert(&pqueue, source, 0.0)
+
+        # main loop
+        while pqueue.size > 0:
+            tail_vert_idx = pq.extract_min(&pqueue)
+            tail_vert_val = pqueue.Elements[tail_vert_idx].key
+
+            # loop on outgoing edges
+            for idx in range(<size_t>csr_indptr[tail_vert_idx], 
+                <size_t>csr_indptr[tail_vert_idx + 1]):
+
+                head_vert_idx = <size_t>csr_indices[idx]
+                vert_state = pqueue.Elements[head_vert_idx].state
+                if vert_state != SCANNED:
+                    head_vert_val = tail_vert_val + csr_data[idx]
+                    if vert_state == UNLABELED:
+                        pq.insert(&pqueue, head_vert_idx, head_vert_val)
+                        predecessor[head_vert_idx] = tail_vert_idx
+                    elif pqueue.Elements[head_vert_idx].key > head_vert_val:
+                        pq.decrease_key(&pqueue, head_vert_idx, head_vert_val)
+                        predecessor[head_vert_idx] = tail_vert_idx
+
+    # copy the results into a numpy array
+    path_lengths = pq.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
+
+    # cleanup
+    pq.free_pqueue(&pqueue)  
+
+    return path_lengths
+
+
 cpdef cnp.ndarray compute_stsp(
     cnp.uint32_t[::1] csc_indptr,
     cnp.uint32_t[::1] csc_indices,
@@ -151,6 +226,80 @@ cpdef cnp.ndarray compute_stsp(
 
     return path_lengths
 
+
+cpdef cnp.ndarray compute_stsp_w_path(
+    cnp.uint32_t[::1] csc_indptr,
+    cnp.uint32_t[::1] csc_indices,
+    DTYPE_t[::1] csc_data,
+    cnp.uint32_t[::1] successor,
+    int target_vert_idx,
+    int vertex_count):
+    """ 
+    Compute single-target shortest path (from all vertices to one vertex)
+    using the pq_bin_dec_0b priority queue.
+
+    Compute successors.
+
+    input
+    =====
+    * cnp.uint32_t[::1] csc_indices : indices in the CSC format
+    * cnp.uint32_t[::1] csc_indptr : pointers in the CSC format
+    * DTYPE_t[::1] csc_data :  data (edge weights) in the CSC format
+    * cnp.uint32_t[::1] successor :  array of indices, one for each vertex of 
+        the graph. Each vertex' entry contains the index of its successor in 
+        a path to the target, through the graph. 
+    * int target_vert_idx : source vertex index
+    * int vertex_count : vertex count
+
+    output
+    ======
+    * cnp.ndarray : shortest path length for each vertex
+    """
+
+    cdef:
+        size_t tail_vert_idx, head_vert_idx, idx
+        DTYPE_t tail_vert_val, head_vert_val
+        pq.PriorityQueue pqueue
+        ElementState vert_state
+        size_t target = <size_t>target_vert_idx
+
+    with nogil:
+
+        # initialization of the heap elements 
+        # all nodes have INFINITY key and UNLABELED state
+        pq.init_pqueue(&pqueue, <size_t>vertex_count, <size_t>vertex_count)
+
+        # the key is set to zero for the target vertex,
+        # which is inserted into the heap
+        pq.insert(&pqueue, target, 0.0)
+
+        # main loop
+        while pqueue.size > 0:
+            head_vert_idx = pq.extract_min(&pqueue)
+            head_vert_val = pqueue.Elements[head_vert_idx].key
+
+            # loop on incoming edges
+            for idx in range(<size_t>csc_indptr[head_vert_idx], 
+                <size_t>csc_indptr[head_vert_idx + 1]):
+
+                tail_vert_idx = <size_t>csc_indices[idx]
+                vert_state = pqueue.Elements[tail_vert_idx].state
+                if vert_state != SCANNED:
+                    tail_vert_val = head_vert_val + csc_data[idx]
+                    if vert_state == UNLABELED:
+                        pq.insert(&pqueue, tail_vert_idx, tail_vert_val)
+                        successor[tail_vert_idx] = head_vert_idx
+                    elif pqueue.Elements[tail_vert_idx].key > tail_vert_val:
+                        pq.decrease_key(&pqueue, tail_vert_idx, tail_vert_val)
+                        successor[tail_vert_idx] = head_vert_idx
+
+    # copy the results into a numpy array
+    path_lengths = pq.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
+
+    # cleanup
+    pq.free_pqueue(&pqueue)  
+
+    return path_lengths
 
 
 # ============================================================================ #
