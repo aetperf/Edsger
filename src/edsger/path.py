@@ -5,14 +5,21 @@ Path-related methods.
 import numpy as np
 import pandas as pd
 
-from edsger.commons import (A_VERY_SMALL_TIME_INTERVAL_PY, DTYPE_INF_PY,
-                            DTYPE_PY, INF_FREQ_PY, MIN_FREQ_PY)
+from edsger.commons import (
+    A_VERY_SMALL_TIME_INTERVAL_PY,
+    DTYPE_INF_PY,
+    DTYPE_PY,
+    INF_FREQ_PY,
+    MIN_FREQ_PY,
+)
 from edsger.dijkstra import compute_sssp, compute_stsp
 from edsger.spiess_florian import compute_SF_in
-from edsger.star import (convert_graph_to_csc_float64,
-                         convert_graph_to_csc_uint32,
-                         convert_graph_to_csr_float64,
-                         convert_graph_to_csr_uint32)
+from edsger.star import (
+    convert_graph_to_csc_float64,
+    convert_graph_to_csc_uint32,
+    convert_graph_to_csr_float64,
+    convert_graph_to_csr_uint32,
+)
 
 
 class Dijkstra:
@@ -25,6 +32,7 @@ class Dijkstra:
         orientation="out",
         check_edges=True,
         permute=False,
+        path_tracking=False,
     ):
         self._return_Series = True
 
@@ -41,6 +49,9 @@ class Dijkstra:
             self.n_vertices = len(self._vertices)
         else:
             self.n_vertices = self._edges[[tail, head]].max().max() + 1
+
+        # path tracking
+        self._path_tracking = path_tracking
 
         # convert to CSR/CSC
         self._check_orientation(orientation)
@@ -62,7 +73,6 @@ class Dijkstra:
             raise NotImplementedError("one-to_all shortest path not implemented yet")
 
     def _check_edges(self, edges, tail, head, weight):
-
         if type(edges) != pd.core.frame.DataFrame:
             raise TypeError("edges should be a pandas DataFrame")
 
@@ -157,7 +167,6 @@ class Dijkstra:
             raise ValueError(f"orientation should be either 'in' on 'out'")
 
     def run(self, vertex_idx, return_inf=False, return_Series=True):
-
         self._return_Series = return_Series
 
         # check the tail/head vertex
@@ -173,22 +182,48 @@ class Dijkstra:
             vertex_new = vertex_idx
 
         # compute path length
-        if self._orientation == "in":
-            path_length_values = compute_stsp(
-                self._indptr,
-                self._indices,
-                self._edge_weights,
-                vertex_new,
-                self.n_vertices,
-            )
+        if not self._path_tracking:
+            self.path = None
+            if self._orientation == "in":
+                path_length_values = compute_stsp(
+                    self._indptr,
+                    self._indices,
+                    self._edge_weights,
+                    vertex_new,
+                    self.n_vertices,
+                )
+            else:
+                path_length_values = compute_sssp(
+                    self._indptr,
+                    self._indices,
+                    self._edge_weights,
+                    vertex_new,
+                    self.n_vertices,
+                )
         else:
-            path_length_values = compute_sssp(
-                self._indptr,
-                self._indices,
-                self._edge_weights,
-                vertex_new,
-                self.n_vertices,
-            )
+            self.path = np.arange(0, self.n_vertices, dtype=np.uint32)
+            if self._orientation == "in":
+                path_length_values = compute_stsp_w_path(
+                    self._indptr,
+                    self._indices,
+                    self._edge_weights,
+                    self.path,
+                    vertex_new,
+                    self.n_vertices,
+                )
+            else:
+                path_length_values = compute_sssp_w_path(
+                    self._indptr,
+                    self._indices,
+                    self._edge_weights,
+                    self.path,
+                    vertex_new,
+                    self.n_vertices,
+                )
+
+            if self._permute:
+                # permute back the vertex indices
+                raise NotImplementedError
 
         # deal with infinity
         if return_inf:
@@ -198,7 +233,6 @@ class Dijkstra:
 
         # reorder results
         if self._return_Series:
-
             if self._permute:
                 self._vertices["path_length"] = path_length_values
                 path_lengths_df = self._vertices[
@@ -215,7 +249,6 @@ class Dijkstra:
             return path_lengths_series
 
         else:
-
             if self._permute:
                 self._vertices["path_length"] = path_length_values
                 path_lengths_df = self._vertices[
@@ -240,7 +273,6 @@ class HyperpathGenerating:
         check_edges=False,
         orientation="in",
     ):
-
         # load the edges
         if check_edges:
             self._check_edges(edges, tail, head, trav_time, freq)
@@ -292,7 +324,6 @@ class HyperpathGenerating:
         self._head = self._edges[head].values.astype(np.uint32)
 
     def run(self, origin, destination, volume, return_inf=False):
-
         # column storing the resulting edge volumes
         self._edges["volume"] = 0.0
         self.u_i_vec = None
@@ -356,7 +387,6 @@ class HyperpathGenerating:
         assert v >= 0.0
 
     def _check_edges(self, edges, tail, head, trav_time, freq):
-
         if type(edges) != pd.core.frame.DataFrame:
             raise TypeError("edges should be a pandas DataFrame")
 
