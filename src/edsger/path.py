@@ -23,6 +23,10 @@ from edsger.star import (
 
 
 class Dijkstra:
+    """
+    Dijkstra's algorithm for directed graphs with positive edge weights.
+    """
+
     def __init__(
         self,
         edges,
@@ -223,6 +227,14 @@ class Dijkstra:
 
             if self._permute:
                 # permute back the vertex indices
+
+                path_df = pd.DataFrame(
+                    data={
+                        "vertex_idx": np.arange(self.n_vertices),
+                        "associated_idx": self.path,
+                    }
+                )
+                path_idx
                 raise NotImplementedError
 
         # deal with infinity
