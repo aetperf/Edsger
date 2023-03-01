@@ -5,6 +5,10 @@
 scipy
 pytest
 
+# Scripts
+loguru
+pyarrow
+
 # Linting/Tooling
 
 # Documentation

@@ -3,4 +3,4 @@ setuptools
 numpy
 Cython
 pandas
-loguru
+git
