@@ -3,4 +3,3 @@ setuptools
 numpy
 Cython
 pandas
-git
