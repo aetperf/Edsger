@@ -1,0 +1,2 @@
+include src/edsger/*.pyx
+include src/edsger/*.pxd
