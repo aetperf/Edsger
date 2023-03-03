@@ -70,8 +70,9 @@ cpdef void compute_SF_in(
     # ----------- #
 
     cdef:
-        DTYPE_t u_r, v_a_new, v_i
-        size_t h_a_count
+        DTYPE_t u_r, v_a_new, v_i, u_i
+        size_t i, h_a_count
+        cnp.uint32_t vert_idx 
 
     v_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)  # vertex volume
 
