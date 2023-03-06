@@ -179,8 +179,7 @@ if lib == "E":
 
         start = perf_counter()
 
-        path_lengths = sp.run(vertex_idx=idx_from, return_inf=True)
-        dist_matrix = path_lengths.values
+        dist_matrix = sp.run(vertex_idx=idx_from, return_inf=True)
 
         end = perf_counter()
         elapsed_time = end - start
