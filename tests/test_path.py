@@ -112,8 +112,7 @@ def test_run_02(random_seed=124, n=1000):
     # return_inf=True
     edges[["tail", "head"]] = edges[["tail", "head"]].astype(np.uint32)
     sp = Dijkstra(edges, orientation="out", check_edges=True, permute=False)
-    path_lengths = sp.run(vertex_idx=0, return_inf=True)
-    dist_matrix = path_lengths.values
+    dist_matrix = sp.run(vertex_idx=0, return_inf=True)
     assert np.allclose(dist_matrix, dist_matrix_ref)
 
     dist_matrix_ref = np.where(
@@ -122,15 +121,13 @@ def test_run_02(random_seed=124, n=1000):
 
     # without graph permutation
     # return_inf=False
-    path_lengths = sp.run(vertex_idx=0, return_inf=False)
-    dist_matrix = path_lengths.values
+    dist_matrix = sp.run(vertex_idx=0, return_inf=False)
     assert np.allclose(dist_matrix, dist_matrix_ref)
 
     # with graph permutation
     # return_inf=False
     sp = Dijkstra(edges, orientation="out", check_edges=True, permute=True)
-    path_lengths = sp.run(vertex_idx=0, return_inf=False)
-    dist_matrix = path_lengths.values
+    dist_matrix = sp.run(vertex_idx=0, return_inf=False)
     assert np.allclose(dist_matrix, dist_matrix_ref)
 
 
@@ -168,8 +165,7 @@ def test_run_03(random_seed=124, n=100, index_offset=10):
     # return_inf=True
     edges[["tail", "head"]] = edges[["tail", "head"]].astype(np.uint32)
     sp = Dijkstra(edges, orientation="out", check_edges=True, permute=True)
-    path_lengths = sp.run(vertex_idx=single_tail_index, return_inf=True)
-    dist_matrix = path_lengths.values
+    dist_matrix = sp.run(vertex_idx=single_tail_index, return_inf=True)
     assert np.allclose(dist_matrix, dist_matrix_ref[index_offset:])
 
     dist_matrix_ref = np.where(
@@ -178,15 +174,13 @@ def test_run_03(random_seed=124, n=100, index_offset=10):
 
     # without graph permutation
     # return_inf=False
-    path_lengths = sp.run(vertex_idx=single_tail_index, return_inf=False)
-    dist_matrix = path_lengths.values
+    dist_matrix = sp.run(vertex_idx=single_tail_index, return_inf=False)
     assert np.allclose(dist_matrix, dist_matrix_ref[index_offset:])
 
     # with graph permutation
     # return_inf=False
     sp = Dijkstra(edges, orientation="out", check_edges=True, permute=True)
-    path_lengths = sp.run(vertex_idx=single_tail_index, return_inf=False)
-    dist_matrix = path_lengths.values
+    dist_matrix = sp.run(vertex_idx=single_tail_index, return_inf=False)
     assert np.allclose(dist_matrix, dist_matrix_ref[index_offset:])
 
 
