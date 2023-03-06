@@ -118,12 +118,6 @@ class Dijkstra:
         if not np.isfinite(edges[weight]).all():
             raise ValueError(f"edges['{weight}'] should be finite")
 
-        # the graph must be a simple directed graphs
-        if edges.duplicated(subset=[tail, head]).any():
-            raise ValueError("there should be no parallel edges in the graph")
-        if (edges[tail] == edges[head]).any():
-            raise ValueError("there should be no loop in the graph")
-
     def _permute_graph(self, tail, head):
         """Create a vertex table and reindex the vertices."""
 
