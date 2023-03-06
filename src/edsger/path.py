@@ -34,7 +34,7 @@ class Dijkstra:
         head="head",
         weight="weight",
         orientation="out",
-        check_edges=True,
+        check_edges=False,
         permute=False,
         path_tracking=False,
     ):
@@ -170,7 +170,7 @@ class Dijkstra:
         if orientation not in ["in", "out"]:
             raise ValueError(f"orientation should be either 'in' on 'out'")
 
-    def run(self, vertex_idx, return_inf=False, return_Series=True):
+    def run(self, vertex_idx, return_inf=True, return_Series=False):
         self._return_Series = return_Series
 
         # check the tail/head vertex
