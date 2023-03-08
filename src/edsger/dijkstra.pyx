@@ -19,7 +19,8 @@ cpdef cnp.ndarray compute_sssp(
     cnp.uint32_t[::1] csr_indices,
     DTYPE_t[::1] csr_data,
     int source_vert_idx,
-    int vertex_count):
+    int vertex_count,
+    int heap_length):
     """ 
     Compute single-source shortest path (from one vertex to all vertices)
     using the pq_bin_dec_0b priority queue.
@@ -33,6 +34,7 @@ cpdef cnp.ndarray compute_sssp(
     * DTYPE_t[::1] csr_data :  data (edge weights) in the CSR format
     * int source_vert_idx : source vertex index
     * int vertex_count : vertex count
+    * int heap_length : heap length
 
     output
     ======
@@ -50,7 +52,7 @@ cpdef cnp.ndarray compute_sssp(
 
         # initialization of the heap elements 
         # all nodes have INFINITY key and UNLABELED state
-        pq.init_pqueue(&pqueue, <size_t>vertex_count, <size_t>vertex_count)
+        pq.init_pqueue(&pqueue, <size_t>heap_length, <size_t>vertex_count)
 
         # the key is set to zero for the source vertex,
         # which is inserted into the heap
@@ -89,7 +91,8 @@ cpdef cnp.ndarray compute_sssp_w_path(
     DTYPE_t[::1] csr_data,
     cnp.uint32_t[::1] predecessor,
     int source_vert_idx,
-    int vertex_count):
+    int vertex_count,
+    int heap_length):
     """ 
     Compute single-source shortest path (from one vertex to all vertices)
     using the pq_bin_dec_0b priority queue.
@@ -106,6 +109,7 @@ cpdef cnp.ndarray compute_sssp_w_path(
         a path from the source, through the graph. 
     * int source_vert_idx : source vertex index
     * int vertex_count : vertex count
+    * int heap_length : heap length
 
     output
     ======
@@ -123,7 +127,7 @@ cpdef cnp.ndarray compute_sssp_w_path(
 
         # initialization of the heap elements 
         # all nodes have INFINITY key and UNLABELED state
-        pq.init_pqueue(&pqueue, <size_t>vertex_count, <size_t>vertex_count)
+        pq.init_pqueue(&pqueue, <size_t>heap_length, <size_t>vertex_count)
 
         # the key is set to zero for the source vertex,
         # which is inserted into the heap
@@ -163,7 +167,8 @@ cpdef cnp.ndarray compute_stsp(
     cnp.uint32_t[::1] csc_indices,
     DTYPE_t[::1] csc_data,
     int target_vert_idx,
-    int vertex_count):
+    int vertex_count,
+    int heap_length):
     """ 
     Compute single-target shortest path (from all vertices to one vertex)
     using the pq_bin_dec_0b priority queue.
@@ -177,6 +182,7 @@ cpdef cnp.ndarray compute_stsp(
     * DTYPE_t[::1] csc_data :  data (edge weights) in the CSC format
     * int target_vert_idx : source vertex index
     * int vertex_count : vertex count
+    * int heap_length : heap length
 
     output
     ======
@@ -194,7 +200,7 @@ cpdef cnp.ndarray compute_stsp(
 
         # initialization of the heap elements 
         # all nodes have INFINITY key and UNLABELED state
-        pq.init_pqueue(&pqueue, <size_t>vertex_count, <size_t>vertex_count)
+        pq.init_pqueue(&pqueue, <size_t>heap_length, <size_t>vertex_count)
 
         # the key is set to zero for the target vertex,
         # which is inserted into the heap
@@ -233,7 +239,8 @@ cpdef cnp.ndarray compute_stsp_w_path(
     DTYPE_t[::1] csc_data,
     cnp.uint32_t[::1] successor,
     int target_vert_idx,
-    int vertex_count):
+    int vertex_count,
+    int heap_length):
     """ 
     Compute single-target shortest path (from all vertices to one vertex)
     using the pq_bin_dec_0b priority queue.
@@ -250,6 +257,7 @@ cpdef cnp.ndarray compute_stsp_w_path(
         a path to the target, through the graph. 
     * int target_vert_idx : source vertex index
     * int vertex_count : vertex count
+    * int heap_length : heap length
 
     output
     ======
@@ -267,7 +275,7 @@ cpdef cnp.ndarray compute_stsp_w_path(
 
         # initialization of the heap elements 
         # all nodes have INFINITY key and UNLABELED state
-        pq.init_pqueue(&pqueue, <size_t>vertex_count, <size_t>vertex_count)
+        pq.init_pqueue(&pqueue, <size_t>heap_length, <size_t>vertex_count)
 
         # the key is set to zero for the target vertex,
         # which is inserted into the heap
@@ -375,12 +383,12 @@ cpdef compute_sssp_01():
     csr_indptr, csr_indices, csr_data = generate_single_edge_network_csr()
 
     # from vertex 0
-    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 0, 2)
+    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 0, 2, 2)
     path_lengths_ref = np.array([0., 1.], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 1
-    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 1, 2)
+    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 1, 2, 2)
     path_lengths_ref = np.array([DTYPE_INF, 0.], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
@@ -394,12 +402,12 @@ cpdef compute_stsp_01():
     csc_indptr, csc_indices, csc_data = generate_single_edge_network_csc()
 
     # from vertex 0
-    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 0, 2)
+    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 0, 2, 2)
     path_lengths_ref = np.array([0., DTYPE_INF], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 1
-    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 1, 2)
+    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 1, 2, 2)
     path_lengths_ref = np.array([1., 0.], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
@@ -413,22 +421,22 @@ cpdef compute_sssp_02():
     csr_indptr, csr_indices, csr_data = generate_braess_network_csr()
 
     # from vertex 0
-    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 0, 4)
+    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 0, 4, 4)
     path_lengths_ref = np.array([0., 1., 1., 2.], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 1
-    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 1, 4)
+    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 1, 4, 4)
     path_lengths_ref = np.array([DTYPE_INF, 0., 0., 1.], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 2
-    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 2, 4)
+    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 2, 4, 4)
     path_lengths_ref = np.array([DTYPE_INF, DTYPE_INF, 0., 1.], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 3
-    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 3, 4)
+    path_lengths = compute_sssp(csr_indptr, csr_indices, csr_data, 3, 4, 4)
     path_lengths_ref = np.array([DTYPE_INF, DTYPE_INF, DTYPE_INF, 0.], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
@@ -442,21 +450,21 @@ cpdef compute_stsp_02():
     csc_indptr, csc_indices, csc_data = generate_braess_network_csc()
 
     # from vertex 0
-    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 0, 4)
+    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 0, 4, 4)
     path_lengths_ref = np.array([0., DTYPE_INF, DTYPE_INF, DTYPE_INF], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 1
-    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 1, 4)
+    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 1, 4, 4)
     path_lengths_ref = np.array([1., 0., DTYPE_INF, DTYPE_INF], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 2
-    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 2, 4)
+    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 2, 4, 4)
     path_lengths_ref = np.array([1., 0., 0., DTYPE_INF], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
 
     # from vertex 3
-    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 3, 4)
+    path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 3, 4, 4)
     path_lengths_ref = np.array([2., 1.0, 1., 0.], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)

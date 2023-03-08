@@ -213,6 +213,7 @@ class Dijkstra:
                     self._edge_weights,
                     vertex_new,
                     self.n_vertices,
+                    heap_length,
                 )
             else:
                 path_length_values = compute_sssp(
@@ -221,6 +222,7 @@ class Dijkstra:
                     self._edge_weights,
                     vertex_new,
                     self.n_vertices,
+                    heap_length,
                 )
         else:
             self.path = np.arange(0, self.n_vertices, dtype=np.uint32)
@@ -232,6 +234,7 @@ class Dijkstra:
                     self.path,
                     vertex_new,
                     self.n_vertices,
+                    heap_length,
                 )
             else:
                 path_length_values = compute_sssp_w_path(
@@ -241,6 +244,7 @@ class Dijkstra:
                     self.path,
                     vertex_new,
                     self.n_vertices,
+                    heap_length,
                 )
 
             if self._permute:
