@@ -87,6 +87,16 @@ parser.add_argument(
     required=False,
     default=False,
 )
+parser.add_argument(
+    "-q",
+    "--heap_length_ratio",
+    dest="heap_length_ratio",
+    help="heap length ratio (0, 1]",
+    metavar="FLOAT",
+    type=float,
+    required=False,
+    default=1.0,
+)
 args = parser.parse_args()
 data_dir = args.data_dir
 data_dir = os.path.abspath(data_dir)
@@ -96,6 +106,7 @@ idx_from = args.idx_from
 repeat = args.repeat
 check_result = args.check_result
 lib = args.library_name.upper()
+heap_length_ratio = args.heap_length_ratio
 
 # lib name check
 assert lib in ["E", "GT", "NK", "RX"]
@@ -179,7 +190,9 @@ if lib == "E":
 
         start = perf_counter()
 
-        dist_matrix = sp.run(vertex_idx=idx_from, return_inf=True)
+        dist_matrix = sp.run(
+            vertex_idx=idx_from, return_inf=True, heap_length_ratio=heap_length_ratio
+        )
 
         end = perf_counter()
         elapsed_time = end - start
