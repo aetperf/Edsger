@@ -82,10 +82,7 @@ parser.add_argument(
     "--check_result",
     dest="check_result",
     help="check the resulting path lengths aginst SciPy",
-    metavar="BOOL",
-    type=bool,
-    required=False,
-    default=False,
+    action="store_true",
 )
 parser.add_argument(
     "-q",
