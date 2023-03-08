@@ -36,10 +36,7 @@ class Dijkstra:
         orientation="out",
         check_edges=False,
         permute=False,
-        path_tracking=False,
     ):
-        self._return_Series = True
-
         # load the edges
         if check_edges:
             self._check_edges(edges, tail, head, weight)
@@ -53,9 +50,6 @@ class Dijkstra:
             self.n_vertices = len(self._vertices)
         else:
             self.n_vertices = self._edges[[tail, head]].max().max() + 1
-
-        # path tracking
-        self._path_tracking = path_tracking
 
         # convert to CSR/CSC
         self._check_orientation(orientation)
@@ -164,8 +158,22 @@ class Dijkstra:
         if orientation not in ["in", "out"]:
             raise ValueError(f"orientation should be either 'in' on 'out'")
 
-    def run(self, vertex_idx, return_inf=True, return_Series=False):
-        self._return_Series = return_Series
+    def run(
+        self, vertex_idx, path_tracking=False, return_inf=True, return_Series=False
+    ):
+        # validate the input arguments
+        if not isinstance(vertex_idx, int):
+            raise TypeError(f"argument 'vertex_idx=f{vertex_idx}' must be of type int")
+        if not isinstance(path_tracking, bool):
+            raise TypeError(
+                f"argument 'path_tracking=f{path_tracking}' must be of type bool"
+            )
+        if not isinstance(return_inf, bool):
+            raise TypeError(f"argument 'return_inf=f{return_inf}' must be of type bool")
+        if not isinstance(return_Series, bool):
+            raise TypeError(
+                f"argument 'return_Series=f{return_Series}' must be of type bool"
+            )
 
         # check the tail/head vertex
         if self._permute:
@@ -180,7 +188,7 @@ class Dijkstra:
             vertex_new = vertex_idx
 
         # compute path length
-        if not self._path_tracking:
+        if not path_tracking:
             self.path = None
             if self._orientation == "in":
                 path_length_values = compute_stsp(
@@ -238,7 +246,7 @@ class Dijkstra:
             )
 
         # reorder results
-        if self._return_Series:
+        if return_Series:
             if self._permute:
                 self._vertices["path_length"] = path_length_values
                 path_lengths_df = self._vertices[
