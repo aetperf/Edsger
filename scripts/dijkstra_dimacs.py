@@ -51,7 +51,7 @@ parser.add_argument(
     "-l",
     "--library",
     dest="library_name",
-    help='library name, must be "E" (Edsger), "GT" (graph-tool), "NK" (NetworKit), "RX" (Rustworkx)',
+    help='library name, must be "E" (Edsger), "GT" (graph-tool), "NK" (NetworKit)',
     metavar="TXT",
     type=str,
     required=False,
@@ -106,7 +106,7 @@ lib = args.library_name.upper()
 heap_length_ratio = args.heap_length_ratio
 
 # lib name check
-assert lib in ["E", "GT", "NK", "RX"]
+assert lib in ["E", "GT", "NK"]
 
 data_dir_found = os.path.exists(data_dir)
 if data_dir_found:
@@ -321,71 +321,6 @@ elif lib == "NK":
 
     df = pd.DataFrame.from_records(results)
     logger.info(f"NetworKit min elapsed time : {df.elapsed_time.min():8.4f} s")
-
-# elif lib == "RX":
-#     # RustworkX
-#     # --------
-
-#     import rustworkx as rx
-
-#     graph = rx.PyDiGraph(multigraph=False)
-#     tail_indices = edges["tail"].values.tolist()
-#     head_indices = edges["head"].values.tolist()
-#     weight = edges["weight"].values.tolist()
-#     graph.extend_from_weighted_edge_list(list(zip(tail_indices, head_indices, weight)))
-
-#     # SSSP
-
-#     results = []
-#     logger.info("RustworkX Run")
-#     for i in range(repeat):
-#         d = {}
-
-#         start = perf_counter()
-
-#         start_01 = perf_counter()
-#         # edge_cost_fn = lambda x: x
-#         path_lengths = rx.dijkstra_shortest_path_lengths(
-#             graph, idx_from, edge_cost_fn=float
-#         )
-#         end_01 = perf_counter()
-#         elapsed_time_01 = end_01 - start_01
-#         logger.info(
-#             f"RustworkX step 01 - Elapsed time: {elapsed_time_01:8.4f} s"
-#         )
-
-#         # start_02 = perf_counter()
-#         # dist_matrix = np.zeros(vertex_count, dtype=np.float64)
-#         # end_02 = perf_counter()
-#         # elapsed_time_02 = end_02 - start_02
-#         # logger.info(
-#         #     f"RustworkX step 02 - Elapsed time: {elapsed_time_02:8.4f} s"
-#         # )
-
-#         # start_03 = perf_counter()
-#         # dist_matrix[list(path_lengths.keys())] = list(path_lengths.values())
-#         # end_03 = perf_counter()
-#         # elapsed_time_03 = end_03 - start_03
-#         # logger.info(
-#         #     f"RustworkX step 03 - Elapsed time: {elapsed_time_03:8.4f} s"
-#         # )
-
-#         end = perf_counter()
-#         elapsed_time = end - start
-#         logger.info(
-#             f"RustworkX Dijkstra {i+1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
-#         )
-
-#         d = {
-#             "library": "RustworkX",
-#             "network": reg,
-#             "trial": i,
-#             "elapsed_time": elapsed_time,
-#         }
-#         results.append(d)
-
-#     df = pd.DataFrame.from_records(results)
-#     logger.info(f"RustworkX min elapsed time : {df.elapsed_time.min():8.4f} s")
 
 
 if check_result:
