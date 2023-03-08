@@ -159,23 +159,18 @@ class Dijkstra:
             raise ValueError(f"orientation should be either 'in' on 'out'")
 
     def run(
-        self, vertex_idx, path_tracking=False, return_inf=True, return_Series=False
+        self,
+        vertex_idx,
+        path_tracking=False,
+        return_inf=True,
+        return_Series=False,
+        heap_length_ratio=1.0,
     ):
         # validate the input arguments
         if not isinstance(vertex_idx, int):
-            raise TypeError(f"argument 'vertex_idx=f{vertex_idx}' must be of type int")
-        if not isinstance(path_tracking, bool):
-            raise TypeError(
-                f"argument 'path_tracking=f{path_tracking}' must be of type bool"
-            )
-        if not isinstance(return_inf, bool):
-            raise TypeError(f"argument 'return_inf=f{return_inf}' must be of type bool")
-        if not isinstance(return_Series, bool):
-            raise TypeError(
-                f"argument 'return_Series=f{return_Series}' must be of type bool"
-            )
-
-        # check the tail/head vertex
+            raise TypeError(f"argument 'vertex_idx=f{vertex_idx}' must be of int type")
+        if vertex_idx < 0:
+            raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be positive")
         if self._permute:
             if vertex_idx not in self._vertices.vert_idx_old.values:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
@@ -186,6 +181,27 @@ class Dijkstra:
             if vertex_idx >= self.n_vertices:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
             vertex_new = vertex_idx
+        if not isinstance(path_tracking, bool):
+            raise TypeError(
+                f"argument 'path_tracking=f{path_tracking}' must be of bool type"
+            )
+        if not isinstance(return_inf, bool):
+            raise TypeError(f"argument 'return_inf=f{return_inf}' must be of bool type")
+        if not isinstance(return_Series, bool):
+            raise TypeError(
+                f"argument 'return_Series=f{return_Series}' must be of bool type"
+            )
+        if not isinstance(heap_length_ratio, float):
+            raise TypeError(
+                f"argument 'heap_length_ratio=f{heap_length_ratio}' must be of float type"
+            )
+        if heap_length_ratio > 1.0:
+            heap_length_ratio = 1.0
+        if heap_length_ratio <= 0.0:
+            raise ValueError(
+                f"argument 'heap_length_ratio={heap_length_ratio}' must be strictly positive "
+            )
+        heap_length = int(np.rint(heap_length_ratio * self.n_vertices))
 
         # compute path length
         if not path_tracking:
