@@ -49,6 +49,7 @@ class Dijkstra:
             self._vertices = self._permute_graph(tail, head)
             self.n_vertices = len(self._vertices)
         else:
+            self._vertices = None
             self.n_vertices = self._edges[[tail, head]].max().max() + 1
 
         # convert to CSR/CSC
@@ -76,7 +77,7 @@ class Dijkstra:
 
         if tail not in edges:
             raise KeyError(
-                f"edge tail column '{tail}'  not found in graph edges dataframe"
+                f"edge tail column '{tail}' not found in graph edges dataframe"
             )
 
         if head not in edges:
