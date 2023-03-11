@@ -184,6 +184,15 @@ def test_run_03(random_seed=124, n=100, index_offset=10):
     assert np.allclose(dist_matrix, dist_matrix_ref[index_offset:])
 
 
+def test_run_04(braess):
+    edges = braess
+    edges[["tail", "head"]] = edges[["tail", "head"]].astype(np.uint32)
+    sp = Dijkstra(edges, orientation="in", check_edges=False)
+    path_lengths = sp.run(vertex_idx=3)
+    path_lengths_ref = [2.0, 1.0, 1.0, 0.0]
+    assert np.allclose(path_lengths, path_lengths_ref)
+
+
 def test_SF_in_01():
     edges = create_SF_network(dwell_time=0.0)
     hp = HyperpathGenerating(edges, check_edges=False)
