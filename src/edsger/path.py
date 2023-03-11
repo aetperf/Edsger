@@ -314,13 +314,23 @@ class Dijkstra:
         else:
             if self._permute:
                 self._vertices["path_length"] = path_length_values
-                path_lengths_df = self._vertices[
-                    ["vert_idx_old", "path_length"]
-                ].sort_values(by="vert_idx_old")
-                path_lengths_df.set_index("vert_idx_old", drop=True, inplace=True)
-                path_lengths_df.index.name = "vertex_idx"
-                path_lengths_series = path_lengths_df.path_length
-                path_length_values = path_lengths_series.values
+                # path_lengths_df = self._vertices[
+                #     ["vert_idx_old", "path_length"]
+                # ].sort_values(by="vert_idx_old")
+                # path_lengths_df.set_index("vert_idx_old", drop=True, inplace=True)
+                # path_lengths_df.index.name = "vertex_idx"
+                # path_lengths_series = path_lengths_df.path_length
+                # path_length_values = path_lengths_series.values
+                if return_inf:
+                    path_length_values = np.inf * np.ones(self._n_vertices_old)
+                else:
+                    path_length_values = DTYPE_INF_PY * np.ones(self._n_vertices_old)
+                path_length_values[
+                    self._vertices.vert_idx_old.values
+                ] = self._vertices.path_length.values
+
+                # self.path = np.arange(self._n_vertices_old)
+                # self.path[path_df.vertex_idx.values] = path_df.associated_idx.values
 
             return path_length_values
 

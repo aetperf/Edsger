@@ -77,7 +77,6 @@ def test_check_edges_03(braess):
 
 def test_run_01(braess):
     edges = braess
-    edges[["tail", "head"]] = edges[["tail", "head"]].astype(np.uint32)
     sp = Dijkstra(edges, orientation="out", check_edges=False)
     path_lengths = sp.run(vertex_idx=0, return_Series=True)
     path_lengths_ref = pd.Series([0.0, 1.0, 1.0, 2.0])
@@ -110,7 +109,6 @@ def test_run_02(random_seed=124, n=1000):
     # In-house
     # without graph permutation
     # return_inf=True
-    edges[["tail", "head"]] = edges[["tail", "head"]].astype(np.uint32)
     sp = Dijkstra(edges, orientation="out", check_edges=True, permute=False)
     dist_matrix = sp.run(vertex_idx=0, return_inf=True)
     assert np.allclose(dist_matrix, dist_matrix_ref)
@@ -131,66 +129,156 @@ def test_run_02(random_seed=124, n=1000):
     assert np.allclose(dist_matrix, dist_matrix_ref)
 
 
-def test_run_03(random_seed=124, n=100, index_offset=10):
+def test_run_03(braess):
     """
-    Vertex indices with offset.
+    orientation="in"
     """
-
-    single_tail_index = 0 + index_offset
-    np.random.seed(random_seed)
-    tail = np.random.randint(0, int(n / 5), n) + index_offset
-    head = np.random.randint(0, int(n / 5), n) + index_offset
-    weight = np.random.rand(n)
-    edges = pd.DataFrame(data={"tail": tail, "head": head, "weight": weight})
-    edges.drop_duplicates(subset=["tail", "head"], inplace=True)
-    edges = edges.loc[edges["tail"] != edges["head"]]
-    edges.reset_index(drop=True, inplace=True)
-
-    # SciPy
-    vertex_count = edges[["tail", "head"]].max().max() + 1
-    data = edges["weight"].values
-    row = edges["tail"].values
-    col = edges["head"].values
-    graph_coo = coo_array((data, (row, col)), shape=(vertex_count, vertex_count))
-    graph_csr = graph_coo.tocsr()
-    dist_matrix_ref = dijkstra(
-        csgraph=graph_csr,
-        directed=True,
-        indices=single_tail_index,
-        return_predecessors=False,
-    )
-
-    # In-house
-    # without graph permutation
-    # return_inf=True
-    edges[["tail", "head"]] = edges[["tail", "head"]].astype(np.uint32)
-    sp = Dijkstra(edges, orientation="out", check_edges=True, permute=True)
-    dist_matrix = sp.run(vertex_idx=single_tail_index, return_inf=True)
-    assert np.allclose(dist_matrix, dist_matrix_ref[index_offset:])
-
-    dist_matrix_ref = np.where(
-        dist_matrix_ref > DTYPE_INF_PY, DTYPE_INF_PY, dist_matrix_ref
-    )
-
-    # without graph permutation
-    # return_inf=False
-    dist_matrix = sp.run(vertex_idx=single_tail_index, return_inf=False)
-    assert np.allclose(dist_matrix, dist_matrix_ref[index_offset:])
-
-    # with graph permutation
-    # return_inf=False
-    sp = Dijkstra(edges, orientation="out", check_edges=True, permute=True)
-    dist_matrix = sp.run(vertex_idx=single_tail_index, return_inf=False)
-    assert np.allclose(dist_matrix, dist_matrix_ref[index_offset:])
-
-
-def test_run_04(braess):
     edges = braess
-    edges[["tail", "head"]] = edges[["tail", "head"]].astype(np.uint32)
-    sp = Dijkstra(edges, orientation="in", check_edges=False)
+    sp = Dijkstra(edges, orientation="in")
     path_lengths = sp.run(vertex_idx=3)
     path_lengths_ref = [2.0, 1.0, 1.0, 0.0]
     assert np.allclose(path_lengths, path_lengths_ref)
+
+
+def test_run_04():
+    """
+    permute=True
+    """
+    edges = pd.DataFrame(
+        data={
+            "tail": [0, 0, 10, 10, 20],
+            "head": [10, 20, 20, 30, 30],
+            "weight": [1.0, 2.0, 0.0, 2.0, 1.0],
+        }
+    )
+    sp = Dijkstra(edges, orientation="out", permute=True)
+    path_lengths = sp.run(
+        vertex_idx=0, path_tracking=True, return_inf=True, return_Series=False
+    )
+    path_lengths_ref = np.array(
+        [
+            0.0,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            1.0,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            1.0,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            np.inf,
+            2.0,
+        ]
+    )
+    assert np.allclose(path_lengths, path_lengths_ref)
+    path_ref = np.array(
+        [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            0,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            10,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            20,
+        ],
+        dtype=int,
+    )
+    assert np.allclose(sp.path, path_ref)
+
+    path_lengths = sp.run(
+        vertex_idx=0, path_tracking=True, return_inf=False, return_Series=False
+    )
+    path_lengths_ref = np.array(
+        [
+            0.00000000e000,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            1.00000000e000,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            1.00000000e000,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            DTYPE_INF_PY,
+            2.00000000e000,
+        ]
+    )
+    assert np.allclose(path_lengths, path_lengths_ref)
+    assert np.allclose(sp.path, path_ref)
+
+    path_lengths = sp.run(vertex_idx=0, path_tracking=True, return_Series=True)
+    path_lengths_ref = pd.Series([0.0, 1.0, 1.0, 2.0], index=[0, 10, 20, 30])
+    path_lengths_ref.index.name = "vertex_idx"
+    path_lengths_ref.name = "path_length"
+    pd.testing.assert_series_equal(path_lengths, path_lengths_ref)
+    path_ref = pd.Series([0, 0, 10, 20], index=[0, 10, 20, 30])
+    path_ref.index.name = "vertex_idx"
+    path_ref.name = "associated_idx"
+    pd.testing.assert_series_equal(sp.path, path_ref)
 
 
 def test_SF_in_01():
