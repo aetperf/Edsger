@@ -51,11 +51,13 @@ class Dijkstra:
         # reindex the vertices
         self._permute = permute
         if self._permute:
+            self._n_vertices_old = self._edges[[tail, head]].max(axis=0).max() + 1
             self._vertices = self._permute_graph(tail, head)
             self.n_vertices = len(self._vertices)
         else:
             self._vertices = None
-            self.n_vertices = self._edges[[tail, head]].max().max() + 1
+            self.n_vertices = self._edges[[tail, head]].max(axis=0).max() + 1
+            self._n_vertices_old = self.n_vertices
 
         # convert to CSR/CSC
         self._check_orientation(orientation)
@@ -253,16 +255,38 @@ class Dijkstra:
                 )
 
             if self._permute:
-                # permute back the vertex indices
-
+                # permute back the path vertex indices
                 path_df = pd.DataFrame(
                     data={
                         "vertex_idx": np.arange(self.n_vertices),
                         "associated_idx": self.path,
                     }
                 )
-                print(path_df)
-                raise NotImplementedError
+                path_df = pd.merge(
+                    path_df,
+                    self._vertices,
+                    left_on="vertex_idx",
+                    right_on="vert_idx_new",
+                    how="left",
+                )
+                path_df.drop(["vertex_idx", "vert_idx_new"], axis=1, inplace=True)
+                path_df.rename(columns={"vert_idx_old": "vertex_idx"}, inplace=True)
+                path_df = pd.merge(
+                    path_df,
+                    self._vertices,
+                    left_on="associated_idx",
+                    right_on="vert_idx_new",
+                    how="left",
+                )
+                path_df.drop(["associated_idx", "vert_idx_new"], axis=1, inplace=True)
+                path_df.rename(columns={"vert_idx_old": "associated_idx"}, inplace=True)
+
+                if return_Series:
+                    path_df.set_index("vertex_idx", inplace=True)
+                    self.path = path_df.associated_idx
+                else:
+                    self.path = np.arange(self._n_vertices_old)
+                    self.path[path_df.vertex_idx.values] = path_df.associated_idx.values
 
         # deal with infinity
         if return_inf:
@@ -270,7 +294,7 @@ class Dijkstra:
                 path_length_values == DTYPE_INF_PY, np.inf, path_length_values
             )
 
-        # reorder results
+        # reorder path lengths
         if return_Series:
             if self._permute:
                 self._vertices["path_length"] = path_length_values
