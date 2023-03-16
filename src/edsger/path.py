@@ -29,7 +29,97 @@ from edsger.star import (
 
 class Dijkstra:
     """
-    Dijkstra's algorithm for directed graphs with positive edge weights.
+    Dijkstra's algorithm for finding the shortest paths between nodes in directed graphs with
+    positive edge weights.
+
+    Parameters:
+    -----------
+    edges: pandas.DataFrame
+        DataFrame containing the edges of the graph. It should have three columns: 'tail', 'head',
+        and 'weight'. The 'tail' column should contain the IDs of the starting nodes, the 'head'
+        column should contain the IDs of the ending nodes, and the 'weight' column should contain
+        the (positive) weights of the edges.
+
+    tail: str, optional (default='tail')
+        The name of the column in the DataFrame that contains the IDs of the starting nodes.
+
+    head: str, optional (default='head')
+        The name of the column in the DataFrame that contains the IDs of the ending nodes.
+
+    weight: str, optional (default='weight')
+        The name of the column in the DataFrame that contains the (positive) weights of the edges.
+
+    orientation: str, optional (default='out')
+        The orientation of Dijkstra's algorithm. It can be either 'out' for single source shortest
+        paths or 'in' for single target shortest path.
+
+    check_edges: bool, optional (default=False)
+        Whether to check if the edges DataFrame is well-formed. If set to True, the edges DataFrame
+        will be checked for missing values and invalid data types.
+
+    permute: bool, optional (default=False)
+        Whether to permute the IDs of the nodes. If set to True, the node IDs will be reindexed to
+        start from 0 and be contiguous.
+
+    Attributes:
+    -----------
+    _edges: pandas.DataFrame
+        DataFrame containing the edges of the graph.
+
+    n_edges: int
+        The number of edges in the graph.
+
+    _permute: bool
+        Whether to permute the IDs of the nodes.
+
+    _vertices: pandas.DataFrame or None
+        DataFrame containing the old and new IDs of the nodes if the IDs have been permuted.
+
+    n_vertices: int
+        The number of nodes in the graph (permuted, if _permute is True).
+
+    _n_vertices_old: int
+        The number of nodes in the original graph (not permuted).
+
+    _orientation: str
+        The orientation of Dijkstra's algorithm.
+
+    _indices: numpy.ndarray
+        1D array containing the indices of the indices of the forward or reverse star of the graph
+        in compressed format.
+
+    _indptr: numpy.ndarray
+        1D array containing the indices of the pointer of the forward or reverse star of the graph
+        in compressed format.
+
+    _edge_weights: numpy.ndarray
+        1D array containing the weights of the edges in the graph.
+
+    path: numpy.ndarray
+        predecessors or successors node index if the path tracking is activated.
+
+    Methods:
+    --------
+    _check_edges(edges, tail, head, weight)
+        Checks if the edges DataFrame is well-formed. If not, raises an appropriate error.
+
+    _permute_graph(tail, head)
+        Permute the IDs of the nodes to start from 0 and be contiguous. Returns a DataFrame with
+        the permuted IDs.
+
+    _check_orientation(orientation):
+        Checks the orientation attribute.
+
+    run(
+        self,
+        vertex_idx,
+        path_tracking=False,
+        return_inf=True,
+        return_Series=False,
+        heap_length_ratio=1.0,
+    ):
+        Run Dijkstra's algorithm.
+
     """
 
     def __init__(
@@ -77,7 +167,10 @@ class Dijkstra:
             self._indptr = rs_indptr.astype(np.uint32)
             self._edge_weights = rs_data.astype(DTYPE_PY)
 
+        self.path = None
+
     def _check_edges(self, edges, tail, head, weight):
+        """Checks if the edges DataFrame is well-formed. If not, raises an appropriate error."""
         if type(edges) != pd.core.frame.DataFrame:
             raise TypeError("edges should be a pandas DataFrame")
 
@@ -120,7 +213,8 @@ class Dijkstra:
             raise ValueError(f"edges['{weight}'] should be finite")
 
     def _permute_graph(self, tail, head):
-        """Create a vertex table and reindex the vertices."""
+        """Permute the IDs of the nodes to start from 0 and be contiguous.
+        Returns a DataFrame with the permuted IDs."""
 
         vertices = pd.DataFrame(
             data={
@@ -162,6 +256,7 @@ class Dijkstra:
         return vertices
 
     def _check_orientation(self, orientation):
+        """Checks the orientation attribute."""
         if orientation not in ["in", "out"]:
             raise ValueError(f"orientation should be either 'in' on 'out'")
 
@@ -173,6 +268,34 @@ class Dijkstra:
         return_Series=False,
         heap_length_ratio=1.0,
     ):
+        """
+        Runs shortest path algorithm between a given vertex and all other vertices in the graph.
+
+        Parameters
+        ----------
+        vertex_idx : int
+            The index of the source/target vertex.
+        path_tracking : bool, optional (default=False)
+            Whether to track the shortest path(s) from the source vertex to all other vertices in
+            the graph.
+        return_inf : bool, optional (default=True)
+            Whether to return path length(s) as infinity (np.inf) when no path exists.
+        return_Series : bool, optional (default=False)
+            Whether to return a Pandas Series object indexed by vertex indices with path length(s)
+            as values.
+        heap_length_ratio : float, optional (default=1.0)
+            The heap length as a fraction of the number of vertices. Must be in the range (0, 1].
+
+        Returns
+        -------
+        path_length_values : array_like or Pandas Series
+            If `return_Series=False`, a 1D Numpy array of shape (n_vertices,) with the shortest
+            path length from the source vertex to each vertex in the graph (`orientation="out"`), or
+            from each vertex to the target vertex (`orientation="in"`). If `return_Series=True`, a
+            Pandas Series object with the same data
+            and the vertex indices as index.
+
+        """
         # validate the input arguments
         if not isinstance(vertex_idx, int):
             raise TypeError(f"argument 'vertex_idx=f{vertex_idx}' must be of int type")
