@@ -306,7 +306,7 @@ class Dijkstra:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
             vertex_new = self._vertices.loc[
                 self._vertices.vert_idx_old == vertex_idx, "vert_idx_new"
-            ]
+            ].iloc[0]
         else:
             if vertex_idx >= self.n_vertices:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
