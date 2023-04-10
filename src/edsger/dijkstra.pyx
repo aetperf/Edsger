@@ -23,7 +23,7 @@ cpdef cnp.ndarray compute_sssp(
     int heap_length):
     """ 
     Compute single-source shortest path (from one vertex to all vertices)
-    using the pq_bin_dec_0b priority queue.
+    using the pq_4ary_dec_0b priority queue.
 
     Does not return predecessors.
 
@@ -95,7 +95,7 @@ cpdef cnp.ndarray compute_sssp_w_path(
     int heap_length):
     """ 
     Compute single-source shortest path (from one vertex to all vertices)
-    using the pq_bin_dec_0b priority queue.
+    using the pq_4ary_dec_0b priority queue.
 
     Compute predecessors.
 
@@ -171,7 +171,7 @@ cpdef cnp.ndarray compute_stsp(
     int heap_length):
     """ 
     Compute single-target shortest path (from all vertices to one vertex)
-    using the pq_bin_dec_0b priority queue.
+    using the pq_4ary_dec_0b priority queue.
 
     Does not return successors.
 
@@ -243,7 +243,7 @@ cpdef cnp.ndarray compute_stsp_w_path(
     int heap_length):
     """ 
     Compute single-target shortest path (from all vertices to one vertex)
-    using the pq_bin_dec_0b priority queue.
+    using the pq_4ary_dec_0b priority queue.
 
     Compute successors.
 
