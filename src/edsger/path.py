@@ -110,16 +110,6 @@ class Dijkstra:
     _check_orientation(orientation):
         Checks the orientation attribute.
 
-    run(
-        self,
-        vertex_idx,
-        path_tracking=False,
-        return_inf=True,
-        return_Series=False,
-        heap_length_ratio=1.0,
-    ):
-        Run Dijkstra's algorithm.
-
     """
 
     def __init__(
@@ -446,6 +436,14 @@ class Dijkstra:
                 ] = self._vertices.path_length.values
 
             return path_length_values
+
+    # def get_path(self, vertex_idx):
+    #     if self.path is None:
+    #         print(
+    #             "Current Dijkstra instance has not path attribute : "
+    #             + "make sure path_tracking is set to True, and run the shortest path algorithm"
+    #         )
+    #     else:
 
 
 class HyperpathGenerating:
