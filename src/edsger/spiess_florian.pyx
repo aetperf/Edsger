@@ -22,7 +22,7 @@ cimport edsger.pq_4ary_dec_0b as pq  # priority queue
 
 
 cpdef void compute_SF_in(
-    cnp.uint32_t[::1] csc_indptr,  
+    cnp.uint32_t[::1] csc_indptr,
     cnp.uint32_t[::1] csc_edge_idx,
     DTYPE_t[::1] c_a_vec,
     DTYPE_t[::1] f_a_vec,
@@ -53,7 +53,7 @@ cpdef void compute_SF_in(
     # first pass #
     # ---------- #
 
-    _SF_in_first_pass(
+    _SF_in_first_pass_full(
         csc_indptr,
         csc_edge_idx,
         c_a_vec,
@@ -111,7 +111,7 @@ cpdef void compute_SF_in(
         )
 
 
-cdef void _SF_in_first_pass(
+cdef void _SF_in_first_pass_full(
     cnp.uint32_t[::1] csc_indptr, 
     cnp.uint32_t[::1] csc_edge_idx,
     DTYPE_t[::1] c_a_vec,
@@ -123,6 +123,7 @@ cdef void _SF_in_first_pass(
     cnp.uint8_t[::1] h_a_vec,
     int dest_vert_index,
 ) nogil:
+    """All vertices are visited."""
 
     cdef:
         int edge_count = tail_indices.shape[0]
