@@ -78,7 +78,7 @@ class Dijkstra:
     n_vertices: int
         The number of nodes in the graph (permuted, if _permute is True).
 
-    _n_vertices_old: int
+    _n_vertices_init: int
         The number of nodes in the original graph (not permuted).
 
     _orientation: str
@@ -131,13 +131,13 @@ class Dijkstra:
         # reindex the vertices
         self._permute = permute
         if self._permute:
-            self._n_vertices_old = self._edges[[tail, head]].max(axis=0).max() + 1
+            self._n_vertices_init = self._edges[[tail, head]].max(axis=0).max() + 1
             self._vertices = self._permute_graph(tail, head)
             self.n_vertices = len(self._vertices)
         else:
             self._vertices = None
             self.n_vertices = self._edges[[tail, head]].max(axis=0).max() + 1
-            self._n_vertices_old = self.n_vertices
+            self._n_vertices_init = self.n_vertices
 
         # convert to CSR/CSC
         self._check_orientation(orientation)
@@ -398,7 +398,7 @@ class Dijkstra:
                     path_df.set_index("vertex_idx", inplace=True)
                     self.path = path_df.associated_idx
                 else:
-                    self.path = np.arange(self._n_vertices_old)
+                    self.path = np.arange(self._n_vertices_init)
                     self.path[path_df.vertex_idx.values] = path_df.associated_idx.values
 
         # deal with infinity
@@ -428,9 +428,9 @@ class Dijkstra:
             if self._permute:
                 self._vertices["path_length"] = path_length_values
                 if return_inf:
-                    path_length_values = np.inf * np.ones(self._n_vertices_old)
+                    path_length_values = np.inf * np.ones(self._n_vertices_init)
                 else:
-                    path_length_values = DTYPE_INF_PY * np.ones(self._n_vertices_old)
+                    path_length_values = DTYPE_INF_PY * np.ones(self._n_vertices_init)
                 path_length_values[
                     self._vertices.vert_idx_old.values
                 ] = self._vertices.path_length.values
