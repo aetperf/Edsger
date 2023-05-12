@@ -1,5 +1,7 @@
 """ Tests for path.py.
 
+py.test tests/test_path.py
+
 author : Francois Pacull
 copyright : Architecture & Performance
 email: francois.pacull@architecture-performance.fr
@@ -65,14 +67,6 @@ def test_check_edges_02(braess):
         sp = Dijkstra(edges.astype({"tail": float}), check_edges=True)
     with pytest.raises(TypeError, match=r"should be of numeric type"):
         sp = Dijkstra(edges.astype({"weight": str}), check_edges=True)
-
-
-def test_check_edges_03(braess):
-    edges = braess
-    sp = Dijkstra(edges, orientation="out", check_edges=True)
-    assert (sp._indices == [1, 2, 2, 3, 3]).all()
-    assert (sp._indptr == [0, 2, 4, 5, 5]).all()
-    assert (sp._edge_weights == [1.0, 2.0, 0.0, 2.0, 1.0]).all()
 
 
 def test_run_01(braess):

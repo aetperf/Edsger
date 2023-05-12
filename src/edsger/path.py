@@ -66,7 +66,7 @@ class Dijkstra:
     _edges: pandas.DataFrame
         DataFrame containing the edges of the graph.
 
-    n_edges: int
+    _n_edges: int
         The number of edges in the graph.
 
     _permute: bool
@@ -75,24 +75,24 @@ class Dijkstra:
     _vertices: pandas.DataFrame or None
         DataFrame containing the old and new IDs of the nodes if the IDs have been permuted.
 
-    n_vertices: int
-        The number of nodes in the graph (permuted, if _permute is True).
+    _n_vertices: int
+        The number of nodes in the graph (after permutation, if _permute is True).
 
-    _n_vertices_init: int
+    __n_vertices_init: int
         The number of nodes in the original graph (not permuted).
 
     _orientation: str
         The orientation of Dijkstra's algorithm.
 
-    _indices: numpy.ndarray
+    __indices: numpy.ndarray
         1D array containing the indices of the indices of the forward or reverse star of the graph
         in compressed format.
 
-    _indptr: numpy.ndarray
+    __indptr: numpy.ndarray
         1D array containing the indices of the pointer of the forward or reverse star of the graph
         in compressed format.
 
-    _edge_weights: numpy.ndarray
+    __edge_weights: numpy.ndarray
         1D array containing the weights of the edges in the graph.
 
     path: numpy.ndarray
@@ -126,38 +126,62 @@ class Dijkstra:
         if check_edges:
             self._check_edges(edges, tail, head, weight)
         self._edges = edges[[tail, head, weight]].copy(deep=True)
-        self.n_edges = len(self._edges)
+        self._n_edges = len(self._edges)
 
         # reindex the vertices
         self._permute = permute
         if self._permute:
-            self._n_vertices_init = self._edges[[tail, head]].max(axis=0).max() + 1
+            self.__n_vertices_init = self._edges[[tail, head]].max(axis=0).max() + 1
             self._vertices = self._permute_graph(tail, head)
-            self.n_vertices = len(self._vertices)
+            self._n_vertices = len(self._vertices)
         else:
             self._vertices = None
-            self.n_vertices = self._edges[[tail, head]].max(axis=0).max() + 1
-            self._n_vertices_init = self.n_vertices
+            self._n_vertices = self._edges[[tail, head]].max(axis=0).max() + 1
+            self.__n_vertices_init = self._n_vertices
 
         # convert to CSR/CSC
         self._check_orientation(orientation)
         self._orientation = orientation
         if self._orientation == "out":
             fs_indptr, fs_indices, fs_data = convert_graph_to_csr_float64(
-                self._edges, tail, head, weight, self.n_vertices
+                self._edges, tail, head, weight, self._n_vertices
             )
-            self._indices = fs_indices.astype(np.uint32)
-            self._indptr = fs_indptr.astype(np.uint32)
-            self._edge_weights = fs_data.astype(DTYPE_PY)
+            self.__indices = fs_indices.astype(np.uint32)
+            self.__indptr = fs_indptr.astype(np.uint32)
+            self.__edge_weights = fs_data.astype(DTYPE_PY)
         else:
             rs_indptr, rs_indices, rs_data = convert_graph_to_csc_float64(
-                self._edges, tail, head, weight, self.n_vertices
+                self._edges, tail, head, weight, self._n_vertices
             )
-            self._indices = rs_indices.astype(np.uint32)
-            self._indptr = rs_indptr.astype(np.uint32)
-            self._edge_weights = rs_data.astype(DTYPE_PY)
+            self.__indices = rs_indices.astype(np.uint32)
+            self.__indptr = rs_indptr.astype(np.uint32)
+            self.__edge_weights = rs_data.astype(DTYPE_PY)
 
         self.path = None
+
+    @property
+    def edges(self):
+        return self._edges
+
+    @property
+    def vertices(self):
+        return self._vertices
+
+    @property
+    def n_edges(self):
+        return self._n_edges
+
+    @property
+    def n_vertices(self):
+        return self._n_vertices
+
+    @property
+    def orientation(self):
+        return self._orientation
+
+    @property
+    def permute(self):
+        return self._permute
 
     def _check_edges(self, edges, tail, head, weight):
         """Checks if the edges DataFrame is well-formed. If not, raises an appropriate error."""
@@ -298,7 +322,7 @@ class Dijkstra:
                 self._vertices.vert_idx_old == vertex_idx, "vert_idx_new"
             ].iloc[0]
         else:
-            if vertex_idx >= self.n_vertices:
+            if vertex_idx >= self._n_vertices:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
             vertex_new = vertex_idx
         if not isinstance(path_tracking, bool):
@@ -321,49 +345,49 @@ class Dijkstra:
             raise ValueError(
                 f"argument 'heap_length_ratio={heap_length_ratio}' must be strictly positive "
             )
-        heap_length = int(np.rint(heap_length_ratio * self.n_vertices))
+        heap_length = int(np.rint(heap_length_ratio * self._n_vertices))
 
         # compute path length
         if not path_tracking:
             self.path = None
             if self._orientation == "in":
                 path_length_values = compute_stsp(
-                    self._indptr,
-                    self._indices,
-                    self._edge_weights,
+                    self.__indptr,
+                    self.__indices,
+                    self.__edge_weights,
                     vertex_new,
-                    self.n_vertices,
+                    self._n_vertices,
                     heap_length,
                 )
             else:
                 path_length_values = compute_sssp(
-                    self._indptr,
-                    self._indices,
-                    self._edge_weights,
+                    self.__indptr,
+                    self.__indices,
+                    self.__edge_weights,
                     vertex_new,
-                    self.n_vertices,
+                    self._n_vertices,
                     heap_length,
                 )
         else:
-            self.path = np.arange(0, self.n_vertices, dtype=np.uint32)
+            self.path = np.arange(0, self._n_vertices, dtype=np.uint32)
             if self._orientation == "in":
                 path_length_values = compute_stsp_w_path(
-                    self._indptr,
-                    self._indices,
-                    self._edge_weights,
+                    self.__indptr,
+                    self.__indices,
+                    self.__edge_weights,
                     self.path,
                     vertex_new,
-                    self.n_vertices,
+                    self._n_vertices,
                     heap_length,
                 )
             else:
                 path_length_values = compute_sssp_w_path(
-                    self._indptr,
-                    self._indices,
-                    self._edge_weights,
+                    self.__indptr,
+                    self.__indices,
+                    self.__edge_weights,
                     self.path,
                     vertex_new,
-                    self.n_vertices,
+                    self._n_vertices,
                     heap_length,
                 )
 
@@ -371,7 +395,7 @@ class Dijkstra:
                 # permute back the path vertex indices
                 path_df = pd.DataFrame(
                     data={
-                        "vertex_idx": np.arange(self.n_vertices),
+                        "vertex_idx": np.arange(self._n_vertices),
                         "associated_idx": self.path,
                     }
                 )
@@ -398,7 +422,7 @@ class Dijkstra:
                     path_df.set_index("vertex_idx", inplace=True)
                     self.path = path_df.associated_idx
                 else:
-                    self.path = np.arange(self._n_vertices_init)
+                    self.path = np.arange(self.__n_vertices_init)
                     self.path[path_df.vertex_idx.values] = path_df.associated_idx.values
 
         # deal with infinity
@@ -428,9 +452,9 @@ class Dijkstra:
             if self._permute:
                 self._vertices["path_length"] = path_length_values
                 if return_inf:
-                    path_length_values = np.inf * np.ones(self._n_vertices_init)
+                    path_length_values = np.inf * np.ones(self.__n_vertices_init)
                 else:
-                    path_length_values = DTYPE_INF_PY * np.ones(self._n_vertices_init)
+                    path_length_values = DTYPE_INF_PY * np.ones(self.__n_vertices_init)
                 path_length_values[
                     self._vertices.vert_idx_old.values
                 ] = self._vertices.path_length.values
@@ -492,13 +516,13 @@ class HyperpathGenerating:
             fs_indptr, _, fs_data = convert_graph_to_csr_uint32(
                 self._edges, tail, head, data_col, self.vertex_count
             )
-            self._indptr = fs_indptr.astype(np.uint32)
+            self.__indptr = fs_indptr.astype(np.uint32)
             self._edge_idx = fs_data.astype(np.uint32)
         else:
             rs_indptr, _, rs_data = convert_graph_to_csc_uint32(
                 self._edges, tail, head, data_col, self.vertex_count
             )
-            self._indptr = rs_indptr.astype(np.uint32)
+            self.__indptr = rs_indptr.astype(np.uint32)
             self._edge_idx = rs_data.astype(np.uint32)
 
         # edge attributes
@@ -546,7 +570,7 @@ class HyperpathGenerating:
             )
         elif self._orientation == "in":
             compute_SF_in(
-                self._indptr,
+                self.__indptr,
                 self._edge_idx,
                 self._trav_time,
                 self._freq,
