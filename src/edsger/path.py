@@ -95,7 +95,7 @@ class Dijkstra:
     __edge_weights: numpy.ndarray
         1D array containing the weights of the edges in the graph.
 
-    path: numpy.ndarray
+    _path: numpy.ndarray
         predecessors or successors node index if the path tracking is activated.
 
     Methods:
@@ -157,7 +157,7 @@ class Dijkstra:
             self.__indptr = rs_indptr.astype(np.uint32)
             self.__edge_weights = rs_data.astype(DTYPE_PY)
 
-        self.path = None
+        self._path = None
 
     @property
     def edges(self):
@@ -182,6 +182,10 @@ class Dijkstra:
     @property
     def permute(self):
         return self._permute
+
+    @property
+    def permute(self):
+        return self._path
 
     def _check_edges(self, edges, tail, head, weight):
         """Checks if the edges DataFrame is well-formed. If not, raises an appropriate error."""
@@ -349,7 +353,7 @@ class Dijkstra:
 
         # compute path length
         if not path_tracking:
-            self.path = None
+            self._path = None
             if self._orientation == "in":
                 path_length_values = compute_stsp(
                     self.__indptr,
@@ -369,13 +373,13 @@ class Dijkstra:
                     heap_length,
                 )
         else:
-            self.path = np.arange(0, self._n_vertices, dtype=np.uint32)
+            self._path = np.arange(0, self._n_vertices, dtype=np.uint32)
             if self._orientation == "in":
                 path_length_values = compute_stsp_w_path(
                     self.__indptr,
                     self.__indices,
                     self.__edge_weights,
-                    self.path,
+                    self._path,
                     vertex_new,
                     self._n_vertices,
                     heap_length,
@@ -385,7 +389,7 @@ class Dijkstra:
                     self.__indptr,
                     self.__indices,
                     self.__edge_weights,
-                    self.path,
+                    self._path,
                     vertex_new,
                     self._n_vertices,
                     heap_length,
@@ -396,7 +400,7 @@ class Dijkstra:
                 path_df = pd.DataFrame(
                     data={
                         "vertex_idx": np.arange(self._n_vertices),
-                        "associated_idx": self.path,
+                        "associated_idx": self._path,
                     }
                 )
                 path_df = pd.merge(
@@ -420,10 +424,12 @@ class Dijkstra:
 
                 if return_Series:
                     path_df.set_index("vertex_idx", inplace=True)
-                    self.path = path_df.associated_idx
+                    self._path = path_df.associated_idx
                 else:
-                    self.path = np.arange(self.__n_vertices_init)
-                    self.path[path_df.vertex_idx.values] = path_df.associated_idx.values
+                    self._path = np.arange(self.__n_vertices_init)
+                    self._path[
+                        path_df.vertex_idx.values
+                    ] = path_df.associated_idx.values
 
         # deal with infinity
         if return_inf:
@@ -462,7 +468,7 @@ class Dijkstra:
             return path_length_values
 
     # def get_path(self, vertex_idx):
-    #     if self.path is None:
+    #     if self._path is None:
     #         print(
     #             "Current Dijkstra instance has not path attribute : "
     #             + "make sure path_tracking is set to True, and run the shortest path algorithm"
