@@ -219,7 +219,7 @@ def test_run_04():
             29,
             20,
         ],
-        dtype=int,
+        dtype=np.uint32,
     )
     assert np.allclose(sp._path_links, path_links_ref)
 
@@ -272,6 +272,7 @@ def test_run_04():
     path_links_ref = pd.Series([0, 0, 10, 20], index=[0, 10, 20, 30])
     path_links_ref.index.name = "vertex_idx"
     path_links_ref.name = "associated_idx"
+    path_links_ref = path_links_ref.astype(np.uint32)
     pd.testing.assert_series_equal(sp._path_links, path_links_ref)
 
 
@@ -328,9 +329,14 @@ def test_path_tracking_01():
             29,
             20,
         ],
-        dtype=int,
+        dtype=np.uint32,
     )
     assert np.allclose(sp._path_links, path_links_ref)
+
+    print(type(sp._path_links))
+    print(type(sp._path_links[0]))
+    print(sp._path_links.shape)
+    sp.get_path(0)
 
 
 def test_SF_in_01():
