@@ -221,7 +221,7 @@ def test_run_04():
         ],
         dtype=int,
     )
-    assert np.allclose(sp._path, path_ref)
+    assert np.allclose(sp._path_links, path_ref)
 
     path_lengths = sp.run(
         vertex_idx=0, path_tracking=True, return_inf=False, return_Series=False
@@ -262,7 +262,7 @@ def test_run_04():
         ]
     )
     assert np.allclose(path_lengths, path_lengths_ref)
-    assert np.allclose(sp._path, path_ref)
+    assert np.allclose(sp._path_links, path_ref)
 
     path_lengths = sp.run(vertex_idx=0, path_tracking=True, return_Series=True)
     path_lengths_ref = pd.Series([0.0, 1.0, 1.0, 2.0], index=[0, 10, 20, 30])
@@ -272,7 +272,7 @@ def test_run_04():
     path_ref = pd.Series([0, 0, 10, 20], index=[0, 10, 20, 30])
     path_ref.index.name = "vertex_idx"
     path_ref.name = "associated_idx"
-    pd.testing.assert_series_equal(sp._path, path_ref)
+    pd.testing.assert_series_equal(sp._path_links, path_ref)
 
 
 def test_SF_in_01():
