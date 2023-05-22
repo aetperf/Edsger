@@ -275,6 +275,64 @@ def test_run_04():
     pd.testing.assert_series_equal(sp._path_links, path_links_ref)
 
 
+def test_path_tracking_01():
+    edges = pd.DataFrame(
+        data={
+            "tail": [0, 0, 10, 10, 20],
+            "head": [10, 20, 20, 30, 30],
+            "weight": [1.0, 2.0, 0.0, 2.0, 1.0],
+        }
+    )
+    sp = Dijkstra(edges, orientation="out", permute=True)
+
+    with pytest.warns(UserWarning) as record:
+        sp.get_path(0)
+
+    # check that only one warning was raised
+    assert len(record) == 1
+
+    path_lengths = sp.run(
+        vertex_idx=0, path_tracking=True, return_inf=True, return_Series=False
+    )
+    path_links_ref = np.array(
+        [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            0,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            10,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            20,
+        ],
+        dtype=int,
+    )
+    assert np.allclose(sp._path_links, path_links_ref)
+
+
 def test_SF_in_01():
     edges = create_SF_network(dwell_time=0.0)
     hp = HyperpathGenerating(edges, check_edges=False)
