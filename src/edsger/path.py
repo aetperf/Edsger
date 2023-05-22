@@ -2,6 +2,8 @@
 Path-related methods.
 """
 
+import warnings
+
 import numpy as np
 import pandas as pd
 
@@ -425,9 +427,11 @@ class Dijkstra:
 
                 if return_Series:
                     path_df.set_index("vertex_idx", inplace=True)
-                    self._path_links = path_df.associated_idx
+                    self._path_links = path_df.associated_idx.astype(np.uint32)
                 else:
-                    self._path_links = np.arange(self.__n_vertices_init)
+                    self._path_links = np.arange(
+                        self.__n_vertices_init, dtype=np.uint32
+                    )
                     self._path_links[
                         path_df.vertex_idx.values
                     ] = path_df.associated_idx.values
@@ -470,12 +474,17 @@ class Dijkstra:
 
     def get_path(self, vertex_idx):
         if self._path_links is None:
-            print(
-                "Current Dijkstra instance has not path attribute : "
-                + "make sure path_tracking is set to True, and run the shortest path algorithm"
+            warnings.warn(
+                "Current Dijkstra instance has not path attribute : \
+                make sure path_tracking is set to True, and run the \
+                shortest path algorithm",
+                UserWarning,
             )
         else:
-            path = compute_path(self._path_links)
+            if isinstance(self._path_links, pd.Series):
+                path = compute_path(self._path_links.values, vertex_idx)
+            else:
+                path = compute_path(self._path_links, vertex_idx)
 
 
 class HyperpathGenerating:
