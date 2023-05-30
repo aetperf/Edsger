@@ -44,6 +44,7 @@ cdef int compute_path_first_pass(
         j = <size_t>path_links[j]
         k += 1
 
+
     return k
 
 cdef void compute_path_second_pass(
@@ -57,12 +58,11 @@ cdef void compute_path_second_pass(
     # initialization
     j = <size_t>vertex_idx
     i = j + 1
-    path_vertices[0] = j
     k = 0
 
     # loop
     while i != j:
         i = j
+        path_vertices[k] = j 
         j = <size_t>path_links[j]
         k += 1
-        path_vertices[k] = j 
