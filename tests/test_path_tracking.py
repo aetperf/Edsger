@@ -21,4 +21,3 @@ def test_01(n=10):
     path_vertices_ref = np.array(list(range(n))[::-1], dtype=np.uint32)
 
     np.testing.assert_array_equal(path_vertices, path_vertices_ref)
-
