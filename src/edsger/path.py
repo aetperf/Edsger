@@ -482,9 +482,10 @@ class Dijkstra:
             )
         else:
             if isinstance(self._path_links, pd.Series):
-                path = compute_path(self._path_links.values, vertex_idx)
+                path_vertices = compute_path(self._path_links.values, vertex_idx)
             else:
-                path = compute_path(self._path_links, vertex_idx)
+                path_vertices = compute_path(self._path_links, vertex_idx)
+            return path_vertices
 
 
 class HyperpathGenerating:
