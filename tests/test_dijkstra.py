@@ -1,5 +1,7 @@
 """ Tests for dijkstra.pyx.
 
+py.test tests/test_dijkstra.py
+
 author : Francois Pacull
 copyright : Architecture & Performance
 email: francois.pacull@architecture-performance.fr
