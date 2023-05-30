@@ -221,7 +221,7 @@ def test_run_04():
         ],
         dtype=np.uint32,
     )
-    assert np.allclose(sp._path_links, path_links_ref)
+    np.testing.assert_array_equal(sp._path_links, path_links_ref)
 
     path_lengths = sp.run(
         vertex_idx=0, path_tracking=True, return_inf=False, return_Series=False
@@ -262,7 +262,7 @@ def test_run_04():
         ]
     )
     assert np.allclose(path_lengths, path_lengths_ref)
-    assert np.allclose(sp._path_links, path_links_ref)
+    np.testing.assert_array_equal(sp._path_links, path_links_ref)
 
     path_lengths = sp.run(vertex_idx=0, path_tracking=True, return_Series=True)
     path_lengths_ref = pd.Series([0.0, 1.0, 1.0, 2.0], index=[0, 10, 20, 30])
@@ -273,7 +273,7 @@ def test_run_04():
     path_links_ref.index.name = "vertex_idx"
     path_links_ref.name = "associated_idx"
     path_links_ref = path_links_ref.astype(np.uint32)
-    pd.testing.assert_series_equal(sp._path_links, path_links_ref)
+    np.testing.assert_array_equal(sp._path_links, path_links_ref)
 
 
 def test_path_tracking_01():
@@ -286,12 +286,15 @@ def test_path_tracking_01():
     )
     sp = Dijkstra(edges, orientation="out", permute=True)
 
+    # trying to get the path while no shortest path alrgorithm
+    # has been executed yet
     with pytest.warns(UserWarning) as record:
         sp.get_path(0)
 
     # check that only one warning was raised
     assert len(record) == 1
 
+    # run the shortest path algorithm
     path_lengths = sp.run(
         vertex_idx=0, path_tracking=True, return_inf=True, return_Series=False
     )
@@ -331,12 +334,11 @@ def test_path_tracking_01():
         ],
         dtype=np.uint32,
     )
-    assert np.allclose(sp._path_links, path_links_ref)
+    np.testing.assert_array_equal(sp._path_links, path_links_ref)
 
-    print(type(sp._path_links))
-    print(type(sp._path_links[0]))
-    print(sp._path_links.shape)
-    sp.get_path(0)
+    path_vertices = sp.get_path(30)
+    path_vertices_ref = np.array([30, 20, 10, 0], dtype=np.uint32)
+    np.testing.assert_array_equal(path_vertices, path_vertices_ref)
 
 
 def test_SF_in_01():
