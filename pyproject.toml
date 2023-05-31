@@ -29,6 +29,21 @@ dependencies = [
   "pandas",
 ]
 
+[project.optional-dependencies]
+# Dev dependencies.
+dev = [
+    "black"
+]
+# Test dependencies.
+test = [
+    "pytest",
+    "scipy"
+]
+# Doc dependencies.
+doc = [
+    "sphinx"
+]
+
 [project.urls]
 Repository = "https://github.com/aetperf/Edsger"
 
