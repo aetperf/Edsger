@@ -1,5 +1,6 @@
 # Runtime requirements
 setuptools
+setuptools_scm
 numpy
 Cython
 pandas

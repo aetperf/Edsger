@@ -5,6 +5,32 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "edsger"
 dynamic = ["version"]
+description = "Graph algorithms in Python."
+readme = "README.rst"
+requires-python = ">=3.8"
+license = {text = "MIT License"}
+authors = [
+    { name = "François Pacull", email = "francois.pacull@architecture-performance.fr" },
+]
+maintainers = [
+    { name = "François Pacull", email = "francois.pacull@architecture-performance.fr" },
+]
+keywords = ["python", "graph", "shortest path", "Dijkstra"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License"
+]
+dependencies = [
+  "setuptools",
+  "setuptools_scm",
+  "numpy",
+  "Cython",
+  "pandas",
+]
+
+[project.urls]
+Repository = "https://github.com/aetperf/Edsger"
 
 [tool.setuptools_scm]
 version_scheme = "no-guess-dev"
