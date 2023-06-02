@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "edsger"
 dynamic = ["version"]
-description = "Graph algorithms in Python."
+description = "Graph algorithms in Cython."
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT License"}
@@ -43,7 +43,9 @@ test = [
 ]
 # Doc dependencies.
 doc = [
-    "sphinx"
+    "sphinx",
+    "sphinx_design",
+    "sphinx_rtd_theme"
 ]
 
 [project.urls]
