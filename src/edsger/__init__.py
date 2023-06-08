@@ -1,1 +1,1 @@
-from _version import __version__
+from edsger._version import __version__
