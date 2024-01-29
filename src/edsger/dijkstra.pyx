@@ -5,6 +5,22 @@ author : Francois Pacull
 copyright : Architecture & Performance
 email: francois.pacull@architecture-performance.fr
 license : MIT
+
+cpdef functions:
+
+- compute_sssp    
+    Compute single-source shortest path (from one vertex to all vertices). Does 
+    not return predecessors.
+- compute_sssp_w_path    
+    Compute single-source shortest path (from one vertex to all vertices). 
+    Compute predecessors.
+- compute_stsp
+    Compute single-target shortest path (from all vertices to one vertex). Does 
+    not return successors.
+- compute_stsp_w_path
+    Compute single-target shortest path (from all vertices to one vertex).
+    Compute successors.
+
 """
 
 cimport numpy as cnp
@@ -22,10 +38,8 @@ cpdef cnp.ndarray compute_sssp(
     int vertex_count,
     int heap_length):
     """ 
-    Compute single-source shortest path (from one vertex to all vertices)
-    using the pq_4ary_dec_0b priority queue.
-
-    Does not return predecessors.
+    Compute single-source shortest path (from one vertex to all vertices). Does 
+    not return predecessors.
 
     input
     =====
@@ -94,9 +108,7 @@ cpdef cnp.ndarray compute_sssp_w_path(
     int vertex_count,
     int heap_length):
     """ 
-    Compute single-source shortest path (from one vertex to all vertices)
-    using the pq_4ary_dec_0b priority queue.
-
+    Compute single-source shortest path (from one vertex to all vertices). 
     Compute predecessors.
 
     input
@@ -170,10 +182,8 @@ cpdef cnp.ndarray compute_stsp(
     int vertex_count,
     int heap_length):
     """ 
-    Compute single-target shortest path (from all vertices to one vertex)
-    using the pq_4ary_dec_0b priority queue.
-
-    Does not return successors.
+    Compute single-target shortest path (from all vertices to one vertex). Does 
+    not return successors.
 
     input
     =====
@@ -242,9 +252,7 @@ cpdef cnp.ndarray compute_stsp_w_path(
     int vertex_count,
     int heap_length):
     """ 
-    Compute single-target shortest path (from all vertices to one vertex)
-    using the pq_4ary_dec_0b priority queue.
-
+    Compute single-target shortest path (from all vertices to one vertex).
     Compute successors.
 
     input
