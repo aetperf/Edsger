@@ -5,6 +5,20 @@ author : Francois Pacull
 copyright : Architecture & Performance
 email: francois.pacull@architecture-performance.fr
 license : MIT
+
+cpdef functions:
+
+- compute_path
+    Compute path from predecessors or successors.
+
+cdef functions:
+
+- _compute_path_first_pass
+    Returns the path length.
+
+- _compute_path_second_pass
+    Compute the sequence of vertices forming a path.
+
 """
 
 import numpy as np
@@ -12,17 +26,19 @@ cimport numpy as cnp
 
 
 cpdef cnp.ndarray  compute_path(cnp.uint32_t[::1] path_links, int vertex_idx):
+    """Compute path from predecessors or successors.
+    """
     
     cdef int path_length
 
-    path_length = compute_path_first_pass(path_links, vertex_idx)
+    path_length = _compute_path_first_pass(path_links, vertex_idx)
     path_vertices = np.empty(path_length, dtype=np.uint32)
-    compute_path_second_pass(path_links, path_vertices, vertex_idx)
+    _compute_path_second_pass(path_links, path_vertices, vertex_idx)
 
     return path_vertices
     
 
-cdef int compute_path_first_pass(
+cdef int _compute_path_first_pass(
     cnp.uint32_t[::1] path_links,  
     int vertex_idx
 ) nogil:
@@ -47,12 +63,13 @@ cdef int compute_path_first_pass(
 
     return k
 
-cdef void compute_path_second_pass(
+cdef void _compute_path_second_pass(
     cnp.uint32_t[::1] path_links,
     cnp.uint32_t[::1] path_vertices,  
     int vertex_idx
 ) nogil:
-
+    """Compute the sequence of vertices forming a path.
+    """
     cdef size_t i, j, k
 
     # initialization
