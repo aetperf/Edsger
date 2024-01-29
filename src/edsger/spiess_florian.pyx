@@ -9,6 +9,18 @@ author : Francois Pacull
 copyright : Architecture & Performance
 email: francois.pacull@architecture-performance.fr
 license : MIT
+
+
+cpdef function:
+
+- compute_SF_in
+    Compute Spiess & Florian optimal strategy (all-to-one).
+
+cdef functions:
+
+- _SF_in_first_pass_full
+- _SF_in_second_pass
+
 """
 
 import numpy as np
@@ -35,6 +47,8 @@ cpdef void compute_SF_in(
     int vertex_count,
     int dest_vert_index,
 ):
+    """Compute Spiess & Florian optimal strategy (all-to-one).
+    """
 
     cdef:
         int edge_count = tail_indices.shape[0]
@@ -123,7 +137,10 @@ cdef void _SF_in_first_pass_full(
     cnp.uint8_t[::1] h_a_vec,
     int dest_vert_index,
 ) nogil:
-    """All vertices are visited."""
+    """SF in first pass. 
+
+    Note : all vertices are visited.
+    """
 
     cdef:
         int edge_count = tail_indices.shape[0]
@@ -215,6 +232,8 @@ cdef void _SF_in_second_pass(
     DTYPE_t[::1] f_a_vec,
     size_t h_a_count
 ) nogil:
+    """SF in second_pass.
+    """
 
     cdef:
         size_t i, edge_idx, vert_idx
