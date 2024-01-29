@@ -1,6 +1,6 @@
 """ 
 Path tracking module.
-    
+
 author : Francois Pacull
 copyright : Architecture & Performance
 email: francois.pacull@architecture-performance.fr
@@ -15,7 +15,6 @@ cdef functions:
 
 - _compute_path_first_pass
     Returns the path length.
-
 - _compute_path_second_pass
     Compute the sequence of vertices forming a path.
 
