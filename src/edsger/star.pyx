@@ -1,5 +1,29 @@
 """
 Forward and reverse star representations of networks.
+
+
+cpdef functions:
+
+- convert_graph_to_csr_uint32
+    Convert an edge dataframe in COO format into CSR format, with uint32 
+    weights.
+- convert_graph_to_csc_uint32
+    Convert an edge dataframe in COO format into CSC format, with uint32 
+    weights.
+- convert_graph_to_csr_float64
+    Convert an edge dataframe in COO format into CSR format, with float64 
+    weights.
+- convert_graph_to_csc_float64
+    Convert an edge dataframe in COO format into CSC format, with float64 
+    weights.
+
+
+cdef functions:
+
+- _coo_tocsr_uint32
+- _coo_tocsc_uint32
+- _coo_tocsr_float64
+- _coo_tocsc_float64
 """
 
 import numpy as np
