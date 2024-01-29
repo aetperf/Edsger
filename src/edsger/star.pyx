@@ -6,24 +6,24 @@ cpdef functions:
 
 - convert_graph_to_csr_uint32
     Convert an edge dataframe in COO format into CSR format, with uint32 
-    weights.
+    data.
 - convert_graph_to_csc_uint32
     Convert an edge dataframe in COO format into CSC format, with uint32 
-    weights.
+    data.
 - convert_graph_to_csr_float64
     Convert an edge dataframe in COO format into CSR format, with float64 
-    weights.
+    data.
 - convert_graph_to_csc_float64
     Convert an edge dataframe in COO format into CSC format, with float64 
-    weights.
+    data.
 
 
 cdef functions:
 
-- _coo_tocsr_uint32
-- _coo_tocsc_uint32
-- _coo_tocsr_float64
-- _coo_tocsc_float64
+- _coo_to_csr_uint32
+- _coo_to_csc_uint32
+- _coo_to_csr_float64
+- _coo_to_csc_float64
 """
 
 import numpy as np
@@ -32,9 +32,8 @@ cimport numpy as cnp
 
 cpdef convert_graph_to_csr_uint32(edges, tail, head, data, vertex_count):
     """
-    Convert an edge dataframe in COO format into CSR format.
-
-    The data vector is of uint32 type.
+    Convert an edge dataframe in COO format into CSR format, with uint32 
+    data.
 
     Parameters
     ----------
@@ -61,7 +60,7 @@ cpdef convert_graph_to_csr_uint32(edges, tail, head, data, vertex_count):
     fs_indices = np.empty(edge_count, dtype=np.uint32)
     fs_data = np.empty(edge_count, dtype=np.uint32)
 
-    _coo_tocsr_uint32(
+    _coo_to_csr_uint32(
         edges[tail].values.astype(np.uint32),
         edges[head].values.astype(np.uint32),
         edges[data].values.astype(np.uint32),
@@ -75,9 +74,8 @@ cpdef convert_graph_to_csr_uint32(edges, tail, head, data, vertex_count):
 
 cpdef convert_graph_to_csc_uint32(edges, tail, head, data, vertex_count):
     """
-    Convert an edge dataframe in COO format into CSC format.
-
-    The data vector is of uint32 type.
+    Convert an edge dataframe in COO format into CSC format, with uint32 
+    data.
 
     Parameters
     ----------
@@ -104,7 +102,7 @@ cpdef convert_graph_to_csc_uint32(edges, tail, head, data, vertex_count):
     rs_indices = np.empty(edge_count, dtype=np.uint32)
     rs_data = np.empty(edge_count, dtype=np.uint32)
 
-    _coo_tocsc_uint32(
+    _coo_to_csc_uint32(
         edges[tail].values.astype(np.uint32),
         edges[head].values.astype(np.uint32),
         edges[data].values.astype(np.uint32),
@@ -118,9 +116,8 @@ cpdef convert_graph_to_csc_uint32(edges, tail, head, data, vertex_count):
 
 cpdef convert_graph_to_csr_float64(edges, tail, head, data, vertex_count):
     """
-    Convert an edge dataframe in COO format into CSR format.
-
-    The data vector is of float64 type.
+    Convert an edge dataframe in COO format into CSR format, with float64 
+    data.
 
     Parameters
     ----------
@@ -147,7 +144,7 @@ cpdef convert_graph_to_csr_float64(edges, tail, head, data, vertex_count):
     fs_indices = np.empty(edge_count, dtype=np.uint32)
     fs_data = np.empty(edge_count, dtype=np.float64)
 
-    _coo_tocsr_float64(
+    _coo_to_csr_float64(
         edges[tail].values.astype(np.uint32),
         edges[head].values.astype(np.uint32),
         edges[data].values.astype(np.float64),
@@ -161,9 +158,8 @@ cpdef convert_graph_to_csr_float64(edges, tail, head, data, vertex_count):
 
 cpdef convert_graph_to_csc_float64(edges, tail, head, data, vertex_count):
     """
-    Convert an edge dataframe in COO format into CSC format.
-
-    The data vector is of float64 type.
+    Convert an edge dataframe in COO format into CSC format, with float64 
+    data.
 
     Parameters
     ----------
@@ -190,7 +186,7 @@ cpdef convert_graph_to_csc_float64(edges, tail, head, data, vertex_count):
     rs_indices = np.empty(edge_count, dtype=np.uint32)
     rs_data = np.empty(edge_count, dtype=np.float64)
 
-    _coo_tocsc_float64(
+    _coo_to_csc_float64(
         edges[tail].values.astype(np.uint32),
         edges[head].values.astype(np.uint32),
         edges[data].values.astype(np.float64),
@@ -202,7 +198,7 @@ cpdef convert_graph_to_csc_float64(edges, tail, head, data, vertex_count):
     return rs_indptr, rs_indices, rs_data
 
 
-cdef void _coo_tocsr_uint32(
+cdef void _coo_to_csr_uint32(
     cnp.uint32_t [::1] Ai,
     cnp.uint32_t [::1] Aj,
     cnp.uint32_t [::1] Ax,
@@ -240,7 +236,7 @@ cdef void _coo_tocsr_uint32(
         last = temp
 
 
-cdef void _coo_tocsc_uint32(
+cdef void _coo_to_csc_uint32(
     cnp.uint32_t [::1] Ai,
     cnp.uint32_t [::1] Aj,
     cnp.uint32_t [::1] Ax,   
@@ -278,7 +274,7 @@ cdef void _coo_tocsc_uint32(
         last = temp
 
 
-cpdef void _coo_tocsr_float64(
+cpdef void _coo_to_csr_float64(
     cnp.uint32_t  [::1] Ai,
     cnp.uint32_t  [::1] Aj,
     cnp.float64_t [::1] Ax,
@@ -316,7 +312,7 @@ cpdef void _coo_tocsr_float64(
         last = temp
 
 
-cpdef void _coo_tocsc_float64(
+cpdef void _coo_to_csc_float64(
     cnp.uint32_t  [::1] Ai,
     cnp.uint32_t  [::1] Aj,
     cnp.float64_t [::1] Ax,
