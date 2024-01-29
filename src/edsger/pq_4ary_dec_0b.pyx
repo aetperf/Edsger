@@ -2,12 +2,43 @@
 Priority queue based on a minimum 4-ary heap.
 
 - dec: priority queue with decrease-key operation.
-- 0b: indices are 0-based
-    
+- 0b: indices are zero-based
+
 author : Francois Pacull
 copyright : Architecture & Performance
 email: francois.pacull@architecture-performance.fr
 license : MIT
+
+
+cdef functions:
+
+- init_pqueue
+    Initialize the priority queue.
+- _initialize_element
+    Initialize a single element.
+- free_pqueue
+    Free the priority queue.
+- insert
+    Insert an element into the heap and reorder the heap.
+- decrease_key
+    Decrease the key of a element in the heap, given its element index.
+- peek
+    Find heap min key.
+- is_empty
+    Check if the heap is empty.
+- extract_min  
+    Extract element with min keay from the heap, 
+    and return its element index.
+- copy_keys_to_numpy
+    Copy the keys into a numpy array.
+- _exchange_nodes
+    Exchange two nodes in the heap.
+- _min_heapify
+    Re-order sub-tree under a given node (given its node index) 
+    until it satisfies the heap property.
+- _decrease_key_from_node_index
+    Decrease the key of an element in the heap, given its tree index.
+
 """
 
 cimport numpy as cnp
@@ -200,6 +231,39 @@ cdef size_t extract_min(PriorityQueue* pqueue) nogil:
 
     return element_idx
 
+
+cdef cnp.ndarray copy_keys_to_numpy(
+    PriorityQueue* pqueue,
+    size_t vertex_count
+):
+    """
+    Copy the keys into a numpy array.
+
+    input
+    =====
+    * PriorityQueue* pqueue : priority queue
+    * int vertex_count : vertex count
+    * int num_threads : number of threads for the parallel job
+
+    output
+    ======
+    * cnp.ndarray : NumPy array with all the keys
+    """
+
+    path_lengths = cnp.ndarray(vertex_count, dtype=DTYPE_PY)
+
+    cdef:
+        size_t i  # loop counter
+        DTYPE_t[::1] path_lengths_view = path_lengths
+
+    with nogil:
+
+        for i in range(vertex_count):
+            path_lengths_view[i] = pqueue.Elements[i].key
+
+    return path_lengths
+
+
 cdef void _exchange_nodes(
     PriorityQueue* pqueue, 
     size_t node_i,
@@ -333,37 +397,6 @@ cdef void _decrease_key_from_node_index(
             i = j
         else:
             break
-
-cdef cnp.ndarray copy_keys_to_numpy(
-    PriorityQueue* pqueue,
-    size_t vertex_count
-):
-    """
-    Copy the keys into a numpy array.
-
-    input
-    =====
-    * PriorityQueue* pqueue : priority queue
-    * int vertex_count : vertex count
-    * int num_threads : number of threads for the parallel job
-
-    output
-    ======
-    * cnp.ndarray : NumPy array with all the keys
-    """
-
-    path_lengths = cnp.ndarray(vertex_count, dtype=DTYPE_PY)
-
-    cdef:
-        size_t i  # loop counter
-        DTYPE_t[::1] path_lengths_view = path_lengths
-
-    with nogil:
-
-        for i in range(vertex_count):
-            path_lengths_view[i] = pqueue.Elements[i].key
-
-    return path_lengths
 
 
 # ============================================================================ #
