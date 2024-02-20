@@ -309,7 +309,7 @@ class Dijkstra:
 
         Returns
         -------
-        path_length_values : array_like or Pandas Series
+        path_length_values or path_lengths_series : array_like or Pandas Series
             If `return_Series=False`, a 1D Numpy array of shape (n_vertices,) with the shortest
             path length from the source vertex to each vertex in the graph (`orientation="out"`), or
             from each vertex to the target vertex (`orientation="in"`). If `return_Series=True`, a
@@ -319,7 +319,10 @@ class Dijkstra:
         """
         # validate the input arguments
         if not isinstance(vertex_idx, int):
-            raise TypeError(f"argument 'vertex_idx=f{vertex_idx}' must be of int type")
+            try:
+                vertex_idx = int(vertex_idx)
+            except ValueError:
+                raise TypeError(f"argument 'vertex_idx=f{vertex_idx}' must be an integer")
         if vertex_idx < 0:
             raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be positive")
         if self._permute:

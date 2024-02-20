@@ -41,18 +41,25 @@ cpdef cnp.ndarray compute_sssp(
     Compute single-source shortest path (from one vertex to all vertices). Does 
     not return predecessors.
 
-    input
-    =====
-    * cnp.uint32_t[::1] csr_indices : indices in the CSR format
-    * cnp.uint32_t[::1] csr_indptr : pointers in the CSR format
-    * DTYPE_t[::1] csr_data :  data (edge weights) in the CSR format
-    * int source_vert_idx : source vertex index
-    * int vertex_count : vertex count
-    * int heap_length : heap length
+    Parameters
+    ----------
+    csr_indices : cnp.uint32_t[::1]
+        indices in the CSR format
+    csr_indptr : cnp.uint32_t[::1]
+        pointers in the CSR format
+    csr_data DTYPE_t[::1]
+        data (edge weights) in the CSR format
+    source_vert_idx : int
+        source vertex index
+    vertex_count : int
+        vertex count
+    heap_length : int
+        heap length
 
-    output
-    ======
-    * cnp.ndarray : shortest path length for each vertex
+    Returns
+    -------
+    path_lengths : cnp.ndarray
+        shortest path length for each vertex
     """
 
     cdef:
@@ -111,21 +118,29 @@ cpdef cnp.ndarray compute_sssp_w_path(
     Compute single-source shortest path (from one vertex to all vertices). 
     Compute predecessors.
 
-    input
-    =====
-    * cnp.uint32_t[::1] csr_indices : indices in the CSR format
-    * cnp.uint32_t[::1] csr_indptr : pointers in the CSR format
-    * DTYPE_t[::1] csr_data :  data (edge weights) in the CSR format
-    * cnp.uint32_t[::1] predecessor :  array of indices, one for each vertex of 
-        the graph. Each vertex' entry contains the index of its predecessor in 
-        a path from the source, through the graph. 
-    * int source_vert_idx : source vertex index
-    * int vertex_count : vertex count
-    * int heap_length : heap length
+    Parameters
+    ----------
+    csr_indices : cnp.uint32_t[::1]
+        indices in the CSR format
+    csr_indptr : cnp.uint32_t[::1]
+        pointers in the CSR format
+    csr_data : DTYPE_t[::1]
+        data (edge weights) in the CSR format
+    predecessor : cnp.uint32_t[::1]
+        array of indices, one for each vertex of the graph. Each vertex' 
+        entry contains the index of its predecessor in a path from the 
+        source, through the graph. 
+    source_vert_idx : int
+        source vertex index
+    vertex_count : int
+        vertex count
+    heap_length : int
+        heap length
 
-    output
-    ======
-    * cnp.ndarray : shortest path length for each vertex
+    Returns
+    -------
+    path_lengths : cnp.ndarray
+        shortest path length for each vertex
     """
 
     cdef:
@@ -185,18 +200,25 @@ cpdef cnp.ndarray compute_stsp(
     Compute single-target shortest path (from all vertices to one vertex). Does 
     not return successors.
 
-    input
-    =====
-    * cnp.uint32_t[::1] csc_indices : indices in the CSC format
-    * cnp.uint32_t[::1] csc_indptr : pointers in the CSC format
-    * DTYPE_t[::1] csc_data :  data (edge weights) in the CSC format
-    * int target_vert_idx : source vertex index
-    * int vertex_count : vertex count
-    * int heap_length : heap length
+    Parameters
+    ----------
+    csc_indices : cnp.uint32_t[::1]
+        indices in the CSC format
+    csc_indptr : cnp.uint32_t[::1]
+        pointers in the CSC format
+    csc_data : DTYPE_t[::1]
+        data (edge weights) in the CSC format
+    target_vert_idx : int
+        source vertex index
+    vertex_count : int
+        vertex count
+    heap_length : int
+        heap length
 
-    output
-    ======
-    * cnp.ndarray : shortest path length for each vertex
+    Returns
+    -------
+    path_lengths : cnp.ndarray
+        shortest path length for each vertex
     """
 
     cdef:
@@ -255,21 +277,25 @@ cpdef cnp.ndarray compute_stsp_w_path(
     Compute single-target shortest path (from all vertices to one vertex).
     Compute successors.
 
-    input
-    =====
-    * cnp.uint32_t[::1] csc_indices : indices in the CSC format
-    * cnp.uint32_t[::1] csc_indptr : pointers in the CSC format
-    * DTYPE_t[::1] csc_data :  data (edge weights) in the CSC format
-    * cnp.uint32_t[::1] successor :  array of indices, one for each vertex of 
-        the graph. Each vertex' entry contains the index of its successor in 
-        a path to the target, through the graph. 
-    * int target_vert_idx : source vertex index
-    * int vertex_count : vertex count
-    * int heap_length : heap length
+    Parameters
+    ----------
+    csc_indices : cnp.uint32_t[::1]
+        Indices in the CSC format.
+    csc_indices : cnp.uint32_t[::1]
+        Pointers in the CSC format.
+    csc_data : DTYPE_t[::1]
+        Data (edge weights) in the CSC format.
+    target_vert_idx : int
+        Target vertex index.
+    vertex_count : int
+        Vertex count.
+    heap_length : int
+        heap_length.
 
-    output
-    ======
-    * cnp.ndarray : shortest path length for each vertex
+    Returns
+    -------
+    path_lengths : cnp.ndarray
+        shortest path length for each vertex
     """
 
     cdef:
