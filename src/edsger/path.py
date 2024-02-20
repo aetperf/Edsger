@@ -7,27 +7,16 @@ import warnings
 import numpy as np
 import pandas as pd
 
-from edsger.commons import (
-    A_VERY_SMALL_TIME_INTERVAL_PY,
-    DTYPE_INF_PY,
-    DTYPE_PY,
-    INF_FREQ_PY,
-    MIN_FREQ_PY,
-)
-from edsger.dijkstra import (
-    compute_sssp,
-    compute_sssp_w_path,
-    compute_stsp,
-    compute_stsp_w_path,
-)
-from edsger.spiess_florian import compute_SF_in
-from edsger.star import (
-    convert_graph_to_csc_float64,
-    convert_graph_to_csc_uint32,
-    convert_graph_to_csr_float64,
-    convert_graph_to_csr_uint32,
-)
+from edsger.commons import (A_VERY_SMALL_TIME_INTERVAL_PY, DTYPE_INF_PY,
+                            DTYPE_PY, INF_FREQ_PY, MIN_FREQ_PY)
+from edsger.dijkstra import (compute_sssp, compute_sssp_w_path, compute_stsp,
+                             compute_stsp_w_path)
 from edsger.path_tracking import compute_path
+from edsger.spiess_florian import compute_SF_in
+from edsger.star import (convert_graph_to_csc_float64,
+                         convert_graph_to_csc_uint32,
+                         convert_graph_to_csr_float64,
+                         convert_graph_to_csr_uint32)
 
 
 class Dijkstra:
@@ -187,12 +176,12 @@ class Dijkstra:
         return self._permute
 
     @property
-    def permute(self):
+    def path_links(self):
         return self._path_links
 
     def _check_edges(self, edges, tail, head, weight):
         """Checks if the edges DataFrame is well-formed. If not, raises an appropriate error."""
-        if type(edges) != pd.core.frame.DataFrame:
+        if not isinstance(edges, pd.core.frame.DataFrame):
             raise TypeError("edges should be a pandas DataFrame")
 
         if tail not in edges:
@@ -279,14 +268,14 @@ class Dijkstra:
     def _check_orientation(self, orientation):
         """Checks the orientation attribute."""
         if orientation not in ["in", "out"]:
-            raise ValueError(f"orientation should be either 'in' on 'out'")
+            raise ValueError("orientation should be either 'in' on 'out'")
 
     def run(
         self,
         vertex_idx,
         path_tracking=False,
         return_inf=True,
-        return_Series=False,
+        return_series=False,
         heap_length_ratio=1.0,
     ):
         """
@@ -301,7 +290,7 @@ class Dijkstra:
             the graph.
         return_inf : bool, optional (default=True)
             Whether to return path length(s) as infinity (np.inf) when no path exists.
-        return_Series : bool, optional (default=False)
+        return_series : bool, optional (default=False)
             Whether to return a Pandas Series object indexed by vertex indices with path length(s)
             as values.
         heap_length_ratio : float, optional (default=1.0)
@@ -310,9 +299,9 @@ class Dijkstra:
         Returns
         -------
         path_length_values or path_lengths_series : array_like or Pandas Series
-            If `return_Series=False`, a 1D Numpy array of shape (n_vertices,) with the shortest
+            If `return_series=False`, a 1D Numpy array of shape (n_vertices,) with the shortest
             path length from the source vertex to each vertex in the graph (`orientation="out"`), or
-            from each vertex to the target vertex (`orientation="in"`). If `return_Series=True`, a
+            from each vertex to the target vertex (`orientation="in"`). If `return_series=True`, a
             Pandas Series object with the same data
             and the vertex indices as index.
 
@@ -321,8 +310,10 @@ class Dijkstra:
         if not isinstance(vertex_idx, int):
             try:
                 vertex_idx = int(vertex_idx)
-            except ValueError:
-                raise TypeError(f"argument 'vertex_idx=f{vertex_idx}' must be an integer")
+            except ValueError as exc:
+                raise TypeError(
+                    f"argument 'vertex_idx={vertex_idx}' must be an integer"
+                ) from exc
         if vertex_idx < 0:
             raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be positive")
         if self._permute:
@@ -341,16 +332,16 @@ class Dijkstra:
             )
         if not isinstance(return_inf, bool):
             raise TypeError(f"argument 'return_inf=f{return_inf}' must be of bool type")
-        if not isinstance(return_Series, bool):
+        if not isinstance(return_series, bool):
             raise TypeError(
-                f"argument 'return_Series=f{return_Series}' must be of bool type"
+                f"argument 'return_series=f{return_series}' must be of bool type"
             )
         if not isinstance(heap_length_ratio, float):
             raise TypeError(
                 f"argument 'heap_length_ratio=f{heap_length_ratio}' must be of float type"
             )
-        if heap_length_ratio > 1.0:
-            heap_length_ratio = 1.0
+
+        heap_length_ratio = np.amin([heap_length_ratio, 1.0])
         if heap_length_ratio <= 0.0:
             raise ValueError(
                 f"argument 'heap_length_ratio={heap_length_ratio}' must be strictly positive "
@@ -428,7 +419,7 @@ class Dijkstra:
                 path_df.drop(["associated_idx", "vert_idx_new"], axis=1, inplace=True)
                 path_df.rename(columns={"vert_idx_old": "associated_idx"}, inplace=True)
 
-                if return_Series:
+                if return_series:
                     path_df.set_index("vertex_idx", inplace=True)
                     self._path_links = path_df.associated_idx.astype(np.uint32)
                 else:
@@ -446,7 +437,7 @@ class Dijkstra:
             )
 
         # reorder path lengths
-        if return_Series:
+        if return_series:
             if self._permute:
                 self._vertices["path_length"] = path_length_values
                 path_lengths_df = self._vertices[
@@ -462,18 +453,17 @@ class Dijkstra:
 
             return path_lengths_series
 
-        else:
-            if self._permute:
-                self._vertices["path_length"] = path_length_values
-                if return_inf:
-                    path_length_values = np.inf * np.ones(self.__n_vertices_init)
-                else:
-                    path_length_values = DTYPE_INF_PY * np.ones(self.__n_vertices_init)
-                path_length_values[
-                    self._vertices.vert_idx_old.values
-                ] = self._vertices.path_length.values
+        if self._permute:
+            self._vertices["path_length"] = path_length_values
+            if return_inf:
+                path_length_values = np.inf * np.ones(self.__n_vertices_init)
+            else:
+                path_length_values = DTYPE_INF_PY * np.ones(self.__n_vertices_init)
+            path_length_values[
+                self._vertices.vert_idx_old.values
+            ] = self._vertices.path_length.values
 
-            return path_length_values
+        return path_length_values
 
     def get_path(self, vertex_idx):
         if self._path_links is None:
@@ -483,12 +473,12 @@ class Dijkstra:
                 shortest path algorithm",
                 UserWarning,
             )
+            return None
+        if isinstance(self._path_links, pd.Series):
+            path_vertices = compute_path(self._path_links.values, vertex_idx)
         else:
-            if isinstance(self._path_links, pd.Series):
-                path_vertices = compute_path(self._path_links.values, vertex_idx)
-            else:
-                path_vertices = compute_path(self._path_links, vertex_idx)
-            return path_vertices
+            path_vertices = compute_path(self._path_links, vertex_idx)
+        return path_vertices
 
 
 class HyperpathGenerating:
@@ -552,6 +542,9 @@ class HyperpathGenerating:
         self._tail = self._edges[tail].values.astype(np.uint32)
         self._head = self._edges[head].values.astype(np.uint32)
 
+        # node attribute
+        self.u_i_vec = None
+
     def run(self, origin, destination, volume, return_inf=False):
         # column storing the resulting edge volumes
         self._edges["volume"] = 0.0
@@ -561,11 +554,11 @@ class HyperpathGenerating:
         u_i_vec = DTYPE_INF_PY * np.ones(self.vertex_count, dtype=DTYPE_PY)
 
         # input check
-        if type(volume) is not list:
+        if not isinstance(volume, list):
             volume = [volume]
         if self._orientation == "out":
             self._check_vertex_idx(origin)
-            if type(destination) is not list:
+            if not isinstance(destination, list):
                 destination = [destination]
             assert len(destination) == len(volume)
             for i, item in enumerate(destination):
@@ -573,7 +566,7 @@ class HyperpathGenerating:
                 self._check_volume(volume[i])
             demand_indices = np.array(destination, dtype=np.uint32)
         elif self._orientation == "in":
-            if type(origin) is not list:
+            if not isinstance(origin, list):
                 origin = [origin]
             assert len(origin) == len(volume)
             for i, item in enumerate(origin):
@@ -589,22 +582,22 @@ class HyperpathGenerating:
             raise NotImplementedError(
                 "one-to-many Spiess & Florian's algorithm not implemented yet"
             )
-        elif self._orientation == "in":
-            compute_SF_in(
-                self.__indptr,
-                self._edge_idx,
-                self._trav_time,
-                self._freq,
-                self._tail,
-                self._head,
-                demand_indices,  # source vertex indices
-                demand_values,
-                self._edges["volume"].values,
-                u_i_vec,
-                self.vertex_count,
-                destination,
-            )
-            self.u_i_vec = u_i_vec
+
+        compute_SF_in(
+            self.__indptr,
+            self._edge_idx,
+            self._trav_time,
+            self._freq,
+            self._tail,
+            self._head,
+            demand_indices,  # source vertex indices
+            demand_values,
+            self._edges["volume"].values,
+            u_i_vec,
+            self.vertex_count,
+            destination,
+        )
+        self.u_i_vec = u_i_vec
 
     def _check_vertex_idx(self, idx):
         assert isinstance(idx, int)
@@ -616,7 +609,7 @@ class HyperpathGenerating:
         assert v >= 0.0
 
     def _check_edges(self, edges, tail, head, trav_time, freq):
-        if type(edges) != pd.core.frame.DataFrame:
+        if not isinstance(edges, pd.core.frame.DataFrame):
             raise TypeError("edges should be a pandas DataFrame")
 
         for col in [tail, head, trav_time, freq]:
