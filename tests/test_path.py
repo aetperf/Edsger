@@ -72,7 +72,7 @@ def test_check_edges_02(braess):
 def test_run_01(braess):
     edges = braess
     sp = Dijkstra(edges, orientation="out", check_edges=False)
-    path_lengths = sp.run(vertex_idx=0, return_Series=True)
+    path_lengths = sp.run(vertex_idx=0, return_series=True)
     path_lengths_ref = pd.Series([0.0, 1.0, 1.0, 2.0])
     path_lengths_ref.index.name = "vertex_idx"
     path_lengths_ref.name = "path_length"
@@ -147,7 +147,7 @@ def test_run_04():
     )
     sp = Dijkstra(edges, orientation="out", permute=True)
     path_lengths = sp.run(
-        vertex_idx=0, path_tracking=True, return_inf=True, return_Series=False
+        vertex_idx=0, path_tracking=True, return_inf=True, return_series=False
     )
     path_lengths_ref = np.array(
         [
@@ -224,7 +224,7 @@ def test_run_04():
     np.testing.assert_array_equal(sp._path_links, path_links_ref)
 
     path_lengths = sp.run(
-        vertex_idx=0, path_tracking=True, return_inf=False, return_Series=False
+        vertex_idx=0, path_tracking=True, return_inf=False, return_series=False
     )
     path_lengths_ref = np.array(
         [
@@ -264,7 +264,7 @@ def test_run_04():
     assert np.allclose(path_lengths, path_lengths_ref)
     np.testing.assert_array_equal(sp._path_links, path_links_ref)
 
-    path_lengths = sp.run(vertex_idx=0, path_tracking=True, return_Series=True)
+    path_lengths = sp.run(vertex_idx=0, path_tracking=True, return_series=True)
     path_lengths_ref = pd.Series([0.0, 1.0, 1.0, 2.0], index=[0, 10, 20, 30])
     path_lengths_ref.index.name = "vertex_idx"
     path_lengths_ref.name = "path_length"
@@ -296,7 +296,7 @@ def test_path_tracking_01():
 
     # run the shortest path algorithm
     path_lengths = sp.run(
-        vertex_idx=0, path_tracking=True, return_inf=True, return_Series=False
+        vertex_idx=0, path_tracking=True, return_inf=True, return_series=False
     )
     path_links_ref = np.array(
         [
