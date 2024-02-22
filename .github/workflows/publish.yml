@@ -38,7 +38,6 @@ jobs:
       name: pypi
       url: https://pypi.org/p/edsger
     permissions:
-      contents: read
       id-token: write  # IMPORTANT: mandatory for trusted publishing
 
     steps:
@@ -61,7 +60,6 @@ jobs:
       url: https://test.pypi.org/p/edsger
 
     permissions:
-      contents: read
       id-token: write  # IMPORTANT: mandatory for trusted publishing
 
     steps:
