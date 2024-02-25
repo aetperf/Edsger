@@ -36,10 +36,11 @@ dependencies = [
 dev = [
     "black"
 ]
-# Test dependencies.
+# Test dependencies. 
+# pip install .'[test]' on Linux
 test = [
     "pytest",
-    "scipy"
+    "scipy<1.11"
 ]
 # Doc dependencies.
 doc = [

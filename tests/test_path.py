@@ -79,48 +79,48 @@ def test_run_01(braess):
     pd.testing.assert_series_equal(path_lengths, path_lengths_ref)
 
 
-# def test_run_02(random_seed=124, n=1000):
-#     np.random.seed(random_seed)
-#     tail = np.random.randint(0, int(n / 5), n)
-#     head = np.random.randint(0, int(n / 5), n)
-#     weight = np.random.rand(n)
-#     edges = pd.DataFrame(data={"tail": tail, "head": head, "weight": weight})
-#     edges.drop_duplicates(subset=["tail", "head"], inplace=True)
-#     edges = edges.loc[edges["tail"] != edges["head"]]
-#     edges.reset_index(drop=True, inplace=True)
+def test_run_02(random_seed=124, n=1000):
+    np.random.seed(random_seed)
+    tail = np.random.randint(0, int(n / 5), n)
+    head = np.random.randint(0, int(n / 5), n)
+    weight = np.random.rand(n)
+    edges = pd.DataFrame(data={"tail": tail, "head": head, "weight": weight})
+    edges.drop_duplicates(subset=["tail", "head"], inplace=True)
+    edges = edges.loc[edges["tail"] != edges["head"]]
+    edges.reset_index(drop=True, inplace=True)
 
-#     # SciPy
-#     vertex_count = edges[["tail", "head"]].max().max() + 1
-#     data = edges["weight"].values
-#     row = edges["tail"].values
-#     col = edges["head"].values
-#     graph_coo = coo_array((data, (row, col)), shape=(vertex_count, vertex_count))
-#     graph_csr = graph_coo.tocsr()
-#     dist_matrix_ref = dijkstra(
-#         csgraph=graph_csr, directed=True, indices=0, return_predecessors=False
-#     )
+    # SciPy
+    vertex_count = edges[["tail", "head"]].max().max() + 1
+    data = edges["weight"].values
+    row = edges["tail"].values
+    col = edges["head"].values
+    graph_coo = coo_array((data, (row, col)), shape=(vertex_count, vertex_count))
+    graph_csr = graph_coo.tocsr()
+    dist_matrix_ref = dijkstra(
+        csgraph=graph_csr, directed=True, indices=0, return_predecessors=False
+    )
 
-#     # In-house
-#     # without graph permutation
-#     # return_inf=True
-#     sp = Dijkstra(edges, orientation="out", check_edges=True, permute=False)
-#     dist_matrix = sp.run(vertex_idx=0, return_inf=True)
-#     assert np.allclose(dist_matrix, dist_matrix_ref)
+    # In-house
+    # without graph permutation
+    # return_inf=True
+    sp = Dijkstra(edges, orientation="out", check_edges=True, permute=False)
+    dist_matrix = sp.run(vertex_idx=0, return_inf=True)
+    assert np.allclose(dist_matrix, dist_matrix_ref)
 
-#     dist_matrix_ref = np.where(
-#         dist_matrix_ref > DTYPE_INF_PY, DTYPE_INF_PY, dist_matrix_ref
-#     )
+    dist_matrix_ref = np.where(
+        dist_matrix_ref > DTYPE_INF_PY, DTYPE_INF_PY, dist_matrix_ref
+    )
 
-#     # without graph permutation
-#     # return_inf=False
-#     dist_matrix = sp.run(vertex_idx=0, return_inf=False)
-#     assert np.allclose(dist_matrix, dist_matrix_ref)
+    # without graph permutation
+    # return_inf=False
+    dist_matrix = sp.run(vertex_idx=0, return_inf=False)
+    assert np.allclose(dist_matrix, dist_matrix_ref)
 
-#     # with graph permutation
-#     # return_inf=False
-#     sp = Dijkstra(edges, orientation="out", check_edges=True, permute=True)
-#     dist_matrix = sp.run(vertex_idx=0, return_inf=False)
-#     assert np.allclose(dist_matrix, dist_matrix_ref)
+    # with graph permutation
+    # return_inf=False
+    sp = Dijkstra(edges, orientation="out", check_edges=True, permute=True)
+    dist_matrix = sp.run(vertex_idx=0, return_inf=False)
+    assert np.allclose(dist_matrix, dist_matrix_ref)
 
 
 def test_run_03(braess):
