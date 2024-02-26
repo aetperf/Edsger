@@ -80,9 +80,7 @@ jobs:
       - build_source_dist
       - build_wheels
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/edsger
+    environment: release
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
 
