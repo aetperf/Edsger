@@ -9,7 +9,6 @@ license : MIT
 """
 
 import numpy as np
-
 from edsger.path_tracking import compute_path
 
 
