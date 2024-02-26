@@ -33,7 +33,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
+      - if: github.event.ref_type != 'tag'
+        run: |
+          git fetch --prune --unshallow
+          git tag -d $(git tag --points-at HEAD)
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
