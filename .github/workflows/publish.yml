@@ -3,7 +3,7 @@ name: ci-publish  #  Publish Python distribution to PyPI
 on:
   push:
     branches: 
-      - release
+      - push
 
 jobs:
 
