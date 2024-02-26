@@ -2,5 +2,5 @@
 setuptools
 setuptools_scm
 numpy
-Cython
+Cython>=3
 pandas
