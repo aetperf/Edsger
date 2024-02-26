@@ -1,6 +1,6 @@
 # Runtime requirements
 setuptools
 setuptools_scm
-numpy
+numpy>=1.26
 Cython>=3
 pandas
