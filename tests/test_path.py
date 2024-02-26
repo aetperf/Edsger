@@ -11,13 +11,11 @@ license : MIT
 import numpy as np
 import pandas as pd
 import pytest
-from scipy.sparse import coo_array, csr_matrix
-from scipy.sparse.csgraph import dijkstra
-
-from edsger.commons import DTYPE_INF_PY
+from edsger.commons import A_VERY_SMALL_TIME_INTERVAL_PY, DTYPE_INF_PY
 from edsger.networks import create_SF_network
 from edsger.path import Dijkstra, HyperpathGenerating
-from edsger.commons import A_VERY_SMALL_TIME_INTERVAL_PY
+from scipy.sparse import coo_array, csr_matrix
+from scipy.sparse.csgraph import dijkstra
 
 
 @pytest.fixture
