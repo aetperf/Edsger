@@ -53,7 +53,7 @@ from edsger.commons cimport (
 cdef void init_pqueue(
     PriorityQueue* pqueue,
     size_t heap_length,
-    size_t element_count) nogil:
+    size_t element_count) nogil noexcept:
     """
     Initialize the priority queue.
 
@@ -83,7 +83,7 @@ cdef void init_pqueue(
 
 cdef void _initialize_element(
     PriorityQueue* pqueue,
-    size_t element_idx) nogil:
+    size_t element_idx) nogil noexcept:
     """
     Initialize a single element.
 
@@ -98,7 +98,7 @@ cdef void _initialize_element(
 
 
 cdef void free_pqueue(
-    PriorityQueue* pqueue) nogil:
+    PriorityQueue* pqueue) nogil noexcept:
     """
     Free the priority queue.
 
@@ -113,7 +113,7 @@ cdef void free_pqueue(
 cdef void insert(
     PriorityQueue* pqueue,
     size_t element_idx,
-    DTYPE_t key) nogil:
+    DTYPE_t key) nogil noexcept:
     """
     Insert an element into the heap and reorder the heap.
 
@@ -140,7 +140,7 @@ cdef void insert(
 cdef void decrease_key(
     PriorityQueue* pqueue, 
     size_t element_idx, 
-    DTYPE_t key_new) nogil:
+    DTYPE_t key_new) nogil noexcept:
     """
     Decrease the key of a element in the heap, given its element index.
 
@@ -160,7 +160,7 @@ cdef void decrease_key(
         key_new)
 
 
-cdef DTYPE_t peek(PriorityQueue* pqueue) nogil:
+cdef DTYPE_t peek(PriorityQueue* pqueue) nogil noexcept:
     """
     Find heap min key.
 
@@ -180,7 +180,7 @@ cdef DTYPE_t peek(PriorityQueue* pqueue) nogil:
     return pqueue.Elements[pqueue.A[0]].key
 
 
-cdef bint is_empty(PriorityQueue* pqueue) nogil:
+cdef bint is_empty(PriorityQueue* pqueue) nogil noexcept:
     """
     Check if the heap is empty.
 
@@ -196,7 +196,7 @@ cdef bint is_empty(PriorityQueue* pqueue) nogil:
     return isempty
 
 
-cdef size_t extract_min(PriorityQueue* pqueue) nogil:
+cdef size_t extract_min(PriorityQueue* pqueue) nogil noexcept:
     """
     Extract element with min keay from the heap, 
     and return its element index.
@@ -235,7 +235,7 @@ cdef size_t extract_min(PriorityQueue* pqueue) nogil:
 cdef cnp.ndarray copy_keys_to_numpy(
     PriorityQueue* pqueue,
     size_t vertex_count
-):
+) noexcept:
     """
     Copy the keys into a numpy array.
 
@@ -267,7 +267,7 @@ cdef cnp.ndarray copy_keys_to_numpy(
 cdef void _exchange_nodes(
     PriorityQueue* pqueue, 
     size_t node_i,
-    size_t node_j) nogil:
+    size_t node_j) nogil noexcept:
     """
     Exchange two nodes in the heap.
 
@@ -292,7 +292,7 @@ cdef void _exchange_nodes(
 
 cdef void _min_heapify(
     PriorityQueue* pqueue,
-    size_t node_idx) nogil:
+    size_t node_idx) nogil noexcept:
     """
     Re-order sub-tree under a given node (given its node index) 
     until it satisfies the heap property.
@@ -369,7 +369,7 @@ cdef void _min_heapify(
 cdef void _decrease_key_from_node_index(
     PriorityQueue* pqueue,
     size_t node_idx, 
-    DTYPE_t key_new) nogil:
+    DTYPE_t key_new) nogil noexcept:
     """
     Decrease the key of an element in the heap, given its tree index.
 
