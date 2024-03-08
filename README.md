@@ -1,6 +1,7 @@
 
 ![Tests Status](https://github.com/aetperf/edsger/actions/workflows/tests.yml/badge.svg?branch=release)
 ![PyPI](https://img.shields.io/pypi/v/edsger)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # Edsger
 
