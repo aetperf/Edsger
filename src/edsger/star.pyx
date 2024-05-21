@@ -348,3 +348,9 @@ cpdef void _coo_to_csc_float64(
         temp = Bp[i]
         Bp[i] = last
         last = temp
+
+
+# author : Francois Pacull
+# copyright : Architecture & Performance
+# email: francois.pacull@architecture-performance.fr
+# license : MIT

@@ -4,12 +4,6 @@ An implementation of Spiess and Florian's hyperpath generating algorithm.
 reference: Spiess, H. and Florian, M. (1989). Optimal strategies: A new 
 assignment model for transit networks. Transportation Research Part B 23(2), 
 83-102.
-    
-author : Francois Pacull
-copyright : Architecture & Performance
-email: francois.pacull@architecture-performance.fr
-license : MIT
-
 
 cpdef function:
 
@@ -366,3 +360,9 @@ cpdef compute_SF_in_02():
     assert v_a_vec[0] == 2. / 3.
     assert v_a_vec[1] == 1. / 3.
     assert v_a_vec.shape[0] == 2
+
+
+# author : Francois Pacull
+# copyright : Architecture & Performance
+# email: francois.pacull@architecture-performance.fr
+# license : MIT

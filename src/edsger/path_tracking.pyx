@@ -1,11 +1,6 @@
 """ 
 Path tracking module.
 
-author : Francois Pacull
-copyright : Architecture & Performance
-email: francois.pacull@architecture-performance.fr
-license : MIT
-
 cpdef functions:
 
 - compute_path
@@ -90,3 +85,9 @@ cdef void _compute_path_second_pass(
         path_vertices[k] = j 
         j = <size_t>path_links[j]
         k += 1
+
+
+# author : Francois Pacull
+# copyright : Architecture & Performance
+# email: francois.pacull@architecture-performance.fr
+# license : MIT

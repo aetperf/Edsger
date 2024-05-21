@@ -281,3 +281,9 @@ def create_SF_network(dwell_time=1.0e-6, board_alight_ratio=0.5):
     edges["freq"] *= 2.0
 
     return edges
+
+
+# author : Francois Pacull
+# copyright : Architecture & Performance
+# email: francois.pacull@architecture-performance.fr
+# license : MIT

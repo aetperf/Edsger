@@ -1,9 +1,4 @@
 """ Priority queue based on a minimum binary heap. Header file.
-
-author : Francois Pacull
-copyright : Architecture & Performance
-email: francois.pacull@architecture-performance.fr
-license : MIT
 """
 
 cimport numpy as cnp
@@ -30,3 +25,9 @@ cdef size_t extract_min(PriorityQueue*) nogil
 cdef bint is_empty(PriorityQueue*) nogil
 cdef void decrease_key(PriorityQueue*, size_t, DTYPE_t) nogil
 cdef cnp.ndarray copy_keys_to_numpy(PriorityQueue*, size_t)
+
+
+# author : Francois Pacull
+# copyright : Architecture & Performance
+# email: francois.pacull@architecture-performance.fr
+# license : MIT

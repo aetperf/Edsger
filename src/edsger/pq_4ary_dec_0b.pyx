@@ -4,12 +4,6 @@ Priority queue based on a minimum 4-ary heap.
 - dec: priority queue with decrease-key operation.
 - 0b: indices are zero-based
 
-author : Francois Pacull
-copyright : Architecture & Performance
-email: francois.pacull@architecture-performance.fr
-license : MIT
-
-
 cdef functions:
 
 - init_pqueue
@@ -690,3 +684,9 @@ cpdef sort_01(int n, random_seed=124):
     heapsort(values_in, values_out)
     values_in_sorted = np.sort(values_in)
     np.testing.assert_array_equal(values_in_sorted, values_out)
+
+
+# author : Francois Pacull
+# copyright : Architecture & Performance
+# email: francois.pacull@architecture-performance.fr
+# license : MIT

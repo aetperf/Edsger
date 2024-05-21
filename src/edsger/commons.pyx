@@ -1,10 +1,5 @@
 """ 
 Common definitions.
-
-author : Francois Pacull
-copyright : Architecture & Performance
-email: francois.pacull@architecture-performance.fr
-license : MIT
 """
 
 import numpy as np
@@ -31,3 +26,9 @@ MIN_FREQ_PY =  MIN_FREQ
 # a very small time interval
 A_VERY_SMALL_TIME_INTERVAL = 1.0e+08 * MIN_FREQ
 A_VERY_SMALL_TIME_INTERVAL_PY = A_VERY_SMALL_TIME_INTERVAL
+
+
+# author : Francois Pacull
+# copyright : Architecture & Performance
+# email: francois.pacull@architecture-performance.fr
+# license : MIT

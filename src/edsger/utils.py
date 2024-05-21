@@ -1,6 +1,7 @@
 """This module makes it easy to execute common tasks in Python scripts such as generate random 
 graphs.
 """
+
 import numpy as np
 import pandas as pd
 
@@ -15,3 +16,9 @@ def generate_random_network(n_edges=100, n_verts=20, seed=124, sort=True):
         edges.sort_values(by=["tail", "head"], inplace=True)
         edges.reset_index(drop=True, inplace=True)
     return edges
+
+
+# author : Francois Pacull
+# copyright : Architecture & Performance
+# email: francois.pacull@architecture-performance.fr
+# license : MIT

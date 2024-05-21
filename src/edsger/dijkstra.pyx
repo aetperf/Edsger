@@ -1,10 +1,5 @@
 """ 
 An implementation of Dijkstra's algorithm.
-    
-author : Francois Pacull
-copyright : Architecture & Performance
-email: francois.pacull@architecture-performance.fr
-license : MIT
 
 cpdef functions:
 
@@ -501,3 +496,9 @@ cpdef compute_stsp_02():
     path_lengths = compute_stsp(csc_indptr, csc_indices, csc_data, 3, 4, 4)
     path_lengths_ref = np.array([2., 1.0, 1., 0.], dtype=DTYPE_PY)
     assert np.allclose(path_lengths_ref, path_lengths)
+
+
+# author : Francois Pacull
+# copyright : Architecture & Performance
+# email: francois.pacull@architecture-performance.fr
+# license : MIT
