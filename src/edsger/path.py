@@ -37,30 +37,23 @@ class Dijkstra:
 
     Parameters:
     -----------
-
     edges: pandas.DataFrame
         DataFrame containing the edges of the graph. It should have three columns: 'tail', 'head',
         and 'weight'. The 'tail' column should contain the IDs of the starting nodes, the 'head'
         column should contain the IDs of the ending nodes, and the 'weight' column should contain
         the (positive) weights of the edges.
-
     tail: str, optional (default='tail')
         The name of the column in the DataFrame that contains the IDs of the edge starting nodes.
-
     head: str, optional (default='head')
         The name of the column in the DataFrame that contains the IDs of the edge ending nodes.
-
     weight: str, optional (default='weight')
         The name of the column in the DataFrame that contains the (positive) weights of the edges.
-
     orientation: str, optional (default='out')
         The orientation of Dijkstra's algorithm. It can be either 'out' for single source shortest
         paths or 'in' for single target shortest path.
-
     check_edges: bool, optional (default=False)
         Whether to check if the edges DataFrame is well-formed. If set to True, the edges DataFrame
         will be checked for missing values and invalid data types.
-
     permute: bool, optional (default=False)
         Whether to permute the IDs of the nodes. If set to True, the node IDs will be reindexed to
         start from 0 and be contiguous.
@@ -331,8 +324,7 @@ class Dijkstra:
             If `return_series=False`, a 1D Numpy array of shape (n_vertices,) with the shortest
             path length from the source vertex to each vertex in the graph (`orientation="out"`), or
             from each vertex to the target vertex (`orientation="in"`). If `return_series=True`, a
-            Pandas Series object with the same data
-            and the vertex indices as index.
+            Pandas Series object with the same data and the vertex indices as index.
 
         """
         # validate the input arguments
@@ -494,7 +486,28 @@ class Dijkstra:
 
         return path_length_values
 
+
     def get_path(self, vertex_idx):
+        """Compute path from predecessors or successors.
+
+        Parameters:
+        -----------
+
+        vertex_idx : int
+            source or target vertex index.
+
+        Returns
+        -------
+
+        path_vertices : numpy.ndarray
+            Array of np.uint32 type storing the path from or to the given vertex index. If we are 
+            dealing with the sssp algorithm, the input vertex is the target vertex and the path to 
+            the source is given backward from the target to the source using the predecessors. If 
+            we are dealing with the stsp algorithm, the input vertex is the source vertex and the 
+            path to the target is given backward from the target to the source using the 
+            successors. 
+
+        """
         if self._path_links is None:
             warnings.warn(
                 "Current Dijkstra instance has not path attribute : \
@@ -667,3 +680,9 @@ class HyperpathGenerating:
 
             if edges[col].min() < 0.0:
                 raise ValueError(f"column '{col}' should be nonnegative")
+
+
+# author : Francois Pacull
+# copyright : Architecture & Performance
+# email: francois.pacull@architecture-performance.fr
+# license : MIT

@@ -17,15 +17,23 @@ cdef functions:
     Returns the path length.
 - _compute_path_second_pass
     Compute the sequence of vertices forming a path.
-
 """
 
 import numpy as np
 cimport numpy as cnp
 
 
-cpdef cnp.ndarray  compute_path(cnp.uint32_t[::1] path_links, int vertex_idx):
+cpdef cnp.ndarray compute_path(cnp.uint32_t[::1] path_links, int vertex_idx):
     """Compute path from predecessors or successors.
+
+    Parameters:
+    -----------
+
+    path_links : cnp.uint32_t[::1]
+        predecessors or successors.
+
+    vertex_idx : int
+        source or target vertex index.
     """
     
     cdef int path_length
@@ -59,8 +67,8 @@ cdef int _compute_path_first_pass(
         j = <size_t>path_links[j]
         k += 1
 
-
     return k
+
 
 cdef void _compute_path_second_pass(
     cnp.uint32_t[::1] path_links,

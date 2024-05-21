@@ -20,7 +20,6 @@ cpdef functions:
 - compute_stsp_w_path
     Compute single-target shortest path (from all vertices to one vertex).
     Compute successors.
-
 """
 
 cimport numpy as cnp
