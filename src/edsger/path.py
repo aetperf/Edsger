@@ -7,16 +7,27 @@ import warnings
 import numpy as np
 import pandas as pd
 
-from edsger.commons import (A_VERY_SMALL_TIME_INTERVAL_PY, DTYPE_INF_PY,
-                            DTYPE_PY, INF_FREQ_PY, MIN_FREQ_PY)
-from edsger.dijkstra import (compute_sssp, compute_sssp_w_path, compute_stsp,
-                             compute_stsp_w_path)
+from edsger.commons import (
+    A_VERY_SMALL_TIME_INTERVAL_PY,
+    DTYPE_INF_PY,
+    DTYPE_PY,
+    INF_FREQ_PY,
+    MIN_FREQ_PY,
+)
+from edsger.dijkstra import (
+    compute_sssp,
+    compute_sssp_w_path,
+    compute_stsp,
+    compute_stsp_w_path,
+)
 from edsger.path_tracking import compute_path
 from edsger.spiess_florian import compute_SF_in
-from edsger.star import (convert_graph_to_csc_float64,
-                         convert_graph_to_csc_uint32,
-                         convert_graph_to_csr_float64,
-                         convert_graph_to_csr_uint32)
+from edsger.star import (
+    convert_graph_to_csc_float64,
+    convert_graph_to_csc_uint32,
+    convert_graph_to_csr_float64,
+    convert_graph_to_csr_uint32,
+)
 
 
 class Dijkstra:
@@ -26,6 +37,7 @@ class Dijkstra:
 
     Parameters:
     -----------
+
     edges: pandas.DataFrame
         DataFrame containing the edges of the graph. It should have three columns: 'tail', 'head',
         and 'weight'. The 'tail' column should contain the IDs of the starting nodes, the 'head'
@@ -52,38 +64,6 @@ class Dijkstra:
     permute: bool, optional (default=False)
         Whether to permute the IDs of the nodes. If set to True, the node IDs will be reindexed to
         start from 0 and be contiguous.
-
-    Attributes:
-    -----------
-    _edges: pandas.DataFrame
-        DataFrame containing the edges of the graph.
-
-    _n_edges: int
-        The number of edges in the graph.
-
-    _vertices: pandas.DataFrame or None
-        DataFrame containing the old and new IDs of the nodes if the IDs have been permuted.
-
-    _n_vertices: int
-        The number of nodes in the graph (after permutation, if _permute is True).
-
-    __n_vertices_init: int
-        The number of nodes in the original graph (not permuted).
-
-    __indices: numpy.ndarray
-        1D array containing the indices of the indices of the forward or reverse star of the graph
-        in compressed format.
-
-    __indptr: numpy.ndarray
-        1D array containing the indices of the pointer of the forward or reverse star of the graph
-        in compressed format.
-
-    __edge_weights: numpy.ndarray
-        1D array containing the weights of the edges in the graph.
-
-    _path_links: numpy.ndarray
-        predecessors or successors node index if the path tracking is activated.
-
     """
 
     def __init__(
@@ -113,7 +93,17 @@ class Dijkstra:
             self._n_vertices = self._edges[[tail, head]].max(axis=0).max() + 1
             self.__n_vertices_init = self._n_vertices
 
-        # convert to CSR/CSC
+        # convert to CSR/CSC:
+        # __indices: numpy.ndarray
+        #     1D array containing the indices of the indices of the forward or reverse star of
+        #     the graph in compressed format.
+
+        # __indptr: numpy.ndarray
+        #     1D array containing the indices of the pointer of the forward or reverse star of
+        #     the graph in compressed format.
+        # __edge_weights: numpy.ndarray
+        #     1D array containing the weights of the edges in the graph.
+
         self._check_orientation(orientation)
         self._orientation = orientation
         if self._orientation == "out":
@@ -135,25 +125,57 @@ class Dijkstra:
 
     @property
     def edges(self):
+        """
+        Getter for the graph edge dataframe.
+
+        Returns
+        -------
+        edges: pandas.DataFrame
+            DataFrame containing the edges of the graph.
+        """
         return self._edges
 
     @property
     def vertices(self):
+        """
+        Getter for the graph vertex dataframe.
+
+        Returns
+        -------
+        vertices: pandas.DataFrame or None
+            DataFrame containing the node IDS. It contains the old and new IDs of the nodes if
+            the IDs have been permuted.
+        """
         return self._vertices
 
     @property
     def n_edges(self):
+        """
+        Getter for the number of graph edges.
+
+        Returns
+        -------
+        n_edges: int
+            The number of edges in the graph.
+        """
         return self._n_edges
 
     @property
     def n_vertices(self):
+        """
+        Getter for the number of graph vertices.
+
+        Returns
+        -------
+        n_vertices: int
+            The number of nodes in the graph (after permutation, if _permute is True).
+        """
         return self._n_vertices
 
     @property
     def orientation(self):
         """
-        Getter of Dijkstra's algorithm orientation (in or out).
-    
+        Getter of Dijkstra's algorithm orientation ("in" or "out").
 
         Returns
         -------
@@ -176,6 +198,14 @@ class Dijkstra:
 
     @property
     def path_links(self):
+        """
+        Getter for the graph permutation/reindexing option.
+
+        Returns
+        -------
+        path_links: numpy.ndarray
+            predecessors or successors node index if the path tracking is activated.
+        """
         return self._path_links
 
     def _check_edges(self, edges, tail, head, weight):
