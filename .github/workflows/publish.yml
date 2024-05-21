@@ -2,8 +2,6 @@ name: ci-publish  #  Publish Python distribution to PyPI
 
 on:
   push:
-    branches: 
-      - push
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 jobs:
