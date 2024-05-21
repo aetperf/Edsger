@@ -6,6 +6,14 @@ Welcome to Edsger's documentation!
    :caption: Contents:
 
 
+Introduction
+------------
+
+.. toctree::
+
+   introduction
+
+
 Contents
 --------
 
