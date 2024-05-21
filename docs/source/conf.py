@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath("../../src/edsger/"))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "Edsger"
-copyright = "2023, Architecture & Performance"
+copyright = "2024, Architecture & Performance"
 author = "Francois Pacull"
 
 # -- General configuration ---------------------------------------------------
@@ -31,8 +31,7 @@ exclude_patterns = ["*.pyx"]
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "sphinx_rtd_theme"
-# html_theme = "furo"
+html_theme = "furo"
 html_static_path = ["_static"]
 
 # Add any Sphinx extension module names here, as strings. They can be

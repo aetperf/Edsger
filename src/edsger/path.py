@@ -33,10 +33,10 @@ class Dijkstra:
         the (positive) weights of the edges.
 
     tail: str, optional (default='tail')
-        The name of the column in the DataFrame that contains the IDs of the starting nodes.
+        The name of the column in the DataFrame that contains the IDs of the edge starting nodes.
 
     head: str, optional (default='head')
-        The name of the column in the DataFrame that contains the IDs of the ending nodes.
+        The name of the column in the DataFrame that contains the IDs of the edge ending nodes.
 
     weight: str, optional (default='weight')
         The name of the column in the DataFrame that contains the (positive) weights of the edges.
@@ -61,9 +61,6 @@ class Dijkstra:
     _n_edges: int
         The number of edges in the graph.
 
-    _permute: bool
-        Whether to permute the IDs of the nodes.
-
     _vertices: pandas.DataFrame or None
         DataFrame containing the old and new IDs of the nodes if the IDs have been permuted.
 
@@ -72,9 +69,6 @@ class Dijkstra:
 
     __n_vertices_init: int
         The number of nodes in the original graph (not permuted).
-
-    _orientation: str
-        The orientation of Dijkstra's algorithm.
 
     __indices: numpy.ndarray
         1D array containing the indices of the indices of the forward or reverse star of the graph
@@ -89,18 +83,6 @@ class Dijkstra:
 
     _path_links: numpy.ndarray
         predecessors or successors node index if the path tracking is activated.
-
-    Methods:
-    --------
-    _check_edges(edges, tail, head, weight)
-        Checks if the edges DataFrame is well-formed. If not, raises an appropriate error.
-
-    _permute_graph(tail, head)
-        Permute the IDs of the nodes to start from 0 and be contiguous. Returns a DataFrame with
-        the permuted IDs.
-
-    _check_orientation(orientation):
-        Checks the orientation attribute.
 
     """
 
@@ -169,10 +151,27 @@ class Dijkstra:
 
     @property
     def orientation(self):
+        """
+        Getter of Dijkstra's algorithm orientation (in or out).
+    
+
+        Returns
+        -------
+        orientation : str
+            The orientation of Dijkstra's algorithm.
+        """
         return self._orientation
 
     @property
     def permute(self):
+        """
+        Getter for the graph permutation/reindexing option.
+
+        Returns
+        -------
+        permute : bool
+            Whether to permute the IDs of the nodes.
+        """
         return self._permute
 
     @property

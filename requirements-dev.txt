@@ -12,3 +12,6 @@ pyarrow
 # Linting/Tooling
 
 # Documentation
+sphinx
+sphinx_design
+furo
