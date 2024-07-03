@@ -90,8 +90,8 @@ def test_run_02(random_seed=124, n=1000):
     # SciPy
     vertex_count = edges[["tail", "head"]].max().max() + 1
     data = edges["weight"].values
-    row = edges["tail"].values
-    col = edges["head"].values
+    row = edges["tail"].values.astype(np.int32)
+    col = edges["head"].values.astype(np.int32)
     graph_coo = coo_array((data, (row, col)), shape=(vertex_count, vertex_count))
     graph_csr = graph_coo.tocsr()
     dist_matrix_ref = dijkstra(

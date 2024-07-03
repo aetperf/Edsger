@@ -29,7 +29,7 @@ If you prefer to install `edsger` from source, follow these steps:
 
    Clone the `edsger` repository from GitHub to your local machine::
 
-      git clone https://github.com/yourusername/edsger.git
+      git clone https://github.com/aetperf/Edsger.git
       cd edsger
 
 2. **Create a Virtual Environment:**
