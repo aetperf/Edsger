@@ -1,5 +1,5 @@
-edsger package
-==============
+edsger API
+==========
 
 edsger.path module
 ------------------

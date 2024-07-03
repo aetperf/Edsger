@@ -87,4 +87,4 @@ To uninstall the `edsger` package, simply run::
 Further Help
 ------------
 
-For further assistance, refer to the documentation or contact the maintainer at `email@example.com <mailto:francois.pacull@architecture-performance.fr>`_.
+For further assistance, refer to the documentation or contact the maintainer at `francois.pacull@architecture-performance.fr <mailto:francois.pacull@architecture-performance.fr>`_.
