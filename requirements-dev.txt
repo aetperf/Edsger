@@ -2,7 +2,7 @@
 --requirement requirements.txt
 
 # Testing
-scipy<1.11
+scipy
 pytest
 
 # Scripts
