@@ -1,5 +1,5 @@
 Introduction
-------------
+============
 
 Edsger is a Python package for finding the shortest paths between nodes in directed graphs with positive edge weights. It provides an implementation of Dijkstra's algorithm, as well as functions for tracking the shortest path(s) from the source/target vertex to/from all other vertices in the graph.
 
