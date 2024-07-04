@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from edsger.commons import A_VERY_SMALL_TIME_INTERVAL_PY, DTYPE_INF_PY
-from edsger.networks import create_SF_network
+from edsger.networks import create_sf_network
 from edsger.path import Dijkstra, HyperpathGenerating
 from scipy.sparse import coo_array, csr_matrix
 from scipy.sparse.csgraph import dijkstra
@@ -340,7 +340,7 @@ def test_path_tracking_01():
 
 
 def test_SF_in_01():
-    edges = create_SF_network(dwell_time=0.0)
+    edges = create_sf_network(dwell_time=0.0)
     hp = HyperpathGenerating(edges, check_edges=False)
     hp.run(origin=0, destination=12, volume=1.0)
 
