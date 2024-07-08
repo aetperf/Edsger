@@ -447,9 +447,9 @@ class Dijkstra:
                     self._path_links = np.arange(
                         self.__n_vertices_init, dtype=np.uint32
                     )
-                    self._path_links[
-                        path_df.vertex_idx.values
-                    ] = path_df.associated_idx.values
+                    self._path_links[path_df.vertex_idx.values] = (
+                        path_df.associated_idx.values
+                    )
 
         # deal with infinity
         if return_inf:
@@ -480,12 +480,11 @@ class Dijkstra:
                 path_length_values = np.inf * np.ones(self.__n_vertices_init)
             else:
                 path_length_values = DTYPE_INF_PY * np.ones(self.__n_vertices_init)
-            path_length_values[
-                self._vertices.vert_idx_old.values
-            ] = self._vertices.path_length.values
+            path_length_values[self._vertices.vert_idx_old.values] = (
+                self._vertices.path_length.values
+            )
 
         return path_length_values
-
 
     def get_path(self, vertex_idx):
         """Compute path from predecessors or successors.
@@ -500,12 +499,12 @@ class Dijkstra:
         -------
 
         path_vertices : numpy.ndarray
-            Array of np.uint32 type storing the path from or to the given vertex index. If we are 
-            dealing with the sssp algorithm, the input vertex is the target vertex and the path to 
-            the source is given backward from the target to the source using the predecessors. If 
-            we are dealing with the stsp algorithm, the input vertex is the source vertex and the 
-            path to the target is given backward from the target to the source using the 
-            successors. 
+            Array of np.uint32 type storing the path from or to the given vertex index. If we are
+            dealing with the sssp algorithm, the input vertex is the target vertex and the path to
+            the source is given backward from the target to the source using the predecessors. If
+            we are dealing with the stsp algorithm, the input vertex is the source vertex and the
+            path to the target is given backward from the target to the source using the
+            successors.
 
         """
         if self._path_links is None:
