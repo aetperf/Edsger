@@ -473,6 +473,23 @@ class Dijkstra:
 
         return path_length_values
 
+    def get_vertices(self):
+        """
+        Get the unique vertices from the graph.
+
+        If the graph has been permuted, this method returns the vertices based on the original
+        indexing. Otherwise, it returns the union of tail and head vertices from the edges.
+
+        Returns
+        -------
+        vertices : ndarray
+            A 1-D array containing the unique vertices.
+        """
+        if self._permute:
+            return self._permutation.vert_idx_old.values
+        else:
+            return np.union1d(self._edges["tail"], self._edges["head"])
+
     def get_path(self, vertex_idx):
         """Compute path from predecessors or successors.
 
