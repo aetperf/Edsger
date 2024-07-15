@@ -129,19 +129,6 @@ class Dijkstra:
         return self._edges
 
     @property
-    def vertices(self):
-        """
-        Getter for the graph vertex dataframe.
-
-        Returns
-        -------
-        vertices: pandas.DataFrame or None
-            DataFrame containing the node IDS. It contains the old and new IDs of the nodes if
-            the IDs have been permuted.
-        """
-        return self._vertices
-
-    @property
     def n_edges(self):
         """
         Getter for the number of graph edges.
@@ -447,9 +434,9 @@ class Dijkstra:
                     self._path_links = np.arange(
                         self.__n_vertices_init, dtype=np.uint32
                     )
-                    self._path_links[path_df.vertex_idx.values] = (
-                        path_df.associated_idx.values
-                    )
+                    self._path_links[
+                        path_df.vertex_idx.values
+                    ] = path_df.associated_idx.values
 
         # deal with infinity
         if return_inf:
@@ -480,9 +467,9 @@ class Dijkstra:
                 path_length_values = np.inf * np.ones(self.__n_vertices_init)
             else:
                 path_length_values = DTYPE_INF_PY * np.ones(self.__n_vertices_init)
-            path_length_values[self._vertices.vert_idx_old.values] = (
-                self._vertices.path_length.values
-            )
+            path_length_values[
+                self._vertices.vert_idx_old.values
+            ] = self._vertices.path_length.values
 
         return path_length_values
 
