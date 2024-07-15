@@ -79,10 +79,10 @@ class Dijkstra:
         self._permute = permute
         if self._permute:
             self.__n_vertices_init = self._edges[[tail, head]].max(axis=0).max() + 1
-            self._vertices = self._permute_graph(tail, head)
-            self._n_vertices = len(self._vertices)
+            self._permutation = self._permute_graph(tail, head)
+            self._n_vertices = len(self._permutation)
         else:
-            self._vertices = None
+            self._permutation = None
             self._n_vertices = self._edges[[tail, head]].max(axis=0).max() + 1
             self.__n_vertices_init = self._n_vertices
 
@@ -235,19 +235,19 @@ class Dijkstra:
         """Permute the IDs of the nodes to start from 0 and be contiguous.
         Returns a DataFrame with the permuted IDs."""
 
-        vertices = pd.DataFrame(
+        permutation = pd.DataFrame(
             data={
                 "vert_idx": np.union1d(
                     self._edges[tail].values, self._edges[head].values
                 )
             }
         )
-        vertices["vert_idx_new"] = vertices.index
-        vertices.index.name = "index"
+        permutation["vert_idx_new"] = permutation.index
+        permutation.index.name = "index"
 
         self._edges = pd.merge(
             self._edges,
-            vertices[["vert_idx", "vert_idx_new"]],
+            permutation[["vert_idx", "vert_idx_new"]],
             left_on=tail,
             right_on="vert_idx",
             how="left",
@@ -257,7 +257,7 @@ class Dijkstra:
 
         self._edges = pd.merge(
             self._edges,
-            vertices[["vert_idx", "vert_idx_new"]],
+            permutation[["vert_idx", "vert_idx_new"]],
             left_on=head,
             right_on="vert_idx",
             how="left",
@@ -265,14 +265,14 @@ class Dijkstra:
         self._edges.drop([head, "vert_idx"], axis=1, inplace=True)
         self._edges.rename(columns={"vert_idx_new": head}, inplace=True)
 
-        vertices.rename(columns={"vert_idx": "vert_idx_old"}, inplace=True)
-        vertices.reset_index(drop=True, inplace=True)
-        vertices.sort_values(by="vert_idx_new", inplace=True)
+        permutation.rename(columns={"vert_idx": "vert_idx_old"}, inplace=True)
+        permutation.reset_index(drop=True, inplace=True)
+        permutation.sort_values(by="vert_idx_new", inplace=True)
 
-        vertices.index.name = "index"
+        permutation.index.name = "index"
         self._edges.index.name = "index"
 
-        return vertices
+        return permutation
 
     def _check_orientation(self, orientation):
         """Checks the orientation attribute."""
@@ -325,10 +325,10 @@ class Dijkstra:
         if vertex_idx < 0:
             raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be positive")
         if self._permute:
-            if vertex_idx not in self._vertices.vert_idx_old.values:
+            if vertex_idx not in self._permutation.vert_idx_old.values:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
-            vertex_new = self._vertices.loc[
-                self._vertices.vert_idx_old == vertex_idx, "vert_idx_new"
+            vertex_new = self._permutation.loc[
+                self._permutation.vert_idx_old == vertex_idx, "vert_idx_new"
             ].iloc[0]
         else:
             if vertex_idx >= self._n_vertices:
@@ -410,7 +410,7 @@ class Dijkstra:
                 )
                 path_df = pd.merge(
                     path_df,
-                    self._vertices,
+                    self._permutation,
                     left_on="vertex_idx",
                     right_on="vert_idx_new",
                     how="left",
@@ -419,7 +419,7 @@ class Dijkstra:
                 path_df.rename(columns={"vert_idx_old": "vertex_idx"}, inplace=True)
                 path_df = pd.merge(
                     path_df,
-                    self._vertices,
+                    self._permutation,
                     left_on="associated_idx",
                     right_on="vert_idx_new",
                     how="left",
@@ -447,8 +447,8 @@ class Dijkstra:
         # reorder path lengths
         if return_series:
             if self._permute:
-                self._vertices["path_length"] = path_length_values
-                path_lengths_df = self._vertices[
+                self._permutation["path_length"] = path_length_values
+                path_lengths_df = self._permutation[
                     ["vert_idx_old", "path_length"]
                 ].sort_values(by="vert_idx_old")
                 path_lengths_df.set_index("vert_idx_old", drop=True, inplace=True)
@@ -462,14 +462,14 @@ class Dijkstra:
             return path_lengths_series
 
         if self._permute:
-            self._vertices["path_length"] = path_length_values
+            self._permutation["path_length"] = path_length_values
             if return_inf:
                 path_length_values = np.inf * np.ones(self.__n_vertices_init)
             else:
                 path_length_values = DTYPE_INF_PY * np.ones(self.__n_vertices_init)
             path_length_values[
-                self._vertices.vert_idx_old.values
-            ] = self._vertices.path_length.values
+                self._permutation.vert_idx_old.values
+            ] = self._permutation.path_length.values
 
         return path_length_values
 
