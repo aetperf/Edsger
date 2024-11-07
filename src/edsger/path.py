@@ -90,7 +90,6 @@ class Dijkstra:
         # __indices: numpy.ndarray
         #     1D array containing the indices of the indices of the forward or reverse star of
         #     the graph in compressed format.
-
         # __indptr: numpy.ndarray
         #     1D array containing the indices of the pointer of the forward or reverse star of
         #     the graph in compressed format.
@@ -434,9 +433,9 @@ class Dijkstra:
                     self._path_links = np.arange(
                         self.__n_vertices_init, dtype=np.uint32
                     )
-                    self._path_links[
-                        path_df.vertex_idx.values
-                    ] = path_df.associated_idx.values
+                    self._path_links[path_df.vertex_idx.values] = (
+                        path_df.associated_idx.values
+                    )
 
         # deal with infinity
         if return_inf:
@@ -467,9 +466,9 @@ class Dijkstra:
                 path_length_values = np.inf * np.ones(self.__n_vertices_init)
             else:
                 path_length_values = DTYPE_INF_PY * np.ones(self.__n_vertices_init)
-            path_length_values[
-                self._permutation.vert_idx_old.values
-            ] = self._permutation.path_length.values
+            path_length_values[self._permutation.vert_idx_old.values] = (
+                self._permutation.path_length.values
+            )
 
         return path_length_values
 
@@ -487,8 +486,7 @@ class Dijkstra:
         """
         if self._permute:
             return self._permutation.vert_idx_old.values
-        else:
-            return np.union1d(self._edges["tail"], self._edges["head"])
+        return np.union1d(self._edges["tail"], self._edges["head"])
 
     def get_path(self, vertex_idx):
         """Compute path from predecessors or successors.
