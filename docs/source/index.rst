@@ -1,23 +1,22 @@
-Welcome to Edsger's documentation!
-==================================
+:github_url: https://github.com/aetperf/Edsger
 
-.. toctree::
-   :maxdepth: 3
-   :caption: Contents:
+======
+Edsger
+======
 
+*Graph algorithms in Cython*
 
-Contents
---------
+Welcome to our Python library for graph algorithms. So far, the library only includes Dijkstra's algorithm but we should add a range of common path algorithms later. It is also open-source and easy to integrate with other Python libraries. To get started, simply install the library using pip, and import it into your Python project.
 
-.. toctree::
+Installation
+------------
 
-   introduction
-   installation
-   edsger
+The latest release of Edsger can be installed from
+`PyPI <https://pypi.org/project/edsger/>`_ using::
 
-Indices and tables
-==================
+   pip install edsger
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+You may also install directly from GitHub, using the following command. This
+can be used to obtain the most recent version of Edsger::
+
+   pip install 'edsger @ git+https://github.com/aetperf/Edsger'
