@@ -12,12 +12,10 @@ from time import perf_counter
 
 import numpy as np
 import pandas as pd
+from edsger.path import Dijkstra
 from loguru import logger
 from scipy.sparse import coo_array
 from scipy.sparse.csgraph import dijkstra
-
-from edsger.path import Dijkstra
-
 
 logger.remove()
 fmt = (
@@ -181,7 +179,7 @@ if lib == "E":
     # SSSP
 
     results = []
-    logger.info("Edsger Run")
+    logger.info("Edsger run")
     for i in range(repeat):
         d = {}
 
@@ -324,13 +322,13 @@ elif lib == "NK":
 
 
 if check_result:
-    logger.info(f"result check")
+    logger.info("result check")
 
     # SciPy
     logger.info("SciPy init")
     data = edges["weight"].values
-    row = edges["tail"].values
-    col = edges["head"].values
+    row = edges["tail"].values.astype(np.int32)
+    col = edges["head"].values.astype(np.int32)
     graph_coo = coo_array((data, (row, col)), shape=(vertex_count, vertex_count))
     graph_csr = graph_coo.tocsr()
 
