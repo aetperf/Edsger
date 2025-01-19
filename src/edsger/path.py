@@ -525,6 +525,66 @@ class Dijkstra:
 
 
 class HyperpathGenerating:
+    """
+    A class for constructing and managing hyperpath-based routing and analysis in transportation
+    or graph-based systems.
+
+    Parameters
+    ----------
+    edges : pandas.DataFrame
+        A DataFrame containing graph edge information with columns specified by `tail`, `head`,
+        `trav_time`, and `freq`. Must not contain missing values.
+    tail : str, optional
+        Name of the column in `edges` representing the tail nodes (source nodes), by default "tail".
+    head : str, optional
+        Name of the column in `edges` representing the head nodes (target nodes), by default "head".
+    trav_time : str, optional
+        Name of the column in `edges` representing travel times for edges, by default "trav_time".
+    freq : str, optional
+        Name of the column in `edges` representing frequencies of edges, by default "freq".
+    check_edges : bool, optional
+        Whether to validate the structure and data types of `edges`, by default False.
+    orientation : {"in", "out"}, optional
+        Determines the orientation of the graph structure for traversal.
+        - "in": Graph traversal is from destination to origin.
+        - "out": Graph traversal is from origin to destination.
+        By default "in".
+
+    Attributes
+    ----------
+    edge_count : int
+        The number of edges in the graph.
+    vertex_count : int
+        The total number of vertices in the graph.
+    u_i_vec : numpy.ndarray
+        An array storing the least travel time for each vertex after running the algorithm.
+    _edges : pandas.DataFrame
+        Internal DataFrame containing the edges with additional metadata.
+    _trav_time : numpy.ndarray
+        Array of travel times for edges.
+    _freq : numpy.ndarray
+        Array of frequencies for edges.
+    _tail : numpy.ndarray
+        Array of tail nodes (source nodes) for edges.
+    _head : numpy.ndarray
+        Array of head nodes (target nodes) for edges.
+    __indptr : numpy.ndarray
+        Array for compressed row (or column) pointers in the CSR/CSC representation.
+    _edge_idx : numpy.ndarray
+        Array of edge indices in the CSR/CSC representation.
+
+    Methods
+    -------
+    run(origin, destination, volume, return_inf=False)
+        Computes the hyperpath and updates edge volumes based on the input demand and configuration.
+    _check_vertex_idx(idx)
+        Validates a vertex index to ensure it is within the graph's bounds.
+    _check_volume(v)
+        Validates a volume value to ensure it is a non-negative float.
+    _check_edges(edges, tail, head, trav_time, freq)
+        Validates the structure and data types of the input edges DataFrame.
+    """
+
     def __init__(
         self,
         edges,
@@ -589,6 +649,43 @@ class HyperpathGenerating:
         self.u_i_vec = None
 
     def run(self, origin, destination, volume, return_inf=False):
+        """
+        Computes the hyperpath and updates edge volumes based on the input demand and configuration.
+
+        Parameters
+        ----------
+        origin : int or list of int
+            The starting vertex or vertices of the demand. If `self._orientation` is "in",
+            this can be a list of origins corresponding to the demand volumes.
+        destination : int or list of int
+            The target vertex or vertices of the demand. If `self._orientation` is "out",
+            this can be a list of destinations corresponding to the demand volumes.
+        volume : float or list of float
+            The demand volume associated with each origin or destination. Must be non-negative.
+            If a single float is provided, it is applied to a single origin-destination pair.
+        return_inf : bool, optional
+            If True, returns additional information from the computation (not yet implemented).
+            Default is False.
+
+        Raises
+        ------
+        NotImplementedError
+            If `self._orientation` is "out", as the one-to-many algorithm is not yet implemented.
+        AssertionError
+            If the lengths of `origin` or `destination` and `volume` do not match.
+            If any vertex index or volume is invalid.
+        TypeError
+            If `volume` is not a float or list of floats.
+        ValueError
+            If any volume value is negative.
+
+        Notes
+        -----
+        - The method modifies the `self._edges` DataFrame by adding a "volume" column representing
+        edge volumes based on the computed hyperpath.
+        - The `self.u_i_vec` array is updated to store the least travel time for each vertex.
+        - Only "in" orientation is currently supported.
+        """
         # column storing the resulting edge volumes
         self._edges["volume"] = 0.0
         self.u_i_vec = None
