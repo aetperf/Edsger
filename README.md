@@ -72,6 +72,17 @@ print("Shortest paths:", shortest_paths)
 
 We get the shortest paths from the source node 0 to all other nodes in the graph. The output is an array with the shortest path length to each node. A path length is the sum of the weights of the edges in the path.
 
+It is also possible to use a graph with different column names for the tail, head and weight values. The column names can be specified using the `tail`, `head` and `weight` arguments:
+
+```python
+other_edges = pd.DataFrame({
+    'from': [0, 0, 1, 2, 2, 3],
+    'to': [1, 2, 2, 3, 4, 4],
+    'travel_time': [1, 4, 2, 1, 3, 1]
+})
+other_dijkstra = Dijkstra(edges, tail='from', head='to', weight='travel_time')
+```
+
 #### Orientation
 
 The `orientation` argument (a string with a default value of `'out'`) specifies the orientation of the algorithm. It can be either `'out'` for single source shortest paths or `'in'` for single target shortest path.
