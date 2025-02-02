@@ -61,13 +61,13 @@ class Dijkstra:
 
     def __init__(
         self,
-        edges,
-        tail="tail",
-        head="head",
-        weight="weight",
-        orientation="out",
-        check_edges=False,
-        permute=False,
+        edges: pd.DataFrame,
+        tail: str = "tail",
+        head: str = "head",
+        weight: str = "weight",
+        orientation: str = "out",
+        check_edges: bool = False,
+        permute: bool = False,
     ):
         # load the edges
         if check_edges:
@@ -511,7 +511,7 @@ class Dijkstra:
         """
         if self._path_links is None:
             warnings.warn(
-                "Current Dijkstra instance has not path attribute : \
+                "Current Dijkstra instance has no path attribute : \
                 make sure path_tracking is set to True, and run the \
                 shortest path algorithm",
                 UserWarning,
