@@ -115,7 +115,7 @@ The `check_edges` argument (a boolean with a default value of `False`) validates
 
 - Checking for the presence of required columns for edge tail, head and weigh values
 - Verifying that the data types are correct (integer for tail and head, integer or float for weight)
-- Ensuring there are no missing or invalid values (e.g. negative or infinite weights)
+- Ensuring there are no missing or invalid values (e.g. negative weights)
 
 If any of these checks fail, an appropriate error is raised.
 
@@ -132,7 +132,7 @@ dijkstra = Dijkstra(invalid_edges, check_edges=True)
 
 #### Permute
 
-Finally, the  `permute` argument (boolean with a default value of `False`) allows to permute the IDs of the nodes. If set to `True`, the node IDs will be reindexed to start from 0 and be contiguous for the inner computations, and the output will be reindexed to the original IDs, loading the same result as if the IDs were not permuted. The permutation may save memory and computation time for large graphs, for example if halp of the nodes are not actually used in the graph.
+Finally, the  `permute` argument (boolean with a default value of `False`) allows to permute the IDs of the nodes. If set to `True`, the node IDs will be reindexed to start from 0 and be contiguous for the inner computations, and the output will be reindexed to the original IDs, loading the same result as if the IDs were not permuted. The permutation may save memory and computation time for large graphs, for example if a significant ratio of the nodes are not actually used in the graph.
 
 ```python
 SHIFT = 1000
