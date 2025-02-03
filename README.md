@@ -171,11 +171,11 @@ shortest_paths[-5:]
 
 ####  Run method options
 
-The `run` method can take the following arguments besides the source vertex index:
+The `run` method can take the following arguments besides the source/target vertex index:
 
 - `path_tracking` : bool, optional (default=False)
 
-Whether to track the shortest path(s) from the source vertex to all other vertices in the graph.
+Whether to track the shortest path(s) from/to the source/target vertex to all other vertices in the graph.
 
 ```python
 dijkstra = Dijkstra(edges)
@@ -195,7 +195,7 @@ The path is returned as an array of vertex indices. This is an ordered list of v
 
 - `return_inf` : bool, optional (default=True)
     
-Whether to return path length(s) as infinity (np.inf) when no path exists.
+Whether to return path lengths as infinity (np.inf) when no path exists.
 
 ```python
 dijkstra = Dijkstra(edges, orientation='in')
@@ -228,7 +228,7 @@ shortest_paths
 
 - `heap_length_ratio` : float, optional (default=1.0)
     
-This is an experimental parameter that controls the size of the heap used in the algorithm. The heap is a static array that is used to store the vertices that are may be visited next. A value of 1.0 means that the heap is the same size as the number of vertices, so there is no risk of overflow. Be aware that there is no guarantee that the algorithm will work with a heap length smaller that 1. The lowest ratio that works for a given graph depends on the graph structure and the source vertex. For a rather sparse graph, a small ratio may work, but for a dense graph, a ratio of 1.0 is required.
+This is an experimental parameter that controls the size of the heap used in the algorithm. The heap is a static array that is used to store the vertices that may be visited next. A value of 1.0 means that the heap is the same size as the number of vertices, so there is no risk of overflow. Be aware that there is no guarantee that the algorithm will work with a heap length ratio smaller that 1. The lowest ratio that works for a given graph depends on the graph structure and the source vertex. For a rather sparse graph, a small ratio may work, but for a dense graph, a ratio of 1.0 is required.
 
 ## Contributing
 
