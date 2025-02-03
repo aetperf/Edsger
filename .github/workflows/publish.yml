@@ -4,68 +4,98 @@ on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
-
 jobs:
-  build:
-    runs-on: ubuntu-latest
 
+  test:
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-2022, macos-14]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.11"]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+        pip install .
+    - name: Testing
+      run: |
+        python -m pytest tests
+
+  build_source_dist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # - if: github.event.ref_type != 'tag'
+      #   run: |
+      #     git fetch --prune --unshallow
+      #     git tag -d $(git tag --points-at HEAD)
+      - if: github.event.ref_type == 'tag'
+        uses: actions/checkout@v3
+      - if: github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install build
+        run: python -m pip install build
+
+      - name: Run build
+        run: python -m build --sdist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          path: ./dist/*.tar.gz
+
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-2019, macos-13, macos-14]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+      - uses: actions/setup-python@v3
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install build
-
-      - name: Build source distribution
-        run: python -m build --sdist --outdir dist/
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==2.16.5
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.22.0
-        with:
-          output-dir: ./wheelhouse
+        run: python -m cibuildwheel --output-dir wheelhouse
 
       - uses: actions/upload-artifact@v4
         with:
-          name: source-distribution-${{ github.run_id }}
-          path: ./dist/*.tar.gz
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: cibw-wheels-${{ matrix.os }}-${{ github.run_id }}
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
 
   publish-to-pypi:
-    needs: build
+    name: >-
+      Publish Python distribution to PyPI
+    needs:
+      - test
+      - build_source_dist
+      - build_wheels
     runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
+
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: source-distribution-${{ github.run_id }}
-          path: ./dist
-
-      - name: Download wheels
-        uses: actions/download-artifact@v4
-        with:
-          name: cibw-wheels-${{ matrix.os }}-${{ github.run_id }}
-          path: ./wheelhouse
-
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          packages_dir: ./dist
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        name: artifact
+        path: ./dist/
+    - name: Publish distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
