@@ -8,7 +8,6 @@ email: francois.pacull@architecture-performance.fr
 license : MIT
 """
 
-
 from edsger.spiess_florian import *
 
 

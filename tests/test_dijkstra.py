@@ -8,8 +8,12 @@ email: francois.pacull@architecture-performance.fr
 license : MIT
 """
 
-from edsger.dijkstra import (compute_sssp_01, compute_sssp_02, compute_stsp_01,
-                             compute_stsp_02)
+from edsger.dijkstra import (
+    compute_sssp_01,
+    compute_sssp_02,
+    compute_stsp_01,
+    compute_stsp_02,
+)
 
 
 def test_compute_sssp_01():

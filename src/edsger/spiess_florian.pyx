@@ -86,12 +86,9 @@ cpdef void compute_SF_in(
 
     u_r = DTYPE_INF_PY
     for i, vert_idx in enumerate(demand_indices):
-
         v_i_vec[<size_t>vert_idx] = demand_values[i]
         u_i = u_i_vec[<size_t>vert_idx]
-
         if u_i < u_r:
-
             u_r = u_i
 
     # if the destination can be reached from any of the origins
