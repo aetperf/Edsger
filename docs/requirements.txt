@@ -1,0 +1,19 @@
+# Documentation build requirements
+sphinx>=7.0.0
+myst-parser>=2.0.0
+sphinx-autodoc-typehints>=1.22.0
+sphinx-copybutton>=0.5.0
+furo>=2023.5.20
+
+# Required for building Cython extensions during doc build
+numpy>=1.26
+pandas>=2.0
+Cython>=3.0
+setuptools>=61.0
+
+# Optional but recommended
+sphinx-design>=0.5.0
+sphinx-tabs>=3.4.0
+
+# ReadTheDocs specific
+readthedocs-sphinx-search>=0.3.0
