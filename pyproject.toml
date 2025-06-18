@@ -51,6 +51,7 @@ doc = [
 
 [project.urls]
 Repository = "https://github.com/aetperf/Edsger"
+Documentation = "https://edsger.readthedocs.io"
 
 [tool.setuptools_scm]
 version_scheme = "no-guess-dev"
