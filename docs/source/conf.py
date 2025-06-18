@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath("../../src/"))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "Edsger"
-copyright = "2024, Architecture & Performance"
+copyright = "2025, Architecture & Performance"
 author = "Francois Pacull"
 
 # Get version from the package
