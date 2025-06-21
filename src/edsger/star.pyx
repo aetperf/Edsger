@@ -5,16 +5,16 @@ Forward and reverse star representations of networks.
 cpdef functions:
 
 - convert_graph_to_csr_uint32
-    Convert an edge dataframe in COO format into CSR format, with uint32 
+    Convert an edge dataframe in COO format into CSR format, with uint32
     data.
 - convert_graph_to_csc_uint32
-    Convert an edge dataframe in COO format into CSC format, with uint32 
+    Convert an edge dataframe in COO format into CSC format, with uint32
     data.
 - convert_graph_to_csr_float64
-    Convert an edge dataframe in COO format into CSR format, with float64 
+    Convert an edge dataframe in COO format into CSR format, with float64
     data.
 - convert_graph_to_csc_float64
-    Convert an edge dataframe in COO format into CSC format, with float64 
+    Convert an edge dataframe in COO format into CSC format, with float64
     data.
 
 
@@ -32,7 +32,7 @@ cimport numpy as cnp
 
 cpdef convert_graph_to_csr_uint32(edges, tail, head, data, vertex_count):
     """
-    Convert an edge dataframe in COO format into CSR format, with uint32 
+    Convert an edge dataframe in COO format into CSR format, with uint32
     data.
 
     Parameters
@@ -74,7 +74,7 @@ cpdef convert_graph_to_csr_uint32(edges, tail, head, data, vertex_count):
 
 cpdef convert_graph_to_csc_uint32(edges, tail, head, data, vertex_count):
     """
-    Convert an edge dataframe in COO format into CSC format, with uint32 
+    Convert an edge dataframe in COO format into CSC format, with uint32
     data.
 
     Parameters
@@ -116,7 +116,7 @@ cpdef convert_graph_to_csc_uint32(edges, tail, head, data, vertex_count):
 
 cpdef convert_graph_to_csr_float64(edges, tail, head, data, vertex_count):
     """
-    Convert an edge dataframe in COO format into CSR format, with float64 
+    Convert an edge dataframe in COO format into CSR format, with float64
     data.
 
     Parameters
@@ -158,7 +158,7 @@ cpdef convert_graph_to_csr_float64(edges, tail, head, data, vertex_count):
 
 cpdef convert_graph_to_csc_float64(edges, tail, head, data, vertex_count):
     """
-    Convert an edge dataframe in COO format into CSC format, with float64 
+    Convert an edge dataframe in COO format into CSC format, with float64
     data.
 
     Parameters
@@ -199,12 +199,12 @@ cpdef convert_graph_to_csc_float64(edges, tail, head, data, vertex_count):
 
 
 cdef void _coo_to_csr_uint32(
-    cnp.uint32_t [::1] Ai,
-    cnp.uint32_t [::1] Aj,
-    cnp.uint32_t [::1] Ax,
-    cnp.uint32_t [::1] Bp,
-    cnp.uint32_t [::1] Bj,
-    cnp.uint32_t [::1] Bx) nogil noexcept:    
+        cnp.uint32_t [::1] Ai,
+        cnp.uint32_t [::1] Aj,
+        cnp.uint32_t [::1] Ax,
+        cnp.uint32_t [::1] Bp,
+        cnp.uint32_t [::1] Bj,
+        cnp.uint32_t [::1] Bx) nogil noexcept:
 
     cdef:
         size_t i, row, dest
@@ -220,10 +220,10 @@ cdef void _coo_to_csr_uint32(
         temp = Bp[i]
         Bp[i] = cumsum
         cumsum += temp
-    Bp[n_vert] = <cnp.uint32_t>n_edge 
+    Bp[n_vert] = <cnp.uint32_t>n_edge
 
     for i in range(n_edge):
-        row  = <size_t>Ai[i]
+        row = <size_t>Ai[i]
         dest = <size_t>Bp[row]
         Bj[dest] = Aj[i]
         Bx[dest] = Ax[i]
@@ -237,12 +237,12 @@ cdef void _coo_to_csr_uint32(
 
 
 cdef void _coo_to_csc_uint32(
-    cnp.uint32_t [::1] Ai,
-    cnp.uint32_t [::1] Aj,
-    cnp.uint32_t [::1] Ax,   
-    cnp.uint32_t [::1] Bp,
-    cnp.uint32_t [::1] Bi,
-    cnp.uint32_t [::1] Bx) nogil:
+        cnp.uint32_t [::1] Ai,
+        cnp.uint32_t [::1] Aj,
+        cnp.uint32_t [::1] Ax,
+        cnp.uint32_t [::1] Bp,
+        cnp.uint32_t [::1] Bi,
+        cnp.uint32_t [::1] Bx) nogil:
 
     cdef:
         size_t i, col, dest
@@ -258,10 +258,10 @@ cdef void _coo_to_csc_uint32(
         temp = Bp[i]
         Bp[i] = cumsum
         cumsum += temp
-    Bp[<size_t>n_vert] = <cnp.uint32_t>n_edge 
+    Bp[<size_t>n_vert] = <cnp.uint32_t>n_edge
 
     for i in range(n_edge):
-        col  = <size_t>Aj[i]
+        col = <size_t>Aj[i]
         dest = <size_t>Bp[col]
         Bi[dest] = Ai[i]
         Bx[dest] = Ax[i]
@@ -275,12 +275,12 @@ cdef void _coo_to_csc_uint32(
 
 
 cpdef void _coo_to_csr_float64(
-    cnp.uint32_t  [::1] Ai,
-    cnp.uint32_t  [::1] Aj,
-    cnp.float64_t [::1] Ax,
-    cnp.uint32_t  [::1] Bp,
-    cnp.uint32_t  [::1] Bj,
-    cnp.float64_t [::1] Bx) nogil noexcept:
+        cnp.uint32_t  [::1] Ai,
+        cnp.uint32_t  [::1] Aj,
+        cnp.float64_t [::1] Ax,
+        cnp.uint32_t  [::1] Bp,
+        cnp.uint32_t  [::1] Bj,
+        cnp.float64_t [::1] Bx) nogil noexcept:
 
     cdef:
         size_t i, row, dest
@@ -296,10 +296,10 @@ cpdef void _coo_to_csr_float64(
         temp = Bp[i]
         Bp[i] = cumsum
         cumsum += temp
-    Bp[n_vert] = <cnp.uint32_t>n_edge 
+    Bp[n_vert] = <cnp.uint32_t>n_edge
 
     for i in range(n_edge):
-        row  = <size_t>Ai[i]
+        row = <size_t>Ai[i]
         dest = <size_t>Bp[row]
         Bj[dest] = Aj[i]
         Bx[dest] = Ax[i]
@@ -313,12 +313,12 @@ cpdef void _coo_to_csr_float64(
 
 
 cpdef void _coo_to_csc_float64(
-    cnp.uint32_t  [::1] Ai,
-    cnp.uint32_t  [::1] Aj,
-    cnp.float64_t [::1] Ax,
-    cnp.uint32_t  [::1] Bp,
-    cnp.uint32_t  [::1] Bi,
-    cnp.float64_t [::1] Bx) nogil noexcept:
+        cnp.uint32_t  [::1] Ai,
+        cnp.uint32_t  [::1] Aj,
+        cnp.float64_t [::1] Ax,
+        cnp.uint32_t  [::1] Bp,
+        cnp.uint32_t  [::1] Bi,
+        cnp.float64_t [::1] Bx) nogil noexcept:
 
     cdef:
         size_t i, col, dest
@@ -334,10 +334,10 @@ cpdef void _coo_to_csc_float64(
         temp = Bp[i]
         Bp[i] = cumsum
         cumsum += temp
-    Bp[<size_t>n_vert] = <cnp.uint32_t>n_edge 
+    Bp[<size_t>n_vert] = <cnp.uint32_t>n_edge
 
     for i in range(n_edge):
-        col  = <size_t>Aj[i]
+        col = <size_t>Aj[i]
         dest = <size_t>Bp[col]
         Bi[dest] = Ai[i]
         Bx[dest] = Ax[i]

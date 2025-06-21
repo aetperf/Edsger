@@ -1,16 +1,16 @@
-""" 
+"""
 An implementation of Dijkstra's algorithm.
 
 cpdef functions:
 
-- compute_sssp    
-    Compute single-source shortest path (from one vertex to all vertices). Does 
+- compute_sssp
+    Compute single-source shortest path (from one vertex to all vertices). Does
     not return predecessors.
-- compute_sssp_w_path    
-    Compute single-source shortest path (from one vertex to all vertices). 
+- compute_sssp_w_path
+    Compute single-source shortest path (from one vertex to all vertices).
     Compute predecessors.
 - compute_stsp
-    Compute single-target shortest path (from all vertices to one vertex). Does 
+    Compute single-target shortest path (from all vertices to one vertex). Does
     not return successors.
 - compute_stsp_w_path
     Compute single-target shortest path (from all vertices to one vertex).
@@ -25,14 +25,14 @@ cimport edsger.pq_4ary_dec_0b as pq  # priority queue
 
 
 cpdef cnp.ndarray compute_sssp(
-    cnp.uint32_t[::1] csr_indptr,
-    cnp.uint32_t[::1] csr_indices,
-    DTYPE_t[::1] csr_data,
-    int source_vert_idx,
-    int vertex_count,
-    int heap_length):
-    """ 
-    Compute single-source shortest path (from one vertex to all vertices). Does 
+        cnp.uint32_t[::1] csr_indptr,
+        cnp.uint32_t[::1] csr_indices,
+        DTYPE_t[::1] csr_data,
+        int source_vert_idx,
+        int vertex_count,
+        int heap_length):
+    """
+    Compute single-source shortest path (from one vertex to all vertices). Does
     not return predecessors.
 
     Parameters
@@ -65,7 +65,7 @@ cpdef cnp.ndarray compute_sssp(
 
     with nogil:
 
-        # initialization of the heap elements 
+        # initialization of the heap elements
         # all nodes have INFINITY key and UNLABELED state
         pq.init_pqueue(&pqueue, <size_t>heap_length, <size_t>vertex_count)
 
@@ -79,8 +79,8 @@ cpdef cnp.ndarray compute_sssp(
             tail_vert_val = pqueue.Elements[tail_vert_idx].key
 
             # loop on outgoing edges
-            for idx in range(<size_t>csr_indptr[tail_vert_idx], 
-                <size_t>csr_indptr[tail_vert_idx + 1]):
+            for idx in range(<size_t>csr_indptr[tail_vert_idx],
+                             <size_t>csr_indptr[tail_vert_idx + 1]):
 
                 head_vert_idx = <size_t>csr_indices[idx]
                 vert_state = pqueue.Elements[head_vert_idx].state
@@ -95,21 +95,21 @@ cpdef cnp.ndarray compute_sssp(
     path_lengths = pq.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
 
     # cleanup
-    pq.free_pqueue(&pqueue)  
+    pq.free_pqueue(&pqueue)
 
     return path_lengths
 
 
 cpdef cnp.ndarray compute_sssp_w_path(
-    cnp.uint32_t[::1] csr_indptr,
-    cnp.uint32_t[::1] csr_indices,
-    DTYPE_t[::1] csr_data,
-    cnp.uint32_t[::1] predecessor,
-    int source_vert_idx,
-    int vertex_count,
-    int heap_length):
-    """ 
-    Compute single-source shortest path (from one vertex to all vertices). 
+        cnp.uint32_t[::1] csr_indptr,
+        cnp.uint32_t[::1] csr_indices,
+        DTYPE_t[::1] csr_data,
+        cnp.uint32_t[::1] predecessor,
+        int source_vert_idx,
+        int vertex_count,
+        int heap_length):
+    """
+    Compute single-source shortest path (from one vertex to all vertices).
     Compute predecessors.
 
     Parameters
@@ -121,9 +121,9 @@ cpdef cnp.ndarray compute_sssp_w_path(
     csr_data : DTYPE_t[::1]
         data (edge weights) in the CSR format
     predecessor : cnp.uint32_t[::1]
-        array of indices, one for each vertex of the graph. Each vertex' 
-        entry contains the index of its predecessor in a path from the 
-        source, through the graph. 
+        array of indices, one for each vertex of the graph. Each vertex'
+        entry contains the index of its predecessor in a path from the
+        source, through the graph.
     source_vert_idx : int
         source vertex index
     vertex_count : int
@@ -146,7 +146,7 @@ cpdef cnp.ndarray compute_sssp_w_path(
 
     with nogil:
 
-        # initialization of the heap elements 
+        # initialization of the heap elements
         # all nodes have INFINITY key and UNLABELED state
         pq.init_pqueue(&pqueue, <size_t>heap_length, <size_t>vertex_count)
 
@@ -160,8 +160,8 @@ cpdef cnp.ndarray compute_sssp_w_path(
             tail_vert_val = pqueue.Elements[tail_vert_idx].key
 
             # loop on outgoing edges
-            for idx in range(<size_t>csr_indptr[tail_vert_idx], 
-                <size_t>csr_indptr[tail_vert_idx + 1]):
+            for idx in range(<size_t>csr_indptr[tail_vert_idx],
+                             <size_t>csr_indptr[tail_vert_idx + 1]):
 
                 head_vert_idx = <size_t>csr_indices[idx]
                 vert_state = pqueue.Elements[head_vert_idx].state
@@ -178,20 +178,20 @@ cpdef cnp.ndarray compute_sssp_w_path(
     path_lengths = pq.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
 
     # cleanup
-    pq.free_pqueue(&pqueue)  
+    pq.free_pqueue(&pqueue)
 
     return path_lengths
 
 
 cpdef cnp.ndarray compute_stsp(
-    cnp.uint32_t[::1] csc_indptr,
-    cnp.uint32_t[::1] csc_indices,
-    DTYPE_t[::1] csc_data,
-    int target_vert_idx,
-    int vertex_count,
-    int heap_length):
-    """ 
-    Compute single-target shortest path (from all vertices to one vertex). Does 
+        cnp.uint32_t[::1] csc_indptr,
+        cnp.uint32_t[::1] csc_indices,
+        DTYPE_t[::1] csc_data,
+        int target_vert_idx,
+        int vertex_count,
+        int heap_length):
+    """
+    Compute single-target shortest path (from all vertices to one vertex). Does
     not return successors.
 
     Parameters
@@ -224,7 +224,7 @@ cpdef cnp.ndarray compute_stsp(
 
     with nogil:
 
-        # initialization of the heap elements 
+        # initialization of the heap elements
         # all nodes have INFINITY key and UNLABELED state
         pq.init_pqueue(&pqueue, <size_t>heap_length, <size_t>vertex_count)
 
@@ -238,8 +238,8 @@ cpdef cnp.ndarray compute_stsp(
             head_vert_val = pqueue.Elements[head_vert_idx].key
 
             # loop on incoming edges
-            for idx in range(<size_t>csc_indptr[head_vert_idx], 
-                <size_t>csc_indptr[head_vert_idx + 1]):
+            for idx in range(<size_t>csc_indptr[head_vert_idx],
+                             <size_t>csc_indptr[head_vert_idx + 1]):
 
                 tail_vert_idx = <size_t>csc_indices[idx]
                 vert_state = pqueue.Elements[tail_vert_idx].state
@@ -254,20 +254,20 @@ cpdef cnp.ndarray compute_stsp(
     path_lengths = pq.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
 
     # cleanup
-    pq.free_pqueue(&pqueue)  
+    pq.free_pqueue(&pqueue)
 
     return path_lengths
 
 
 cpdef cnp.ndarray compute_stsp_w_path(
-    cnp.uint32_t[::1] csc_indptr,
-    cnp.uint32_t[::1] csc_indices,
-    DTYPE_t[::1] csc_data,
-    cnp.uint32_t[::1] successor,
-    int target_vert_idx,
-    int vertex_count,
-    int heap_length):
-    """ 
+        cnp.uint32_t[::1] csc_indptr,
+        cnp.uint32_t[::1] csc_indices,
+        DTYPE_t[::1] csc_data,
+        cnp.uint32_t[::1] successor,
+        int target_vert_idx,
+        int vertex_count,
+        int heap_length):
+    """
     Compute single-target shortest path (from all vertices to one vertex).
     Compute successors.
 
@@ -301,7 +301,7 @@ cpdef cnp.ndarray compute_stsp_w_path(
 
     with nogil:
 
-        # initialization of the heap elements 
+        # initialization of the heap elements
         # all nodes have INFINITY key and UNLABELED state
         pq.init_pqueue(&pqueue, <size_t>heap_length, <size_t>vertex_count)
 
@@ -315,8 +315,8 @@ cpdef cnp.ndarray compute_stsp_w_path(
             head_vert_val = pqueue.Elements[head_vert_idx].key
 
             # loop on incoming edges
-            for idx in range(<size_t>csc_indptr[head_vert_idx], 
-                <size_t>csc_indptr[head_vert_idx + 1]):
+            for idx in range(<size_t>csc_indptr[head_vert_idx],
+                             <size_t>csc_indptr[head_vert_idx + 1]):
 
                 tail_vert_idx = <size_t>csc_indices[idx]
                 vert_state = pqueue.Elements[tail_vert_idx].state
@@ -333,7 +333,7 @@ cpdef cnp.ndarray compute_stsp_w_path(
     path_lengths = pq.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
 
     # cleanup
-    pq.free_pqueue(&pqueue)  
+    pq.free_pqueue(&pqueue)
 
     return path_lengths
 
@@ -347,7 +347,7 @@ import numpy as np
 
 
 cdef generate_single_edge_network_csr():
-    """  
+    """
     Generate a single edge network in CSR format.
 
     This network has 1 edge and 2 vertices.
@@ -361,7 +361,7 @@ cdef generate_single_edge_network_csr():
 
 
 cdef generate_single_edge_network_csc():
-    """  
+    """
     Generate a single edge network in CSC format.
 
     This network has 1 edge and 2 vertices.
@@ -375,7 +375,7 @@ cdef generate_single_edge_network_csc():
 
 
 cdef generate_braess_network_csr():
-    """ 
+    """
     Generate a Braess-like network in CSR format.
 
     This network hs 5 edges and 4 vertices.
@@ -389,7 +389,7 @@ cdef generate_braess_network_csr():
 
 
 cdef generate_braess_network_csc():
-    """ 
+    """
     Generate a Braess-like network in CSC format.
 
     This network hs 5 edges and 4 vertices.
@@ -403,8 +403,8 @@ cdef generate_braess_network_csc():
 
 
 cpdef compute_sssp_01():
-    """ 
-    Compute SSSP with the compute_sssp_pq_bd0 routine on a single edge 
+    """
+    Compute SSSP with the compute_sssp_pq_bd0 routine on a single edge
     network.
     """
 
@@ -422,8 +422,8 @@ cpdef compute_sssp_01():
 
 
 cpdef compute_stsp_01():
-    """ 
-    Compute TSSP with the compute_stsp_pq_bd0 routine on a single edge 
+    """
+    Compute TSSP with the compute_stsp_pq_bd0 routine on a single edge
     network.
     """
 
@@ -441,8 +441,8 @@ cpdef compute_stsp_01():
 
 
 cpdef compute_sssp_02():
-    """ 
-    Compute SSSP with the compute_sssp_pq_bd0 routine on Braess-like 
+    """
+    Compute SSSP with the compute_sssp_pq_bd0 routine on Braess-like
     network.
     """
 
@@ -470,8 +470,8 @@ cpdef compute_sssp_02():
 
 
 cpdef compute_stsp_02():
-    """ 
-    Compute STSP with the compute_stsp_pq_bd0 routine on Braess-like 
+    """
+    Compute STSP with the compute_stsp_pq_bd0 routine on Braess-like
     network.
     """
 

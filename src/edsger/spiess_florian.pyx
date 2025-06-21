@@ -1,8 +1,8 @@
-""" 
+"""
 An implementation of Spiess and Florian's hyperpath generating algorithm.
 
-reference: Spiess, H. and Florian, M. (1989). Optimal strategies: A new 
-assignment model for transit networks. Transportation Research Part B 23(2), 
+reference: Spiess, H. and Florian, M. (1989). Optimal strategies: A new
+assignment model for transit networks. Transportation Research Part B 23(2),
 83-102.
 
 cpdef function:
@@ -22,9 +22,8 @@ cimport numpy as cnp
 
 from edsger.commons import DTYPE_PY, DTYPE_INF_PY
 from edsger.commons cimport (
-    DTYPE_INF, MIN_FREQ, UNLABELED, SCANNED, DTYPE_t, ElementState)
+    DTYPE_INF, UNLABELED, SCANNED, DTYPE_t, ElementState)
 cimport edsger.pq_4ary_dec_0b as pq  # priority queue
-
 
 
 cpdef void compute_SF_in(
@@ -51,10 +50,11 @@ cpdef void compute_SF_in(
     u_i_vec[<size_t>dest_vert_index] = 0.0
 
     # vertex properties
-    f_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)  # vertex frequency (inverse of the maximum delay)
-    u_j_c_a_vec = DTYPE_INF_PY * np.ones(edge_count, dtype=DTYPE_PY)    
+    # vertex frequency (inverse of the maximum delay)
+    f_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)
+    u_j_c_a_vec = DTYPE_INF_PY * np.ones(edge_count, dtype=DTYPE_PY)
     v_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)  # vertex volume
-    
+
     # edge properties
     h_a_vec = np.zeros(edge_count, dtype=bool)  # edge belonging to hyperpath
 
@@ -78,9 +78,9 @@ cpdef void compute_SF_in(
     # ----------- #
 
     cdef:
-        DTYPE_t u_r, v_a_new, v_i, u_i
+        DTYPE_t u_r, _v_a_new, _v_i, u_i
         size_t i, h_a_count
-        cnp.uint32_t vert_idx 
+        cnp.uint32_t vert_idx
 
     v_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)  # vertex volume
 
@@ -120,7 +120,7 @@ cpdef void compute_SF_in(
 
 
 cdef void _SF_in_first_pass_full(
-    cnp.uint32_t[::1] csc_indptr, 
+    cnp.uint32_t[::1] csc_indptr,
     cnp.uint32_t[::1] csc_edge_idx,
     DTYPE_t[::1] c_a_vec,
     DTYPE_t[::1] f_a_vec,
@@ -131,7 +131,7 @@ cdef void _SF_in_first_pass_full(
     cnp.uint8_t[::1] h_a_vec,
     int dest_vert_index,
 ) nogil:
-    """SF in first pass. 
+    """SF in first pass.
 
     Note : all vertices are visited.
     """
@@ -143,14 +143,14 @@ cdef void _SF_in_first_pass_full(
         size_t i, edge_idx, tail_vert_idx
         DTYPE_t u_j_c_a, u_i, f_i, beta, u_i_new, f_a
 
-    # initialization of the heap elements 
+    # initialization of the heap elements
     # all nodes have INFINITY key and UNLABELED state
     pq.init_pqueue(&pqueue, <size_t>edge_count, <size_t>edge_count)
 
-    # only the incoming edges of the target vertex are inserted into the 
+    # only the incoming edges of the target vertex are inserted into the
     # priority queue
-    for i in range(<size_t>csc_indptr[<size_t>dest_vert_index], 
-        <size_t>csc_indptr[<size_t>(dest_vert_index + 1)]):
+    for i in range(<size_t>csc_indptr[<size_t>dest_vert_index],
+                   <size_t>csc_indptr[<size_t>(dest_vert_index + 1)]):
         edge_idx = csc_edge_idx[i]
         pq.insert(&pqueue, edge_idx, c_a_vec[edge_idx])
         u_j_c_a_vec[edge_idx] = c_a_vec[edge_idx]
@@ -192,8 +192,8 @@ cdef void _SF_in_first_pass_full(
             u_i_new = u_i
 
         # loop on incoming edges
-        for i in range(<size_t>csc_indptr[tail_vert_idx], 
-            <size_t>csc_indptr[tail_vert_idx + 1]):
+        for i in range(<size_t>csc_indptr[tail_vert_idx],
+                       <size_t>csc_indptr[tail_vert_idx + 1]):
 
             edge_idx = csc_edge_idx[i]
             edge_state = pqueue.Elements[edge_idx].state
@@ -206,7 +206,7 @@ cdef void _SF_in_first_pass_full(
                 if edge_state == UNLABELED:
 
                     pq.insert(&pqueue, edge_idx, u_j_c_a)
-                    u_j_c_a_vec[edge_idx] = u_j_c_a 
+                    u_j_c_a_vec[edge_idx] = u_j_c_a
 
                 elif (pqueue.Elements[edge_idx].key > u_j_c_a):
 
@@ -256,7 +256,7 @@ cdef void _SF_in_second_pass(
 from edsger.commons import MIN_FREQ_PY, INF_FREQ_PY
 
 cpdef compute_SF_in_01():
-    """  
+    """
     Single edge network.
 
     This network has 1 edge and 2 vertices.
@@ -280,7 +280,7 @@ cpdef compute_SF_in_01():
     dest_vert_index = 1
 
     compute_SF_in(
-        csc_indptr,  
+        csc_indptr,
         csc_edge_idx,
         c_a_vec,
         f_a_vec,
@@ -302,7 +302,7 @@ cpdef compute_SF_in_01():
     u_i_vec = DTYPE_INF_PY * np.ones(vertex_count, dtype=DTYPE_PY)
 
     compute_SF_in(
-        csc_indptr,  
+        csc_indptr,
         csc_edge_idx,
         c_a_vec,
         f_a_vec,
@@ -321,7 +321,7 @@ cpdef compute_SF_in_01():
 
 
 cpdef compute_SF_in_02():
-    """  
+    """
     Two edges network.
 
     This network has 2 edges and 2 vertices.
@@ -343,7 +343,7 @@ cpdef compute_SF_in_02():
     dest_vert_index = 1
 
     compute_SF_in(
-        csc_indptr,  
+        csc_indptr,
         csc_edge_idx,
         c_a_vec,
         f_a_vec,
