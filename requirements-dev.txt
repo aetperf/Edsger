@@ -10,6 +10,7 @@ loguru
 pyarrow
 
 # Linting/Tooling
+cython-lint
 
 # Documentation
 sphinx

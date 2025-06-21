@@ -23,6 +23,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements-dev.txt
         pip install .
+    - name: Lint Cython code
+      run: |
+        cython-lint src/edsger/*.pyx src/edsger/*.pxd
     - name: Testing
       run: |
         python -m pytest tests
