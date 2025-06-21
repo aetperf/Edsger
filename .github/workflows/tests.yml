@@ -31,4 +31,11 @@ jobs:
         cython-lint src/edsger/commons.pyx src/edsger/dijkstra.pyx src/edsger/path_tracking.pyx src/edsger/pq_4ary_dec_0b.pyx src/edsger/spiess_florian.pyx src/edsger/star.pyx src/edsger/commons.pxd src/edsger/pq_4ary_dec_0b.pxd
     - name: Testing
       run: |
-        python -m pytest tests
+        python -m pytest --cov=src/edsger --cov-report=xml tests/
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false

@@ -4,6 +4,7 @@
 # Testing
 scipy
 pytest
+pytest-cov
 
 # Scripts
 loguru
