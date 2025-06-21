@@ -7,7 +7,7 @@ name = "edsger"
 dynamic = ["version"]
 description = "Graph algorithms in Cython."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 license = {text = "MIT License"}
 authors = [
     { name = "François Pacull", email = "francois.pacull@architecture-performance.fr" },
@@ -19,6 +19,11 @@ keywords = ["python", "graph", "shortest path", "Dijkstra"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Topic :: Scientific/Engineering"
