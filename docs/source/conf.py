@@ -24,6 +24,7 @@ author = "Francois Pacull"
 # Get version from the package
 try:
     from edsger._version import __version__
+
     release = __version__
     version = __version__
 except ImportError:
@@ -69,6 +70,6 @@ myst_enable_extensions = [
 
 # Source suffix
 source_suffix = {
-    '.rst': 'restructuredtext',
-    '.md': 'markdown',
+    ".rst": "restructuredtext",
+    ".md": "markdown",
 }

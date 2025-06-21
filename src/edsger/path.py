@@ -1,4 +1,4 @@
-""" 
+"""
 Path-related methods.
 """
 

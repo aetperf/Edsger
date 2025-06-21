@@ -1,4 +1,4 @@
-""" Tests for path.py.
+"""Tests for path.py.
 
 py.test tests/test_path.py
 

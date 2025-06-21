@@ -1,5 +1,4 @@
-"""setup python file for edsger.
-"""
+"""setup python file for edsger."""
 
 import numpy as np
 from Cython.Build import cythonize

@@ -1,4 +1,4 @@
-""" Tests for path_tracking.pyx.
+"""Tests for path_tracking.pyx.
 
 py.test tests/test_path_tracking.py
 

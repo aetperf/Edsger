@@ -1,4 +1,4 @@
-""" Tests for spiess_florian.pyx.
+"""Tests for spiess_florian.pyx.
 
 py.test tests/test_spiess_florian.py
 
@@ -7,7 +7,6 @@ copyright : Architecture & Performance
 email: francois.pacull@architecture-performance.fr
 license : MIT
 """
-
 
 from edsger.spiess_florian import *
 
