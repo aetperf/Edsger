@@ -2,6 +2,26 @@
 
 Welcome to our Python library for graph algorithms. So far, the library only includes Dijkstra's algorithm but we should add a range of common path algorithms later. It is also open-source and easy to integrate with other Python libraries.
 
+
+## Graph Data Format
+
+Edsger expects graph data as a pandas DataFrame with the following structure:
+
+| Column | Type    | Description                          |
+|--------|---------|--------------------------------------|
+| tail   | int     | Source vertex ID                     |
+| head   | int     | Destination vertex ID                |
+| weight | float   | Edge weight (must be non-negative)   |
+
+Example:
+```python
+edges = pd.DataFrame({
+    'tail': [0, 0, 1, 2],
+    'head': [1, 2, 2, 3],
+    'weight': [1.0, 4.0, 2.0, 1.0]
+})
+```
+
 ## Dijkstra's Algorithm
 
 To use Dijkstra's algorithm, you can import the `Dijkstra` class from the `path` module. The function takes a graph and a source node as input, and returns the shortest path from the source node to all other nodes in the graph.
@@ -54,7 +74,7 @@ other_edges = pd.DataFrame({
 other_dijkstra = Dijkstra(edges, tail='from', head='to', weight='travel_time')
 ```
 
-## Orientation
+### Orientation
 
 The `orientation` argument (a string with a default value of `'out'`) specifies the orientation of the algorithm. It can be either `'out'` for single source shortest paths or `'in'` for single target shortest path.
 
@@ -68,7 +88,7 @@ print("Shortest paths:", shortest_paths)
 
     Shortest paths: [ 0. inf inf inf inf]
 
-## Run Multiple Times
+### Run Multiple Times
 
 Once the Dijkstra is instantiated with a given graph and orientation, the `run` method can be called multiple times with different source vertices.
 
@@ -80,7 +100,7 @@ print("Shortest paths:", shortest_paths)
 
     Shortest paths: [5. 4. 2. 1. 0.]
 
-## Check Edges
+### Check Edges
 
 The `check_edges` argument (a boolean with a default value of `False`) validates the given graph. When set to `True`, it ensures the DataFrame is well-formed by:
 
@@ -101,7 +121,7 @@ dijkstra = Dijkstra(invalid_edges, check_edges=True)
 
     ValueError: edges['weight'] should be nonnegative
 
-## Permute
+### Permute
 
 Finally, the `permute` argument (boolean with a default value of `False`) allows to permute the IDs of the nodes. If set to `True`, the node IDs will be reindexed to start from 0 and be contiguous for the inner computations, and the output will be reindexed to the original IDs, loading the same result as if the IDs were not permuted. The permutation may save memory and computation time for large graphs, for example if a significant ratio of the nodes are not actually used in the graph.
 
@@ -140,7 +160,7 @@ shortest_paths[-5:]
 
     array([0., 1., 3., 4., 5.])
 
-## Run Method Options
+### Run Method Options
 
 The `run` method can take the following arguments besides the source/target vertex index:
 

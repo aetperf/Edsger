@@ -114,23 +114,3 @@ paths = dijkstra.run(
     heap_length_ratio=0.5
 )
 ```
-
-### Graph Data Format
-
-Edsger expects graph data as a pandas DataFrame with the following structure:
-
-| Column | Type    | Description                          |
-|--------|---------|--------------------------------------|
-| tail   | int     | Source vertex ID                     |
-| head   | int     | Destination vertex ID                |
-| weight | float   | Edge weight (must be non-negative)   |
-
-Example:
-```python
-edges = pd.DataFrame({
-    'tail': [0, 0, 1, 2],
-    'head': [1, 2, 2, 3],
-    'weight': [1.0, 4.0, 2.0, 1.0]
-})
-```
-
