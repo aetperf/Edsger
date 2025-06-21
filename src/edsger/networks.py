@@ -1,5 +1,4 @@
-""" Module dedicated to the generation of small networks, for testing purposes.
-"""
+"""Module dedicated to the generation of small networks, for testing purposes."""
 
 from io import StringIO
 

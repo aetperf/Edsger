@@ -1,4 +1,4 @@
-""" 
+"""
 Path tracking module.
 
 cpdef functions:
@@ -30,7 +30,7 @@ cpdef cnp.ndarray compute_path(cnp.uint32_t[::1] path_links, int vertex_idx):
     vertex_idx : int
         source or target vertex index.
     """
-    
+
     cdef int path_length
 
     path_length = _compute_path_first_pass(path_links, vertex_idx)
@@ -38,10 +38,10 @@ cpdef cnp.ndarray compute_path(cnp.uint32_t[::1] path_links, int vertex_idx):
     _compute_path_second_pass(path_links, path_vertices, vertex_idx)
 
     return path_vertices
-    
+
 
 cdef int _compute_path_first_pass(
-    cnp.uint32_t[::1] path_links,  
+    cnp.uint32_t[::1] path_links,
     int vertex_idx
 ) nogil noexcept:
     """Returns the path length.
@@ -67,7 +67,7 @@ cdef int _compute_path_first_pass(
 
 cdef void _compute_path_second_pass(
     cnp.uint32_t[::1] path_links,
-    cnp.uint32_t[::1] path_vertices,  
+    cnp.uint32_t[::1] path_vertices,
     int vertex_idx
 ) nogil noexcept:
     """Compute the sequence of vertices forming a path.
@@ -82,7 +82,7 @@ cdef void _compute_path_second_pass(
     # loop
     while i != j:
         i = j
-        path_vertices[k] = j 
+        path_vertices[k] = j
         j = <size_t>path_links[j]
         k += 1
 

@@ -1,4 +1,4 @@
-""" Tests for dijkstra.pyx.
+"""Tests for dijkstra.pyx.
 
 py.test tests/test_dijkstra.py
 

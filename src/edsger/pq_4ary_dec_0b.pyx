@@ -1,4 +1,4 @@
-""" 
+"""
 Priority queue based on a minimum 4-ary heap.
 
 - dec: priority queue with decrease-key operation.
@@ -20,15 +20,15 @@ cdef functions:
     Find heap min key.
 - is_empty
     Check if the heap is empty.
-- extract_min  
-    Extract element with min keay from the heap, 
+- extract_min
+    Extract element with min keay from the heap,
     and return its element index.
 - copy_keys_to_numpy
     Copy the keys into a numpy array.
 - _exchange_nodes
     Exchange two nodes in the heap.
 - _min_heapify
-    Re-order sub-tree under a given node (given its node index) 
+    Re-order sub-tree under a given node (given its node index)
     until it satisfies the heap property.
 - _decrease_key_from_node_index
     Decrease the key of an element in the heap, given its tree index.
@@ -45,9 +45,9 @@ from edsger.commons cimport (
 
 
 cdef void init_pqueue(
-    PriorityQueue* pqueue,
-    size_t heap_length,
-    size_t element_count) nogil noexcept:
+        PriorityQueue* pqueue,
+        size_t heap_length,
+        size_t element_count) nogil noexcept:
     """
     Initialize the priority queue.
 
@@ -76,8 +76,8 @@ cdef void init_pqueue(
 
 
 cdef void _initialize_element(
-    PriorityQueue* pqueue,
-    size_t element_idx) nogil noexcept:
+        PriorityQueue* pqueue,
+        size_t element_idx) nogil noexcept:
     """
     Initialize a single element.
 
@@ -92,7 +92,7 @@ cdef void _initialize_element(
 
 
 cdef void free_pqueue(
-    PriorityQueue* pqueue) nogil noexcept:
+        PriorityQueue* pqueue) nogil noexcept:
     """
     Free the priority queue.
 
@@ -105,9 +105,9 @@ cdef void free_pqueue(
 
 
 cdef void insert(
-    PriorityQueue* pqueue,
-    size_t element_idx,
-    DTYPE_t key) nogil noexcept:
+        PriorityQueue* pqueue,
+        size_t element_idx,
+        DTYPE_t key) nogil noexcept:
     """
     Insert an element into the heap and reorder the heap.
 
@@ -132,9 +132,9 @@ cdef void insert(
 
 
 cdef void decrease_key(
-    PriorityQueue* pqueue, 
-    size_t element_idx, 
-    DTYPE_t key_new) nogil noexcept:
+        PriorityQueue* pqueue,
+        size_t element_idx,
+        DTYPE_t key_new) nogil noexcept:
     """
     Decrease the key of a element in the heap, given its element index.
 
@@ -142,15 +142,15 @@ cdef void decrease_key(
     =====
     * PriorityQueue* pqueue : priority queue
     * size_t element_idx : index of the element in the element array
-    * DTYPE_t key_new : new value of the element key 
+    * DTYPE_t key_new : new value of the element key
 
     assumption
     ==========
     * pqueue.Elements[idx] is in the heap
     """
     _decrease_key_from_node_index(
-        pqueue, 
-        pqueue.Elements[element_idx].node_idx, 
+        pqueue,
+        pqueue.Elements[element_idx].node_idx,
         key_new)
 
 
@@ -192,7 +192,7 @@ cdef bint is_empty(PriorityQueue* pqueue) nogil noexcept:
 
 cdef size_t extract_min(PriorityQueue* pqueue) nogil noexcept:
     """
-    Extract element with min keay from the heap, 
+    Extract element with min keay from the heap,
     and return its element index.
 
     input
@@ -207,7 +207,7 @@ cdef size_t extract_min(PriorityQueue* pqueue) nogil noexcept:
     ==========
     * pqueue.size > 0
     """
-    cdef: 
+    cdef:
         size_t element_idx = pqueue.A[0]  # min element index
         size_t node_idx = pqueue.size - 1  # last leaf node index
 
@@ -259,9 +259,9 @@ cdef cnp.ndarray copy_keys_to_numpy(
 
 
 cdef void _exchange_nodes(
-    PriorityQueue* pqueue, 
-    size_t node_i,
-    size_t node_j) nogil noexcept:
+        PriorityQueue* pqueue,
+        size_t node_i,
+        size_t node_j) nogil noexcept:
     """
     Exchange two nodes in the heap.
 
@@ -271,10 +271,10 @@ cdef void _exchange_nodes(
     * size_t node_i: first node index
     * size_t node_j: second node index
     """
-    cdef: 
+    cdef:
         size_t element_i = pqueue.A[node_i]
         size_t element_j = pqueue.A[node_j]
-    
+
     # exchange element indices in the heap array
     pqueue.A[node_i] = element_j
     pqueue.A[node_j] = element_i
@@ -285,10 +285,10 @@ cdef void _exchange_nodes(
 
 
 cdef void _min_heapify(
-    PriorityQueue* pqueue,
-    size_t node_idx) nogil noexcept:
+        PriorityQueue* pqueue,
+        size_t node_idx) nogil noexcept:
     """
-    Re-order sub-tree under a given node (given its node index) 
+    Re-order sub-tree under a given node (given its node index)
     until it satisfies the heap property.
 
     input
@@ -296,17 +296,17 @@ cdef void _min_heapify(
     * PriorityQueue* pqueue : priority queue
     * size_t node_idx : node index
     """
-    cdef: 
+    cdef:
         size_t c1, c2, c3, c4, i = node_idx, s
         DTYPE_t val_tmp, val_min
 
     while True:
 
-        c1 = 4 * i + 1  
+        c1 = 4 * i + 1
         c2 = c1 + 1
         c3 = c2 + 1
         c4 = c3 + 1
-        
+
         s = i
         val_min = pqueue.Elements[pqueue.A[s]].key
         if (c4 < pqueue.size):
@@ -361,9 +361,9 @@ cdef void _min_heapify(
 
 
 cdef void _decrease_key_from_node_index(
-    PriorityQueue* pqueue,
-    size_t node_idx, 
-    DTYPE_t key_new) nogil noexcept:
+        PriorityQueue* pqueue,
+        size_t node_idx,
+        DTYPE_t key_new) nogil noexcept:
     """
     Decrease the key of an element in the heap, given its tree index.
 
@@ -383,7 +383,7 @@ cdef void _decrease_key_from_node_index(
         DTYPE_t key_j
 
     pqueue.Elements[pqueue.A[i]].key = key_new
-    while i > 0: 
+    while i > 0:
         j = (i - 1) // 4
         key_j = pqueue.Elements[pqueue.A[j]].key
         if key_j > key_new:
@@ -401,19 +401,19 @@ import numpy as np
 
 
 cpdef init_01(int length=4):
-    """ 
+    """
     Initialize an empty priority queue.
     """
 
-    cdef: 
+    cdef:
         PriorityQueue pqueue
-        size_t l = <size_t>length
+        size_t length_val = <size_t>length
 
-    init_pqueue(&pqueue, l, l)
+    init_pqueue(&pqueue, length_val, length_val)
 
-    assert pqueue.length == l
+    assert pqueue.length == length_val
     assert pqueue.size == 0
-    for i in range(l):
+    for i in range(length_val):
         assert pqueue.A[i] == pqueue.length
         assert pqueue.Elements[i].key == DTYPE_INF
         assert pqueue.Elements[i].state == UNLABELED
@@ -423,11 +423,11 @@ cpdef init_01(int length=4):
 
 
 cpdef insert_01():
-    """ 
+    """
     Insert an element into an empty priority queue of length 1.
     """
 
-    cdef: 
+    cdef:
         PriorityQueue pqueue
         DTYPE_t key
 
@@ -445,11 +445,11 @@ cpdef insert_01():
 
 
 cpdef insert_02():
-    """ 
+    """
     Insert 4 elements into an empty priority queue of length 4.
     """
 
-    cdef: 
+    cdef:
         PriorityQueue pqueue
         DTYPE_t key
 
@@ -509,26 +509,26 @@ cpdef insert_02():
 
 
 cpdef insert_03(int length=4):
-    """ 
+    """
     Insert elements with equal key values.
     """
 
-    cdef: 
+    cdef:
         PriorityQueue pqueue
-        size_t i, l = <size_t>length
+        size_t i, length_val = <size_t>length
         DTYPE_t key = 1.0
 
-    init_pqueue(&pqueue, l, l)
-    for i in range(l):
+    init_pqueue(&pqueue, length_val, length_val)
+    for i in range(length_val):
         insert(&pqueue, i, key)
-    for i in range(l):
+    for i in range(length_val):
         assert pqueue.A[i] == i
 
     free_pqueue(&pqueue)
 
 
 cpdef peek_01():
-    """ 
+    """
     Successively insert elements into a priority queue and
     check the min element of the priority without extracting it.
     """
@@ -550,11 +550,11 @@ cpdef peek_01():
 
 
 cpdef extract_min_01():
-    """ 
-    Insert 4 elements into a priority queue and 
+    """
+    Insert 4 elements into a priority queue and
     extract them all.
     """
-    
+
     cdef PriorityQueue pqueue
 
     init_pqueue(&pqueue, 4, 4)
@@ -583,10 +583,10 @@ cpdef extract_min_01():
 
 
 cpdef is_empty_01():
-    """ 
+    """
     Insert an element and extract it.
     """
-    
+
     cdef PriorityQueue pqueue
 
     init_pqueue(&pqueue, 2, 2)
@@ -601,8 +601,8 @@ cpdef is_empty_01():
 
 
 cpdef decrease_key_01():
-    """ 
-    Insert elements into a priority queue and decrease the largest 
+    """
+    Insert elements into a priority queue and decrease the largest
     key value to become the smallest.
     """
 
@@ -653,29 +653,29 @@ cpdef decrease_key_01():
 
 
 cdef void heapsort(DTYPE_t[::1] values_in, DTYPE_t[::1] values_out) nogil:
-    """ 
+    """
     Heap sort by inerting all the values into the priority queue,
     and extracting them.
     """
 
     cdef:
-        size_t i, l = <size_t>values_in.shape[0]
+        size_t i, length_val = <size_t>values_in.shape[0]
         PriorityQueue pqueue
-    
-    init_pqueue(&pqueue, l, l)
-    for i in range(l):
+
+    init_pqueue(&pqueue, length_val, length_val)
+    for i in range(length_val):
         insert(&pqueue, i, values_in[i])
-    for i in range(l):
+    for i in range(length_val):
         values_out[i] = pqueue.Elements[extract_min(&pqueue)].key
     free_pqueue(&pqueue)
 
 
 cpdef sort_01(int n, random_seed=124):
-    """ 
-    Create an array of random number, sort it with the heapsort function 
+    """
+    Create an array of random number, sort it with the heapsort function
     and with the numpy default sort function, compare the results.
     """
-    
+
     cdef PriorityQueue pqueue
 
     rng = np.random.default_rng(random_seed)

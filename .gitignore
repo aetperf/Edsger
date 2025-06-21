@@ -45,8 +45,21 @@ sdist/*
 docs/api/*
 docs/_rst/*
 docs/_build/*
+docs/build/*
 cover/*
 MANIFEST
+
+# Documentation backup and temporary folders
+docs_BCKP/
+docs_old/
+site/
+tmp/
+
+# Credentials and config
+.pypirc
+
+# MkDocs (unused)
+mkdocs.yml
 
 # Per-project virtualenvs
 .venv*/

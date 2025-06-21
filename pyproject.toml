@@ -7,7 +7,7 @@ name = "edsger"
 dynamic = ["version"]
 description = "Graph algorithms in Cython."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 license = {text = "MIT License"}
 authors = [
     { name = "François Pacull", email = "francois.pacull@architecture-performance.fr" },
@@ -19,6 +19,11 @@ keywords = ["python", "graph", "shortest path", "Dijkstra"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Topic :: Scientific/Engineering"
@@ -51,6 +56,7 @@ doc = [
 
 [project.urls]
 Repository = "https://github.com/aetperf/Edsger"
+Documentation = "https://edsger.readthedocs.io"
 
 [tool.setuptools_scm]
 version_scheme = "no-guess-dev"
@@ -61,3 +67,7 @@ write_to_template = '__version__ = "{version}"'
 testpaths = [
     "tests"
 ]
+
+[tool.cibuildwheel]
+# Skip 32-bit i686 architectures (outdated, rarely needed)
+skip = "*_i686"

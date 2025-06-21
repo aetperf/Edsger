@@ -1,4 +1,4 @@
-"""This module makes it easy to execute common tasks in Python scripts such as generate random 
+"""This module makes it easy to execute common tasks in Python scripts such as generate random
 graphs.
 """
 

@@ -1,4 +1,4 @@
-""" Tests for spiess_florian.pyx.
+"""Tests for spiess_florian.pyx.
 
 py.test tests/test_spiess_florian.py
 

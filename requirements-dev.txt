@@ -10,6 +10,8 @@ loguru
 pyarrow
 
 # Linting/Tooling
+cython-lint
+black
 
 # Documentation
 sphinx

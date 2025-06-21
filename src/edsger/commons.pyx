@@ -1,4 +1,4 @@
-""" 
+"""
 Common definitions.
 """
 
@@ -18,10 +18,10 @@ INF_FREQ = 1.0e+20
 INF_FREQ_PY = INF_FREQ
 
 # smallest frequency
-# WARNING: this must be small but not too small 
+# WARNING: this must be small but not too small
 # 1 / MIN_FREQ << DTYPE_INF
 MIN_FREQ = 1.0 / INF_FREQ
-MIN_FREQ_PY =  MIN_FREQ
+MIN_FREQ_PY = MIN_FREQ
 
 # a very small time interval
 A_VERY_SMALL_TIME_INTERVAL = 1.0e+08 * MIN_FREQ
