@@ -11,8 +11,6 @@ Welcome to our Python library for graph algorithms. So far, the library only inc
 
 Documentation : [https://edsger.readthedocs.io/en/latest/](https://edsger.readthedocs.io/en/latest/)
 
-```
-
 ## Contributing
 
 We welcome contributions to the Edsger library. If you have any suggestions, bug reports, or feature requests, please open an issue on our [GitHub repository](https://github.com/aetperf/Edsger).
