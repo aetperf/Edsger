@@ -255,6 +255,42 @@
           <section id="quick-start-guide">
 <h1>Quick Start Guide<a class="headerlink" href="#quick-start-guide" title="Link to this heading">¶</a></h1>
 <p>Welcome to our Python library for graph algorithms. So far, the library only includes Dijkstra’s algorithm but we should add a range of common path algorithms later. It is also open-source and easy to integrate with other Python libraries.</p>
+<section id="graph-data-format">
+<h2>Graph Data Format<a class="headerlink" href="#graph-data-format" title="Link to this heading">¶</a></h2>
+<p>Edsger expects graph data as a pandas DataFrame with the following structure:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>tail</p></td>
+<td><p>int</p></td>
+<td><p>Source vertex ID</p></td>
+</tr>
+<tr class="row-odd"><td><p>head</p></td>
+<td><p>int</p></td>
+<td><p>Destination vertex ID</p></td>
+</tr>
+<tr class="row-even"><td><p>weight</p></td>
+<td><p>float</p></td>
+<td><p>Edge weight (must be non-negative)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</section>
 <section id="dijkstra-s-algorithm">
 <h2>Dijkstra’s Algorithm<a class="headerlink" href="#dijkstra-s-algorithm" title="Link to this heading">¶</a></h2>
 <p>To use Dijkstra’s algorithm, you can import the <code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code> class from the <code class="docutils literal notranslate"><span class="pre">path</span></code> module. The function takes a graph and a source node as input, and returns the shortest path from the source node to all other nodes in the graph.</p>
@@ -335,9 +371,8 @@
 <span class="n">other_dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">tail</span><span class="o">=</span><span class="s1">&#39;from&#39;</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s1">&#39;to&#39;</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;travel_time&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-</section>
 <section id="orientation">
-<h2>Orientation<a class="headerlink" href="#orientation" title="Link to this heading">¶</a></h2>
+<h3>Orientation<a class="headerlink" href="#orientation" title="Link to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">orientation</span></code> argument (a string with a default value of <code class="docutils literal notranslate"><span class="pre">'out'</span></code>) specifies the orientation of the algorithm. It can be either <code class="docutils literal notranslate"><span class="pre">'out'</span></code> for single source shortest paths or <code class="docutils literal notranslate"><span class="pre">'in'</span></code> for single target shortest path.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">)</span>
 
@@ -351,7 +386,7 @@
 </div>
 </section>
 <section id="run-multiple-times">
-<h2>Run Multiple Times<a class="headerlink" href="#run-multiple-times" title="Link to this heading">¶</a></h2>
+<h3>Run Multiple Times<a class="headerlink" href="#run-multiple-times" title="Link to this heading">¶</a></h3>
 <p>Once the Dijkstra is instantiated with a given graph and orientation, the <code class="docutils literal notranslate"><span class="pre">run</span></code> method can be called multiple times with different source vertices.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run the algorithm to another target vertex</span>
 <span class="n">shortest_paths</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
@@ -363,7 +398,7 @@
 </div>
 </section>
 <section id="check-edges">
-<h2>Check Edges<a class="headerlink" href="#check-edges" title="Link to this heading">¶</a></h2>
+<h3>Check Edges<a class="headerlink" href="#check-edges" title="Link to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">check_edges</span></code> argument (a boolean with a default value of <code class="docutils literal notranslate"><span class="pre">False</span></code>) validates the given graph. When set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, it ensures the DataFrame is well-formed by:</p>
 <ul class="simple">
 <li><p>Checking for the presence of required columns for edge tail, head and weight values</p></li>
@@ -384,7 +419,7 @@
 </div>
 </section>
 <section id="permute">
-<h2>Permute<a class="headerlink" href="#permute" title="Link to this heading">¶</a></h2>
+<h3>Permute<a class="headerlink" href="#permute" title="Link to this heading">¶</a></h3>
 <p>Finally, the <code class="docutils literal notranslate"><span class="pre">permute</span></code> argument (boolean with a default value of <code class="docutils literal notranslate"><span class="pre">False</span></code>) allows to permute the IDs of the nodes. If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, the node IDs will be reindexed to start from 0 and be contiguous for the inner computations, and the output will be reindexed to the original IDs, loading the same result as if the IDs were not permuted. The permutation may save memory and computation time for large graphs, for example if a significant ratio of the nodes are not actually used in the graph.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">SHIFT</span> <span class="o">=</span> <span class="mi">1000</span>
 
@@ -442,7 +477,7 @@
 </div>
 </section>
 <section id="run-method-options">
-<h2>Run Method Options<a class="headerlink" href="#run-method-options" title="Link to this heading">¶</a></h2>
+<h3>Run Method Options<a class="headerlink" href="#run-method-options" title="Link to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">run</span></code> method can take the following arguments besides the source/target vertex index:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">path_tracking</span></code> : bool, optional (default=False)</p></li>
@@ -516,6 +551,7 @@
 </ul>
 <p>This is an experimental parameter that controls the size of the heap used in the algorithm. The heap is a static array that is used to store the vertices that may be visited next. A value of 1.0 means that the heap is the same size as the number of vertices, so there is no risk of overflow. Be aware that there is no guarantee that the algorithm will work with a heap length ratio smaller that 1. The lowest ratio that works for a given graph depends on the graph structure and the source vertex. For a rather sparse graph, a small ratio may work, but for a dense graph, a ratio of 1.0 is required.</p>
 </section>
+</section>
 <section id="next-steps">
 <h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h2>
 <ul class="simple">
@@ -581,12 +617,15 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Quick Start Guide</a><ul>
-<li><a class="reference internal" href="#dijkstra-s-algorithm">Dijkstra’s Algorithm</a></li>
+<li><a class="reference internal" href="#graph-data-format">Graph Data Format</a></li>
+<li><a class="reference internal" href="#dijkstra-s-algorithm">Dijkstra’s Algorithm</a><ul>
 <li><a class="reference internal" href="#orientation">Orientation</a></li>
 <li><a class="reference internal" href="#run-multiple-times">Run Multiple Times</a></li>
 <li><a class="reference internal" href="#check-edges">Check Edges</a></li>
 <li><a class="reference internal" href="#permute">Permute</a></li>
 <li><a class="reference internal" href="#run-method-options">Run Method Options</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#next-steps">Next Steps</a></li>
 </ul>
 </li>
