@@ -15,29 +15,14 @@ Edsger expects graph data as a pandas DataFrame with the following structure:
 
 Example:
 ```python
+import pandas as pd
+
 edges = pd.DataFrame({
     'tail': [0, 0, 1, 2],
     'head': [1, 2, 2, 3],
     'weight': [1.0, 4.0, 2.0, 1.0]
 })
-```
-
-## Dijkstra's Algorithm
-
-To use Dijkstra's algorithm, you can import the `Dijkstra` class from the `path` module. The function takes a graph and a source node as input, and returns the shortest path from the source node to all other nodes in the graph.
-
-```python
-import pandas as pd
-
-from edsger.path import Dijkstra
-
-# Create a DataFrame with the edges of the graph
-edges = pd.DataFrame({
-    'tail': [0, 0, 1, 2, 2, 3],
-    'head': [1, 2, 2, 3, 4, 4],
-    'weight': [1, 4, 2, 1, 3, 1]
-})
-edges
+edsges
 ```
 
 |    |   tail |   head |   weight |
@@ -46,8 +31,32 @@ edges
 |  1 |      0 |      2 |        4 |
 |  2 |      1 |      2 |        2 |
 |  3 |      2 |      3 |        1 |
-|  4 |      2 |      4 |        3 |
-|  5 |      3 |      4 |        1 |
+
+
+## Dijkstra's Algorithm
+
+To use Dijkstra's algorithm, you can import the `Dijkstra` class from the `path` module. The function takes a graph and a source node as input, and returns the shortest path from the source node to all other nodes in the graph.
+
+```python
+from edsger.path import Dijkstra
+
+# Create a DataFrame with the edges of the graph
+edges = pd.DataFrame({
+    'tail': [0, 0, 1, 2, 2, 3],
+    'head': [1, 2, 2, 3, 4, 4],
+    'weight': [1, 4, 2, 1.5, 3, 1]
+})
+edges
+```
+
+    |    |   tail |   head |   weight |
+    |---:|-------:|-------:|---------:|
+    |  0 |      0 |      1 |      1.0 |
+    |  1 |      0 |      2 |      4.0 |
+    |  2 |      1 |      2 |      2.0 |
+    |  3 |      2 |      3 |      1.5 |
+    |  4 |      2 |      4 |      3.0 |
+    |  5 |      3 |      4 |      1.0 |
 
 
 ```python
@@ -59,7 +68,7 @@ shortest_paths = dijkstra.run(vertex_idx=0)
 print("Shortest paths:", shortest_paths)
 ```
 
-    Shortest paths: [0. 1. 3. 4. 5.]
+    Shortest paths: [0.  1.  3.  4.5 5.5]
 
 We get the shortest paths from the source node 0 to all other nodes in the graph. The output is an array with the shortest path length to each node. A path length is the sum of the weights of the edges in the path.
 
@@ -69,9 +78,9 @@ It is also possible to use a graph with different column names for the tail, hea
 other_edges = pd.DataFrame({
     'from': [0, 0, 1, 2, 2, 3],
     'to': [1, 2, 2, 3, 4, 4],
-    'travel_time': [1, 4, 2, 1, 3, 1]
+    'travel_time': [1, 4, 2, 1.5, 3, 1]
 })
-other_dijkstra = Dijkstra(edges, tail='from', head='to', weight='travel_time')
+other_dijkstra = Dijkstra(other_edges, tail='from', head='to', weight='travel_time')
 ```
 
 ### Orientation
@@ -98,7 +107,7 @@ shortest_paths = dijkstra.run(vertex_idx=4)
 print("Shortest paths:", shortest_paths)
 ```
 
-    Shortest paths: [5. 4. 2. 1. 0.]
+    Shortest paths: [5.5 4.5 2.5 1.  0. ]
 
 ### Check Edges
 
@@ -131,7 +140,7 @@ SHIFT = 1000
 shifted_edges = pd.DataFrame({
     'tail': [0, 0, 1, 2, 2, 3],
     'head': [1, 2, 2, 3, 4, 4],
-    'weight': [1, 4, 2, 1, 3, 1]
+    'weight': [1, 4, 2, 1.5, 3, 1]
 })
 shifted_edges["tail"] += SHIFT
 shifted_edges["head"] += SHIFT
@@ -140,9 +149,9 @@ shifted_edges.head(3)
 
 |    |   tail |   head |   weight |
 |---:|-------:|-------:|---------:|
-|  0 |   1000 |   1001 |        1 |
-|  1 |   1000 |   1002 |        4 |
-|  2 |   1001 |   1002 |        2 |
+|  0 |   1000 |   1001 |      1.0 |
+|  1 |   1000 |   1002 |      4.0 |
+|  2 |   1001 |   1002 |      2.0 |
 
 
 
@@ -152,13 +161,14 @@ shortest_paths = dijkstra.run(vertex_idx=0 + SHIFT)
 print("Shortest paths:", shortest_paths)
 ```
 
-    Shortest paths: [inf inf inf ...  3.  4.  5.]
+    Shortest paths: [inf inf inf ... 3.  4.5 5.5]
 
 ```python
 shortest_paths[-5:]
 ```
 
-    array([0., 1., 3., 4., 5.])
+    array([0. , 1. , 3. , 4.5, 5.5])
+
 
 ### Run Method Options
 
@@ -210,11 +220,11 @@ shortest_paths
 
 |   vertex_idx |   path_length |
 |-------------:|--------------:|
-|            0 |             5 |
-|            1 |             4 |
-|            2 |             2 |
-|            3 |             1 |
-|            4 |             0 |
+|            0 |           5.5 |
+|            1 |           4.5 |
+|            2 |           2.5 |
+|            3 |           1.0 |
+|            4 |           0.0 |
 
 
 - `heap_length_ratio` : float, optional (default=1.0)

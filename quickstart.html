@@ -283,28 +283,14 @@
 </table>
 </div>
 <p>Example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
     <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
     <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
     <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
 <span class="p">})</span>
-</pre></div>
-</div>
-</section>
-<section id="dijkstra-s-algorithm">
-<h2>Dijkstra’s Algorithm<a class="headerlink" href="#dijkstra-s-algorithm" title="Link to this heading">¶</a></h2>
-<p>To use Dijkstra’s algorithm, you can import the <code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code> class from the <code class="docutils literal notranslate"><span class="pre">path</span></code> module. The function takes a graph and a source node as input, and returns the shortest path from the source node to all other nodes in the graph.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dijkstra</span>
-
-<span class="c1"># Create a DataFrame with the edges of the graph</span>
-<span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
-    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-<span class="p">})</span>
-<span class="n">edges</span>
+<span class="n">edsges</span>
 </pre></div>
 </div>
 <div class="table-wrapper colwidths-auto docutils container">
@@ -337,18 +323,33 @@
 <td class="text-right"><p>3</p></td>
 <td class="text-right"><p>1</p></td>
 </tr>
-<tr class="row-even"><td class="text-right"><p>4</p></td>
-<td class="text-right"><p>2</p></td>
-<td class="text-right"><p>4</p></td>
-<td class="text-right"><p>3</p></td>
-</tr>
-<tr class="row-odd"><td class="text-right"><p>5</p></td>
-<td class="text-right"><p>3</p></td>
-<td class="text-right"><p>4</p></td>
-<td class="text-right"><p>1</p></td>
-</tr>
 </tbody>
 </table>
+</div>
+</section>
+<section id="dijkstra-s-algorithm">
+<h2>Dijkstra’s Algorithm<a class="headerlink" href="#dijkstra-s-algorithm" title="Link to this heading">¶</a></h2>
+<p>To use Dijkstra’s algorithm, you can import the <code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code> class from the <code class="docutils literal notranslate"><span class="pre">path</span></code> module. The function takes a graph and a source node as input, and returns the shortest path from the source node to all other nodes in the graph.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dijkstra</span>
+
+<span class="c1"># Create a DataFrame with the edges of the graph</span>
+<span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="p">})</span>
+<span class="n">edges</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>|    |   tail |   head |   weight |
+|---:|-------:|-------:|---------:|
+|  0 |      0 |      1 |      1.0 |
+|  1 |      0 |      2 |      4.0 |
+|  2 |      1 |      2 |      2.0 |
+|  3 |      2 |      3 |      1.5 |
+|  4 |      2 |      4 |      3.0 |
+|  5 |      3 |      4 |      1.0 |
+</pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize the Dijkstra object</span>
 <span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
@@ -358,7 +359,7 @@
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shortest paths:&quot;</span><span class="p">,</span> <span class="n">shortest_paths</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Shortest paths: [0. 1. 3. 4. 5.]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Shortest paths: [0.  1.  3.  4.5 5.5]
 </pre></div>
 </div>
 <p>We get the shortest paths from the source node 0 to all other nodes in the graph. The output is an array with the shortest path length to each node. A path length is the sum of the weights of the edges in the path.</p>
@@ -366,9 +367,9 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">other_edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
     <span class="s1">&#39;from&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
     <span class="s1">&#39;to&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
-    <span class="s1">&#39;travel_time&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="s1">&#39;travel_time&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
 <span class="p">})</span>
-<span class="n">other_dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">tail</span><span class="o">=</span><span class="s1">&#39;from&#39;</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s1">&#39;to&#39;</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;travel_time&#39;</span><span class="p">)</span>
+<span class="n">other_dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">other_edges</span><span class="p">,</span> <span class="n">tail</span><span class="o">=</span><span class="s1">&#39;from&#39;</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s1">&#39;to&#39;</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;travel_time&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <section id="orientation">
@@ -393,7 +394,7 @@
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shortest paths:&quot;</span><span class="p">,</span> <span class="n">shortest_paths</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Shortest paths: [5. 4. 2. 1. 0.]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Shortest paths: [5.5 4.5 2.5 1.  0. ]
 </pre></div>
 </div>
 </section>
@@ -426,7 +427,7 @@
 <span class="n">shifted_edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
     <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
     <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
-    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
 <span class="p">})</span>
 <span class="n">shifted_edges</span><span class="p">[</span><span class="s2">&quot;tail&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">SHIFT</span>
 <span class="n">shifted_edges</span><span class="p">[</span><span class="s2">&quot;head&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">SHIFT</span>
@@ -446,17 +447,17 @@
 <tr class="row-even"><td class="text-right"><p>0</p></td>
 <td class="text-right"><p>1000</p></td>
 <td class="text-right"><p>1001</p></td>
-<td class="text-right"><p>1</p></td>
+<td class="text-right"><p>1.0</p></td>
 </tr>
 <tr class="row-odd"><td class="text-right"><p>1</p></td>
 <td class="text-right"><p>1000</p></td>
 <td class="text-right"><p>1002</p></td>
-<td class="text-right"><p>4</p></td>
+<td class="text-right"><p>4.0</p></td>
 </tr>
 <tr class="row-even"><td class="text-right"><p>2</p></td>
 <td class="text-right"><p>1001</p></td>
 <td class="text-right"><p>1002</p></td>
-<td class="text-right"><p>2</p></td>
+<td class="text-right"><p>2.0</p></td>
 </tr>
 </tbody>
 </table>
@@ -466,13 +467,13 @@
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shortest paths:&quot;</span><span class="p">,</span> <span class="n">shortest_paths</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Shortest paths: [inf inf inf ...  3.  4.  5.]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Shortest paths: [inf inf inf ... 3.  4.5 5.5]
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">shortest_paths</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">:]</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>array([0., 1., 3., 4., 5.])
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>array([0. , 1. , 3. , 4.5, 5.5])
 </pre></div>
 </div>
 </section>
@@ -529,19 +530,19 @@
 </thead>
 <tbody>
 <tr class="row-even"><td class="text-right"><p>0</p></td>
-<td class="text-right"><p>5</p></td>
+<td class="text-right"><p>5.5</p></td>
 </tr>
 <tr class="row-odd"><td class="text-right"><p>1</p></td>
-<td class="text-right"><p>4</p></td>
+<td class="text-right"><p>4.5</p></td>
 </tr>
 <tr class="row-even"><td class="text-right"><p>2</p></td>
-<td class="text-right"><p>2</p></td>
+<td class="text-right"><p>2.5</p></td>
 </tr>
 <tr class="row-odd"><td class="text-right"><p>3</p></td>
-<td class="text-right"><p>1</p></td>
+<td class="text-right"><p>1.0</p></td>
 </tr>
 <tr class="row-even"><td class="text-right"><p>4</p></td>
-<td class="text-right"><p>0</p></td>
+<td class="text-right"><p>0.0</p></td>
 </tr>
 </tbody>
 </table>

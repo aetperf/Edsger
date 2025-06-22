@@ -256,14 +256,39 @@
 <h1>Edsger<a class="headerlink" href="#edsger" title="Link to this heading">¶</a></h1>
 <p><em>Graph algorithms in Cython</em></p>
 <p>Welcome to the Edsger documentation! Edsger is a Python library for efficient graph algorithms implemented in Cython. The library currently focuses on shortest path algorithms, with Dijkstra’s algorithm fully implemented and additional algorithms planned for future releases.</p>
+<section id="why-use-edsger">
+<h2>Why Use Edsger?<a class="headerlink" href="#why-use-edsger" title="Link to this heading">¶</a></h2>
+<p>Edsger is designed to be <strong>dataframe-friendly</strong>, providing seamless integration with pandas workflows for graph algorithms. Also it is rather efficient. Our benchmarks on the USA road network (23.9M vertices, 57.7M edges) demonstrate nice performance:</p>
+<a class="reference internal image-reference" href="_images/dijkstra_benchmark_comparison.png"><img alt="Dijkstra Performance Comparison" src="_images/dijkstra_benchmark_comparison.png" style="width: 700px;" />
+</a>
+<p><em>Benchmark performed on Intel i9-12900H laptop.</em></p>
+<section id="pandas-integration-made-simple">
+<h3>Pandas Integration Made Simple<a class="headerlink" href="#pandas-integration-made-simple" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dijkstra</span>
+
+<span class="c1"># Your graph data is already in a DataFrame</span>
+<span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> 
+    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+<span class="p">})</span>
+
+<span class="c1"># No conversion needed - use directly!</span>
+<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">)</span>
+<span class="n">distances</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
 <section id="key-features">
 <h2>Key Features<a class="headerlink" href="#key-features" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p>Fast implementation of Dijkstra’s algorithm</p></li>
-<li><p>Support for both single-source and single-target shortest paths</p></li>
-<li><p>Easy integration with pandas DataFrames</p></li>
-<li><p>Memory-efficient 4-ary heap implementation</p></li>
-<li><p>Path tracking and reconstruction capabilities</p></li>
+<li><p><strong>Native pandas DataFrame support</strong> - No graph object conversion required</p></li>
+<li><p><strong>High performance</strong> - Cython implementation with aggressive optimizations</p></li>
+<li><p><strong>Memory efficient</strong> - Optimized for large-scale real-world datasets</p></li>
+<li><p><strong>Easy integration</strong> with NumPy and pandas workflows</p></li>
+<li><p><strong>Production ready</strong> - Comprehensive testing across Python 3.9-3.13</p></li>
 </ul>
 </section>
 <section id="quick-links">
@@ -370,6 +395,10 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Edsger</a><ul>
+<li><a class="reference internal" href="#why-use-edsger">Why Use Edsger?</a><ul>
+<li><a class="reference internal" href="#pandas-integration-made-simple">Pandas Integration Made Simple</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#key-features">Key Features</a></li>
 <li><a class="reference internal" href="#quick-links">Quick Links</a></li>
 <li><a class="reference internal" href="#table-of-contents">Table of Contents</a><ul>
