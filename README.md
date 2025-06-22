@@ -43,7 +43,6 @@ edges
     |  4 |      2 |      4 |      3.0 |
     |  5 |      3 |      4 |      1.0 |
 
-
 ```python
 # Initialize the Dijkstra object
 dijkstra = Dijkstra(edges)
