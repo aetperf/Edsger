@@ -29,7 +29,7 @@ from edsger.path import Dijkstra
 edges = pd.DataFrame({
     'tail': [0, 0, 1, 2, 2, 3],
     'head': [1, 2, 2, 3, 4, 4],
-    'weight': [1, 4, 2, 1, 3, 1]
+    'weight': [1, 4, 2, 1.5, 3, 1]
 })
 edges
 ```
