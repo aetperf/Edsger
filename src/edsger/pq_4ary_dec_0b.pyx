@@ -47,7 +47,7 @@ from edsger.commons cimport (
 cdef void init_pqueue(
         PriorityQueue* pqueue,
         size_t heap_length,
-        size_t element_count) nogil noexcept:
+        size_t element_count) noexcept nogil:
     """
     Initialize the priority queue.
 
@@ -77,7 +77,7 @@ cdef void init_pqueue(
 
 cdef void _initialize_element(
         PriorityQueue* pqueue,
-        size_t element_idx) nogil noexcept:
+        size_t element_idx) noexcept nogil:
     """
     Initialize a single element.
 
@@ -92,7 +92,7 @@ cdef void _initialize_element(
 
 
 cdef void free_pqueue(
-        PriorityQueue* pqueue) nogil noexcept:
+        PriorityQueue* pqueue) noexcept nogil:
     """
     Free the priority queue.
 
@@ -107,7 +107,7 @@ cdef void free_pqueue(
 cdef void insert(
         PriorityQueue* pqueue,
         size_t element_idx,
-        DTYPE_t key) nogil noexcept:
+        DTYPE_t key) noexcept nogil:
     """
     Insert an element into the heap and reorder the heap.
 
@@ -134,7 +134,7 @@ cdef void insert(
 cdef void decrease_key(
         PriorityQueue* pqueue,
         size_t element_idx,
-        DTYPE_t key_new) nogil noexcept:
+        DTYPE_t key_new) noexcept nogil:
     """
     Decrease the key of a element in the heap, given its element index.
 
@@ -154,7 +154,7 @@ cdef void decrease_key(
         key_new)
 
 
-cdef DTYPE_t peek(PriorityQueue* pqueue) nogil noexcept:
+cdef DTYPE_t peek(PriorityQueue* pqueue) noexcept nogil:
     """
     Find heap min key.
 
@@ -174,7 +174,7 @@ cdef DTYPE_t peek(PriorityQueue* pqueue) nogil noexcept:
     return pqueue.Elements[pqueue.A[0]].key
 
 
-cdef bint is_empty(PriorityQueue* pqueue) nogil noexcept:
+cdef bint is_empty(PriorityQueue* pqueue) noexcept nogil:
     """
     Check if the heap is empty.
 
@@ -190,7 +190,7 @@ cdef bint is_empty(PriorityQueue* pqueue) nogil noexcept:
     return isempty
 
 
-cdef size_t extract_min(PriorityQueue* pqueue) nogil noexcept:
+cdef size_t extract_min(PriorityQueue* pqueue) noexcept nogil:
     """
     Extract element with min keay from the heap,
     and return its element index.
@@ -229,7 +229,7 @@ cdef size_t extract_min(PriorityQueue* pqueue) nogil noexcept:
 cdef cnp.ndarray copy_keys_to_numpy(
     PriorityQueue* pqueue,
     size_t vertex_count
-) noexcept:
+):
     """
     Copy the keys into a numpy array.
 
@@ -261,7 +261,7 @@ cdef cnp.ndarray copy_keys_to_numpy(
 cdef void _exchange_nodes(
         PriorityQueue* pqueue,
         size_t node_i,
-        size_t node_j) nogil noexcept:
+        size_t node_j) noexcept nogil:
     """
     Exchange two nodes in the heap.
 
@@ -286,7 +286,7 @@ cdef void _exchange_nodes(
 
 cdef void _min_heapify(
         PriorityQueue* pqueue,
-        size_t node_idx) nogil noexcept:
+        size_t node_idx) noexcept nogil:
     """
     Re-order sub-tree under a given node (given its node index)
     until it satisfies the heap property.
@@ -363,7 +363,7 @@ cdef void _min_heapify(
 cdef void _decrease_key_from_node_index(
         PriorityQueue* pqueue,
         size_t node_idx,
-        DTYPE_t key_new) nogil noexcept:
+        DTYPE_t key_new) noexcept nogil:
     """
     Decrease the key of an element in the heap, given its tree index.
 
@@ -594,7 +594,7 @@ cpdef is_empty_01():
     assert is_empty(&pqueue) == 1
     insert(&pqueue, 1, 3.0)
     assert is_empty(&pqueue) == 0
-    idx = extract_min(&pqueue)
+    _ = extract_min(&pqueue)
     assert is_empty(&pqueue) == 1
 
     free_pqueue(&pqueue)
@@ -652,7 +652,7 @@ cpdef decrease_key_01():
     free_pqueue(&pqueue)
 
 
-cdef void heapsort(DTYPE_t[::1] values_in, DTYPE_t[::1] values_out) nogil:
+cdef void heapsort(DTYPE_t[::1] values_in, DTYPE_t[::1] values_out) noexcept nogil:
     """
     Heap sort by inerting all the values into the priority queue,
     and extracting them.
@@ -675,8 +675,6 @@ cpdef sort_01(int n, random_seed=124):
     Create an array of random number, sort it with the heapsort function
     and with the numpy default sort function, compare the results.
     """
-
-    cdef PriorityQueue pqueue
 
     rng = np.random.default_rng(random_seed)
     values_in = rng.random(size=n)

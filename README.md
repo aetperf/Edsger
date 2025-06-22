@@ -57,6 +57,14 @@ print("Shortest paths:", shortest_paths)
 
 We get the shortest paths from the source node 0 to all other nodes in the graph. The output is an array with the shortest path length to each node. A path length is the sum of the weights of the edges in the path.
 
+## Why Use Edsger?
+
+Edsger is designed to be **dataframe-friendly**, providing seamless integration with pandas workflows for graph algorithms. Also it is rather efficient. Our benchmarks on the USA road network (23.9M vertices, 57.7M edges) demonstrate nice performance:
+
+![Dijkstra Performance Comparison](scripts/dijkstra_benchmark_comparison.png)
+
+*Benchmark performed on Intel i9-12900H laptop.*
+
 ## Contributing
 
 We welcome contributions to the Edsger library. If you have any suggestions, bug reports, or feature requests, please open an issue on our [GitHub repository](https://github.com/aetperf/Edsger).

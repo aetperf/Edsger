@@ -23,6 +23,12 @@ from edsger.commons cimport (
     DTYPE_INF, UNLABELED, SCANNED, DTYPE_t, ElementState)
 cimport edsger.pq_4ary_dec_0b as pq  # priority queue
 
+# Memory prefetching support
+cdef extern from "<xmmintrin.h>":
+    void _mm_prefetch(char*, int) nogil
+    int _MM_HINT_T0  # Temporal locality hint for L1 cache
+    int _MM_HINT_T1  # Temporal locality hint for L2 cache
+
 
 cpdef cnp.ndarray compute_sssp(
         cnp.uint32_t[::1] csr_indptr,
@@ -83,8 +89,17 @@ cpdef cnp.ndarray compute_sssp(
                              <size_t>csr_indptr[tail_vert_idx + 1]):
 
                 head_vert_idx = <size_t>csr_indices[idx]
+
+                # Prefetch next iteration data to improve cache performance
+                if idx + 1 < <size_t>csr_indptr[tail_vert_idx + 1]:
+                    _mm_prefetch(<char*>&csr_indices[idx + 1], _MM_HINT_T0)
+                    _mm_prefetch(<char*>&csr_data[idx + 1], _MM_HINT_T0)
+
                 vert_state = pqueue.Elements[head_vert_idx].state
                 if vert_state != SCANNED:
+                    # Prefetch priority queue element data for the vertex
+                    _mm_prefetch(<char*>&pqueue.Elements[head_vert_idx], _MM_HINT_T0)
+
                     head_vert_val = tail_vert_val + csr_data[idx]
                     if vert_state == UNLABELED:
                         pq.insert(&pqueue, head_vert_idx, head_vert_val)
@@ -164,8 +179,17 @@ cpdef cnp.ndarray compute_sssp_w_path(
                              <size_t>csr_indptr[tail_vert_idx + 1]):
 
                 head_vert_idx = <size_t>csr_indices[idx]
+
+                # Prefetch next iteration data to improve cache performance
+                if idx + 1 < <size_t>csr_indptr[tail_vert_idx + 1]:
+                    _mm_prefetch(<char*>&csr_indices[idx + 1], _MM_HINT_T0)
+                    _mm_prefetch(<char*>&csr_data[idx + 1], _MM_HINT_T0)
+
                 vert_state = pqueue.Elements[head_vert_idx].state
                 if vert_state != SCANNED:
+                    # Prefetch priority queue element data for the vertex
+                    _mm_prefetch(<char*>&pqueue.Elements[head_vert_idx], _MM_HINT_T0)
+
                     head_vert_val = tail_vert_val + csr_data[idx]
                     if vert_state == UNLABELED:
                         pq.insert(&pqueue, head_vert_idx, head_vert_val)
