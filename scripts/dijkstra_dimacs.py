@@ -24,7 +24,7 @@ fmt = (
 )
 logger.add(sys.stderr, format=fmt)
 
-parser = ArgumentParser(description="Command line interface to perf_01.py")
+parser = ArgumentParser(description="Command line interface to dijkstra_dimacs.py")
 parser.add_argument(
     "-d",
     "--dir",
@@ -33,7 +33,7 @@ parser.add_argument(
     metavar="TXT",
     type=str,
     required=False,
-    default="/home/francois/Data/DIMACS_road_networks/",
+    default=os.getenv("DIMACS_DATA_DIR", "/home/francois/Data/DIMACS_road_networks/"),
 )
 parser.add_argument(
     "-n",
@@ -79,7 +79,7 @@ parser.add_argument(
     "-c",
     "--check_result",
     dest="check_result",
-    help="check the resulting path lengths aginst SciPy",
+    help="check the resulting path lengths against SciPy",
     action="store_true",
 )
 parser.add_argument(
@@ -143,7 +143,7 @@ else:
 if isinstance(repeat, int) and (repeat > 0):
     logger.info(f"repeat : {repeat}")
 else:
-    logger.critical(f"invalid value'{repeat}' for repeat")
+    logger.critical(f"invalid value '{repeat}' for repeat")
     sys.exit()
 
 if isinstance(check_result, bool):
