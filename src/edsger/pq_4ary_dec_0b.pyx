@@ -229,7 +229,7 @@ cdef size_t extract_min(PriorityQueue* pqueue) noexcept nogil:
 cdef cnp.ndarray copy_keys_to_numpy(
     PriorityQueue* pqueue,
     size_t vertex_count
-) noexcept:
+):
     """
     Copy the keys into a numpy array.
 
@@ -652,7 +652,7 @@ cpdef decrease_key_01():
     free_pqueue(&pqueue)
 
 
-cdef void heapsort(DTYPE_t[::1] values_in, DTYPE_t[::1] values_out) nogil:
+cdef void heapsort(DTYPE_t[::1] values_in, DTYPE_t[::1] values_out) noexcept nogil:
     """
     Heap sort by inerting all the values into the priority queue,
     and extracting them.
