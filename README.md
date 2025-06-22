@@ -34,14 +34,14 @@ edges = pd.DataFrame({
 edges
 ```
 
-|    |   tail |   head |   weight |
-|---:|-------:|-------:|---------:|
-|  0 |      0 |      1 |        1 |
-|  1 |      0 |      2 |        4 |
-|  2 |      1 |      2 |        2 |
-|  3 |      2 |      3 |        1 |
-|  4 |      2 |      4 |        3 |
-|  5 |      3 |      4 |        1 |
+    |    |   tail |   head |   weight |
+    |---:|-------:|-------:|---------:|
+    |  0 |      0 |      1 |      1.0 |
+    |  1 |      0 |      2 |      4.0 |
+    |  2 |      1 |      2 |      2.0 |
+    |  3 |      2 |      3 |      1.5 |
+    |  4 |      2 |      4 |      3.0 |
+    |  5 |      3 |      4 |      1.0 |
 
 
 ```python
@@ -53,7 +53,7 @@ shortest_paths = dijkstra.run(vertex_idx=0)
 print("Shortest paths:", shortest_paths)
 ```
 
-    Shortest paths: [0. 1. 3. 4. 5.]
+    Shortest paths: [0.  1.  3.  4.5 5.5]
 
 We get the shortest paths from the source node 0 to all other nodes in the graph. The output is an array with the shortest path length to each node. A path length is the sum of the weights of the edges in the path.
 
@@ -61,7 +61,7 @@ We get the shortest paths from the source node 0 to all other nodes in the graph
 
 Edsger is designed to be **dataframe-friendly**, providing seamless integration with pandas workflows for graph algorithms. Also it is rather efficient. Our benchmarks on the USA road network (23.9M vertices, 57.7M edges) demonstrate nice performance:
 
-![Dijkstra Performance Comparison](scripts/dijkstra_benchmark_comparison.png)
+<img src="scripts/dijkstra_benchmark_comparison.png" alt="Dijkstra Performance Comparison" width="700">
 
 *Benchmark performed on Intel i9-12900H laptop.*
 
