@@ -334,10 +334,24 @@ def create_comparison_plot(
     )
 
     plt.tight_layout()
+
+    # Save to scripts folder (for README)
     plt.savefig(
         output_file, dpi=300, bbox_inches="tight", facecolor="white", edgecolor="none"
     )
     print(f"\n[PLOT] Saved README-ready plot to: {output_file}")
+
+    # Also save to docs assets folder
+    docs_output = f"../docs/source/assets/{os.path.basename(output_file)}"
+    if os.path.exists("../docs/source/assets/"):
+        plt.savefig(
+            docs_output,
+            dpi=300,
+            bbox_inches="tight",
+            facecolor="white",
+            edgecolor="none",
+        )
+        print(f"[PLOT] Also saved to docs assets: {docs_output}")
 
     return output_file
 
