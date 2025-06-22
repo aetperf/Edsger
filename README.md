@@ -15,6 +15,57 @@ Welcome to our Python library for graph algorithms. So far, the library only inc
 
 Documentation : [https://edsger.readthedocs.io/en/latest/](https://edsger.readthedocs.io/en/latest/)
 
+## Small example : Dijkstra's Algorithm
+
+To use Dijkstra's algorithm, you can import the `Dijkstra` class from the `path` module. The function takes a graph and a source node as input, and returns the shortest path from the source node to all other nodes in the graph.
+
+```python
+import pandas as pd
+
+from edsger.path import Dijkstra
+
+# Create a DataFrame with the edges of the graph
+edges = pd.DataFrame({
+    'tail': [0, 0, 1, 2, 2, 3],
+    'head': [1, 2, 2, 3, 4, 4],
+    'weight': [1, 4, 2, 1, 3, 1]
+})
+edges
+```
+
+|    |   tail |   head |   weight |
+|---:|-------:|-------:|---------:|
+|  0 |      0 |      1 |        1 |
+|  1 |      0 |      2 |        4 |
+|  2 |      1 |      2 |        2 |
+|  3 |      2 |      3 |        1 |
+|  4 |      2 |      4 |        3 |
+|  5 |      3 |      4 |        1 |
+
+
+```python
+# Initialize the Dijkstra object
+dijkstra = Dijkstra(edges)
+
+# Run the algorithm from a source vertex
+shortest_paths = dijkstra.run(vertex_idx=0)
+print("Shortest paths:", shortest_paths)
+```
+
+    Shortest paths: [0. 1. 3. 4. 5.]
+
+We get the shortest paths from the source node 0 to all other nodes in the graph. The output is an array with the shortest path length to each node. A path length is the sum of the weights of the edges in the path.
+
+
+## Why Use Edsger?
+
+Edsger is designed to be **dataframe-friendly**, providing seamless integration with pandas workflows for graph algorithms. Also it is rather efficient. Our benchmarks on the USA road network (23.9M vertices, 57.7M edges) demonstrate nice performance:
+
+![Dijkstra Performance Comparison](scripts/dijkstra_benchmark_comparison.png)
+
+*Benchmark performed on Intel i9-12900H laptop.*
+
+
 ## Contributing
 
 We welcome contributions to the Edsger library. If you have any suggestions, bug reports, or feature requests, please open an issue on our [GitHub repository](https://github.com/aetperf/Edsger).
