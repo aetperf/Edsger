@@ -204,7 +204,7 @@ cdef void _coo_to_csr_uint32(
         cnp.uint32_t [::1] Ax,
         cnp.uint32_t [::1] Bp,
         cnp.uint32_t [::1] Bj,
-        cnp.uint32_t [::1] Bx) nogil noexcept:
+        cnp.uint32_t [::1] Bx) noexcept nogil:
 
     cdef:
         size_t i, row, dest
@@ -280,7 +280,7 @@ cpdef void _coo_to_csr_float64(
         cnp.float64_t [::1] Ax,
         cnp.uint32_t  [::1] Bp,
         cnp.uint32_t  [::1] Bj,
-        cnp.float64_t [::1] Bx) nogil noexcept:
+        cnp.float64_t [::1] Bx) noexcept nogil:
 
     cdef:
         size_t i, row, dest
@@ -318,7 +318,7 @@ cpdef void _coo_to_csc_float64(
         cnp.float64_t [::1] Ax,
         cnp.uint32_t  [::1] Bp,
         cnp.uint32_t  [::1] Bi,
-        cnp.float64_t [::1] Bx) nogil noexcept:
+        cnp.float64_t [::1] Bx) noexcept nogil:
 
     cdef:
         size_t i, col, dest

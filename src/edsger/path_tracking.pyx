@@ -43,7 +43,7 @@ cpdef cnp.ndarray compute_path(cnp.uint32_t[::1] path_links, int vertex_idx):
 cdef int _compute_path_first_pass(
     cnp.uint32_t[::1] path_links,
     int vertex_idx
-) nogil noexcept:
+) noexcept nogil:
     """Returns the path length.
     """
 
@@ -69,7 +69,7 @@ cdef void _compute_path_second_pass(
     cnp.uint32_t[::1] path_links,
     cnp.uint32_t[::1] path_vertices,
     int vertex_idx
-) nogil noexcept:
+) noexcept nogil:
     """Compute the sequence of vertices forming a path.
     """
     cdef size_t i, j, k
