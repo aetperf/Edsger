@@ -1,4 +1,4 @@
-name: ci-test
+name: Run tests and upload coverage
 
 on:
   push:
@@ -7,13 +7,17 @@ on:
 
 jobs:
   test:
+    name: Run tests and collect coverage
     strategy:
       matrix:
         os: [ubuntu-22.04, windows-2022, macos-14]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
@@ -29,13 +33,10 @@ jobs:
     - name: Lint Cython code
       run: |
         cython-lint src/edsger/commons.pyx src/edsger/dijkstra.pyx src/edsger/path_tracking.pyx src/edsger/pq_4ary_dec_0b.pyx src/edsger/spiess_florian.pyx src/edsger/star.pyx src/edsger/commons.pxd src/edsger/pq_4ary_dec_0b.pxd
-    - name: Testing
+    - name: Run tests
       run: |
-        python -m pytest --cov=src/edsger --cov-report=xml tests/
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
+        pytest --cov=src/edsger --cov-branch --cov-report=xml tests/
+    - name: Upload results to Codecov
+      uses: codecov/codecov-action@v5
       with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
+        token: ${{ secrets.CODECOV_TOKEN }}
