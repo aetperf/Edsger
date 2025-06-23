@@ -23,7 +23,7 @@ from edsger.commons cimport (
     DTYPE_INF, UNLABELED, SCANNED, DTYPE_t, ElementState)
 cimport edsger.pq_4ary_dec_0b as pq  # priority queue
 
-# Memory prefetching support (x86/x64 only)
+# memory prefetching support (x86/x64 only)
 cdef extern from "prefetch_compat.h":
     void prefetch_hint(char*, int) nogil
     int PREFETCH_T0
@@ -89,14 +89,14 @@ cpdef cnp.ndarray compute_sssp(
 
                 head_vert_idx = <size_t>csr_indices[idx]
 
-                # Prefetch next iteration data to improve cache performance
+                # prefetch next iteration data to improve cache performance
                 if idx + 1 < <size_t>csr_indptr[tail_vert_idx + 1]:
                     prefetch_hint(<char*>&csr_indices[idx + 1], PREFETCH_T0)
                     prefetch_hint(<char*>&csr_data[idx + 1], PREFETCH_T0)
 
                 vert_state = pqueue.Elements[head_vert_idx].state
                 if vert_state != SCANNED:
-                    # Prefetch priority queue element data for the vertex
+                    # prefetch priority queue element data for the vertex
                     prefetch_hint(<char*>&pqueue.Elements[head_vert_idx], PREFETCH_T0)
 
                     head_vert_val = tail_vert_val + csr_data[idx]
@@ -179,14 +179,14 @@ cpdef cnp.ndarray compute_sssp_w_path(
 
                 head_vert_idx = <size_t>csr_indices[idx]
 
-                # Prefetch next iteration data to improve cache performance
+                # prefetch next iteration data to improve cache performance
                 if idx + 1 < <size_t>csr_indptr[tail_vert_idx + 1]:
                     prefetch_hint(<char*>&csr_indices[idx + 1], PREFETCH_T0)
                     prefetch_hint(<char*>&csr_data[idx + 1], PREFETCH_T0)
 
                 vert_state = pqueue.Elements[head_vert_idx].state
                 if vert_state != SCANNED:
-                    # Prefetch priority queue element data for the vertex
+                    # prefetch priority queue element data for the vertex
                     prefetch_hint(<char*>&pqueue.Elements[head_vert_idx], PREFETCH_T0)
 
                     head_vert_val = tail_vert_val + csr_data[idx]
@@ -265,8 +265,17 @@ cpdef cnp.ndarray compute_stsp(
                              <size_t>csc_indptr[head_vert_idx + 1]):
 
                 tail_vert_idx = <size_t>csc_indices[idx]
+
+                # prefetch next iteration data to improve cache performance
+                if idx + 1 < <size_t>csc_indptr[head_vert_idx + 1]:
+                    prefetch_hint(<char*>&csc_indices[idx + 1], PREFETCH_T0)
+                    prefetch_hint(<char*>&csc_data[idx + 1], PREFETCH_T0)
+
                 vert_state = pqueue.Elements[tail_vert_idx].state
                 if vert_state != SCANNED:
+                    # prefetch priority queue element data for the vertex
+                    prefetch_hint(<char*>&pqueue.Elements[tail_vert_idx], PREFETCH_T0)
+
                     tail_vert_val = head_vert_val + csc_data[idx]
                     if vert_state == UNLABELED:
                         pq.insert(&pqueue, tail_vert_idx, tail_vert_val)
@@ -342,8 +351,17 @@ cpdef cnp.ndarray compute_stsp_w_path(
                              <size_t>csc_indptr[head_vert_idx + 1]):
 
                 tail_vert_idx = <size_t>csc_indices[idx]
+
+                # prefetch next iteration data to improve cache performance
+                if idx + 1 < <size_t>csc_indptr[head_vert_idx + 1]:
+                    prefetch_hint(<char*>&csc_indices[idx + 1], PREFETCH_T0)
+                    prefetch_hint(<char*>&csc_data[idx + 1], PREFETCH_T0)
+
                 vert_state = pqueue.Elements[tail_vert_idx].state
                 if vert_state != SCANNED:
+                    # prefetch priority queue element data for the vertex
+                    prefetch_hint(<char*>&pqueue.Elements[tail_vert_idx], PREFETCH_T0)
+
                     tail_vert_val = head_vert_val + csc_data[idx]
                     if vert_state == UNLABELED:
                         pq.insert(&pqueue, tail_vert_idx, tail_vert_val)
