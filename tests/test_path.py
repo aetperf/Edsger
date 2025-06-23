@@ -484,3 +484,45 @@ def test_SF_dwell_and_transfer_01():
 
     u_i_vec_ref = [305.0, 302.5, 0.0]
     assert np.allclose(u_i_vec_ref, hp.u_i_vec, rtol=1e-08, atol=1e-08)
+
+
+def test_dijkstra_early_termination_sssp(braess):
+    """Test SSSP early termination functionality."""
+
+    # test with orientation="out" (SSSP)
+    dij = Dijkstra(braess, orientation="out")
+
+    # run with early termination - stop when vertices 1 and 3 are reached
+    termination_nodes = [1, 3]
+    path_lengths = dij.run(vertex_idx=0, termination_nodes=termination_nodes)
+
+    # compare with regular run (should give same results for all vertices)
+    path_lengths_ref = dij.run(vertex_idx=0)
+    assert np.allclose(path_lengths_ref, path_lengths)
+
+    # test with path tracking
+    path_lengths_tracked = dij.run(
+        vertex_idx=0, termination_nodes=termination_nodes, path_tracking=True
+    )
+    assert np.allclose(path_lengths_ref, path_lengths_tracked)
+
+
+def test_dijkstra_early_termination_stsp(braess):
+    """Test STSP early termination functionality."""
+
+    # test with orientation="in" (STSP)
+    dij = Dijkstra(braess, orientation="in")
+
+    # run with early termination - stop when vertices 0 and 2 are reached
+    termination_nodes = [0, 2]
+    path_lengths = dij.run(vertex_idx=3, termination_nodes=termination_nodes)
+
+    # compare with regular run (should give same results for all vertices)
+    path_lengths_ref = dij.run(vertex_idx=3)
+    assert np.allclose(path_lengths_ref, path_lengths)
+
+    # test with path tracking
+    path_lengths_tracked = dij.run(
+        vertex_idx=3, termination_nodes=termination_nodes, path_tracking=True
+    )
+    assert np.allclose(path_lengths_ref, path_lengths_tracked)

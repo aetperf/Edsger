@@ -17,8 +17,12 @@ from edsger.commons import (
 from edsger.dijkstra import (
     compute_sssp,
     compute_sssp_w_path,
+    compute_sssp_early_termination,
+    compute_sssp_w_path_early_termination,
     compute_stsp,
     compute_stsp_w_path,
+    compute_stsp_early_termination,
+    compute_stsp_w_path_early_termination,
 )
 from edsger.path_tracking import compute_path
 from edsger.spiess_florian import compute_SF_in
@@ -285,6 +289,7 @@ class Dijkstra:
         return_inf=True,
         return_series=False,
         heap_length_ratio=1.0,
+        termination_nodes=None,
     ):
         """
         Runs shortest path algorithm between a given vertex and all other vertices in the graph.
@@ -303,6 +308,11 @@ class Dijkstra:
             as values.
         heap_length_ratio : float, optional (default=1.0)
             The heap length as a fraction of the number of vertices. Must be in the range (0, 1].
+        termination_nodes : array-like, optional (default=None)
+            List or array of vertex indices for early termination. For SSSP (orientation='out'),
+            these are target nodes to reach. For STSP (orientation='in'), these are source nodes
+            to find paths from. When provided, the algorithm stops once all specified nodes have
+            been processed, potentially improving performance. If None, runs to completion.
 
         Returns
         -------
@@ -355,49 +365,138 @@ class Dijkstra:
             )
         heap_length = int(np.rint(heap_length_ratio * self._n_vertices))
 
+        # validate and process termination_nodes
+        termination_nodes_array = None
+        if termination_nodes is not None:
+            try:
+                termination_nodes_array = np.array(termination_nodes, dtype=np.uint32)
+            except (ValueError, TypeError):
+                raise TypeError(
+                    "argument 'termination_nodes' must be array-like of integers"
+                )
+
+            if termination_nodes_array.ndim != 1:
+                raise ValueError("argument 'termination_nodes' must be 1-dimensional")
+
+            if len(termination_nodes_array) == 0:
+                raise ValueError("argument 'termination_nodes' must not be empty")
+
+            # handle vertex permutation if needed
+            if self._permutation is not None:
+                termination_nodes_permuted = []
+                for termination_node in termination_nodes_array:
+                    try:
+                        termination_node_new = self._vertex_to_idx[termination_node]
+                        termination_nodes_permuted.append(termination_node_new)
+                    except KeyError:
+                        raise ValueError(
+                            f"termination node {termination_node} not found in graph"
+                        )
+                termination_nodes_array = np.array(
+                    termination_nodes_permuted, dtype=np.uint32
+                )
+            else:
+                # validate that termination nodes exist
+                if np.any(termination_nodes_array >= self._n_vertices) or np.any(
+                    termination_nodes_array < 0
+                ):
+                    raise ValueError(
+                        "termination_nodes contains invalid vertex indices"
+                    )
+
         # compute path length
         if not path_tracking:
             self._path_links = None
-            if self._orientation == "in":
-                path_length_values = compute_stsp(
-                    self.__indptr,
-                    self.__indices,
-                    self.__edge_weights,
-                    vertex_new,
-                    self._n_vertices,
-                    heap_length,
-                )
+            if termination_nodes_array is not None:
+                # use early termination algorithms
+                if self._orientation == "in":
+                    path_length_values = compute_stsp_early_termination(
+                        self.__indptr,
+                        self.__indices,
+                        self.__edge_weights,
+                        termination_nodes_array,
+                        vertex_new,
+                        self._n_vertices,
+                        heap_length,
+                    )
+                else:
+                    path_length_values = compute_sssp_early_termination(
+                        self.__indptr,
+                        self.__indices,
+                        self.__edge_weights,
+                        termination_nodes_array,
+                        vertex_new,
+                        self._n_vertices,
+                        heap_length,
+                    )
             else:
-                path_length_values = compute_sssp(
-                    self.__indptr,
-                    self.__indices,
-                    self.__edge_weights,
-                    vertex_new,
-                    self._n_vertices,
-                    heap_length,
-                )
+                # use standard algorithms
+                if self._orientation == "in":
+                    path_length_values = compute_stsp(
+                        self.__indptr,
+                        self.__indices,
+                        self.__edge_weights,
+                        vertex_new,
+                        self._n_vertices,
+                        heap_length,
+                    )
+                else:
+                    path_length_values = compute_sssp(
+                        self.__indptr,
+                        self.__indices,
+                        self.__edge_weights,
+                        vertex_new,
+                        self._n_vertices,
+                        heap_length,
+                    )
         else:
             self._path_links = np.arange(0, self._n_vertices, dtype=np.uint32)
-            if self._orientation == "in":
-                path_length_values = compute_stsp_w_path(
-                    self.__indptr,
-                    self.__indices,
-                    self.__edge_weights,
-                    self._path_links,
-                    vertex_new,
-                    self._n_vertices,
-                    heap_length,
-                )
+            if termination_nodes_array is not None:
+                # use early termination algorithms with path tracking
+                if self._orientation == "in":
+                    path_length_values = compute_stsp_w_path_early_termination(
+                        self.__indptr,
+                        self.__indices,
+                        self.__edge_weights,
+                        self._path_links,
+                        termination_nodes_array,
+                        vertex_new,
+                        self._n_vertices,
+                        heap_length,
+                    )
+                else:
+                    path_length_values = compute_sssp_w_path_early_termination(
+                        self.__indptr,
+                        self.__indices,
+                        self.__edge_weights,
+                        self._path_links,
+                        termination_nodes_array,
+                        vertex_new,
+                        self._n_vertices,
+                        heap_length,
+                    )
             else:
-                path_length_values = compute_sssp_w_path(
-                    self.__indptr,
-                    self.__indices,
-                    self.__edge_weights,
-                    self._path_links,
-                    vertex_new,
-                    self._n_vertices,
-                    heap_length,
-                )
+                # use standard algorithms with path tracking
+                if self._orientation == "in":
+                    path_length_values = compute_stsp_w_path(
+                        self.__indptr,
+                        self.__indices,
+                        self.__edge_weights,
+                        self._path_links,
+                        vertex_new,
+                        self._n_vertices,
+                        heap_length,
+                    )
+                else:
+                    path_length_values = compute_sssp_w_path(
+                        self.__indptr,
+                        self.__indices,
+                        self.__edge_weights,
+                        self._path_links,
+                        vertex_new,
+                        self._n_vertices,
+                        heap_length,
+                    )
 
             if self._permute:
                 # permute back the path vertex indices
