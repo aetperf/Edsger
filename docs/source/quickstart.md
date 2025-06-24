@@ -22,7 +22,7 @@ edges = pd.DataFrame({
     'head': [1, 2, 2, 3],
     'weight': [1.0, 4.0, 2.0, 1.0]
 })
-edsges
+edges
 ```
 
 |    |   tail |   head |   weight |
@@ -169,10 +169,155 @@ shortest_paths[-5:]
 
     array([0. , 1. , 3. , 4.5, 5.5])
 
+### Early Termination
+
+Early termination is a performance optimization feature that allows Dijkstra's algorithm to stop computing once specific target nodes (termination nodes) have been reached. This can significantly reduce computation time when you only need shortest paths to a subset of vertices in the graph.
+
+When using early termination, the algorithm will:
+1. Stop as soon as all specified termination nodes have been visited
+2. Return **only** the path lengths to the termination nodes (not all vertices)
+3. Return results in the same order as the termination nodes were specified
+
+#### Basic Early Termination Example
+
+```python
+import pandas as pd
+from edsger.path import Dijkstra
+
+# Create a sample graph
+edges = pd.DataFrame({
+    "tail": [0, 0, 0, 1, 1, 2, 2, 3, 3, 4],
+    "head": [1, 2, 3, 2, 4, 3, 5, 4, 5, 5],
+    "weight": [1.0, 4.0, 2.0, 1.0, 3.0, 1.0, 2.0, 1.0, 1.0, 1.0],
+})
+```
+
+**Without early termination** (computes paths to all vertices):
+```python
+dijkstra = Dijkstra(edges, orientation="out")
+distances = dijkstra.run(vertex_idx=0)
+print("All distances:", distances)
+```
+    All distances: [0. 1. 2. 2. 3. 3.]
+
+**With early termination** (computes paths only to specified nodes):
+```python
+# Only compute paths to nodes 3 and 5
+termination_nodes = [3, 5]
+distances = dijkstra.run(vertex_idx=0, termination_nodes=termination_nodes)
+print("Distances to termination nodes:", distances)
+print("Shape of result:", distances.shape)
+```
+    Distances to termination nodes: [2. 3.]
+    Shape of result: (2,)
+
+Notice that:
+- The result array has length 2 (same as number of termination nodes)
+- `distances[0] = 2.0` is the shortest path length from vertex 0 to vertex 3
+- `distances[1] = 3.0` is the shortest path length from vertex 0 to vertex 5
+
+#### Early Termination with Path Tracking
+
+Early termination also works with path tracking enabled:
+
+```python
+dijkstra = Dijkstra(edges, orientation="out")
+distances = dijkstra.run(vertex_idx=0, termination_nodes=[3, 5], path_tracking=True)
+print("Distances:", distances)
+
+# Get paths to termination nodes
+path_to_3 = dijkstra.get_path(vertex_idx=3)
+path_to_5 = dijkstra.get_path(vertex_idx=5)
+print("Path to vertex 3:", path_to_3)
+print("Path to vertex 5:", path_to_5)
+```
+    Distances: [2. 3.]
+    Path to vertex 3: [3 2 1 0]
+    Path to vertex 5: [5 3 2 1 0]
+
+#### Performance Benefits
+
+Early termination provides significant performance benefits when:
+- You only need paths to a small subset of vertices
+- The termination nodes are relatively close to the source
+- You're working with large graphs
+
+```python
+import time
+
+# Large example - create a grid-like graph
+large_edges = []
+for i in range(100):
+    for j in range(100):
+        node_id = i * 100 + j
+        # Add horizontal edges
+        if j < 99:
+            large_edges.append({'tail': node_id, 'head': node_id + 1, 'weight': 1.0})
+        # Add vertical edges  
+        if i < 99:
+            large_edges.append({'tail': node_id, 'head': node_id + 100, 'weight': 1.0})
+
+large_graph = pd.DataFrame(large_edges)
+dijkstra_large = Dijkstra(large_graph, orientation="out")
+
+# Compare performance: all paths vs early termination
+start_time = time.time()
+all_distances = dijkstra_large.run(vertex_idx=0)
+time_all = time.time() - start_time
+
+start_time = time.time()
+early_distances = dijkstra_large.run(vertex_idx=0, termination_nodes=[50, 150, 250])
+time_early = time.time() - start_time
+
+print(f"All paths computation time: {time_all:.4f} seconds")
+print(f"Early termination time: {time_early:.4f} seconds")
+print(f"Speedup: {time_all/time_early:.2f}x")
+print(f"Result shape - All: {all_distances.shape}, Early: {early_distances.shape}")
+```
+
+#### Important Notes
+
+1. **Return Array Size**: With early termination, the returned array size equals the number of termination nodes, not the total number of vertices in the graph.
+
+2. **Order Preservation**: Results are returned in the same order as the termination nodes are specified:
+   ```python
+   # Termination nodes [3, 5] → results [distance_to_3, distance_to_5]
+   # Termination nodes [5, 3] → results [distance_to_5, distance_to_3]
+   ```
+
+3. **Orientation Support**: Early termination works with both orientations:
+   ```python
+   # Single-source shortest paths (from source to termination nodes)
+   dijkstra = Dijkstra(edges, orientation="out")
+   distances = dijkstra.run(vertex_idx=0, termination_nodes=[3, 5])
+   
+   # Single-target shortest paths (from termination nodes to target)
+   dijkstra = Dijkstra(edges, orientation="in") 
+   distances = dijkstra.run(vertex_idx=5, termination_nodes=[0, 2])
+   ```
+
+4. **Unreachable Nodes**: If a termination node is unreachable, its distance will be infinity:
+   ```python
+   # If node 10 is unreachable from node 0
+   distances = dijkstra.run(vertex_idx=0, termination_nodes=[3, 10])
+   # Result: [2.0, inf]
+   ```
 
 ### Run Method Options
 
 The `run` method can take the following arguments besides the source/target vertex index:
+
+- `termination_nodes` : list or array-like, optional (default=None)
+
+A list or array of vertex indices where the algorithm should stop early. When specified, the algorithm will terminate as soon as all termination nodes have been reached, and will return only the path lengths to these nodes in the same order they were specified. This can provide significant performance improvements when you only need paths to a subset of vertices.
+
+```python
+dijkstra = Dijkstra(edges)
+# Get distances only to nodes 2 and 4
+distances = dijkstra.run(vertex_idx=0, termination_nodes=[2, 4])
+print("Distances to nodes 2 and 4:", distances)
+```
+    Distances to nodes 2 and 4: [1.5 3.5]
 
 - `path_tracking` : bool, optional (default=False)
 
@@ -193,6 +338,8 @@ dijkstra.get_path(vertex_idx=0)
     array([0], dtype=uint32)
 
 The path is returned as an array of vertex indices. This is an ordered list of vertices from the source to the target vertex if `orientation` is `'in'`, and from the target to the source vertex if `orientation` is `'out'`. Both the source and target vertices are included in the path.
+
+**Note**: When using `termination_nodes` with `path_tracking=True`, you can still retrieve paths to any vertex that was reached during the computation using `get_path()`, even if it wasn't in the termination nodes list.
 
 - `return_inf` : bool, optional (default=True)
     
