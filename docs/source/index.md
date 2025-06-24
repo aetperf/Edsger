@@ -14,7 +14,7 @@ Edsger is designed to be **dataframe-friendly**, providing seamless integration 
 
 <img src="assets/dijkstra_benchmark_comparison.png" alt="Dijkstra Performance Comparison" width="700">
 
-*Benchmark performed on Intel i9-12900H laptop.*
+*Benchmark performed on Intel i9-12900H Linux laptop.*
 
 ### Pandas Integration Made Simple
 
