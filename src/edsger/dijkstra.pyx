@@ -130,7 +130,7 @@ cpdef cnp.ndarray compute_sssp_early_termination(
         cnp.uint32_t[::1] csr_indptr,
         cnp.uint32_t[::1] csr_indices,
         DTYPE_t[::1] csr_data,
-        cnp.uint32_t[::1] target_nodes,
+        cnp.uint32_t[::1] termination_nodes,
         int source_vert_idx,
         int vertex_count,
         int heap_length):
@@ -145,7 +145,7 @@ cpdef cnp.ndarray compute_sssp_early_termination(
         pointers in the CSR format
     csr_data DTYPE_t[::1]
         data (edge weights) in the CSR format
-    target_nodes : cnp.uint32_t[::1]
+    termination_nodes : cnp.uint32_t[::1]
         target node indices for early termination
     source_vert_idx : int
         source vertex index
@@ -166,7 +166,7 @@ cpdef cnp.ndarray compute_sssp_early_termination(
         pq.PriorityQueue pqueue
         ElementState vert_state
         size_t source = <size_t>source_vert_idx
-        size_t target_count = target_nodes.shape[0]
+        size_t target_count = termination_nodes.shape[0]
         size_t visited_targets = 0
         size_t iteration_count = 0
         size_t check_frequency = 16
@@ -191,7 +191,7 @@ cpdef cnp.ndarray compute_sssp_early_termination(
             if iteration_count % check_frequency == 0:
                 visited_targets = 0
                 for i in range(target_count):
-                    if pqueue.Elements[target_nodes[i]].state == SCANNED:
+                    if pqueue.Elements[termination_nodes[i]].state == SCANNED:
                         visited_targets += 1
                 if visited_targets == target_count:
                     break
@@ -324,7 +324,7 @@ cpdef cnp.ndarray compute_sssp_w_path_early_termination(
         cnp.uint32_t[::1] csr_indices,
         DTYPE_t[::1] csr_data,
         cnp.uint32_t[::1] predecessor,
-        cnp.uint32_t[::1] target_nodes,
+        cnp.uint32_t[::1] termination_nodes,
         int source_vert_idx,
         int vertex_count,
         int heap_length):
@@ -342,7 +342,7 @@ cpdef cnp.ndarray compute_sssp_w_path_early_termination(
         array of indices, one for each vertex of the graph. Each vertex'
         entry contains the index of its predecessor in a path from the
         source, through the graph.
-    target_nodes : cnp.uint32_t[::1]
+    termination_nodes : cnp.uint32_t[::1]
         target node indices for early termination
     source_vert_idx : int
         source vertex index
@@ -363,7 +363,7 @@ cpdef cnp.ndarray compute_sssp_w_path_early_termination(
         pq.PriorityQueue pqueue
         ElementState vert_state
         size_t source = <size_t>source_vert_idx
-        size_t target_count = target_nodes.shape[0]
+        size_t target_count = termination_nodes.shape[0]
         size_t visited_targets = 0
         size_t iteration_count = 0
         size_t check_frequency = 16
@@ -388,7 +388,7 @@ cpdef cnp.ndarray compute_sssp_w_path_early_termination(
             if iteration_count % check_frequency == 0:
                 visited_targets = 0
                 for i in range(target_count):
-                    if pqueue.Elements[target_nodes[i]].state == SCANNED:
+                    if pqueue.Elements[termination_nodes[i]].state == SCANNED:
                         visited_targets += 1
                 if visited_targets == target_count:
                     break
@@ -603,7 +603,7 @@ cpdef cnp.ndarray compute_stsp_early_termination(
         cnp.uint32_t[::1] csc_indptr,
         cnp.uint32_t[::1] csc_indices,
         DTYPE_t[::1] csc_data,
-        cnp.uint32_t[::1] target_nodes,
+        cnp.uint32_t[::1] termination_nodes,
         int target_vert_idx,
         int vertex_count,
         int heap_length):
@@ -618,7 +618,7 @@ cpdef cnp.ndarray compute_stsp_early_termination(
         pointers in the CSC format
     csc_data : DTYPE_t[::1]
         data (edge weights) in the CSC format
-    target_nodes : cnp.uint32_t[::1]
+    termination_nodes : cnp.uint32_t[::1]
         target node indices for early termination
     target_vert_idx : int
         target vertex index
@@ -639,7 +639,7 @@ cpdef cnp.ndarray compute_stsp_early_termination(
         pq.PriorityQueue pqueue
         ElementState vert_state
         size_t target = <size_t>target_vert_idx
-        size_t target_count = target_nodes.shape[0]
+        size_t target_count = termination_nodes.shape[0]
         size_t visited_targets = 0
         size_t iteration_count = 0
         size_t check_frequency = 16
@@ -664,7 +664,7 @@ cpdef cnp.ndarray compute_stsp_early_termination(
             if iteration_count % check_frequency == 0:
                 visited_targets = 0
                 for i in range(target_count):
-                    if pqueue.Elements[target_nodes[i]].state == SCANNED:
+                    if pqueue.Elements[termination_nodes[i]].state == SCANNED:
                         visited_targets += 1
                 if visited_targets == target_count:
                     break
@@ -705,7 +705,7 @@ cpdef cnp.ndarray compute_stsp_w_path_early_termination(
         cnp.uint32_t[::1] csc_indices,
         DTYPE_t[::1] csc_data,
         cnp.uint32_t[::1] successor,
-        cnp.uint32_t[::1] target_nodes,
+        cnp.uint32_t[::1] termination_nodes,
         int target_vert_idx,
         int vertex_count,
         int heap_length):
@@ -721,7 +721,7 @@ cpdef cnp.ndarray compute_stsp_w_path_early_termination(
         Data (edge weights) in the CSC format.
     successor : cnp.uint32_t[::1]
         Array of successor indices for path reconstruction.
-    target_nodes : cnp.uint32_t[::1]
+    termination_nodes : cnp.uint32_t[::1]
         target node indices for early termination
     target_vert_idx : int
         Target vertex index.
@@ -742,7 +742,7 @@ cpdef cnp.ndarray compute_stsp_w_path_early_termination(
         pq.PriorityQueue pqueue
         ElementState vert_state
         size_t target = <size_t>target_vert_idx
-        size_t target_count = target_nodes.shape[0]
+        size_t target_count = termination_nodes.shape[0]
         size_t visited_targets = 0
         size_t iteration_count = 0
         size_t check_frequency = 16
@@ -767,7 +767,7 @@ cpdef cnp.ndarray compute_stsp_w_path_early_termination(
             if iteration_count % check_frequency == 0:
                 visited_targets = 0
                 for i in range(target_count):
-                    if pqueue.Elements[target_nodes[i]].state == SCANNED:
+                    if pqueue.Elements[termination_nodes[i]].state == SCANNED:
                         visited_targets += 1
                 if visited_targets == target_count:
                     break
