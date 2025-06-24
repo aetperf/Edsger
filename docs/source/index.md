@@ -32,7 +32,9 @@ edges = pd.DataFrame({
 # No conversion needed - use directly!
 dijkstra = Dijkstra(edges, orientation="out")
 distances = dijkstra.run(vertex_idx=0)
+distances
 ```
+    array([0., 1., 2., 3.])
 
 ## Key Features
 
