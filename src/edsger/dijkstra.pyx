@@ -70,7 +70,7 @@ cpdef cnp.ndarray compute_sssp(
     Returns
     -------
     path_lengths : cnp.ndarray
-        shortest path length for each termination node
+        shortest path length for each vertex
     """
 
     cdef:
@@ -117,11 +117,8 @@ cpdef cnp.ndarray compute_sssp(
                     elif pqueue.Elements[head_vert_idx].key > head_vert_val:
                         pq.decrease_key(&pqueue, head_vert_idx, head_vert_val)
 
-    # copy only the termination nodes' results into a numpy array
-    cdef cnp.ndarray path_lengths = np.empty(target_count, dtype=DTYPE_PY)
-    cdef size_t i
-    for i in range(target_count):
-        path_lengths[i] = pqueue.Elements[termination_nodes[i]].key
+    # copy the results into a numpy array
+    path_lengths = pq.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
 
     # cleanup
     pq.free_pqueue(&pqueue)
@@ -223,7 +220,6 @@ cpdef cnp.ndarray compute_sssp_early_termination(
 
     # copy only the termination nodes' results into a numpy array
     cdef cnp.ndarray path_lengths = np.empty(target_count, dtype=DTYPE_PY)
-    cdef size_t i
     for i in range(target_count):
         path_lengths[i] = pqueue.Elements[termination_nodes[i]].key
 
@@ -267,7 +263,7 @@ cpdef cnp.ndarray compute_sssp_w_path(
     Returns
     -------
     path_lengths : cnp.ndarray
-        shortest path length for each termination node
+        shortest path length for each vertex
     """
 
     cdef:
@@ -316,11 +312,8 @@ cpdef cnp.ndarray compute_sssp_w_path(
                         pq.decrease_key(&pqueue, head_vert_idx, head_vert_val)
                         predecessor[head_vert_idx] = tail_vert_idx
 
-    # copy only the termination nodes' results into a numpy array
-    cdef cnp.ndarray path_lengths = np.empty(target_count, dtype=DTYPE_PY)
-    cdef size_t i
-    for i in range(target_count):
-        path_lengths[i] = pqueue.Elements[termination_nodes[i]].key
+    # copy the results into a numpy array
+    path_lengths = pq.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
 
     # cleanup
     pq.free_pqueue(&pqueue)
@@ -428,7 +421,6 @@ cpdef cnp.ndarray compute_sssp_w_path_early_termination(
 
     # copy only the termination nodes' results into a numpy array
     cdef cnp.ndarray path_lengths = np.empty(target_count, dtype=DTYPE_PY)
-    cdef size_t i
     for i in range(target_count):
         path_lengths[i] = pqueue.Elements[termination_nodes[i]].key
 
@@ -467,7 +459,7 @@ cpdef cnp.ndarray compute_stsp(
     Returns
     -------
     path_lengths : cnp.ndarray
-        shortest path length for each termination node
+        shortest path length for each vertex
     """
 
     cdef:
@@ -514,11 +506,8 @@ cpdef cnp.ndarray compute_stsp(
                     elif pqueue.Elements[tail_vert_idx].key > tail_vert_val:
                         pq.decrease_key(&pqueue, tail_vert_idx, tail_vert_val)
 
-    # copy only the termination nodes' results into a numpy array
-    cdef cnp.ndarray path_lengths = np.empty(target_count, dtype=DTYPE_PY)
-    cdef size_t i
-    for i in range(target_count):
-        path_lengths[i] = pqueue.Elements[termination_nodes[i]].key
+    # copy the results into a numpy array
+    path_lengths = pq.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
 
     # cleanup
     pq.free_pqueue(&pqueue)
@@ -556,7 +545,7 @@ cpdef cnp.ndarray compute_stsp_w_path(
     Returns
     -------
     path_lengths : cnp.ndarray
-        shortest path length for each termination node
+        shortest path length for each vertex
     """
 
     cdef:
@@ -605,11 +594,8 @@ cpdef cnp.ndarray compute_stsp_w_path(
                         pq.decrease_key(&pqueue, tail_vert_idx, tail_vert_val)
                         successor[tail_vert_idx] = head_vert_idx
 
-    # copy only the termination nodes' results into a numpy array
-    cdef cnp.ndarray path_lengths = np.empty(target_count, dtype=DTYPE_PY)
-    cdef size_t i
-    for i in range(target_count):
-        path_lengths[i] = pqueue.Elements[termination_nodes[i]].key
+    # copy the results into a numpy array
+    path_lengths = pq.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
 
     # cleanup
     pq.free_pqueue(&pqueue)
@@ -711,7 +697,6 @@ cpdef cnp.ndarray compute_stsp_early_termination(
 
     # copy only the termination nodes' results into a numpy array
     cdef cnp.ndarray path_lengths = np.empty(target_count, dtype=DTYPE_PY)
-    cdef size_t i
     for i in range(target_count):
         path_lengths[i] = pqueue.Elements[termination_nodes[i]].key
 
@@ -819,7 +804,6 @@ cpdef cnp.ndarray compute_stsp_w_path_early_termination(
 
     # copy only the termination nodes' results into a numpy array
     cdef cnp.ndarray path_lengths = np.empty(target_count, dtype=DTYPE_PY)
-    cdef size_t i
     for i in range(target_count):
         path_lengths[i] = pqueue.Elements[termination_nodes[i]].key
 
