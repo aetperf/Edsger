@@ -492,19 +492,25 @@ def test_dijkstra_early_termination_sssp(braess):
     # test with orientation="out" (SSSP)
     dij = Dijkstra(braess, orientation="out")
 
+    # run full algorithm to get reference
+    path_lengths_ref = dij.run(vertex_idx=0)
+
     # run with early termination - stop when vertices 1 and 3 are reached
     termination_nodes = [1, 3]
     path_lengths = dij.run(vertex_idx=0, termination_nodes=termination_nodes)
 
-    # compare with regular run (should give same results for all vertices)
-    path_lengths_ref = dij.run(vertex_idx=0)
-    assert np.allclose(path_lengths_ref, path_lengths)
+    # early termination returns only distances to termination nodes
+    expected_distances = [
+        path_lengths_ref[1],
+        path_lengths_ref[3],
+    ]  # distances to nodes 1 and 3
+    assert np.allclose(path_lengths, expected_distances)
 
     # test with path tracking
     path_lengths_tracked = dij.run(
         vertex_idx=0, termination_nodes=termination_nodes, path_tracking=True
     )
-    assert np.allclose(path_lengths_ref, path_lengths_tracked)
+    assert np.allclose(path_lengths_tracked, expected_distances)
 
 
 def test_dijkstra_early_termination_stsp(braess):
@@ -513,16 +519,83 @@ def test_dijkstra_early_termination_stsp(braess):
     # test with orientation="in" (STSP)
     dij = Dijkstra(braess, orientation="in")
 
+    # run full algorithm to get reference
+    path_lengths_ref = dij.run(vertex_idx=3)
+
     # run with early termination - stop when vertices 0 and 2 are reached
     termination_nodes = [0, 2]
     path_lengths = dij.run(vertex_idx=3, termination_nodes=termination_nodes)
 
-    # compare with regular run (should give same results for all vertices)
-    path_lengths_ref = dij.run(vertex_idx=3)
-    assert np.allclose(path_lengths_ref, path_lengths)
+    # early termination returns only distances from termination nodes
+    expected_distances = [
+        path_lengths_ref[0],
+        path_lengths_ref[2],
+    ]  # distances from nodes 0 and 2
+    assert np.allclose(path_lengths, expected_distances)
 
     # test with path tracking
     path_lengths_tracked = dij.run(
         vertex_idx=3, termination_nodes=termination_nodes, path_tracking=True
     )
-    assert np.allclose(path_lengths_ref, path_lengths_tracked)
+    assert np.allclose(path_lengths_tracked, expected_distances)
+
+
+def test_dijkstra_early_termination_sssp_only(braess):
+    """Test SSSP early termination without path tracking specifically."""
+
+    # test with orientation="out" (SSSP) without path tracking
+    dij = Dijkstra(braess, orientation="out")
+
+    # run full algorithm first to get reference
+    path_lengths_full = dij.run(vertex_idx=0, path_tracking=False)
+
+    # run with early termination - target specific nodes
+    termination_nodes = [2, 3]
+    path_lengths_early = dij.run(
+        vertex_idx=0, termination_nodes=termination_nodes, path_tracking=False
+    )
+
+    # verify correctness: early termination should return distances to termination nodes only
+    expected_distances = [
+        path_lengths_full[2],
+        path_lengths_full[3],
+    ]  # distances to nodes 2 and 3
+    assert np.allclose(path_lengths_early, expected_distances)
+
+    # test with single termination node
+    path_lengths_single = dij.run(
+        vertex_idx=0, termination_nodes=[1], path_tracking=False
+    )
+    expected_single = [path_lengths_full[1]]  # distance to node 1
+    assert np.allclose(path_lengths_single, expected_single)
+
+
+def test_dijkstra_early_termination_stsp_with_paths(braess):
+    """Test STSP early termination with path tracking specifically."""
+
+    # test with orientation="in" (STSP) with path tracking
+    dij = Dijkstra(braess, orientation="in")
+
+    # run full algorithm first to get reference
+    path_lengths_full = dij.run(vertex_idx=3, path_tracking=True)
+
+    # run with early termination and path tracking
+    termination_nodes = [1, 2]
+    path_lengths_early = dij.run(
+        vertex_idx=3, termination_nodes=termination_nodes, path_tracking=True
+    )
+
+    # verify correctness: early termination should return distances from termination nodes only
+    expected_distances = [
+        path_lengths_full[1],
+        path_lengths_full[2],
+    ]  # distances from nodes 1 and 2
+    assert np.allclose(path_lengths_early, expected_distances)
+
+    # verify path tracking works
+    assert dij.path_links is not None
+
+    # test path extraction for a node that was computed
+    # Note: for STSP, paths are from termination nodes to target
+    path_to_1 = dij.get_path(1)
+    assert path_to_1 is not None
