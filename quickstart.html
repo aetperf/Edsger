@@ -290,7 +290,7 @@
     <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
     <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
 <span class="p">})</span>
-<span class="n">edsges</span>
+<span class="n">edges</span>
 </pre></div>
 </div>
 <div class="table-wrapper colwidths-auto docutils container">
@@ -326,6 +326,7 @@
 </tbody>
 </table>
 </div>
+<p>Note that it is also possible to use a graph with different column names for the tail, head and weight values, but we need then to specify the name mapping, as described in the following.</p>
 </section>
 <section id="dijkstra-s-algorithm">
 <h2>Dijkstra’s Algorithm<a class="headerlink" href="#dijkstra-s-algorithm" title="Link to this heading">¶</a></h2>
@@ -341,15 +342,48 @@
 <span class="n">edges</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>|    |   tail |   head |   weight |
-|---:|-------:|-------:|---------:|
-|  0 |      0 |      1 |      1.0 |
-|  1 |      0 |      2 |      4.0 |
-|  2 |      1 |      2 |      2.0 |
-|  3 |      2 |      3 |      1.5 |
-|  4 |      2 |      4 |      3.0 |
-|  5 |      3 |      4 |      1.0 |
-</pre></div>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-right"><p></p></th>
+<th class="head text-right"><p>tail</p></th>
+<th class="head text-right"><p>head</p></th>
+<th class="head text-right"><p>weight</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-right"><p>0</p></td>
+<td class="text-right"><p>0</p></td>
+<td class="text-right"><p>1</p></td>
+<td class="text-right"><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td class="text-right"><p>1</p></td>
+<td class="text-right"><p>0</p></td>
+<td class="text-right"><p>2</p></td>
+<td class="text-right"><p>4.0</p></td>
+</tr>
+<tr class="row-even"><td class="text-right"><p>2</p></td>
+<td class="text-right"><p>1</p></td>
+<td class="text-right"><p>2</p></td>
+<td class="text-right"><p>2.0</p></td>
+</tr>
+<tr class="row-odd"><td class="text-right"><p>3</p></td>
+<td class="text-right"><p>2</p></td>
+<td class="text-right"><p>3</p></td>
+<td class="text-right"><p>1.5</p></td>
+</tr>
+<tr class="row-even"><td class="text-right"><p>4</p></td>
+<td class="text-right"><p>2</p></td>
+<td class="text-right"><p>4</p></td>
+<td class="text-right"><p>3.0</p></td>
+</tr>
+<tr class="row-odd"><td class="text-right"><p>5</p></td>
+<td class="text-right"><p>3</p></td>
+<td class="text-right"><p>4</p></td>
+<td class="text-right"><p>1.0</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize the Dijkstra object</span>
 <span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
@@ -363,7 +397,7 @@
 </pre></div>
 </div>
 <p>We get the shortest paths from the source node 0 to all other nodes in the graph. The output is an array with the shortest path length to each node. A path length is the sum of the weights of the edges in the path.</p>
-<p>It is also possible to use a graph with different column names for the tail, head and weight values. The column names can be specified using the <code class="docutils literal notranslate"><span class="pre">tail</span></code>, <code class="docutils literal notranslate"><span class="pre">head</span></code> and <code class="docutils literal notranslate"><span class="pre">weight</span></code> arguments:</p>
+<p>The column names can be specified using the <code class="docutils literal notranslate"><span class="pre">tail</span></code>, <code class="docutils literal notranslate"><span class="pre">head</span></code> and <code class="docutils literal notranslate"><span class="pre">weight</span></code> arguments:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">other_edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
     <span class="s1">&#39;from&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
     <span class="s1">&#39;to&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
@@ -477,9 +511,123 @@
 </pre></div>
 </div>
 </section>
+<section id="early-termination">
+<h3>Early Termination<a class="headerlink" href="#early-termination" title="Link to this heading">¶</a></h3>
+<p>Early termination is a performance optimization feature that allows Dijkstra’s algorithm to stop computing once specific target nodes (termination nodes) have been reached. This can significantly reduce computation time when you only need shortest paths to a subset of vertices in the graph.</p>
+<p>When using early termination, the algorithm will:</p>
+<ol class="arabic simple">
+<li><p>Stop as soon as all specified termination nodes have been visited</p></li>
+<li><p>Return <strong>only</strong> the path lengths to the termination nodes (not all vertices)</p></li>
+<li><p>Return results in the same order as the termination nodes were specified</p></li>
+</ol>
+<section id="basic-early-termination-example">
+<h4>Basic Early Termination Example<a class="headerlink" href="#basic-early-termination-example" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dijkstra</span>
+
+<span class="c1"># Create a sample graph</span>
+<span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;tail&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+    <span class="s2">&quot;head&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+    <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p><strong>Without early termination</strong> (computes paths to all vertices):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">)</span>
+<span class="n">distances</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;All distances:&quot;</span><span class="p">,</span> <span class="n">distances</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>All distances: [0. 1. 2. 2. 3. 3.]
+</pre></div>
+</div>
+<p><strong>With early termination</strong> (computes paths only to specified nodes):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Only compute paths to nodes 3 and 5</span>
+<span class="n">termination_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+<span class="n">distances</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">termination_nodes</span><span class="o">=</span><span class="n">termination_nodes</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Distances to termination nodes:&quot;</span><span class="p">,</span> <span class="n">distances</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shape of result:&quot;</span><span class="p">,</span> <span class="n">distances</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Distances to termination nodes: [2. 3.]
+Shape of result: (2,)
+</pre></div>
+</div>
+<p>Notice that:</p>
+<ul class="simple">
+<li><p>The result array has length 2 (same as number of termination nodes)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distances[0]</span> <span class="pre">=</span> <span class="pre">2.0</span></code> is the shortest path length from vertex 0 to vertex 3</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distances[1]</span> <span class="pre">=</span> <span class="pre">3.0</span></code> is the shortest path length from vertex 0 to vertex 5</p></li>
+</ul>
+</section>
+<section id="early-termination-with-path-tracking">
+<h4>Early Termination with Path Tracking<a class="headerlink" href="#early-termination-with-path-tracking" title="Link to this heading">¶</a></h4>
+<p>Early termination also works with path tracking enabled:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">)</span>
+<span class="n">distances</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">termination_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">path_tracking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Distances:&quot;</span><span class="p">,</span> <span class="n">distances</span><span class="p">)</span>
+
+<span class="c1"># Get paths to termination nodes</span>
+<span class="n">path_to_3</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">path_to_5</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Path to vertex 3:&quot;</span><span class="p">,</span> <span class="n">path_to_3</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Path to vertex 5:&quot;</span><span class="p">,</span> <span class="n">path_to_5</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Distances: [2. 3.]
+Path to vertex 3: [3 2 1 0]
+Path to vertex 5: [5 3 2 1 0]
+</pre></div>
+</div>
+</section>
+<section id="important-notes">
+<h4>Important Notes<a class="headerlink" href="#important-notes" title="Link to this heading">¶</a></h4>
+<ol class="arabic">
+<li><p><strong>Return Array Size</strong>: With early termination, the returned array size equals the number of termination nodes, not the total number of vertices in the graph.</p></li>
+<li><p><strong>Order Preservation</strong>: Results are returned in the same order as the termination nodes are specified:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Termination nodes [3, 5] → results [distance_to_3, distance_to_5]</span>
+<span class="c1"># Termination nodes [5, 3] → results [distance_to_5, distance_to_3]</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Orientation Support</strong>: Early termination works with both orientations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Single-source shortest paths (from source to termination nodes)</span>
+<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">)</span>
+<span class="n">distances</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">termination_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+
+<span class="c1"># Single-target shortest paths (from termination nodes to target)</span>
+<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">)</span> 
+<span class="n">distances</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">termination_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Unreachable Nodes</strong>: If a termination node is unreachable, its distance will be infinity:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># If node 10 is unreachable from node 0</span>
+<span class="n">distances</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">termination_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+<span class="c1"># Result: [2.0, inf]</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+</section>
 <section id="run-method-options">
 <h3>Run Method Options<a class="headerlink" href="#run-method-options" title="Link to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">run</span></code> method can take the following arguments besides the source/target vertex index:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">termination_nodes</span></code> : list or array-like, optional (default=None)</p></li>
+</ul>
+<p>A list or array of vertex indices where the algorithm should stop early. When specified, the algorithm will terminate as soon as all termination nodes have been reached, and will return only the path lengths to these nodes in the same order they were specified. This can provide significant performance improvements when you only need paths to a subset of vertices.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+<span class="c1"># Get distances only to nodes 2 and 4</span>
+<span class="n">distances</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">termination_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Distances to nodes 2 and 4:&quot;</span><span class="p">,</span> <span class="n">distances</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Distances to nodes 2 and 4: [1.5 3.5]
+</pre></div>
+</div>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">path_tracking</span></code> : bool, optional (default=False)</p></li>
 </ul>
@@ -499,6 +647,7 @@
 </pre></div>
 </div>
 <p>The path is returned as an array of vertex indices. This is an ordered list of vertices from the source to the target vertex if <code class="docutils literal notranslate"><span class="pre">orientation</span></code> is <code class="docutils literal notranslate"><span class="pre">'in'</span></code>, and from the target to the source vertex if <code class="docutils literal notranslate"><span class="pre">orientation</span></code> is <code class="docutils literal notranslate"><span class="pre">'out'</span></code>. Both the source and target vertices are included in the path.</p>
+<p><strong>Note</strong>: When using <code class="docutils literal notranslate"><span class="pre">termination_nodes</span></code> with <code class="docutils literal notranslate"><span class="pre">path_tracking=True</span></code>, you can still retrieve paths to any vertex that was reached during the computation using <code class="docutils literal notranslate"><span class="pre">get_path()</span></code>, even if it wasn’t in the termination nodes list.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">return_inf</span></code> : bool, optional (default=True)</p></li>
 </ul>
@@ -624,6 +773,12 @@
 <li><a class="reference internal" href="#run-multiple-times">Run Multiple Times</a></li>
 <li><a class="reference internal" href="#check-edges">Check Edges</a></li>
 <li><a class="reference internal" href="#permute">Permute</a></li>
+<li><a class="reference internal" href="#early-termination">Early Termination</a><ul>
+<li><a class="reference internal" href="#basic-early-termination-example">Basic Early Termination Example</a></li>
+<li><a class="reference internal" href="#early-termination-with-path-tracking">Early Termination with Path Tracking</a></li>
+<li><a class="reference internal" href="#important-notes">Important Notes</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#run-method-options">Run Method Options</a></li>
 </ul>
 </li>
