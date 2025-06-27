@@ -385,13 +385,15 @@ class Dijkstra:
             if self._permute:
                 termination_nodes_permuted = []
                 for termination_node in termination_nodes_array:
-                    try:
-                        termination_node_new = self._vertex_to_idx[termination_node]
-                        termination_nodes_permuted.append(termination_node_new)
-                    except KeyError:
+                    if termination_node not in self._permutation.vert_idx_old.values:
                         raise ValueError(
                             f"termination node {termination_node} not found in graph"
                         )
+                    termination_node_new = self._permutation.loc[
+                        self._permutation.vert_idx_old == termination_node,
+                        "vert_idx_new",
+                    ].iloc[0]
+                    termination_nodes_permuted.append(termination_node_new)
                 termination_nodes_array = np.array(
                     termination_nodes_permuted, dtype=np.uint32
                 )
@@ -544,7 +546,7 @@ class Dijkstra:
 
         # reorder path lengths
         if return_series:
-            if self._permute:
+            if self._permute and termination_nodes_array is None:
                 self._permutation["path_length"] = path_length_values
                 path_lengths_df = self._permutation[
                     ["vert_idx_old", "path_length"]
@@ -556,8 +558,15 @@ class Dijkstra:
                 path_lengths_series = pd.Series(path_length_values)
                 path_lengths_series.index.name = "vertex_idx"
                 path_lengths_series.name = "path_length"
+                if self._permute and termination_nodes_array is not None:
+                    # For early termination with permutation, use original termination node indices
+                    path_lengths_series.index = termination_nodes
 
             return path_lengths_series
+
+        # For early termination, return results directly (already in correct order)
+        if termination_nodes_array is not None:
+            return path_length_values
 
         if self._permute:
             self._permutation["path_length"] = path_length_values

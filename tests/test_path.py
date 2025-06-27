@@ -599,3 +599,69 @@ def test_dijkstra_early_termination_stsp_with_paths(braess):
     # Note: for STSP, paths are from termination nodes to target
     path_to_1 = dij.get_path(1)
     assert path_to_1 is not None
+
+
+def test_dijkstra_early_termination_sssp_permute_true(braess):
+    """Test SSSP early termination functionality with permute=True."""
+
+    # test with orientation="out" (SSSP) and permute=True
+    dij = Dijkstra(braess, orientation="out", permute=True)
+
+    # run full algorithm to get reference
+    path_lengths_ref = dij.run(vertex_idx=0)
+
+    # run with early termination - stop when vertices 1 and 3 are reached
+    termination_nodes = [1, 3]
+    path_lengths = dij.run(vertex_idx=0, termination_nodes=termination_nodes)
+
+    # early termination returns only distances to termination nodes
+    expected_distances = [
+        path_lengths_ref[1],
+        path_lengths_ref[3],
+    ]  # distances to nodes 1 and 3
+    assert np.allclose(path_lengths, expected_distances)
+
+    # test with single termination node
+    path_lengths_single = dij.run(vertex_idx=0, termination_nodes=[2])
+    expected_single = [path_lengths_ref[2]]  # distance to node 2
+    assert np.allclose(path_lengths_single, expected_single)
+
+    # verify that results with permute=True match permute=False results
+    dij_no_permute = Dijkstra(braess, orientation="out", permute=False)
+    path_lengths_no_permute = dij_no_permute.run(
+        vertex_idx=0, termination_nodes=termination_nodes
+    )
+    assert np.allclose(path_lengths, path_lengths_no_permute)
+
+
+def test_dijkstra_early_termination_stsp_permute_true(braess):
+    """Test STSP early termination functionality with permute=True."""
+
+    # test with orientation="in" (STSP) and permute=True
+    dij = Dijkstra(braess, orientation="in", permute=True)
+
+    # run full algorithm to get reference
+    path_lengths_ref = dij.run(vertex_idx=3)
+
+    # run with early termination - stop when vertices 0 and 2 are reached
+    termination_nodes = [0, 2]
+    path_lengths = dij.run(vertex_idx=3, termination_nodes=termination_nodes)
+
+    # early termination returns only distances from termination nodes
+    expected_distances = [
+        path_lengths_ref[0],
+        path_lengths_ref[2],
+    ]  # distances from nodes 0 and 2
+    assert np.allclose(path_lengths, expected_distances)
+
+    # test with single termination node
+    path_lengths_single = dij.run(vertex_idx=3, termination_nodes=[1])
+    expected_single = [path_lengths_ref[1]]  # distance from node 1
+    assert np.allclose(path_lengths_single, expected_single)
+
+    # verify that results with permute=True match permute=False results
+    dij_no_permute = Dijkstra(braess, orientation="in", permute=False)
+    path_lengths_no_permute = dij_no_permute.run(
+        vertex_idx=3, termination_nodes=termination_nodes
+    )
+    assert np.allclose(path_lengths, path_lengths_no_permute)
