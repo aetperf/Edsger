@@ -235,46 +235,6 @@ print("Path to vertex 5:", path_to_5)
     Path to vertex 3: [3 2 1 0]
     Path to vertex 5: [5 3 2 1 0]
 
-#### Performance Benefits
-
-Early termination provides significant performance benefits when:
-- You only need paths to a small subset of vertices
-- The termination nodes are relatively close to the source
-- You're working with large graphs
-
-```python
-import time
-
-# Large example - create a grid-like graph
-large_edges = []
-for i in range(100):
-    for j in range(100):
-        node_id = i * 100 + j
-        # Add horizontal edges
-        if j < 99:
-            large_edges.append({'tail': node_id, 'head': node_id + 1, 'weight': 1.0})
-        # Add vertical edges  
-        if i < 99:
-            large_edges.append({'tail': node_id, 'head': node_id + 100, 'weight': 1.0})
-
-large_graph = pd.DataFrame(large_edges)
-dijkstra_large = Dijkstra(large_graph, orientation="out")
-
-# Compare performance: all paths vs early termination
-start_time = time.time()
-all_distances = dijkstra_large.run(vertex_idx=0)
-time_all = time.time() - start_time
-
-start_time = time.time()
-early_distances = dijkstra_large.run(vertex_idx=0, termination_nodes=[50, 150, 250])
-time_early = time.time() - start_time
-
-print(f"All paths computation time: {time_all:.4f} seconds")
-print(f"Early termination time: {time_early:.4f} seconds")
-print(f"Speedup: {time_all/time_early:.2f}x")
-print(f"Result shape - All: {all_distances.shape}, Early: {early_distances.shape}")
-```
-
 #### Important Notes
 
 1. **Return Array Size**: With early termination, the returned array size equals the number of termination nodes, not the total number of vertices in the graph.
