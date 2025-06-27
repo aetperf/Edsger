@@ -382,7 +382,7 @@ class Dijkstra:
                 raise ValueError("argument 'termination_nodes' must not be empty")
 
             # handle vertex permutation if needed
-            if self._permutation is not None:
+            if self._permute:
                 termination_nodes_permuted = []
                 for termination_node in termination_nodes_array:
                     try:
