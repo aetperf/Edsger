@@ -33,6 +33,8 @@ edges
 |  3 |      2 |      3 |        1 |
 
 
+Note that it is also possible to use a graph with different column names for the tail, head and weight values, but we need then to specify the name mapping, as described in the following.
+
 ## Dijkstra's Algorithm
 
 To use Dijkstra's algorithm, you can import the `Dijkstra` class from the `path` module. The function takes a graph and a source node as input, and returns the shortest path from the source node to all other nodes in the graph.
@@ -72,7 +74,7 @@ print("Shortest paths:", shortest_paths)
 
 We get the shortest paths from the source node 0 to all other nodes in the graph. The output is an array with the shortest path length to each node. A path length is the sum of the weights of the edges in the path.
 
-It is also possible to use a graph with different column names for the tail, head and weight values. The column names can be specified using the `tail`, `head` and `weight` arguments:
+The column names can be specified using the `tail`, `head` and `weight` arguments:
 
 ```python
 other_edges = pd.DataFrame({
