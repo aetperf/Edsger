@@ -37,6 +37,7 @@ jobs:
       run: |
         pytest --cov=src/edsger --cov-branch --cov-report=xml tests/
     - name: Upload results to Codecov
+      if: matrix.os == 'ubuntu-22.04' && matrix.python-version == '3.11'
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
