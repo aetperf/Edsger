@@ -1,0 +1,79 @@
+{
+  "timestamp": "2025-07-13T17:25:09.487622",
+  "os": "linux",
+  "system_info": {
+    "python_version": "3.13.5",
+    "platform": "Linux-5.15.0-143-generic-x86_64-with-glibc2.35",
+    "processor": "x86_64",
+    "os_name": "Linux",
+    "conda_version": "conda 23.11.0",
+    "edsger_version": "0.1.3.post1.dev1+g499b298.d20250630",
+    "networkit_version": "11.1.post1",
+    "graph-tool_version": "2.97 (commit 4f33d8da, )",
+    "scipy_version": "1.16.0",
+    "numpy_version": "2.3.1",
+    "pandas_version": "2.3.0",
+    "available_packages": [
+      "edsger",
+      "networkit",
+      "graph-tool",
+      "scipy",
+      "numpy",
+      "pandas"
+    ]
+  },
+  "benchmark_results": [
+    {
+      "library": "E",
+      "times": [
+        2.4788,
+        2.4825,
+        2.4971,
+        2.4699,
+        2.481
+      ],
+      "min_time": 2.4699,
+      "avg_time": 2.48186,
+      "std_time": 0.00878421311216893,
+      "total_duration": 15.997144937515259
+    },
+    {
+      "library": "NK",
+      "times": [
+        5.0801,
+        4.991,
+        4.9761,
+        4.9891,
+        4.9936
+      ],
+      "min_time": 4.9761,
+      "avg_time": 5.00598,
+      "std_time": 0.03754780419678365,
+      "total_duration": 30.608720064163208
+    },
+    {
+      "library": "GT",
+      "times": [
+        5.6425,
+        5.6535,
+        5.7225,
+        5.7488,
+        5.5663
+      ],
+      "min_time": 5.5663,
+      "avg_time": 5.66672,
+      "std_time": 0.06433364283172534,
+      "total_duration": 36.41926598548889
+    },
+    {
+      "library": "SciPy",
+      "times": [
+        2.9716
+      ],
+      "min_time": 2.9716,
+      "avg_time": 2.9716,
+      "std_time": 0.0,
+      "total_duration": 19.49383044242859
+    }
+  ]
+}
