@@ -153,7 +153,9 @@ else:
     sys.exit()
 
 # locate the parquet file
-network_file_path = os.path.join(data_dir, os.path.join(reg, f"USA-road-t.{reg}.gr.parquet"))
+network_file_path = os.path.join(
+    data_dir, os.path.join(reg, f"USA-road-t.{reg}.gr.parquet")
+)
 network_file_found = os.path.exists(network_file_path)
 if network_file_found:
     logger.info(f"network file path : {network_file_path}")

@@ -96,7 +96,8 @@ def run_benchmark(library, repeat=5, data_dir=None, network_name="USA"):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.dirname(script_dir)
 
-    # For SciPy, we need to run with -c flag to get SciPy timing
+    # For SciPy, we need to run Edsger with -c flag multiple times to get SciPy timing
+    # (SciPy only runs once per dijkstra_dimacs.py call when using -c)
     if library == "SciPy":
         cmd = [
             sys.executable,
@@ -106,7 +107,7 @@ def run_benchmark(library, repeat=5, data_dir=None, network_name="USA"):
             "-l",
             "E",  # Run Edsger but with -c to get SciPy comparison
             "-r",
-            str(repeat),
+            "1",  # Run only 1 iteration of Edsger per call
             "-c",
         ]
     else:
@@ -134,59 +135,82 @@ def run_benchmark(library, repeat=5, data_dir=None, network_name="USA"):
         print(f"[DEBUG] Working directory: {os.getcwd()}")
         print(f"[DEBUG] Project root: {project_root}")
 
-        start_time = time.time()
-        result = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=600, env=env
-        )
-        end_time = time.time()
-
-        print(f"[DEBUG] Return code: {result.returncode}")
-        print(f"[DEBUG] Stdout length: {len(result.stdout)}")
-        print(f"[DEBUG] Stderr length: {len(result.stderr)}")
-
-        if result.returncode != 0:
-            print(f"[ERROR] {library} benchmark failed!")
-            print(f"[ERROR] stderr: {result.stderr}")
-            print(f"[DEBUG] stdout: {result.stdout}")
-            return None
-
-        # Parse output to extract timing information
-        # The output might be in stderr due to logging configuration
-        output_text = result.stdout + result.stderr
-        lines = output_text.strip().split("\n")
         times = []
+        total_start_time = time.time()
 
-        # Map library codes to full names used in output
-        library_names = {
-            "E": "Edsger",
-            "NK": "NetworKit",
-            "GT": "graph-tool",
-            "SciPy": "SciPy",
-        }
+        # For SciPy, we need to run the command multiple times since SciPy only runs once per call
+        iterations = repeat if library == "SciPy" else 1
 
-        expected_name = library_names.get(library, library)
+        for iteration in range(iterations):
+            if library == "SciPy":
+                print(f"[DEBUG] SciPy iteration {iteration + 1}/{iterations}")
 
-        for line in lines:
-            if f"{expected_name} Dijkstra" in line and "Elapsed time:" in line:
-                # Extract time from line like "Edsger Dijkstra 1/5 - Elapsed time:   2.5410 s"
-                parts = line.split("Elapsed time:")
-                if len(parts) > 1:
-                    time_str = parts[1].strip().split()[0]
-                    try:
-                        elapsed_time = float(time_str)
-                        times.append(elapsed_time)
-                    except ValueError:
-                        continue
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=600, env=env
+            )
+
+            print(f"[DEBUG] Return code: {result.returncode}")
+            if iteration == 0:  # Only print lengths for first iteration to avoid spam
+                print(f"[DEBUG] Stdout length: {len(result.stdout)}")
+                print(f"[DEBUG] Stderr length: {len(result.stderr)}")
+
+            if result.returncode != 0:
+                print(f"[ERROR] {library} benchmark failed!")
+                print(f"[ERROR] stderr: {result.stderr}")
+                print(f"[DEBUG] stdout: {result.stdout}")
+                return None
+
+            # Parse output to extract timing information
+            # The output might be in stderr due to logging configuration
+            output_text = result.stdout + result.stderr
+            lines = output_text.strip().split("\n")
+
+            # Map library codes to full names used in output
+            library_names = {
+                "E": "Edsger",
+                "NK": "NetworKit",
+                "GT": "graph-tool",
+                "SciPy": "SciPy",
+            }
+
+            expected_name = library_names.get(library, library)
+
+            for line in lines:
+                if library == "SciPy":
+                    # For SciPy, look for the pattern from the check_result section
+                    # "SciPy Dijkstra - Elapsed time: 1.2345 s" (no trial number)
+                    if "SciPy Dijkstra - Elapsed time:" in line:
+                        parts = line.split("Elapsed time:")
+                        if len(parts) > 1:
+                            time_str = parts[1].strip().split()[0]
+                            try:
+                                elapsed_time = float(time_str)
+                                times.append(elapsed_time)
+                                break  # Only one SciPy timing per run
+                            except ValueError:
+                                continue
+                else:
+                    # For other libraries, look for the pattern with trial numbers
+                    # "Edsger Dijkstra 1/5 - Elapsed time:   2.5410 s"
+                    if (
+                        f"{expected_name} Dijkstra" in line
+                        and "Elapsed time:" in line
+                        and "/" in line
+                    ):
+                        parts = line.split("Elapsed time:")
+                        if len(parts) > 1:
+                            time_str = parts[1].strip().split()[0]
+                            try:
+                                elapsed_time = float(time_str)
+                                times.append(elapsed_time)
+                            except ValueError:
+                                continue
+
+        total_end_time = time.time()
 
         if not times:
             print(f"[WARNING] Could not parse timing data for {library}")
             print(f"[DEBUG] Expected pattern: '{expected_name} Dijkstra'")
-            print(f"[DEBUG] Sample output lines:")
-            for i, line in enumerate(lines[-20:]):  # Show last 20 lines
-                if "Dijkstra" in line or "elapsed" in line or "Elapsed" in line:
-                    print(f"[DEBUG]   TIMING: {line}")
-                elif i < 5:  # Show first few lines regardless
-                    print(f"[DEBUG]   {line}")
             return None
 
         min_time = min(times)
@@ -203,7 +227,7 @@ def run_benchmark(library, repeat=5, data_dir=None, network_name="USA"):
             "min_time": min_time,
             "avg_time": avg_time,
             "std_time": std_time,
-            "total_duration": end_time - start_time,
+            "total_duration": total_end_time - total_start_time,
         }
 
     except subprocess.TimeoutExpired:
