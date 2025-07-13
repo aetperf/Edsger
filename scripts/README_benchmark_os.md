@@ -45,8 +45,7 @@ python plot_benchmark_comparison.py
 ```
 
 This will create:
-- Individual plots for each OS: `dijkstra_benchmark_comparison_linux.png`, etc.
-- Combined comparison plot (if multiple OS): `dijkstra_dimacs_comparison.png`
+- Combined comparison plot: `dijkstra_benchmark_comparison.png`
 
 ## Features
 
@@ -62,9 +61,7 @@ This will create:
   - Examples: `benchmark_dimacs_USA_linux.json`, `benchmark_dimacs_COL_windows.json`
 
 ### Plot files
-- `dijkstra_benchmark_comparison_linux.png` - Linux-only results
-- `dijkstra_benchmark_comparison_windows.png` - Windows-only results
-- `dijkstra_dimacs_comparison.png` - Multi-OS comparison plot
+- `dijkstra_benchmark_comparison.png` - Comparison plot (shows all available OS results)
 
 ## Notes
 
