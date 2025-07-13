@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-07-13T18:24:39.462877",
+  "timestamp": "2025-07-13T19:21:05.375148",
   "os": "windows",
   "network": "USA",
   "system_info": {
@@ -8,7 +8,7 @@
     "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
     "os_name": "Windows",
     "conda_version": "conda 25.5.1",
-    "edsger_version": "0.1.3.post1.dev3+g5a040d9",
+    "edsger_version": "0.1.3.post1.dev18+g8b55a18",
     "networkit_version": "11.1",
     "graph-tool_version": "Not available on Windows",
     "scipy_version": "1.16.0",
@@ -26,44 +26,44 @@
     {
       "library": "E",
       "times": [
-        6.006,
-        6.0315,
-        6.0479,
-        6.0021,
-        5.9999
+        5.0175,
+        5.1413,
+        4.9346,
+        4.9968,
+        4.9384
       ],
-      "min_time": 5.9999,
-      "avg_time": 6.01748,
-      "std_time": 0.018970123879405734,
-      "total_duration": 33.860532999038696
+      "min_time": 4.9346,
+      "avg_time": 5.005719999999999,
+      "std_time": 0.07508702684219178,
+      "total_duration": 29.024985790252686
     },
     {
       "library": "NK",
       "times": [
-        8.3706,
-        8.3614,
-        8.4021,
-        8.3289,
-        8.395
+        8.5646,
+        8.3027,
+        8.3273,
+        8.288,
+        8.2824
       ],
-      "min_time": 8.3289,
-      "avg_time": 8.3716,
-      "std_time": 0.026100344825308194,
-      "total_duration": 57.80853009223938
+      "min_time": 8.2824,
+      "avg_time": 8.353000000000002,
+      "std_time": 0.10693409185100894,
+      "total_duration": 58.34512186050415
     },
     {
       "library": "SciPy",
       "times": [
-        4.4298,
-        4.3723,
-        4.3928,
-        4.333,
-        4.3806
+        4.323,
+        4.3161,
+        4.3183,
+        4.3171,
+        4.345
       ],
-      "min_time": 4.333,
-      "avg_time": 4.3817,
-      "std_time": 0.031298817869050595,
-      "total_duration": 76.72221875190735
+      "min_time": 4.3161,
+      "avg_time": 4.3239,
+      "std_time": 0.010811660372024252,
+      "total_duration": 71.14538168907166
     }
   ]
 }
