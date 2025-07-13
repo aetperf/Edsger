@@ -68,9 +68,13 @@ if errorlevel 1 (
 ) else (
     echo [INFO] GCC detected! Will use GCC toolchain (same as SciPy^)
     echo [INFO] Setting GCC optimization environment variables...
+    set "CC=gcc"
+    set "CXX=g++"
     set "CFLAGS=-Ofast -flto -march=native -ffast-math -funroll-loops"
     set "CXXFLAGS=-Ofast -flto -march=native -ffast-math -funroll-loops"
     set "LDFLAGS=-flto"
+    echo [INFO] CC: %CC%
+    echo [INFO] CXX: %CXX%
     echo [INFO] CFLAGS: %CFLAGS%
     echo [INFO] CXXFLAGS: %CXXFLAGS%
     echo [INFO] LDFLAGS: %LDFLAGS%

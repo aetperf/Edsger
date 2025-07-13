@@ -3,6 +3,7 @@
 import platform
 import subprocess
 import sys
+import os
 import numpy as np
 from Cython.Build import cythonize
 from setuptools import Extension, setup
@@ -33,6 +34,11 @@ if platform.system() == "Windows":
     # Try to use GCC first (like SciPy does), fall back to MSVC
     if detect_gcc_on_windows():
         print("[INFO] Using GCC toolchain on Windows (same as SciPy)")
+
+        # Force setuptools to use GCC instead of MSVC
+        os.environ["CC"] = "gcc"
+        os.environ["CXX"] = "g++"
+
         # Use same GCC flags as Linux for consistency with SciPy
         extra_compile_args = [
             "-Ofast",

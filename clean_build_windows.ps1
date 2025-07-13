@@ -61,9 +61,13 @@ try {
     if ($LASTEXITCODE -eq 0) {
         Write-Host "[INFO] GCC detected! Will use GCC toolchain (same as SciPy)" -ForegroundColor Green
         Write-Host "[INFO] Setting GCC optimization environment variables..." -ForegroundColor Yellow
+        $env:CC = "gcc"
+        $env:CXX = "g++"
         $env:CFLAGS = "-Ofast -flto -march=native -ffast-math -funroll-loops"
         $env:CXXFLAGS = "-Ofast -flto -march=native -ffast-math -funroll-loops" 
         $env:LDFLAGS = "-flto"
+        Write-Host "[INFO] CC: $env:CC" -ForegroundColor Cyan
+        Write-Host "[INFO] CXX: $env:CXX" -ForegroundColor Cyan
         Write-Host "[INFO] CFLAGS: $env:CFLAGS" -ForegroundColor Cyan
         Write-Host "[INFO] CXXFLAGS: $env:CXXFLAGS" -ForegroundColor Cyan
         Write-Host "[INFO] LDFLAGS: $env:LDFLAGS" -ForegroundColor Cyan
