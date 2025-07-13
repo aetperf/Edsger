@@ -53,14 +53,31 @@ if (Test-Path "src\edsger") {
     Write-Host "[INFO] Removed Cython-generated C files and compiled extensions" -ForegroundColor Green
 }
 
-# Step 2: Set optimal MSVC environment variables
-Write-Host "[INFO] Setting MSVC optimization environment variables..." -ForegroundColor Yellow
+# Step 2: Check for GCC and set optimal environment variables
+Write-Host "[INFO] Checking for available compilers..." -ForegroundColor Yellow
 
-$env:CL = "/O2 /Ot /GL /favor:INTEL64 /fp:fast /GS- /Gy /arch:AVX2"
-$env:LINK = "/LTCG /OPT:REF /OPT:ICF"
-
-Write-Host "[INFO] CL: $env:CL" -ForegroundColor Cyan
-Write-Host "[INFO] LINK: $env:LINK" -ForegroundColor Cyan
+try {
+    $gccVersion = gcc --version 2>$null
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "[INFO] GCC detected! Will use GCC toolchain (same as SciPy)" -ForegroundColor Green
+        Write-Host "[INFO] Setting GCC optimization environment variables..." -ForegroundColor Yellow
+        $env:CFLAGS = "-Ofast -flto -march=native -ffast-math -funroll-loops"
+        $env:CXXFLAGS = "-Ofast -flto -march=native -ffast-math -funroll-loops" 
+        $env:LDFLAGS = "-flto"
+        Write-Host "[INFO] CFLAGS: $env:CFLAGS" -ForegroundColor Cyan
+        Write-Host "[INFO] CXXFLAGS: $env:CXXFLAGS" -ForegroundColor Cyan
+        Write-Host "[INFO] LDFLAGS: $env:LDFLAGS" -ForegroundColor Cyan
+    } else {
+        throw "GCC not found"
+    }
+} catch {
+    Write-Host "[INFO] GCC not found, using MSVC optimization environment variables..." -ForegroundColor Yellow
+    $env:CL = "/O2 /Ot /GL /favor:INTEL64 /fp:fast /GS- /Gy /arch:AVX2"
+    $env:LINK = "/LTCG /OPT:REF /OPT:ICF"
+    Write-Host "[INFO] CL: $env:CL" -ForegroundColor Cyan
+    Write-Host "[INFO] LINK: $env:LINK" -ForegroundColor Cyan
+    Write-Host "[INFO] Note: For potentially better performance, consider installing MinGW-w64" -ForegroundColor Yellow
+}
 Write-Host ""
 
 # Step 3: Build extensions in place

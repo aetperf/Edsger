@@ -1,37 +1,74 @@
 """setup python file for edsger."""
 
 import platform
+import subprocess
+import sys
 import numpy as np
 from Cython.Build import cythonize
 from setuptools import Extension, setup
 
+
+def detect_gcc_on_windows():
+    """Detect if GCC (MinGW) is available on Windows."""
+    if platform.system() != "Windows":
+        return False
+
+    try:
+        result = subprocess.run(
+            ["gcc", "--version"], capture_output=True, text=True, timeout=10
+        )
+        if result.returncode == 0:
+            gcc_version = result.stdout.split("\n")[0]
+            print(f"[INFO] Detected GCC on Windows: {gcc_version}")
+            return True
+    except (subprocess.TimeoutExpired, FileNotFoundError, subprocess.SubprocessError):
+        pass
+
+    print("[INFO] GCC not found on Windows, using MSVC")
+    return False
+
+
 # Platform-specific compiler optimizations
 if platform.system() == "Windows":
-    # MSVC compiler flags for Windows
-    extra_compile_args = [
-        "/O2",  # Maximum optimizations (speed)
-        "/Ot",  # Favor fast code over small code
-        "/GL",  # Whole program optimization
-        "/favor:INTEL64",  # Optimize for 64-bit Intel processors
-        "/fp:fast",  # Fast floating-point model
-        "/GS-",  # Disable buffer security checks for performance
-        "/Gy",  # Enable function-level linking
-    ]
-    extra_link_args = [
-        "/LTCG",  # Link-time code generation
-        "/OPT:REF",  # Remove unreferenced functions/data
-        "/OPT:ICF",  # Enable COMDAT folding
-    ]
+    # Try to use GCC first (like SciPy does), fall back to MSVC
+    if detect_gcc_on_windows():
+        print("[INFO] Using GCC toolchain on Windows (same as SciPy)")
+        # Use same GCC flags as Linux for consistency with SciPy
+        extra_compile_args = [
+            "-Ofast",
+            "-flto",
+            "-march=native",
+            "-ffast-math",
+            "-funroll-loops",
+        ]
+        extra_link_args = ["-flto"]
+        compiler_type = "GCC"
+    else:
+        print("[INFO] Using MSVC toolchain on Windows")
+        # MSVC compiler flags for Windows
+        extra_compile_args = [
+            "/O2",  # Maximum optimizations (speed)
+            "/Ot",  # Favor fast code over small code
+            "/GL",  # Whole program optimization
+            "/favor:INTEL64",  # Optimize for 64-bit Intel processors
+            "/fp:fast",  # Fast floating-point model
+            "/GS-",  # Disable buffer security checks for performance
+            "/Gy",  # Enable function-level linking
+        ]
+        extra_link_args = [
+            "/LTCG",  # Link-time code generation
+            "/OPT:REF",  # Remove unreferenced functions/data
+            "/OPT:ICF",  # Enable COMDAT folding
+        ]
 
-    # Try to add AVX2 support if available (might not be supported on all Windows versions)
-    try:
-        import subprocess
+        # Try to add AVX2 support if available
+        try:
+            extra_compile_args.append("/arch:AVX2")
+        except:
+            # Fall back to SSE2 which is widely supported
+            extra_compile_args.append("/arch:SSE2")
 
-        # Check if we can use AVX2
-        extra_compile_args.append("/arch:AVX2")
-    except:
-        # Fall back to SSE2 which is widely supported
-        extra_compile_args.append("/arch:SSE2")
+        compiler_type = "MSVC"
 
 elif platform.system() == "Darwin":
     # Clang flags for macOS
@@ -43,6 +80,7 @@ elif platform.system() == "Darwin":
         "-funroll-loops",
     ]
     extra_link_args = ["-flto"]
+    compiler_type = "Clang"
 else:
     # GCC flags for Linux and other Unix-like systems
     extra_compile_args = [
@@ -53,8 +91,10 @@ else:
         "-funroll-loops",
     ]
     extra_link_args = ["-flto"]
+    compiler_type = "GCC"
 
-print(f"Building for {platform.system()} with compiler args: {extra_compile_args}")
+print(f"Building for {platform.system()} with {compiler_type}")
+print(f"Compiler args: {extra_compile_args}")
 print(f"Link args: {extra_link_args}")
 
 extensions = [

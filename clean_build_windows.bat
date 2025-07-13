@@ -54,17 +54,27 @@ del /q src\edsger\*.pyd 2>nul
 del /q src\edsger\*.html 2>nul
 echo [INFO] Removed Cython-generated C files and compiled extensions
 
-REM Step 2: Set optimal MSVC environment variables
-echo [INFO] Setting MSVC optimization environment variables...
+REM Step 2: Check for GCC and set optimal environment variables
+echo [INFO] Checking for available compilers...
 
-set "CL=/O2 /Ot /GL /favor:INTEL64 /fp:fast /GS- /Gy /arch:AVX2"
-set "LINK=/LTCG /OPT:REF /OPT:ICF"
-
-REM Fallback to SSE2 if AVX2 causes issues
-REM set "CL=/O2 /Ot /GL /favor:INTEL64 /fp:fast /GS- /Gy /arch:SSE2"
-
-echo [INFO] CL: %CL%
-echo [INFO] LINK: %LINK%
+gcc --version >nul 2>&1
+if errorlevel 1 (
+    echo [INFO] GCC not found, using MSVC optimization environment variables...
+    set "CL=/O2 /Ot /GL /favor:INTEL64 /fp:fast /GS- /Gy /arch:AVX2"
+    set "LINK=/LTCG /OPT:REF /OPT:ICF"
+    echo [INFO] CL: %CL%
+    echo [INFO] LINK: %LINK%
+    echo [INFO] Note: For potentially better performance, consider installing MinGW-w64
+) else (
+    echo [INFO] GCC detected! Will use GCC toolchain (same as SciPy^)
+    echo [INFO] Setting GCC optimization environment variables...
+    set "CFLAGS=-Ofast -flto -march=native -ffast-math -funroll-loops"
+    set "CXXFLAGS=-Ofast -flto -march=native -ffast-math -funroll-loops"
+    set "LDFLAGS=-flto"
+    echo [INFO] CFLAGS: %CFLAGS%
+    echo [INFO] CXXFLAGS: %CXXFLAGS%
+    echo [INFO] LDFLAGS: %LDFLAGS%
+)
 echo.
 
 REM Step 3: Build extensions in place

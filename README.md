@@ -67,17 +67,31 @@ pip install edsger
 
 ### Windows Performance Optimization
 
-For optimal performance on Windows, we recommend building from source with MSVC optimizations:
+For optimal performance on Windows, we recommend using the same GCC toolchain as SciPy:
 
+#### Option 1: GCC Toolchain (Recommended)
+```bash
+# Install MinGW-w64 (see INSTALL_MINGW_WINDOWS.md for details)
+conda install -c conda-forge m2w64-toolchain
+
+# Build with GCC (same as SciPy)
+git clone https://github.com/aetperf/edsger.git
+cd edsger
+pip install -e .
+```
+
+#### Option 2: MSVC Optimizations (Fallback)
 ```bash
 git clone https://github.com/aetperf/edsger.git
 cd edsger
 pip install -e .
 ```
 
-The updated build system automatically detects Windows and applies MSVC-specific compiler flags for maximum performance. For more details, see [WINDOWS_OPTIMIZATION.md](WINDOWS_OPTIMIZATION.md).
+The build system automatically detects the best available compiler and applies appropriate optimizations. For more details, see [WINDOWS_OPTIMIZATION.md](WINDOWS_OPTIMIZATION.md).
 
-**Performance improvement**: Up to 50% faster on Windows compared to the standard build.
+**Performance improvement**: 
+- **With GCC**: Target 1.4-1.6x slower than Linux (vs current 2.0x)
+- **With MSVC**: Up to 50% faster than unoptimized builds
 
 ## Why Use Edsger?
 
