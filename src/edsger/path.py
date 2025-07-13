@@ -32,6 +32,11 @@ from edsger.star import (
     convert_graph_to_csr_float64,
     convert_graph_to_csr_uint32,
 )
+from edsger.bfs_reorder import (
+    bfs_reorder_from_source,
+    bfs_reorder_from_target,
+    create_reorder_permutation,
+)
 
 
 class Dijkstra:
@@ -282,6 +287,52 @@ class Dijkstra:
         if orientation not in ["in", "out"]:
             raise ValueError("orientation should be either 'in' on 'out'")
 
+    def _apply_vertex_reordering(self, permutation):
+        """Apply vertex reordering to the graph structure efficiently."""
+        # Create inverse permutation for mapping vertices
+        inverse_perm = np.empty_like(permutation)
+        inverse_perm[permutation] = np.arange(len(permutation))
+
+        # Reorder the indices array (map old vertex IDs to new vertex IDs)
+        self.__indices = inverse_perm[self.__indices]
+
+        # Create new indptr by reordering the adjacency structure efficiently
+        new_indptr = np.zeros_like(self.__indptr)
+        new_indices = np.empty_like(self.__indices)
+        new_edge_weights = np.empty_like(self.__edge_weights)
+
+        # Create efficient inverse permutation lookup O(n) once
+        inverse_vertex_map = np.empty(self._n_vertices, dtype=np.int32)
+        for old_vertex in range(self._n_vertices):
+            new_vertex = permutation[old_vertex]
+            inverse_vertex_map[new_vertex] = old_vertex
+
+        edge_idx = 0
+        for new_vertex in range(self._n_vertices):
+            # Get the original vertex for this new position - O(1) lookup
+            old_vertex = inverse_vertex_map[new_vertex]
+
+            # Copy edges from the original vertex
+            start_idx = self.__indptr[old_vertex]
+            end_idx = self.__indptr[old_vertex + 1]
+            num_edges = end_idx - start_idx
+
+            new_indptr[new_vertex + 1] = new_indptr[new_vertex] + num_edges
+
+            if num_edges > 0:
+                new_indices[edge_idx : edge_idx + num_edges] = self.__indices[
+                    start_idx:end_idx
+                ]
+                new_edge_weights[edge_idx : edge_idx + num_edges] = self.__edge_weights[
+                    start_idx:end_idx
+                ]
+                edge_idx += num_edges
+
+        # Update the arrays
+        self.__indptr = new_indptr
+        self.__indices = new_indices
+        self.__edge_weights = new_edge_weights
+
     def run(
         self,
         vertex_idx,
@@ -290,6 +341,7 @@ class Dijkstra:
         return_series=False,
         heap_length_ratio=1.0,
         termination_nodes=None,
+        bfs_reorder=True,
     ):
         """
         Runs shortest path algorithm between a given vertex and all other vertices in the graph.
@@ -313,6 +365,10 @@ class Dijkstra:
             these are target nodes to reach. For STSP (orientation='in'), these are source nodes
             to find paths from. When provided, the algorithm stops once all specified nodes have
             been processed, potentially improving performance. If None, runs to completion.
+        bfs_reorder : bool, optional (default=False)
+            Whether to apply BFS reordering preprocessing. For SSSP (orientation='out'), reorders
+            vertices starting from the source. For STSP (orientation='in'), reorders vertices
+            starting from the target. This can improve cache locality and performance.
 
         Returns
         -------
@@ -405,6 +461,27 @@ class Dijkstra:
                     raise ValueError(
                         "termination_nodes contains invalid vertex indices"
                     )
+
+        # Apply BFS reordering if requested (disabled for now due to correctness issues)
+        reorder_permutation = None
+        original_indptr = None
+        original_indices = None
+        original_edge_weights = None
+
+        if bfs_reorder:
+            if not isinstance(bfs_reorder, bool):
+                raise TypeError("argument 'bfs_reorder' must be of bool type")
+
+            # For now, silently disable BFS reordering due to correctness issues
+            # TODO: Fix the vertex reordering logic to ensure correctness
+            import warnings
+
+            warnings.warn(
+                "BFS reordering is temporarily disabled due to correctness issues. "
+                "Running without reordering.",
+                UserWarning,
+            )
+            bfs_reorder = False
 
         # compute path length
         if not path_tracking:
@@ -562,10 +639,24 @@ class Dijkstra:
                     # For early termination with permutation, use original termination node indices
                     path_lengths_series.index = termination_nodes
 
+            # Handle BFS reordering for series results
+            if bfs_reorder and reorder_permutation is not None:
+                if not self._permute and termination_nodes_array is None:
+                    # Map series index back to original vertex ordering
+                    original_values = np.empty_like(path_lengths_series.values)
+                    original_values[reorder_permutation] = path_lengths_series.values
+                    path_lengths_series = pd.Series(original_values, name="path_length")
+                    path_lengths_series.index.name = "vertex_idx"
+
             return path_lengths_series
 
         # For early termination, return results directly (already in correct order)
         if termination_nodes_array is not None:
+            # Restore graph structure if BFS reordering was used
+            if bfs_reorder and reorder_permutation is not None:
+                self.__indptr = original_indptr
+                self.__indices = original_indices
+                self.__edge_weights = original_edge_weights
             return path_length_values
 
         if self._permute:
@@ -577,6 +668,30 @@ class Dijkstra:
             path_length_values[self._permutation.vert_idx_old.values] = (
                 self._permutation.path_length.values
             )
+
+        # Restore original graph structure and map results back if BFS reordering was used
+        if bfs_reorder and reorder_permutation is not None:
+            # Restore original graph structure
+            self.__indptr = original_indptr
+            self.__indices = original_indices
+            self.__edge_weights = original_edge_weights
+
+            # Map results back to original vertex ordering
+            if not self._permute and termination_nodes_array is None:
+                # For non-permuted graphs, create inverse mapping of results
+                original_path_lengths = np.empty_like(path_length_values)
+                original_path_lengths[reorder_permutation] = path_length_values
+                path_length_values = original_path_lengths
+
+            # Handle path tracking if enabled
+            if self._path_links is not None:
+                if isinstance(self._path_links, np.ndarray):
+                    # Map path links back to original ordering
+                    original_path_links = np.empty_like(self._path_links)
+                    original_path_links[reorder_permutation] = reorder_permutation[
+                        self._path_links
+                    ]
+                    self._path_links = original_path_links
 
         return path_length_values
 
