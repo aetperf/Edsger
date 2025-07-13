@@ -57,7 +57,9 @@ def load_benchmark_results():
     return results
 
 
-def create_comparison_plot(all_results, output_file="dijkstra_dimacs_comparison.png"):
+def create_comparison_plot(
+    all_results, output_file="dijkstra_benchmark_comparison.png"
+):
     """Create comparison plot showing results across different OS."""
 
     if not all_results:
@@ -175,8 +177,15 @@ def create_comparison_plot(all_results, output_file="dijkstra_dimacs_comparison.
     # Styling
     ax.set_xlabel("Library", fontsize=14, fontweight="bold")
     ax.set_ylabel("Execution Time (seconds)", fontsize=14, fontweight="bold")
+
+    # Adjust title based on number of OS
+    if len(os_list) > 1:
+        title = "Dijkstra Algorithm Performance on USA Road Network\n(23.9M vertices, 57.7M edges) - Multi-OS Comparison"
+    else:
+        title = f"Dijkstra Algorithm Performance on USA Road Network\n(23.9M vertices, 57.7M edges) - {os_list[0].capitalize()}"
+
     ax.set_title(
-        "Dijkstra Algorithm Performance on USA Road Network\n(23.9M vertices, 57.7M edges) - Multi-OS Comparison",
+        title,
         fontsize=16,
         fontweight="bold",
         pad=20,
@@ -390,17 +399,9 @@ def main():
         f"\n[INFO] Found results for {len(all_results)} operating system(s): {', '.join(all_results.keys())}"
     )
 
-    # Create individual OS plots
-    print("\n[INFO] Creating individual OS plots...")
-    for os_name, results in all_results.items():
-        create_single_os_plot(results, os_name)
-
-    # Create combined comparison plot if we have multiple OS results
-    if len(all_results) > 1:
-        print("\n[INFO] Creating multi-OS comparison plot...")
-        create_comparison_plot(all_results)
-    else:
-        print("\n[INFO] Only one OS found, skipping multi-OS comparison plot.")
+    # Always create comparison plot, even for single OS
+    print("\n[INFO] Creating comparison plot...")
+    create_comparison_plot(all_results)
 
     print("\n" + "=" * 80)
     print("PLOTTING COMPLETED")
