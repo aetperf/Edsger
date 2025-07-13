@@ -1,0 +1,65 @@
+{
+  "timestamp": "2025-07-13T18:05:15.596807",
+  "os": "windows",
+  "network": "USA",
+  "system_info": {
+    "python_version": "3.13.2",
+    "platform": "Windows-11-10.0.26100-SP0",
+    "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "os_name": "Windows",
+    "conda_version": "conda 25.5.1",
+    "edsger_version": "0.1.3.post1.dev3+g5a040d9",
+    "networkit_version": "11.1",
+    "graph-tool_version": "Not available on Windows",
+    "scipy_version": "1.16.0",
+    "numpy_version": "2.3.1",
+    "pandas_version": "2.3.0",
+    "available_packages": [
+      "edsger",
+      "networkit",
+      "scipy",
+      "numpy",
+      "pandas"
+    ]
+  },
+  "benchmark_results": [
+    {
+      "library": "E",
+      "times": [
+        6.0535,
+        6.008,
+        6.0139,
+        6.0509,
+        6.0766
+      ],
+      "min_time": 6.008,
+      "avg_time": 6.04058,
+      "std_time": 0.02586174008066751,
+      "total_duration": 33.91936016082764
+    },
+    {
+      "library": "NK",
+      "times": [
+        8.7956,
+        8.7561,
+        8.7243,
+        8.4773,
+        8.3972
+      ],
+      "min_time": 8.3972,
+      "avg_time": 8.630099999999999,
+      "std_time": 0.16107770795488754,
+      "total_duration": 59.494643688201904
+    },
+    {
+      "library": "SciPy",
+      "times": [
+        4.3218
+      ],
+      "min_time": 4.3218,
+      "avg_time": 4.3218,
+      "std_time": 0.0,
+      "total_duration": 39.54125237464905
+    }
+  ]
+}
