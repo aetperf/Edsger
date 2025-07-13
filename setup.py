@@ -7,6 +7,7 @@ import os
 import numpy as np
 from Cython.Build import cythonize
 from setuptools import Extension, setup
+from distutils import util
 
 
 def detect_gcc_on_windows():
