@@ -14,6 +14,7 @@ import platform
 import numpy as np
 from datetime import datetime
 import json
+from argparse import ArgumentParser
 
 
 def get_system_info():
@@ -87,7 +88,7 @@ def get_system_info():
     return info
 
 
-def run_benchmark(library, repeat=5):
+def run_benchmark(library, repeat=5, data_dir=None, network_name="USA"):
     """Run dijkstra_dimacs.py for a specific library."""
     print(f"\n[BENCHMARK] Running {library} benchmark ({repeat} iterations)...")
 
@@ -101,7 +102,7 @@ def run_benchmark(library, repeat=5):
             sys.executable,
             "dijkstra_dimacs.py",
             "-n",
-            "USA",
+            network_name,
             "-l",
             "E",  # Run Edsger but with -c to get SciPy comparison
             "-r",
@@ -113,12 +114,16 @@ def run_benchmark(library, repeat=5):
             sys.executable,
             "dijkstra_dimacs.py",
             "-n",
-            "USA",
+            network_name,
             "-l",
             library,
             "-r",
             str(repeat),
         ]
+
+    # Add data directory argument if provided
+    if data_dir:
+        cmd.extend(["-d", data_dir])
 
     # Set environment to include project root in Python path
     env = os.environ.copy()
@@ -209,14 +214,15 @@ def run_benchmark(library, repeat=5):
         return None
 
 
-def save_results_json(results, system_info):
+def save_results_json(results, system_info, network_name="USA"):
     """Save detailed results to OS-specific JSON file."""
     os_name = platform.system().lower()  # linux, windows, darwin
-    output_file = f"benchmark_dimacs_USA_{os_name}.json"
+    output_file = f"benchmark_dimacs_{network_name}_{os_name}.json"
 
     data = {
         "timestamp": datetime.now().isoformat(),
         "os": os_name,
+        "network": network_name,
         "system_info": system_info,
         "benchmark_results": [r for r in results if r is not None],
     }
@@ -230,9 +236,52 @@ def save_results_json(results, system_info):
 
 def main():
     """Main benchmarking function."""
+    # Parse command line arguments
+    parser = ArgumentParser(
+        description="OS-specific benchmark comparison for Dijkstra implementations"
+    )
+    parser.add_argument(
+        "-d",
+        "--dir",
+        dest="data_dir",
+        help="Data folder with network sub-folders",
+        metavar="TXT",
+        type=str,
+        required=False,
+        default=os.getenv(
+            "DIMACS_DATA_DIR", "/home/francois/Data/DIMACS_road_networks/"
+        ),
+    )
+    parser.add_argument(
+        "-n",
+        "--network",
+        dest="network_name",
+        help="network name, must be 'NY', 'BAY', 'COL', 'FLA', 'NW', "
+        + "'NE', 'CAL', 'LKS', 'E', 'W', 'CTR', 'USA' (default: USA)",
+        metavar="TXT",
+        type=str,
+        required=False,
+        default="USA",
+    )
+    parser.add_argument(
+        "-r",
+        "--repeat",
+        dest="repeat",
+        help="Number of benchmark iterations per library (default: 5)",
+        metavar="INT",
+        type=int,
+        required=False,
+        default=5,
+    )
+
+    args = parser.parse_args()
+
     print("=" * 80)
     print("DIJKSTRA ALGORITHM PERFORMANCE BENCHMARK")
     print(f"OS: {platform.system()}")
+    print(f"Network: {args.network_name}")
+    print(f"Data directory: {args.data_dir}")
+    print(f"Iterations per library: {args.repeat}")
     print("=" * 80)
 
     # Check if we're in the right directory
@@ -268,19 +317,17 @@ def main():
         else:
             print(f"[INFO] Skipping {lib} - {lib_name} not available")
 
-    repeat = 5
-
     if not libraries:
         print("[ERROR] No libraries available for benchmarking!")
         sys.exit(1)
 
-    print(f"\n[INFO] Running benchmarks with {repeat} iterations each...")
+    print(f"\n[INFO] Running benchmarks with {args.repeat} iterations each...")
     print(f"[INFO] Libraries to benchmark: {', '.join(libraries)}")
 
     # Run benchmarks
     results = []
     for lib in libraries:
-        result = run_benchmark(lib, repeat)
+        result = run_benchmark(lib, args.repeat, args.data_dir, args.network_name)
         results.append(result)
 
         # Small delay between benchmarks to let system cool down
@@ -305,7 +352,7 @@ def main():
         )
 
     # Save detailed results
-    json_file = save_results_json(successful_results, system_info)
+    json_file = save_results_json(successful_results, system_info, args.network_name)
 
     print("\n" + "=" * 80)
     print("BENCHMARK COMPLETED SUCCESSFULLY")
