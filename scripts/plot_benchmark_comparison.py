@@ -35,7 +35,7 @@ def load_benchmark_results():
     results = {}
 
     # Find all benchmark JSON files
-    json_files = glob.glob("benchmark_dimacs_USA_*.json")
+    json_files = glob.glob("benchmark_dimacs_*_*.json")
 
     if not json_files:
         print("[WARNING] No benchmark result files found!")
