@@ -57,6 +57,28 @@ print("Shortest paths:", shortest_paths)
 
 We get the shortest paths from the source node 0 to all other nodes in the graph. The output is an array with the shortest path length to each node. A path length is the sum of the weights of the edges in the path.
 
+## Installation
+
+### Standard Installation
+
+```bash
+pip install edsger
+```
+
+### Windows Performance Optimization
+
+For optimal performance on Windows, we recommend building from source with MSVC optimizations:
+
+```bash
+git clone https://github.com/aetperf/edsger.git
+cd edsger
+pip install -e .
+```
+
+The updated build system automatically detects Windows and applies MSVC-specific compiler flags for maximum performance. For more details, see [WINDOWS_OPTIMIZATION.md](WINDOWS_OPTIMIZATION.md).
+
+**Performance improvement**: Up to 50% faster on Windows compared to the standard build.
+
 ## Why Use Edsger?
 
 Edsger is designed to be **dataframe-friendly**, providing seamless integration with pandas workflows for graph algorithms. Also it is rather efficient. Our benchmarks on the USA road network (23.9M vertices, 57.7M edges) demonstrate nice performance:
