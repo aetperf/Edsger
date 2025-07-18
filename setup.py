@@ -61,6 +61,9 @@ if platform.system() == "Windows":
             "/fp:fast",  # Fast floating-point model
             "/GS-",  # Disable buffer security checks for performance
             "/Gy",  # Enable function-level linking
+            "/Qpar",  # Auto-parallelization
+            "/Qvec-report:1",  # Vectorization reporting
+            "/openmp",  # OpenMP support
         ]
         extra_link_args = [
             "/LTCG",  # Link-time code generation
