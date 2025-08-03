@@ -42,15 +42,24 @@ if platform.system() == "Windows":
 
         # Use same GCC flags as Linux for consistency with SciPy
         # Note: Disabled LTO due to old GCC version issues
-        extra_compile_args = [
-            "-O3",
-            "-march=native",
-            "-ffast-math",
-            "-funroll-loops",
-            "-msse2",
-            "-msse3",
-            "-msse4",
-        ]
+        if os.getenv("GITHUB_ACTIONS") == "true":
+            # Safe flags for GitHub Actions (no -march=native for universal builds)
+            extra_compile_args = [
+                "-O3",
+                "-ffast-math",
+                "-funroll-loops",
+            ]
+        else:
+            # Local development with native optimization
+            extra_compile_args = [
+                "-O3",
+                "-march=native",
+                "-ffast-math",
+                "-funroll-loops",
+                "-msse2",
+                "-msse3",
+                "-msse4",
+            ]
         extra_link_args = []
         compiler_type = "GCC"
     else:
