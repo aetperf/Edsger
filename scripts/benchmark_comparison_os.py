@@ -260,6 +260,19 @@ def save_results_json(results, system_info, network_name="USA"):
 
 def main():
     """Main benchmarking function."""
+    # Determine default data directory based on OS
+    if platform.system() == "Windows":
+        # Check common Windows paths
+        if os.path.exists(r"C:\Users\fpacu\Documents\Workspace\Edsger\data\DIMACS_road_networks"):
+            default_data_dir = r"C:\Users\fpacu\Documents\Workspace\Edsger\data\DIMACS_road_networks"
+        else:
+            default_data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "DIMACS_road_networks")
+    else:
+        default_data_dir = "/home/francois/Data/DIMACS_road_networks/"
+    
+    # Use environment variable if set, otherwise use OS-specific default
+    default_data_dir = os.getenv("DIMACS_DATA_DIR", default_data_dir)
+    
     # Parse command line arguments
     parser = ArgumentParser(
         description="OS-specific benchmark comparison for Dijkstra implementations"
@@ -272,9 +285,7 @@ def main():
         metavar="TXT",
         type=str,
         required=False,
-        default=os.getenv(
-            "DIMACS_DATA_DIR", "/home/francois/Data/DIMACS_road_networks/"
-        ),
+        default=default_data_dir,
     )
     parser.add_argument(
         "-n",

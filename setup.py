@@ -41,14 +41,17 @@ if platform.system() == "Windows":
         os.environ["CXX"] = "g++"
 
         # Use same GCC flags as Linux for consistency with SciPy
+        # Note: Disabled LTO due to old GCC version issues
         extra_compile_args = [
-            "-Ofast",
-            "-flto",
+            "-O3",
             "-march=native",
             "-ffast-math",
             "-funroll-loops",
+            "-msse2",
+            "-msse3",
+            "-msse4",
         ]
-        extra_link_args = ["-flto"]
+        extra_link_args = []
         compiler_type = "GCC"
     else:
         print("[INFO] Using MSVC toolchain on Windows")
