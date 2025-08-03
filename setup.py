@@ -94,25 +94,45 @@ if platform.system() == "Windows":
 
 elif platform.system() == "Darwin":
     # Clang flags for macOS
-    extra_compile_args = [
-        "-Ofast",
-        "-flto",
-        "-march=native",
-        "-ffast-math",
-        "-funroll-loops",
-    ]
-    extra_link_args = ["-flto"]
+    if os.getenv("GITHUB_ACTIONS") == "true":
+        # Safe flags for GitHub Actions (no -march=native for universal builds)
+        extra_compile_args = [
+            "-O3",
+            "-ffast-math",
+            "-funroll-loops",
+        ]
+        extra_link_args = []
+    else:
+        # Local development with native optimization
+        extra_compile_args = [
+            "-Ofast",
+            "-flto",
+            "-march=native",
+            "-ffast-math",
+            "-funroll-loops",
+        ]
+        extra_link_args = ["-flto"]
     compiler_type = "Clang"
 else:
     # GCC flags for Linux and other Unix-like systems
-    extra_compile_args = [
-        "-Ofast",
-        "-flto",
-        "-march=native",
-        "-ffast-math",
-        "-funroll-loops",
-    ]
-    extra_link_args = ["-flto"]
+    if os.getenv("GITHUB_ACTIONS") == "true":
+        # Safe flags for GitHub Actions
+        extra_compile_args = [
+            "-O3",
+            "-ffast-math",
+            "-funroll-loops",
+        ]
+        extra_link_args = []
+    else:
+        # Local development with native optimization
+        extra_compile_args = [
+            "-Ofast",
+            "-flto",
+            "-march=native",
+            "-ffast-math",
+            "-funroll-loops",
+        ]
+        extra_link_args = ["-flto"]
     compiler_type = "GCC"
 
 print(f"Building for {platform.system()} with {compiler_type}")
