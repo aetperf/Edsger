@@ -32,8 +32,8 @@ jobs:
         name: documentation-html
         path: docs/build/html/
     
-    - name: Deploy to GitHub Pages (on release branch)
-      if: github.ref == 'refs/heads/release' && github.event_name == 'push'
+    - name: Deploy to GitHub Pages
+      if: github.event_name == 'release'
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}

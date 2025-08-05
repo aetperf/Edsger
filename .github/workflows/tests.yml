@@ -27,6 +27,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements-dev.txt
         pip install .
+    - name: Reinstall package with coverage support
+      run: |
+        pip uninstall -y edsger
+        CYTHON_TRACE=1 pip install -e .
     - name: Format Python code with black
       run: |
         black --check --diff .

@@ -1,11 +1,18 @@
 """setup python file for edsger."""
 
+import os
+
 import numpy as np
 from Cython.Build import cythonize
 from setuptools import Extension, setup
 
 extra_compile_args = ["-Ofast", "-flto"]
 extra_link_args = ["-flto"]
+
+# Add coverage flags when building with CYTHON_TRACE
+if os.environ.get("CYTHON_TRACE", "0") == "1":
+    extra_compile_args = ["-O0", "-g"]  # Disable optimization for accurate coverage
+    extra_link_args = []
 
 extensions = [
     Extension(
@@ -57,17 +64,25 @@ with open("requirements.txt") as fp:
 
 
 def setup_package():
+    # Enable coverage for Cython when CYTHON_TRACE is set
+    compiler_directives = {
+        "language_level": "3",
+        "boundscheck": False,
+        "wraparound": False,
+        "embedsignature": False,
+        "cdivision": True,
+        "initializedcheck": False,
+    }
+
+    if os.environ.get("CYTHON_TRACE", "0") == "1":
+        compiler_directives["linetrace"] = True
+        compiler_directives["profile"] = True
+        print("Building with coverage support for Cython code")
+
     setup(
         ext_modules=cythonize(
             extensions,
-            compiler_directives={
-                "language_level": "3",
-                "boundscheck": False,
-                "wraparound": False,
-                "embedsignature": False,
-                "cdivision": True,
-                "initializedcheck": False,
-            },
+            compiler_directives=compiler_directives,
             include_path=["src/edsger/"],
         ),
         install_requires=install_requires,
