@@ -1,19 +1,19 @@
 {
-  "timestamp": "2025-08-03T19:08:19.994943",
+  "timestamp": "2025-08-05T08:51:21.124209",
   "os": "windows",
   "network": "USA",
   "system_info": {
-    "python_version": "3.13.2",
+    "python_version": "3.13.5",
     "platform": "Windows-11-10.0.26100-SP0",
     "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
     "os_name": "Windows",
     "conda_version": "conda 25.5.1",
-    "edsger_version": "0.1.3.post1.dev28+g256802f.d20250803",
+    "edsger_version": "0.1.3.post1.dev34+g478b081.d20250805",
     "networkit_version": "11.1",
     "graph-tool_version": "Not available on Windows",
-    "scipy_version": "1.16.0",
-    "numpy_version": "2.3.1",
-    "pandas_version": "2.3.0",
+    "scipy_version": "1.16.1",
+    "numpy_version": "2.3.2",
+    "pandas_version": "2.3.1",
     "available_packages": [
       "edsger",
       "networkit",
@@ -26,44 +26,44 @@
     {
       "library": "E",
       "times": [
-        6.8911,
-        6.9738,
-        6.9784,
-        7.3171,
-        7.1579
+        5.3604,
+        5.4873,
+        5.3001,
+        5.3335,
+        5.4616
       ],
-      "min_time": 6.8911,
-      "avg_time": 7.0636600000000005,
-      "std_time": 0.1537751943585181,
-      "total_duration": 39.62336564064026
+      "min_time": 5.3001,
+      "avg_time": 5.38858,
+      "std_time": 0.07312207327476443,
+      "total_duration": 30.86883568763733
     },
     {
       "library": "NK",
       "times": [
-        10.0692,
-        9.8172,
-        9.648,
-        9.6395,
-        9.6392
+        9.1813,
+        8.9461,
+        8.908,
+        8.9577,
+        8.8889
       ],
-      "min_time": 9.6392,
-      "avg_time": 9.762620000000002,
-      "std_time": 0.1676299782258532,
-      "total_duration": 67.15296840667725
+      "min_time": 8.8889,
+      "avg_time": 8.976400000000002,
+      "std_time": 0.10543870257168403,
+      "total_duration": 61.84801626205444
     },
     {
       "library": "SciPy",
       "times": [
-        4.8218,
-        4.8269,
-        4.8034,
-        4.8575,
-        4.8748
+        4.5408,
+        4.8032,
+        4.5418,
+        4.5658,
+        4.5877
       ],
-      "min_time": 4.8034,
-      "avg_time": 4.83688,
-      "std_time": 0.025733355785827777,
-      "total_duration": 84.6644880771637
+      "min_time": 4.5408,
+      "avg_time": 4.6078600000000005,
+      "std_time": 0.0991908786129048,
+      "total_duration": 76.1451416015625
     }
   ]
 }
