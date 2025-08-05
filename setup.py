@@ -42,24 +42,15 @@ if platform.system() == "Windows":
 
         # Use same GCC flags as Linux for consistency with SciPy
         # Note: Disabled LTO due to old GCC version issues
-        if os.getenv("GITHUB_ACTIONS") == "true":
-            # Safe flags for GitHub Actions (no -march=native for universal builds)
-            extra_compile_args = [
-                "-O3",
-                "-ffast-math",
-                "-funroll-loops",
-            ]
-        else:
-            # Local development with native optimization
-            extra_compile_args = [
-                "-O3",
-                "-march=native",
-                "-ffast-math",
-                "-funroll-loops",
-                "-msse2",
-                "-msse3",
-                "-msse4",
-            ]
+        extra_compile_args = [
+            "-O3",
+            "-march=native",
+            "-ffast-math",
+            "-funroll-loops",
+            "-msse2",
+            "-msse3",
+            "-msse4",
+        ]
         extra_link_args = []
         compiler_type = "GCC"
     else:
@@ -94,45 +85,25 @@ if platform.system() == "Windows":
 
 elif platform.system() == "Darwin":
     # Clang flags for macOS
-    if os.getenv("GITHUB_ACTIONS") == "true":
-        # Safe flags for GitHub Actions (no -march=native for universal builds)
-        extra_compile_args = [
-            "-O3",
-            "-ffast-math",
-            "-funroll-loops",
-        ]
-        extra_link_args = []
-    else:
-        # Local development with native optimization
-        extra_compile_args = [
-            "-Ofast",
-            "-flto",
-            "-march=native",
-            "-ffast-math",
-            "-funroll-loops",
-        ]
-        extra_link_args = ["-flto"]
+    extra_compile_args = [
+        "-Ofast",
+        "-flto",
+        "-march=native",
+        "-ffast-math",
+        "-funroll-loops",
+    ]
+    extra_link_args = ["-flto"]
     compiler_type = "Clang"
 else:
     # GCC flags for Linux and other Unix-like systems
-    if os.getenv("GITHUB_ACTIONS") == "true":
-        # Safe flags for GitHub Actions
-        extra_compile_args = [
-            "-O3",
-            "-ffast-math",
-            "-funroll-loops",
-        ]
-        extra_link_args = []
-    else:
-        # Local development with native optimization
-        extra_compile_args = [
-            "-Ofast",
-            "-flto",
-            "-march=native",
-            "-ffast-math",
-            "-funroll-loops",
-        ]
-        extra_link_args = ["-flto"]
+    extra_compile_args = [
+        "-Ofast",
+        "-flto",
+        "-march=native",
+        "-ffast-math",
+        "-funroll-loops",
+    ]
+    extra_link_args = ["-flto"]
     compiler_type = "GCC"
 
 print(f"Building for {platform.system()} with {compiler_type}")
