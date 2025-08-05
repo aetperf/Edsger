@@ -10,7 +10,7 @@ Welcome to the Edsger documentation! Edsger is a Python library for efficient gr
 
 ## Why Use Edsger?
 
-Edsger is designed to be **dataframe-friendly**, providing seamless integration with pandas workflows for graph algorithms. Also it is rather efficient. Our benchmarks on the USA road network (23.9M vertices, 57.7M edges) demonstrate nice performance:
+Edsger is designed to be **dataframe-friendly**, providing seamless integration with pandas workflows for graph algorithms. Also it is rather efficient on Linux. Our benchmarks on the USA road network (23.9M vertices, 57.7M edges) demonstrate nice performance:
 
 <img src="assets/dijkstra_benchmark_comparison.png" alt="Dijkstra Performance Comparison" width="700">
 
