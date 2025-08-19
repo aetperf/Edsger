@@ -57,6 +57,13 @@ extensions = [
         extra_link_args=extra_link_args,
         define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
     ),
+    Extension(
+        "edsger.bellman_ford",
+        ["src/edsger/bellman_ford.pyx"],
+        extra_compile_args=extra_compile_args,
+        extra_link_args=extra_link_args,
+        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+    ),
 ]
 
 with open("requirements.txt") as fp:
