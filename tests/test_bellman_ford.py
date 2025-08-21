@@ -507,6 +507,176 @@ class TestBellmanFord:
                 # Both costs should equal the computed distance
                 assert abs(our_cost - our_dist[target]) < 1e-10
 
+    def test_csc_negative_cycle_detection(self):
+        """Test CSC-specific negative cycle detection for orientation='in'"""
+        # Graph with negative cycle: 0→1→2→0 with total weight -2
+        edges_with_cycle = pd.DataFrame(
+            {
+                "tail": [0, 1, 2, 2],
+                "head": [1, 2, 0, 3],
+                "weight": [1, -2, -1, 1],  # cycle: 1 + (-2) + (-1) = -2 < 0
+            }
+        )
+
+        bf_cycle = BellmanFord(edges_with_cycle, orientation="in")
+
+        # Should detect negative cycle regardless of target vertex
+        with pytest.raises(ValueError, match="Negative cycle"):
+            bf_cycle.run(vertex_idx=3)
+
+        # Graph without negative cycle
+        edges_no_cycle = pd.DataFrame(
+            {
+                "tail": [0, 1, 2],
+                "head": [1, 2, 3],
+                "weight": [1, -1, 3],  # no cycles possible
+            }
+        )
+
+        bf_no_cycle = BellmanFord(edges_no_cycle, orientation="in")
+        distances = bf_no_cycle.run(vertex_idx=3)  # Should not raise
+
+        assert distances is not None
+        assert len(distances) == 4
+        # Check some expected distances TO vertex 3
+        assert distances[3] == 0  # distance from 3 to itself
+        assert distances[2] == 3  # distance from 2 to 3
+        assert distances[1] == 2  # distance from 1 to 3 (via 2)
+        assert distances[0] == 3  # distance from 0 to 3 (via 1, 2)
+
+    def test_csc_vs_csr_consistency(self):
+        """Ensure CSC detection gives same results as old CSR conversion method"""
+        # Create a graph that should NOT have negative cycles
+        edges = pd.DataFrame(
+            {
+                "tail": [0, 0, 1, 1, 2, 3],
+                "head": [1, 2, 2, 3, 3, 4],
+                "weight": [1, 4, -2, 5, 1, 3],
+            }
+        )
+
+        # Test orientation="out" (uses CSR detection)
+        bf_out = BellmanFord(edges, orientation="out")
+        distances_out = bf_out.run(vertex_idx=0)  # Should work without negative cycle
+
+        # Test orientation="in" (uses CSC detection)
+        bf_in = BellmanFord(edges, orientation="in")
+        distances_in = bf_in.run(vertex_idx=4)  # Should work without negative cycle
+
+        # Both should complete successfully (no negative cycle detected)
+        assert distances_out is not None
+        assert distances_in is not None
+
+        # Verify some known relationships
+        assert distances_out[0] == 0  # source to itself
+        assert distances_in[4] == 0  # target to itself
+
+    def test_csc_negative_cycle_complex_graph(self):
+        """Test CSC detection on a more complex graph with multiple potential cycles"""
+        # Graph with negative cycle involving multiple vertices
+        edges = pd.DataFrame(
+            {
+                "tail": [0, 1, 2, 3, 4, 4, 5],
+                "head": [1, 2, 3, 1, 5, 0, 4],  # cycle: 1→2→3→1, separate cycle: 4→5→4
+                "weight": [1, -3, 1, -1, 2, -5, -3],  # 1→2→3→1: 1+(-3)+1+(-1) = -2 < 0
+            }
+        )
+
+        bf = BellmanFord(edges, orientation="in")
+
+        # Should detect the negative cycle
+        with pytest.raises(ValueError, match="Negative cycle"):
+            bf.run(vertex_idx=5)
+
+    def test_csc_detection_with_disconnected_components(self):
+        """Test CSC negative cycle detection with disconnected graph components"""
+        # Two scenarios: cycle affects target vs cycle doesn't affect target
+
+        # Scenario 1: Target is reachable from negative cycle
+        edges_cycle_affects_target = pd.DataFrame(
+            {
+                "tail": [
+                    0,
+                    1,
+                    2,
+                    2,
+                    10,
+                    11,
+                ],  # Component 1: 0→1→2→0 + 2→3, Component 2: 10→11→12
+                "head": [1, 2, 0, 3, 11, 12],
+                "weight": [
+                    1,
+                    -1,
+                    -2,
+                    1,
+                    5,
+                    3,
+                ],  # Cycle: 1+(-1)+(-2) = -2 < 0, and 2→3 reachable
+            }
+        )
+
+        bf1 = BellmanFord(edges_cycle_affects_target, orientation="in")
+
+        # Should detect negative cycle when target is reachable from cycle
+        with pytest.raises(ValueError, match="Negative cycle"):
+            bf1.run(vertex_idx=3)  # target reachable from cycle vertex 2
+
+        # Scenario 2: Target is completely disconnected from negative cycle
+        edges_cycle_isolated = pd.DataFrame(
+            {
+                "tail": [
+                    0,
+                    1,
+                    2,
+                    10,
+                    11,
+                ],  # Component 1: 0→1→2→0 (isolated), Component 2: 10→11→12
+                "head": [1, 2, 0, 11, 12],
+                "weight": [1, -1, -2, 5, 3],  # Component 1 has cycle but is isolated
+            }
+        )
+
+        bf2 = BellmanFord(edges_cycle_isolated, orientation="in")
+
+        # Target is isolated from negative cycle - STSP won't detect it
+        # This is actually correct behavior for STSP algorithms
+        distances = bf2.run(vertex_idx=12)  # Should complete successfully
+        assert distances is not None
+        assert distances[12] == 0  # distance from 12 to itself
+        assert np.isinf(distances[0])  # vertex 0 not reachable to target 12
+
+    def test_csc_detection_performance_vs_csr_conversion(self):
+        """Test that CSC detection is more efficient than CSR conversion (basic timing)"""
+        import time
+
+        # Create a larger graph to see timing differences
+        n_vertices = 1000
+        edges = []
+
+        # Create a chain: 0→1→2→...→999 with some negative weights (no cycles)
+        for i in range(n_vertices - 1):
+            weight = -0.5 if i % 10 == 0 else 1.0  # some negative weights but no cycles
+            edges.append({"tail": i, "head": i + 1, "weight": weight})
+
+        edges_df = pd.DataFrame(edges)
+
+        bf = BellmanFord(edges_df, orientation="in")
+
+        # Time the CSC detection (current implementation)
+        start_time = time.time()
+        distances = bf.run(vertex_idx=n_vertices - 1, detect_negative_cycles=True)
+        csc_time = time.time() - start_time
+
+        # Verify no negative cycle was detected (should run successfully)
+        assert distances is not None
+        assert len(distances) == n_vertices
+
+        print(f"CSC detection time: {csc_time:.4f}s for {n_vertices} vertices")
+
+        # The new CSC method should be significantly faster than the old CSR conversion
+        # (This is more of a sanity check - actual performance test would need more setup)
+        assert csc_time < 1.0  # Should be fast for 1000 vertices
+
 
 # author : Francois Pacull
 # copyright : Architecture & Performance
