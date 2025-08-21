@@ -16,17 +16,18 @@ from time import perf_counter
 
 import numpy as np
 import pandas as pd
-from edsger.path import BellmanFord
 from loguru import logger
 from scipy.sparse import coo_array
 from scipy.sparse.csgraph import bellman_ford
 
+from edsger.path import BellmanFord
+
 logger.remove()
-fmt = (
+FMT = (
     "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> |"
     + " <level>{message}</level>"
 )
-logger.add(sys.stderr, format=fmt)
+logger.add(sys.stderr, format=FMT)
 
 # Determine default data directory based on OS
 if platform.system() == "Windows":
@@ -34,20 +35,20 @@ if platform.system() == "Windows":
     if os.path.exists(
         r"C:\Users\fpacu\Documents\Workspace\Edsger\data\DIMACS_road_networks"
     ):
-        default_data_dir = (
+        DEFAULT_DATA_DIR = (
             r"C:\Users\fpacu\Documents\Workspace\Edsger\data\DIMACS_road_networks"
         )
     else:
-        default_data_dir = os.path.join(
+        DEFAULT_DATA_DIR = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             "data",
             "DIMACS_road_networks",
         )
 else:
-    default_data_dir = "/home/francois/Data/DIMACS_road_networks/"
+    DEFAULT_DATA_DIR = "/home/francois/Data/DIMACS_road_networks/"
 
 # Use environment variable if set, otherwise use OS-specific default
-default_data_dir = os.getenv("DIMACS_DATA_DIR", default_data_dir)
+DEFAULT_DATA_DIR = os.getenv("DIMACS_DATA_DIR", DEFAULT_DATA_DIR)
 
 parser = ArgumentParser(description="Command line interface to bellman_ford_dimacs.py")
 parser.add_argument(
@@ -58,7 +59,7 @@ parser.add_argument(
     metavar="TXT",
     type=str,
     required=False,
-    default=default_data_dir,
+    default=DEFAULT_DATA_DIR,
 )
 parser.add_argument(
     "-n",
@@ -198,6 +199,9 @@ edge_count = len(edges)
 vertex_count = edges[["tail", "head"]].max().max() + 1
 logger.info(f"{edge_count} edges and {vertex_count} vertices")
 
+# Initialize dist_matrix to None to avoid possibly-used-before-assignment
+dist_matrix = None  # pylint: disable=invalid-name
+
 if lib == "E":
     # Edsger
     # ------
@@ -221,12 +225,12 @@ if lib == "E":
                 return_inf=True,
                 detect_negative_cycles=detect_negative_cycles,
             )
-            negative_cycle_detected = False
+            negative_cycle_detected = False  # pylint: disable=invalid-name
         except ValueError as e:
             if "negative cycle" in str(e).lower():
                 logger.warning(f"Negative cycle detected in trial {i+1}")
-                negative_cycle_detected = True
-                dist_matrix = None
+                negative_cycle_detected = True  # pylint: disable=invalid-name
+                dist_matrix = None  # pylint: disable=invalid-name
             else:
                 raise
 
@@ -257,7 +261,6 @@ elif lib == "GT":
     logger.info("graph-tool init")
 
     import graph_tool as gt
-    from graph_tool import topology
 
     # create the graph
     g = gt.Graph(directed=True)
@@ -290,13 +293,13 @@ elif lib == "GT":
                 negative_weights=True,  # Enable negative weights for Bellman-Ford
                 directed=True,
             )
-            dist_matrix = dist.a
-            negative_cycle_detected = False
-        except Exception as e:
+            dist_matrix = dist.a  # pylint: disable=invalid-name
+            negative_cycle_detected = False  # pylint: disable=invalid-name
+        except (RuntimeError, ValueError) as e:
             if "negative" in str(e).lower() and "cycle" in str(e).lower():
                 logger.warning(f"Negative cycle detected in trial {i+1}")
-                negative_cycle_detected = True
-                dist_matrix = None
+                negative_cycle_detected = True  # pylint: disable=invalid-name
+                dist_matrix = None  # pylint: disable=invalid-name
             else:
                 raise
 
@@ -342,12 +345,12 @@ if check_result and dist_matrix is not None:
             indices=idx_from,
             return_predecessors=False,
         )
-        scipy_negative_cycle = False
-    except Exception as e:
+        scipy_negative_cycle = False  # pylint: disable=invalid-name
+    except (RuntimeError, ValueError) as e:
         if "negative cycle" in str(e).lower():
             logger.warning("SciPy detected negative cycle")
-            scipy_negative_cycle = True
-            dist_matrix_ref = None
+            scipy_negative_cycle = True  # pylint: disable=invalid-name
+            dist_matrix_ref = None  # pylint: disable=invalid-name
         else:
             raise
 
