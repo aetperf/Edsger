@@ -13,7 +13,6 @@ import time
 from datetime import datetime
 
 import numpy as np
-import pandas as pd
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import dijkstra as scipy_dijkstra
 
@@ -204,7 +203,7 @@ def compare_dijkstra_implementations(
     total_edsger_time = 0.0
     total_scipy_time = 0.0
 
-    for i, source in enumerate(source_vertices):
+    for source in source_vertices:
         result = compare_single_source(edges_df, source, n_vertices, tolerance)
         results.append({"source": int(source), **result})
 
@@ -349,7 +348,7 @@ def main():
 
     # Save results if requested
     if args.save_results:
-        with open(args.save_results, "w") as f:
+        with open(args.save_results, "w", encoding="utf-8") as f:
             json.dump(results, f, indent=2)
         if not args.quiet:
             print(f"\nResults saved to: {args.save_results}")
