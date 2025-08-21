@@ -71,6 +71,8 @@ class Dijkstra:
     permute: bool, optional (default=False)
         Whether to permute the IDs of the nodes. If set to True, the node IDs will be reindexed to
         start from 0 and be contiguous.
+    verbose: bool, optional (default=False)
+        Whether to print messages about parallel edge removal.
     """
 
     def __init__(
@@ -82,12 +84,14 @@ class Dijkstra:
         orientation="out",
         check_edges=False,
         permute=False,
+        verbose=False,
     ):
         # load the edges
         if check_edges:
             self._check_edges(edges, tail, head, weight)
         self._edges = edges[[tail, head, weight]].copy(deep=True)
         self._n_edges = len(self._edges)
+        self._verbose = verbose
 
         # preprocess edges to handle parallel edges
         self._preprocess_edges(tail, head, weight)
@@ -224,12 +228,11 @@ class Dijkstra:
 
         if original_count > final_count:
             parallel_edges_removed = original_count - final_count
-            warnings.warn(
-                f"Automatically removed {parallel_edges_removed} parallel edge(s). "
-                f"For each pair of vertices, kept the edge with minimum weight.",
-                UserWarning,
-                stacklevel=3,
-            )
+            if self._verbose:
+                print(
+                    f"Automatically removed {parallel_edges_removed} parallel edge(s). "
+                    f"For each pair of vertices, kept the edge with minimum weight."
+                )
 
         self._n_edges = len(self._edges)
 
@@ -705,6 +708,8 @@ class BellmanFord:
     permute: bool, optional (default=False)
         Whether to permute the IDs of the nodes. If set to True, the node IDs will be reindexed to
         start from 0 and be contiguous.
+    verbose: bool, optional (default=False)
+        Whether to print messages about parallel edge removal.
     """
 
     def __init__(
@@ -716,12 +721,14 @@ class BellmanFord:
         orientation="out",
         check_edges=False,
         permute=False,
+        verbose=False,
     ):
         # load the edges
         if check_edges:
             self._check_edges(edges, tail, head, weight)
         self._edges = edges[[tail, head, weight]].copy(deep=True)
         self._n_edges = len(self._edges)
+        self._verbose = verbose
 
         # preprocess edges to handle parallel edges
         self._preprocess_edges(tail, head, weight)
@@ -850,12 +857,11 @@ class BellmanFord:
 
         if original_count > final_count:
             parallel_edges_removed = original_count - final_count
-            warnings.warn(
-                f"Automatically removed {parallel_edges_removed} parallel edge(s). "
-                f"For each pair of vertices, kept the edge with minimum weight.",
-                UserWarning,
-                stacklevel=3,
-            )
+            if self._verbose:
+                print(
+                    f"Automatically removed {parallel_edges_removed} parallel edge(s). "
+                    f"For each pair of vertices, kept the edge with minimum weight."
+                )
 
         self._n_edges = len(self._edges)
 
