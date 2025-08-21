@@ -1,11 +1,6 @@
 """Tests for path_tracking.pyx.
 
 py.test tests/test_path_tracking.py
-
-author : Francois Pacull
-copyright : Architecture & Performance
-email: francois.pacull@architecture-performance.fr
-license : MIT
 """
 
 import numpy as np

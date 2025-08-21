@@ -1,11 +1,6 @@
 """Tests for pq_bin_dec_0b.pyx.
 
 py.test tests/test_pq_4ary_dec_0b.py
-
-author : Francois Pacull
-copyright : Architecture & Performance
-email: francois.pacull@architecture-performance.fr
-license : MIT
 """
 
 from edsger.pq_4ary_dec_0b import *

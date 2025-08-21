@@ -1,5 +1,6 @@
-"""
-Test Bellman-Ford algorithm implementation
+"""Test Bellman-Ford algorithm implementation.
+
+py.test tests/test_bellman_ford.py
 """
 
 import numpy as np
