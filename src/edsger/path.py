@@ -1112,6 +1112,7 @@ class BellmanFord:
         # detect negative cycles if requested
         if detect_negative_cycles:
             if self._orientation == "out":
+                # CSR format - can use detect_negative_cycle directly
                 self._has_negative_cycle = detect_negative_cycle(
                     self.__indptr,
                     self.__indices,
@@ -1120,12 +1121,23 @@ class BellmanFord:
                     self._n_vertices,
                 )
             else:
-                # For "in" orientation, we need to use CSC format which we already have
+                # CSC format - need to convert to CSR and compute distances from vertex 0 for cycle detection
+                csr_indptr, csr_indices, csr_data = convert_graph_to_csr_float64(
+                    self._edges, "tail", "head", "weight", self._n_vertices
+                )
+                # Compute SSSP from vertex 0 in CSR format for cycle detection
+                csr_distances = compute_bf_sssp(
+                    csr_indptr.astype(np.uint32),
+                    csr_indices.astype(np.uint32),
+                    csr_data.astype(DTYPE_PY),
+                    0,  # source vertex for cycle detection
+                    self._n_vertices,
+                )
                 self._has_negative_cycle = detect_negative_cycle(
-                    self.__indptr,
-                    self.__indices,
-                    self.__edge_weights,
-                    path_length_values,
+                    csr_indptr.astype(np.uint32),
+                    csr_indices.astype(np.uint32),
+                    csr_data.astype(DTYPE_PY),
+                    csr_distances,
                     self._n_vertices,
                 )
 
