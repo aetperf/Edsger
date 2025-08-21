@@ -46,6 +46,9 @@ class Dijkstra:
     Dijkstra's algorithm for finding the shortest paths between nodes in directed graphs with
     positive edge weights.
 
+    Note: If parallel edges exist between the same pair of vertices, only the edge with the minimum
+    weight will be kept automatically during initialization.
+
     Parameters:
     -----------
     edges: pandas.DataFrame
@@ -85,6 +88,9 @@ class Dijkstra:
             self._check_edges(edges, tail, head, weight)
         self._edges = edges[[tail, head, weight]].copy(deep=True)
         self._n_edges = len(self._edges)
+
+        # preprocess edges to handle parallel edges
+        self._preprocess_edges(tail, head, weight)
 
         # reindex the vertices
         self._permute = permute
@@ -197,6 +203,35 @@ class Dijkstra:
             predecessors or successors node index if the path tracking is activated.
         """
         return self._path_links
+
+    def _preprocess_edges(self, tail, head, weight):
+        """
+        Preprocess edges to handle parallel edges by keeping only the minimum weight edge
+        between any pair of vertices.
+
+        Parameters
+        ----------
+        tail : str
+            The column name for tail vertices
+        head : str
+            The column name for head vertices
+        weight : str
+            The column name for edge weights
+        """
+        original_count = len(self._edges)
+        self._edges = self._edges.groupby([tail, head], as_index=False)[weight].min()
+        final_count = len(self._edges)
+
+        if original_count > final_count:
+            parallel_edges_removed = original_count - final_count
+            warnings.warn(
+                f"Automatically removed {parallel_edges_removed} parallel edge(s). "
+                f"For each pair of vertices, kept the edge with minimum weight.",
+                UserWarning,
+                stacklevel=3,
+            )
+
+        self._n_edges = len(self._edges)
 
     def _check_edges(self, edges, tail, head, weight):
         """Checks if the edges DataFrame is well-formed. If not, raises an appropriate error."""
@@ -644,6 +679,9 @@ class BellmanFord:
     Bellman-Ford algorithm for finding the shortest paths between nodes in directed graphs.
     Supports negative edge weights and detects negative cycles.
 
+    Note: If parallel edges exist between the same pair of vertices, only the edge with the minimum
+    weight will be kept automatically during initialization.
+
     Parameters:
     -----------
     edges: pandas.DataFrame
@@ -683,6 +721,9 @@ class BellmanFord:
             self._check_edges(edges, tail, head, weight)
         self._edges = edges[[tail, head, weight]].copy(deep=True)
         self._n_edges = len(self._edges)
+
+        # preprocess edges to handle parallel edges
+        self._preprocess_edges(tail, head, weight)
 
         # reindex the vertices
         self._permute = permute
@@ -787,6 +828,35 @@ class BellmanFord:
             predecessors or successors node index if the path tracking is activated.
         """
         return self._path_links
+
+    def _preprocess_edges(self, tail, head, weight):
+        """
+        Preprocess edges to handle parallel edges by keeping only the minimum weight edge
+        between any pair of vertices.
+
+        Parameters
+        ----------
+        tail : str
+            The column name for tail vertices
+        head : str
+            The column name for head vertices
+        weight : str
+            The column name for edge weights
+        """
+        original_count = len(self._edges)
+        self._edges = self._edges.groupby([tail, head], as_index=False)[weight].min()
+        final_count = len(self._edges)
+
+        if original_count > final_count:
+            parallel_edges_removed = original_count - final_count
+            warnings.warn(
+                f"Automatically removed {parallel_edges_removed} parallel edge(s). "
+                f"For each pair of vertices, kept the edge with minimum weight.",
+                UserWarning,
+                stacklevel=3,
+            )
+
+        self._n_edges = len(self._edges)
 
     def _check_edges(self, edges, tail, head, weight):
         """Checks if the edges DataFrame is well-formed. If not, raises an appropriate error."""
