@@ -390,6 +390,73 @@ cpdef bint detect_negative_cycle(
     return has_negative_cycle
 
 
+cpdef bint detect_negative_cycle_csc(
+        cnp.uint32_t[::1] csc_indptr,
+        cnp.uint32_t[::1] csc_indices,
+        DTYPE_t[::1] csc_data,
+        DTYPE_t[::1] stsp_dist,
+        int vertex_count):
+    """
+    Detect negative cycles using CSC format and STSP distances.
+
+    For STSP (Single-Target Shortest Path):
+    - stsp_dist[u] = distance FROM vertex u TO target vertex
+    - Edge (u→v) can be relaxed if: stsp_dist[u] > stsp_dist[v] + weight(u→v)
+
+    This function performs one additional iteration to check if any edge
+    can still be relaxed, which indicates the presence of a negative cycle.
+
+    Parameters
+    ----------
+    csc_indptr : cnp.uint32_t[::1]
+        Pointers in the CSC format (incoming edges by destination)
+    csc_indices : cnp.uint32_t[::1]
+        Indices in the CSC format (source vertices)
+    csc_data : DTYPE_t[::1]
+        Data (edge weights) in the CSC format
+    stsp_dist : DTYPE_t[::1]
+        Current distance array from STSP algorithm (distances TO target)
+    vertex_count : int
+        Total number of vertices in the graph
+
+    Returns
+    -------
+    has_negative_cycle : bool
+        True if negative cycle detected, False otherwise
+    """
+
+    cdef:
+        size_t head_vert_idx, tail_vert_idx, idx
+        DTYPE_t new_dist
+        bint has_negative_cycle = False
+
+    with nogil:
+        # Iterate over destination vertices (CSC organization)
+        for head_vert_idx in range(<size_t>vertex_count):
+            # Skip unreachable vertices
+            if stsp_dist[head_vert_idx] == DTYPE_INF:
+                continue
+
+            # Check all incoming edges to this vertex
+            for idx in range(<size_t>csc_indptr[head_vert_idx],
+                             <size_t>csc_indptr[head_vert_idx + 1]):
+
+                tail_vert_idx = <size_t>csc_indices[idx]  # Source of edge
+
+                # STSP relaxation: can we improve distance FROM tail TO target?
+                new_dist = stsp_dist[head_vert_idx] + csc_data[idx]
+
+                # If we can still relax this edge, negative cycle exists
+                if stsp_dist[tail_vert_idx] > new_dist:
+                    has_negative_cycle = True
+                    break
+
+            if has_negative_cycle:
+                break
+
+    return has_negative_cycle
+
+
 # ============================================================================ #
 # tests                                                                        #
 # ============================================================================ #
