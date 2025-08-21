@@ -412,10 +412,10 @@ class Dijkstra:
         if termination_nodes is not None:
             try:
                 termination_nodes_array = np.array(termination_nodes, dtype=np.uint32)
-            except (ValueError, TypeError):
+            except (ValueError, TypeError) as exc:
                 raise TypeError(
                     "argument 'termination_nodes' must be array-like of integers"
-                )
+                ) from exc
 
             if termination_nodes_array.ndim != 1:
                 raise ValueError("argument 'termination_nodes' must be 1-dimensional")
@@ -696,11 +696,12 @@ class BellmanFord:
     weight: str, optional (default='weight')
         The name of the column in the DataFrame that contains the weights of the edges.
     orientation: str, optional (default='out')
-        The orientation of Bellman-Ford's algorithm. It can be either 'out' for single source shortest
-        paths or 'in' for single target shortest path.
+        The orientation of Bellman-Ford's algorithm. It can be either 'out' for single source
+        shortest paths or 'in' for single target shortest path.
     check_edges: bool, optional (default=False)
-        Whether to check if the edges DataFrame is well-formed. If set to True, the edges DataFrame
-        will be checked for missing values and invalid data types. Note: negative weights are allowed.
+        Whether to check if the edges DataFrame is well-formed. If set to True, the edges
+        DataFrame will be checked for missing values and invalid data types. Note: negative
+        weights are allowed.
     permute: bool, optional (default=False)
         Whether to permute the IDs of the nodes. If set to True, the node IDs will be reindexed to
         start from 0 and be contiguous.
@@ -956,7 +957,8 @@ class BellmanFord:
         detect_negative_cycles=True,
     ):
         """
-        Runs Bellman-Ford shortest path algorithm between a given vertex and all other vertices in the graph.
+        Runs Bellman-Ford shortest path algorithm between a given vertex and all other vertices
+        in the graph.
 
         Parameters
         ----------
@@ -971,7 +973,8 @@ class BellmanFord:
             Whether to return a Pandas Series object indexed by vertex indices with path length(s)
             as values.
         detect_negative_cycles : bool, optional (default=True)
-            Whether to detect negative cycles in the graph. If True and a negative cycle is detected,
+            Whether to detect negative cycles in the graph. If True and a negative cycle is
+            detected,
             raises a ValueError.
 
         Returns
@@ -1153,29 +1156,28 @@ class BellmanFord:
                 path_lengths_series.index = np.arange(self._n_vertices)
             path_lengths_series.index.name = None
             return path_lengths_series
-        else:
-            if self._permute:
-                path_df = pd.DataFrame(
-                    data={"path_length": path_length_values[: self._n_vertices]}
+
+        # No else needed - de-indent the code
+        if self._permute:
+            path_df = pd.DataFrame(
+                data={"path_length": path_length_values[: self._n_vertices]}
+            )
+            path_df["vert_idx_new"] = path_df.index
+            path_df = pd.merge(
+                path_df,
+                self._permutation,
+                left_on="vert_idx_new",
+                right_on="vert_idx_new",
+                how="left",
+            )
+            path_df.drop(["vert_idx_new"], axis=1, inplace=True)
+            path_length_values = np.full(self.__n_vertices_init, DTYPE_INF_PY)
+            path_length_values[path_df.vert_idx_old.values] = path_df.path_length.values
+            if return_inf:
+                path_length_values = np.where(
+                    path_length_values == DTYPE_INF_PY, np.inf, path_length_values
                 )
-                path_df["vert_idx_new"] = path_df.index
-                path_df = pd.merge(
-                    path_df,
-                    self._permutation,
-                    left_on="vert_idx_new",
-                    right_on="vert_idx_new",
-                    how="left",
-                )
-                path_df.drop(["vert_idx_new"], axis=1, inplace=True)
-                path_length_values = np.full(self.__n_vertices_init, DTYPE_INF_PY)
-                path_length_values[path_df.vert_idx_old.values] = (
-                    path_df.path_length.values
-                )
-                if return_inf:
-                    path_length_values = np.where(
-                        path_length_values == DTYPE_INF_PY, np.inf, path_length_values
-                    )
-            return path_length_values
+        return path_length_values
 
     def get_path(self, vertex_idx):
         """Compute path from predecessors or successors.
@@ -1396,32 +1398,25 @@ class HyperpathGenerating:
         # input check
         if not isinstance(volume, list):
             volume = [volume]
-        if self._orientation == "out":
-            self._check_vertex_idx(origin)
-            if not isinstance(destination, list):
-                destination = [destination]
-            assert len(destination) == len(volume)
-            for i, item in enumerate(destination):
-                self._check_vertex_idx(item)
-                self._check_volume(volume[i])
-            demand_indices = np.array(destination, dtype=np.uint32)
-        elif self._orientation == "in":
-            if not isinstance(origin, list):
-                origin = [origin]
-            assert len(origin) == len(volume)
-            for i, item in enumerate(origin):
-                self._check_vertex_idx(item)
-                self._check_volume(volume[i])
-            self._check_vertex_idx(destination)
-            demand_indices = np.array(origin, dtype=np.uint32)
-        assert isinstance(return_inf, bool)
-
-        demand_values = np.array(volume, dtype=DTYPE_PY)
 
         if self._orientation == "out":
             raise NotImplementedError(
                 "one-to-many Spiess & Florian's algorithm not implemented yet"
             )
+
+        # Only "in" orientation is supported currently
+        if not isinstance(origin, list):
+            origin = [origin]
+        assert len(origin) == len(volume)
+        for i, item in enumerate(origin):
+            self._check_vertex_idx(item)
+            self._check_volume(volume[i])
+        self._check_vertex_idx(destination)
+        demand_indices = np.array(origin, dtype=np.uint32)
+
+        assert isinstance(return_inf, bool)
+
+        demand_values = np.array(volume, dtype=DTYPE_PY)
 
         compute_SF_in(
             self.__indptr,
