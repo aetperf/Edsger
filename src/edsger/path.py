@@ -763,6 +763,9 @@ class BellmanFord:
             self.__indptr = rs_indptr.astype(np.uint32)
             self.__edge_weights = rs_data.astype(DTYPE_PY)
 
+        # Check if graph has any negative weights (for optimization)
+        self._has_negative_weights = np.any(self.__edge_weights < 0)
+
         self._path_links = None
         self._has_negative_cycle = False
 
@@ -1110,8 +1113,8 @@ class BellmanFord:
                         path_df.associated_idx.values
                     )
 
-        # detect negative cycles if requested
-        if detect_negative_cycles:
+        # detect negative cycles if requested (only if negative weights exist)
+        if detect_negative_cycles and self._has_negative_weights:
             if self._orientation == "out":
                 # CSR format - can use detect_negative_cycle directly
                 self._has_negative_cycle = detect_negative_cycle(
