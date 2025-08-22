@@ -68,6 +68,14 @@ testpaths = [
     "tests"
 ]
 
+[tool.black]
+extend-exclude = '''
+/(
+    old
+    | notebooks
+)/
+'''
+
 [tool.cibuildwheel]
 # Skip 32-bit i686 architectures (outdated, rarely needed)
 skip = "*_i686"
