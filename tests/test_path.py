@@ -1,11 +1,6 @@
 """Tests for path.py.
 
 py.test tests/test_path.py
-
-author : Francois Pacull
-copyright : Architecture & Performance
-email: francois.pacull@architecture-performance.fr
-license : MIT
 """
 
 import numpy as np
@@ -13,7 +8,7 @@ import pandas as pd
 import pytest
 from edsger.commons import A_VERY_SMALL_TIME_INTERVAL_PY, DTYPE_INF_PY
 from edsger.networks import create_sf_network
-from edsger.path import Dijkstra, HyperpathGenerating
+from edsger.path import BellmanFord, Dijkstra, HyperpathGenerating
 from scipy.sparse import coo_array, csr_matrix
 from scipy.sparse.csgraph import dijkstra
 
@@ -665,3 +660,175 @@ def test_dijkstra_early_termination_stsp_permute_true(braess):
         vertex_idx=3, termination_nodes=termination_nodes
     )
     assert np.allclose(path_lengths, path_lengths_no_permute)
+
+
+# ============================================================================ #
+# Bellman-Ford tests                                                          #
+# ============================================================================ #
+
+
+def test_bellman_ford_positive_weights(braess):
+    """Test BellmanFord with positive weights matches Dijkstra."""
+
+    # Run Dijkstra
+    dij = Dijkstra(braess, orientation="out")
+    dij_dist = dij.run(vertex_idx=0)
+
+    # Run Bellman-Ford
+    bf = BellmanFord(braess, orientation="out")
+    bf_dist = bf.run(vertex_idx=0)
+
+    # Results should match for positive weights
+    assert np.allclose(bf_dist, dij_dist)
+
+
+def test_bellman_ford_negative_edges():
+    """Test BellmanFord with negative edges."""
+
+    edges = pd.DataFrame(
+        data={
+            "tail": [0, 0, 1, 1, 2, 3],
+            "head": [1, 2, 2, 3, 3, 4],
+            "weight": [1.0, 4.0, -2.0, 5.0, 1.0, 3.0],
+        }
+    )
+
+    bf = BellmanFord(edges)
+    distances = bf.run(vertex_idx=0)
+
+    # Expected shortest paths from vertex 0
+    expected = np.array([0.0, 1.0, -1.0, 0.0, 3.0])
+    assert np.allclose(distances[:5], expected)
+
+    # Verify no negative cycle
+    assert not bf.has_negative_cycle()
+
+
+def test_bellman_ford_negative_cycle_detection():
+    """Test BellmanFord negative cycle detection."""
+
+    edges = pd.DataFrame(
+        data={
+            "tail": [0, 1, 2, 2],
+            "head": [1, 2, 0, 3],
+            "weight": [1.0, -2.0, -1.0, 1.0],  # Cycle 0->1->2->0 has weight -2
+        }
+    )
+
+    bf = BellmanFord(edges)
+
+    # Should raise ValueError when negative cycle detected
+    with pytest.raises(ValueError, match="Negative cycle detected"):
+        bf.run(vertex_idx=0, detect_negative_cycles=True)
+
+
+def test_bellman_ford_path_tracking():
+    """Test BellmanFord path tracking."""
+
+    edges = pd.DataFrame(
+        data={
+            "tail": [0, 0, 1, 1, 2, 3],
+            "head": [1, 2, 2, 3, 3, 4],
+            "weight": [1.0, 4.0, -2.0, 5.0, 1.0, 3.0],
+        }
+    )
+
+    bf = BellmanFord(edges)
+    distances = bf.run(vertex_idx=0, path_tracking=True)
+
+    # Get path from 0 to 4
+    path = bf.get_path(4)
+    assert path is not None
+
+    # Verify the path is correct (backward from target to source)
+    assert path[0] == 4  # starts at target
+    assert path[-1] == 0  # ends at source
+
+
+def test_bellman_ford_orientation_in():
+    """Test BellmanFord with 'in' orientation."""
+
+    edges = pd.DataFrame(
+        data={
+            "tail": [0, 0, 1, 1, 2],
+            "head": [1, 2, 2, 3, 3],
+            "weight": [1.0, 2.0, 0.0, 2.0, 1.0],
+        }
+    )
+
+    bf_out = BellmanFord(edges, orientation="out")
+    bf_in = BellmanFord(edges, orientation="in")
+
+    # SSSP from vertex 0
+    dist_from_0 = bf_out.run(vertex_idx=0)
+
+    # STSP to vertex 0
+    dist_to_0 = bf_in.run(vertex_idx=0)
+
+    # dist_to_0[i] should be the distance from vertex i to vertex 0
+    # This is equivalent to the distance from 0 to i in the reverse graph
+    assert dist_to_0[0] == 0  # Distance from 0 to itself
+
+
+def test_bellman_ford_permute():
+    """Test BellmanFord with vertex permutation."""
+
+    # Use non-contiguous vertex IDs
+    edges = pd.DataFrame(
+        data={
+            "tail": [10, 10, 20, 30],
+            "head": [20, 30, 30, 40],
+            "weight": [1.0, 4.0, -2.0, 3.0],
+        }
+    )
+
+    bf = BellmanFord(edges, permute=True)
+    distances = bf.run(vertex_idx=10)
+
+    # Check distances
+    assert distances[10] == 0.0
+    assert distances[20] == 1.0
+    assert distances[30] == -1.0
+    assert distances[40] == 2.0
+
+
+def test_bellman_ford_return_series():
+    """Test BellmanFord returning Series."""
+
+    edges = pd.DataFrame(
+        data={
+            "tail": [0, 0, 1, 2],
+            "head": [1, 2, 2, 3],
+            "weight": [1.0, 3.0, 1.0, 1.0],
+        }
+    )
+
+    bf = BellmanFord(edges)
+    result = bf.run(vertex_idx=0, return_series=True)
+
+    assert isinstance(result, pd.Series)
+    assert len(result) == 4
+    assert result[0] == 0.0
+    assert result[1] == 1.0
+    assert result[2] == 2.0
+    assert result[3] == 3.0
+
+
+def test_bellman_ford_check_edges_allows_negative():
+    """Test that BellmanFord allows negative weights with check_edges."""
+
+    edges = pd.DataFrame(
+        data={
+            "tail": [0, 0],
+            "head": [1, 2],
+            "weight": [1.0, -2.0],
+        }
+    )
+
+    # BellmanFord should allow negative weights
+    bf = BellmanFord(edges, check_edges=True)
+    assert bf is not None
+
+    # Dijkstra should reject negative weights
+    with pytest.raises(ValueError, match=r"nonnegative"):
+        Dijkstra(edges, check_edges=True)
