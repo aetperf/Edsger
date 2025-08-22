@@ -1,17 +1,17 @@
 # Quick Start Guide
 
-Welcome to our Python library for graph algorithms. So far, the library only includes Dijkstra's algorithm but we should add a range of common path algorithms later. It is also open-source and easy to integrate with other Python libraries.
+Welcome to our Python library for graph algorithms. The library includes both Dijkstra's and Bellman-Ford's algorithms, with plans to add more common path algorithms later. It is also open-source and easy to integrate with other Python libraries.
 
 
 ## Graph Data Format
 
 Edsger expects graph data as a pandas DataFrame with the following structure:
 
-| Column | Type    | Description                          |
-|--------|---------|--------------------------------------|
-| tail   | int     | Source vertex ID                     |
-| head   | int     | Destination vertex ID                |
-| weight | float   | Edge weight (must be non-negative)   |
+| Column | Type    | Description                                    |
+|--------|---------|------------------------------------------------|
+| tail   | int     | Source vertex ID                               |
+| head   | int     | Destination vertex ID                          |
+| weight | float   | Edge weight (non-negative for Dijkstra, can be negative for Bellman-Ford) |
 
 Example:
 ```python
@@ -339,6 +339,113 @@ shortest_paths
 - `heap_length_ratio` : float, optional (default=1.0)
     
 This is an experimental parameter that controls the size of the heap used in the algorithm. The heap is a static array that is used to store the vertices that may be visited next. A value of 1.0 means that the heap is the same size as the number of vertices, so there is no risk of overflow. Be aware that there is no guarantee that the algorithm will work with a heap length ratio smaller that 1. The lowest ratio that works for a given graph depends on the graph structure and the source vertex. For a rather sparse graph, a small ratio may work, but for a dense graph, a ratio of 1.0 is required.
+
+## Bellman-Ford Algorithm
+
+The Bellman-Ford algorithm is designed for graphs that may contain negative edge weights and can detect negative cycles. Unlike Dijkstra's algorithm, Bellman-Ford can handle a broader class of problems but with a higher computational cost.
+
+### Basic Usage
+
+```python
+from edsger.path import BellmanFord
+
+# Create a graph with negative weights
+edges_negative = pd.DataFrame({
+    'tail': [0, 0, 1, 1, 2, 3],
+    'head': [1, 2, 2, 3, 3, 4],
+    'weight': [1, 4, -2, 5, 1, 3]  # Note the negative weight
+})
+
+# Initialize the Bellman-Ford object
+bf = BellmanFord(edges_negative)
+
+# Run the algorithm from a source vertex
+shortest_paths = bf.run(vertex_idx=0)
+print("Shortest paths:", shortest_paths)
+```
+
+    Shortest paths: [ 0.  1. -1.  0.  3.]
+
+### Negative Weights and Optimal Paths
+
+The power of Bellman-Ford becomes evident when dealing with negative weights. In the example above, the shortest path from vertex 0 to vertex 2 has length -1 (going 0→1→2 with weights 1 + (-2) = -1), which is shorter than the direct path 0→2 with weight 4.
+
+### Negative Cycle Detection
+
+One of Bellman-Ford's key features is detecting negative cycles, which make shortest path problems ill-defined:
+
+```python
+# Create a graph with a negative cycle
+edges_cycle = pd.DataFrame({
+    'tail': [0, 1, 2],
+    'head': [1, 2, 0],
+    'weight': [1, -2, -1]  # Cycle 0→1→2→0 has total weight -2
+})
+
+bf_cycle = BellmanFord(edges_cycle)
+try:
+    shortest_paths = bf_cycle.run(vertex_idx=0)
+except ValueError as e:
+    print("Error:", e)
+```
+
+    Error: Negative cycle detected in the graph
+
+### Disabling Negative Cycle Detection
+
+For performance reasons, you can disable negative cycle detection if you're confident your graph doesn't contain negative cycles:
+
+```python
+bf = BellmanFord(edges_negative)
+# Skip negative cycle detection for better performance
+shortest_paths = bf.run(vertex_idx=0, detect_negative_cycles=False)
+```
+
+### Orientation
+
+Like Dijkstra, Bellman-Ford supports both orientations:
+
+```python
+# Single-source shortest paths (from source to all vertices)
+bf_out = BellmanFord(edges_negative, orientation='out')
+distances_out = bf_out.run(vertex_idx=0)
+
+# Single-target shortest paths (from all vertices to target)
+bf_in = BellmanFord(edges_negative, orientation='in')
+distances_in = bf_in.run(vertex_idx=4)
+```
+
+### Path Tracking
+
+Bellman-Ford also supports path reconstruction:
+
+```python
+bf = BellmanFord(edges_negative)
+shortest_paths = bf.run(vertex_idx=0, path_tracking=True)
+
+# Get the actual path to vertex 3
+path = bf.get_path(vertex_idx=3)
+print("Path to vertex 3:", path)
+```
+
+    Path to vertex 3: [3 2 1 0]
+
+### When to Use Bellman-Ford vs Dijkstra
+
+**Use Bellman-Ford when:**
+- Your graph contains negative edge weights
+- You need to detect negative cycles
+- Working with financial networks, arbitrage detection, or differential constraints
+- Performance is less critical than correctness
+
+**Use Dijkstra when:**
+- All edge weights are non-negative (e.g., distances, travel times, costs)
+- You need the fastest possible performance (O((V+E)logV) vs O(VE))
+- Working with road networks, shortest distance problems
+
+### Performance Considerations
+
+Bellman-Ford has O(VE) time complexity compared to Dijkstra's O((V+E)logV). For large graphs with only positive weights, Dijkstra is significantly faster. However, the performance difference may be acceptable for smaller graphs or when negative weights are essential to your problem.
 
 ## Next Steps
 

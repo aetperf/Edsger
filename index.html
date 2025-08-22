@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Installation Guide" href="installation.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.07.19 -->
-        <title>Edsger 0.0.15 documentation</title>
+        <title>Edsger 0.1.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=25af2a20" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -168,7 +168,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">Edsger 0.0.15 documentation</div></a>
+      <a href="#"><div class="brand">Edsger 0.1.5 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -191,7 +191,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
   
-  <span class="sidebar-brand-text">Edsger 0.0.15 documentation</span>
+  <span class="sidebar-brand-text">Edsger 0.1.5 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -254,7 +254,7 @@
           <section id="edsger">
 <h1>Edsger<a class="headerlink" href="#edsger" title="Link to this heading">¶</a></h1>
 <p><em>Graph algorithms in Cython</em></p>
-<p>Welcome to the Edsger documentation! Edsger is a Python library for efficient graph algorithms implemented in Cython. The library currently focuses on shortest path algorithms, with Dijkstra’s algorithm fully implemented and additional algorithms planned for future releases.</p>
+<p>Welcome to the Edsger documentation! Edsger is a Python library for efficient graph algorithms implemented in Cython. The library focuses on shortest path algorithms, featuring so far both Dijkstra’s algorithm for positive-weight graphs and Bellman-Ford algorithm for graphs with negative weights and cycle detection.</p>
 <section id="why-use-edsger">
 <h2>Why Use Edsger?<a class="headerlink" href="#why-use-edsger" title="Link to this heading">¶</a></h2>
 <p>Edsger is designed to be <strong>dataframe-friendly</strong>, providing seamless integration with pandas workflows for graph algorithms. Also it is rather efficient on Linux. Our benchmarks on the USA road network (23.9M vertices, 57.7M edges) demonstrate nice performance:</p>
@@ -263,7 +263,7 @@
 <section id="pandas-integration-made-simple">
 <h3>Pandas Integration Made Simple<a class="headerlink" href="#pandas-integration-made-simple" title="Link to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dijkstra</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dijkstra</span><span class="p">,</span> <span class="n">BellmanFord</span>
 
 <span class="c1"># Your graph data is already in a DataFrame</span>
 <span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
@@ -272,13 +272,13 @@
     <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
 <span class="p">})</span>
 
-<span class="c1"># No conversion needed - use directly!</span>
-<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">)</span>
+<span class="c1"># Use Dijkstra for positive weights (faster)</span>
+<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
 <span class="n">distances</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">distances</span>
-</pre></div>
-</div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>array([0., 1., 2., 3.])
+
+<span class="c1"># Use Bellman-Ford for negative weights or cycle detection</span>
+<span class="n">bf</span> <span class="o">=</span> <span class="n">BellmanFord</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+<span class="n">distances</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -287,9 +287,9 @@
 <h2>Key Features<a class="headerlink" href="#key-features" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><strong>Native pandas DataFrame support</strong> - No graph object conversion required</p></li>
-<li><p><strong>High performance</strong> - Cython implementation with aggressive optimizations</p></li>
-<li><p><strong>Memory efficient</strong> - Optimized for large-scale real-world datasets</p></li>
-<li><p><strong>Easy integration</strong> with NumPy and pandas workflows</p></li>
+<li><p><strong>High performance</strong> - Cython implementation</p></li>
+<li><p><strong>Memory efficient</strong> - Optimized for real-world datasets</p></li>
+<li><p><strong>Easy integration</strong> with NumPy and Pandas workflows</p></li>
 <li><p><strong>Production ready</strong> - Comprehensive testing across Python 3.9-3.13</p></li>
 </ul>
 </section>
@@ -320,6 +320,7 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#graph-data-format">Graph Data Format</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#dijkstra-s-algorithm">Dijkstra’s Algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#bellman-ford-algorithm">Bellman-Ford Algorithm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#next-steps">Next Steps</a></li>
 </ul>
 </li>
@@ -330,6 +331,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api.html#edsger-path-module">edsger.path Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#algorithm-comparison">Algorithm Comparison</a></li>
 </ul>
 </li>
 </ul>
@@ -418,7 +420,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=f0357c94"></script>
+</div><script src="_static/documentation_options.js?v=59fadc99"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
