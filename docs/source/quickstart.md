@@ -37,7 +37,7 @@ Note that it is also possible to use a graph with different column names for the
 
 ## Dijkstra's Algorithm
 
-To use Dijkstra's algorithm, you can import the `Dijkstra` class from the `path` module. The function takes a graph and a source node as input, and returns the shortest path from the source node to all other nodes in the graph.
+To use Dijkstra's algorithm, you can import the `Dijkstra` class from the `path` module. The function takes a graph and a source node as input, and returns the shortest path from the source node to all other nodes in the graph. If your graph contains parallel edges (multiple edges between the same pair of vertices), Dijkstra automatically keeps only the edge with minimum weight for each vertex pair.
 
 ```python
 from edsger.path import Dijkstra

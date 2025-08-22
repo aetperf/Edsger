@@ -17,6 +17,7 @@ The main class for performing Dijkstra's shortest path algorithm.
 - `orientation`: Either 'out' (single-source) or 'in' (single-target) (default: 'out')
 - `check_edges`: Whether to validate edge data (default: False)
 - `permute`: Whether to optimize node indexing (default: False)
+- `verbose`: Whether to print messages about parallel edge removal (default: False)
 
 #### Methods
 
@@ -128,6 +129,7 @@ The class for performing Bellman-Ford shortest path algorithm, which handles gra
 - `orientation`: Either 'out' (single-source) or 'in' (single-target) (default: 'out')
 - `check_edges`: Whether to validate edge data (default: False)
 - `permute`: Whether to optimize node indexing (default: False)
+- `verbose`: Whether to print messages about parallel edge removal (default: False)
 
 #### Methods
 
@@ -236,6 +238,40 @@ print(path)  # Path using the negative weight edge
 paths = bf.run(vertex_idx=0, detect_negative_cycles=False)
 ```
 
+## Parallel Edges Handling
+
+Both `Dijkstra` and `BellmanFord` classes automatically handle parallel edges (multiple edges between the same pair of vertices) during initialization. When parallel edges are detected:
+
+1. **Automatic Processing**: The `_preprocess_edges()` method is called internally during initialization
+2. **Minimum Weight Selection**: For each pair of vertices with multiple edges, only the edge with the minimum weight is kept
+3. **Verbose Output**: If `verbose=True` is set in the constructor, a message will be printed indicating how many parallel edges were removed
+
+### Example with Parallel Edges
+
+```python
+import pandas as pd
+from edsger.path import Dijkstra
+
+# Graph with parallel edges between vertices 0->1
+edges = pd.DataFrame({
+    'tail': [0, 0, 1],     # Two edges from 0->1
+    'head': [1, 1, 2],     # with weights 5.0 and 3.0
+    'weight': [5.0, 3.0, 2.0]
+})
+
+# Initialize with verbose=True to see parallel edge removal
+dijkstra = Dijkstra(edges, verbose=True)
+# Output: "Automatically removed 1 parallel edge(s). For each pair of vertices, kept the edge with minimum weight."
+
+# The graph now has only the edge 0->1 with weight 3.0 (minimum)
+print(dijkstra.n_edges)  # Will show 2 instead of 3
+```
+
+This automatic handling ensures:
+- Consistent graph representation
+- Optimal shortest paths (using minimum weight edges)
+- No duplicate edges in the internal graph structure
+
 ## Algorithm Comparison
 
 | Feature | Dijkstra | BellmanFord |
@@ -246,3 +282,4 @@ paths = bf.run(vertex_idx=0, detect_negative_cycles=False)
 | **Space complexity** | O(V) | O(V) |
 | **Use case** | Positive weights only | Any weights, cycle detection |
 | **Performance** | Faster | Slower but more versatile |
+| **Parallel edges** | ✅ Auto-handled | ✅ Auto-handled |
