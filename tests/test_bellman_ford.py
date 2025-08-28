@@ -315,7 +315,7 @@ class TestBellmanFord:
         # Remove self-loops
         edges = edges[edges["tail"] != edges["head"]]
 
-        bf = BellmanFord(edges)
+        bf = BellmanFord(edges)  # type: ignore
 
         # Should complete without error
         try:

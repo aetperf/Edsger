@@ -47,7 +47,7 @@ def test_check_edges_02(braess):
     edges = braess
 
     with pytest.raises(TypeError, match=r"pandas DataFrame"):
-        _ = Dijkstra("yeaaahhh!!!", check_edges=True)
+        _ = Dijkstra("yeaaahhh!!!", check_edges=True)  # type: ignore
     with pytest.raises(KeyError, match=r"not found in graph edges dataframe"):
         _ = Dijkstra(edges, tail="source", check_edges=True)
     with pytest.raises(KeyError, match=r"not found in graph edges dataframe"):

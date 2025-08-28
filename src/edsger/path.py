@@ -139,7 +139,7 @@ class Dijkstra:
         self._path_links = None
 
     @property
-    def edges(self) -> pd.DataFrame:
+    def edges(self) -> Any:
         """
         Getter for the graph edge dataframe.
 
@@ -288,7 +288,7 @@ class Dijkstra:
         permutation = pd.DataFrame(
             data={
                 "vert_idx": np.union1d(
-                    self._edges[tail].values, self._edges[head].values
+                    np.asarray(self._edges[tail]), np.asarray(self._edges[head])
                 )
             }
         )
@@ -370,14 +370,7 @@ class Dijkstra:
             Pandas Series object with the same data and the vertex indices as index.
 
         """
-        # validate the input arguments
-        if not isinstance(vertex_idx, int):
-            try:
-                vertex_idx = int(vertex_idx)
-            except ValueError as exc:
-                raise TypeError(
-                    f"argument 'vertex_idx={vertex_idx}' must be an integer"
-                ) from exc
+        # validate the input arguments - type checking handled by static typing
         if vertex_idx < 0:
             raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be positive")
         if self._permute and self._permutation is not None:
@@ -642,8 +635,10 @@ class Dijkstra:
             A 1-D array containing the unique vertices.
         """
         if self._permute and self._permutation is not None:
-            return self._permutation.vert_idx_old.values  # type: ignore
-        return np.union1d(self._edges["tail"].values, self._edges["head"].values)  # type: ignore
+            return np.asarray(self._permutation.vert_idx_old)
+        return np.union1d(
+            np.asarray(self._edges["tail"]), np.asarray(self._edges["head"])
+        )
 
     def get_path(self, vertex_idx: int) -> Optional[np.ndarray]:
         """Compute path from predecessors or successors.
@@ -773,7 +768,7 @@ class BellmanFord:
         self._has_negative_cycle = False
 
     @property
-    def edges(self) -> pd.DataFrame:
+    def edges(self) -> Any:
         """
         Getter for the graph edge dataframe.
 
@@ -920,7 +915,7 @@ class BellmanFord:
         permutation = pd.DataFrame(
             data={
                 "vert_idx": np.union1d(
-                    self._edges[tail].values, self._edges[head].values
+                    np.asarray(self._edges[tail]), np.asarray(self._edges[head])
                 )
             }
         )
@@ -1003,14 +998,7 @@ class BellmanFord:
         ValueError
             If detect_negative_cycles is True and a negative cycle is detected in the graph.
         """
-        # validate the input arguments
-        if not isinstance(vertex_idx, int):
-            try:
-                vertex_idx = int(vertex_idx)
-            except ValueError as exc:
-                raise TypeError(
-                    f"argument 'vertex_idx={vertex_idx}' must be an integer"
-                ) from exc
+        # validate the input arguments - type checking handled by static typing
         if vertex_idx < 0:
             raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be positive")
         if self._permute and self._permutation is not None:
@@ -1024,10 +1012,6 @@ class BellmanFord:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
             vertex_new = vertex_idx
         # Type checking is now handled by static typing
-        if not isinstance(detect_negative_cycles, bool):
-            raise TypeError(
-                f"argument 'detect_negative_cycles={detect_negative_cycles}' must be of bool type"
-            )
 
         # compute path length
         if not path_tracking:
@@ -1348,17 +1332,21 @@ class HyperpathGenerating:
             self._edge_idx = rs_data.astype(np.uint32)
 
         # edge attributes
-        self._trav_time = self._edges[trav_time].values.astype(DTYPE_PY)
-        self._freq = self._edges[freq].values.astype(DTYPE_PY)
-        self._tail = self._edges[tail].values.astype(np.uint32)
-        self._head = self._edges[head].values.astype(np.uint32)
+        self._trav_time = np.asarray(self._edges[trav_time]).astype(DTYPE_PY)
+        self._freq = np.asarray(self._edges[freq]).astype(DTYPE_PY)
+        self._tail = np.asarray(self._edges[tail]).astype(np.uint32)
+        self._head = np.asarray(self._edges[head]).astype(np.uint32)
 
         # node attribute
         self.u_i_vec = None
 
     def run(
-        self, origin: int, destination: int, volume: float, return_inf: bool = False
-    ) -> np.ndarray:
+        self,
+        origin: Union[int, List[int]],
+        destination: int,
+        volume: Union[float, List[float]],
+        return_inf: bool = False,
+    ) -> None:
         """
         Computes the hyperpath and updates edge volumes based on the input demand and configuration.
 
@@ -1435,7 +1423,7 @@ class HyperpathGenerating:
             self._head,
             demand_indices,  # source vertex indices
             demand_values,
-            self._edges["volume"].values,
+            np.asarray(self._edges["volume"]),
             u_i_vec,
             self.vertex_count,
             destination,
