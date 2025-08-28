@@ -122,6 +122,61 @@ except ValueError as e:
 pip install edsger
 ```
 
+### Development Installation
+
+For development work, clone the repository and install in development mode:
+
+```bash
+git clone https://github.com/aetperf/Edsger.git
+cd Edsger
+pip install -r requirements-dev.txt
+pip install -e .
+```
+
+## Development
+
+This project uses several development tools to ensure code quality:
+
+### Type Checking
+
+We use [Pyright](https://github.com/microsoft/pyright) for static type checking:
+
+```bash
+# Run type checking
+make typecheck
+
+# Or directly with pyright
+pyright
+```
+
+For more details on type checking configuration and gradual typing strategy, see [TYPING.md](TYPING.md).
+
+### Running Tests
+
+```bash
+# Run all tests
+make test
+
+# Run with coverage
+make coverage
+```
+
+### Code Formatting and Linting
+
+```bash
+# Format code with black
+make format
+
+# Check code style
+make lint
+```
+
+### Available Make Commands
+
+```bash
+make help  # Show all available commands
+```
+
 ## Why Use Edsger?
 
 Edsger is designed to be **dataframe-friendly**, providing seamless integration with pandas workflows for graph algorithms. Also it is rather efficient on Linux. Our benchmarks on the USA road network (23.9M vertices, 57.7M edges) demonstrate nice performance:
