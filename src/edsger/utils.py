@@ -2,19 +2,20 @@
 graphs.
 """
 
+from typing import Tuple
 import numpy as np
 import pandas as pd
 
 
 def generate_random_network(
-    n_edges=100,
-    n_verts=20,
-    seed=124,
-    sort=True,
-    allow_negative_weights=False,
-    negative_weight_ratio=0.3,
-    weight_range=(0.1, 1.0),
-):
+    n_edges: int = 100,
+    n_verts: int = 20,
+    seed: int = 124,
+    sort: bool = True,
+    allow_negative_weights: bool = False,
+    negative_weight_ratio: float = 0.3,
+    weight_range: Tuple[float, float] = (0.1, 1.0),
+) -> pd.DataFrame:
     """
     Generate a random network with a specified number of edges and vertices.
 

@@ -2,6 +2,7 @@
 Path-related methods.
 """
 
+from typing import Optional, Union, List, Any
 import warnings
 
 import numpy as np
@@ -78,15 +79,15 @@ class Dijkstra:
 
     def __init__(
         self,
-        edges,
-        tail="tail",
-        head="head",
-        weight="weight",
-        orientation="out",
-        check_edges=False,
-        permute=False,
-        verbose=False,
-    ):
+        edges: pd.DataFrame,
+        tail: str = "tail",
+        head: str = "head",
+        weight: str = "weight",
+        orientation: str = "out",
+        check_edges: bool = False,
+        permute: bool = False,
+        verbose: bool = False,
+    ) -> None:
         # load the edges
         if check_edges:
             self._check_edges(edges, tail, head, weight)
@@ -138,7 +139,7 @@ class Dijkstra:
         self._path_links = None
 
     @property
-    def edges(self):
+    def edges(self) -> pd.DataFrame:
         """
         Getter for the graph edge dataframe.
 
@@ -150,7 +151,7 @@ class Dijkstra:
         return self._edges
 
     @property
-    def n_edges(self):
+    def n_edges(self) -> int:
         """
         Getter for the number of graph edges.
 
@@ -162,7 +163,7 @@ class Dijkstra:
         return self._n_edges
 
     @property
-    def n_vertices(self):
+    def n_vertices(self) -> int:
         """
         Getter for the number of graph vertices.
 
@@ -174,7 +175,7 @@ class Dijkstra:
         return self._n_vertices
 
     @property
-    def orientation(self):
+    def orientation(self) -> str:
         """
         Getter of Dijkstra's algorithm orientation ("in" or "out").
 
@@ -186,7 +187,7 @@ class Dijkstra:
         return self._orientation
 
     @property
-    def permute(self):
+    def permute(self) -> bool:
         """
         Getter for the graph permutation/reindexing option.
 
@@ -198,7 +199,7 @@ class Dijkstra:
         return self._permute
 
     @property
-    def path_links(self):
+    def path_links(self) -> Optional[np.ndarray]:
         """
         Getter for the graph permutation/reindexing option.
 
@@ -330,13 +331,13 @@ class Dijkstra:
 
     def run(
         self,
-        vertex_idx,
-        path_tracking=False,
-        return_inf=True,
-        return_series=False,
-        heap_length_ratio=1.0,
-        termination_nodes=None,
-    ):
+        vertex_idx: int,
+        path_tracking: bool = False,
+        return_inf: bool = True,
+        return_series: bool = False,
+        heap_length_ratio: float = 1.0,
+        termination_nodes: Optional[List[int]] = None,
+    ) -> Union[np.ndarray, pd.Series]:
         """
         Runs shortest path algorithm between a given vertex and all other vertices in the graph.
 
@@ -389,16 +390,7 @@ class Dijkstra:
             if vertex_idx >= self._n_vertices:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
             vertex_new = vertex_idx
-        if not isinstance(path_tracking, bool):
-            raise TypeError(
-                f"argument 'path_tracking=f{path_tracking}' must be of bool type"
-            )
-        if not isinstance(return_inf, bool):
-            raise TypeError(f"argument 'return_inf=f{return_inf}' must be of bool type")
-        if not isinstance(return_series, bool):
-            raise TypeError(
-                f"argument 'return_series=f{return_series}' must be of bool type"
-            )
+        # Type checking is now handled by static typing
         if not isinstance(heap_length_ratio, float):
             raise TypeError(
                 f"argument 'heap_length_ratio=f{heap_length_ratio}' must be of float type"
@@ -637,7 +629,7 @@ class Dijkstra:
 
         return path_length_values
 
-    def get_vertices(self):
+    def get_vertices(self) -> Any:
         """
         Get the unique vertices from the graph.
 
@@ -650,10 +642,10 @@ class Dijkstra:
             A 1-D array containing the unique vertices.
         """
         if self._permute and self._permutation is not None:
-            return self._permutation.vert_idx_old.values
-        return np.union1d(self._edges["tail"], self._edges["head"])
+            return self._permutation.vert_idx_old.values  # type: ignore
+        return np.union1d(self._edges["tail"].values, self._edges["head"].values)  # type: ignore
 
-    def get_path(self, vertex_idx):
+    def get_path(self, vertex_idx: int) -> Optional[np.ndarray]:
         """Compute path from predecessors or successors.
 
         Parameters:
@@ -726,15 +718,15 @@ class BellmanFord:
 
     def __init__(
         self,
-        edges,
-        tail="tail",
-        head="head",
-        weight="weight",
-        orientation="out",
-        check_edges=False,
-        permute=False,
-        verbose=False,
-    ):
+        edges: pd.DataFrame,
+        tail: str = "tail",
+        head: str = "head",
+        weight: str = "weight",
+        orientation: str = "out",
+        check_edges: bool = False,
+        permute: bool = False,
+        verbose: bool = False,
+    ) -> None:
         # load the edges
         if check_edges:
             self._check_edges(edges, tail, head, weight)
@@ -781,7 +773,7 @@ class BellmanFord:
         self._has_negative_cycle = False
 
     @property
-    def edges(self):
+    def edges(self) -> pd.DataFrame:
         """
         Getter for the graph edge dataframe.
 
@@ -793,7 +785,7 @@ class BellmanFord:
         return self._edges
 
     @property
-    def n_edges(self):
+    def n_edges(self) -> int:
         """
         Getter for the number of graph edges.
 
@@ -805,7 +797,7 @@ class BellmanFord:
         return self._n_edges
 
     @property
-    def n_vertices(self):
+    def n_vertices(self) -> int:
         """
         Getter for the number of graph vertices.
 
@@ -817,7 +809,7 @@ class BellmanFord:
         return self._n_vertices
 
     @property
-    def orientation(self):
+    def orientation(self) -> str:
         """
         Getter of Bellman-Ford's algorithm orientation ("in" or "out").
 
@@ -829,7 +821,7 @@ class BellmanFord:
         return self._orientation
 
     @property
-    def permute(self):
+    def permute(self) -> bool:
         """
         Getter for the graph permutation/reindexing option.
 
@@ -841,7 +833,7 @@ class BellmanFord:
         return self._permute
 
     @property
-    def path_links(self):
+    def path_links(self) -> Optional[np.ndarray]:
         """
         Getter for the path links (predecessors or successors).
 
@@ -971,12 +963,12 @@ class BellmanFord:
 
     def run(
         self,
-        vertex_idx,
-        path_tracking=False,
-        return_inf=True,
-        return_series=False,
-        detect_negative_cycles=True,
-    ):
+        vertex_idx: int,
+        path_tracking: bool = False,
+        return_inf: bool = True,
+        return_series: bool = False,
+        detect_negative_cycles: bool = True,
+    ) -> Union[np.ndarray, pd.Series]:
         """
         Runs Bellman-Ford shortest path algorithm between a given vertex and all other vertices
         in the graph.
@@ -1031,16 +1023,7 @@ class BellmanFord:
             if vertex_idx >= self._n_vertices:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
             vertex_new = vertex_idx
-        if not isinstance(path_tracking, bool):
-            raise TypeError(
-                f"argument 'path_tracking=f{path_tracking}' must be of bool type"
-            )
-        if not isinstance(return_inf, bool):
-            raise TypeError(f"argument 'return_inf=f{return_inf}' must be of bool type")
-        if not isinstance(return_series, bool):
-            raise TypeError(
-                f"argument 'return_series=f{return_series}' must be of bool type"
-            )
+        # Type checking is now handled by static typing
         if not isinstance(detect_negative_cycles, bool):
             raise TypeError(
                 f"argument 'detect_negative_cycles={detect_negative_cycles}' must be of bool type"
@@ -1202,7 +1185,7 @@ class BellmanFord:
                 )
         return path_length_values
 
-    def get_path(self, vertex_idx):
+    def get_path(self, vertex_idx: int) -> Optional[np.ndarray]:
         """Compute path from predecessors or successors.
 
         Parameters:
@@ -1312,14 +1295,14 @@ class HyperpathGenerating:
 
     def __init__(
         self,
-        edges,
-        tail="tail",
-        head="head",
-        trav_time="trav_time",
-        freq="freq",
-        check_edges=False,
-        orientation="in",
-    ):
+        edges: pd.DataFrame,
+        tail: str = "tail",
+        head: str = "head",
+        trav_time: str = "trav_time",
+        freq: str = "freq",
+        check_edges: bool = False,
+        orientation: str = "in",
+    ) -> None:
         # load the edges
         if check_edges:
             self._check_edges(edges, tail, head, trav_time, freq)
@@ -1373,7 +1356,9 @@ class HyperpathGenerating:
         # node attribute
         self.u_i_vec = None
 
-    def run(self, origin, destination, volume, return_inf=False):
+    def run(
+        self, origin: int, destination: int, volume: float, return_inf: bool = False
+    ) -> np.ndarray:
         """
         Computes the hyperpath and updates edge volumes based on the input demand and configuration.
 

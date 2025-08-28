@@ -31,7 +31,7 @@ class SiouxFalls:
     """
 
     @property
-    def edges(self):
+    def edges(self) -> pd.DataFrame:
         """
         A DataFrame containing the edges of the Sioux Falls network.
 
@@ -130,7 +130,9 @@ class SiouxFalls:
         return graph_edges
 
 
-def create_sf_network(dwell_time=1.0e-6, board_alight_ratio=0.5):
+def create_sf_network(
+    dwell_time: float = 1.0e-6, board_alight_ratio: float = 0.5
+) -> pd.DataFrame:
     """
     Example network from Spiess, H. and Florian, M. (1989).
     Optimal strategies: A new assignment model for transit networks.
