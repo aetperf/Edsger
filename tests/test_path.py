@@ -5,12 +5,12 @@ py.test tests/test_path.py
 
 import numpy as np
 import pandas as pd
-import pytest
-from edsger.commons import A_VERY_SMALL_TIME_INTERVAL_PY, DTYPE_INF_PY
+import pytest  # type: ignore
+from edsger.commons import DTYPE_INF_PY  # A_VERY_SMALL_TIME_INTERVAL_PY unused
 from edsger.networks import create_sf_network
 from edsger.path import BellmanFord, Dijkstra, HyperpathGenerating
-from scipy.sparse import coo_array, csr_matrix
-from scipy.sparse.csgraph import dijkstra
+from scipy.sparse import coo_array  # type: ignore  # csr_matrix unused
+from scipy.sparse.csgraph import dijkstra  # type: ignore
 
 
 @pytest.fixture
@@ -37,7 +37,7 @@ def test_check_edges_01():
         }
     )
     with pytest.raises(ValueError, match=r"nonnegative"):
-        sp = Dijkstra(
+        _ = Dijkstra(
             edges,
             check_edges=True,
         )
@@ -47,19 +47,19 @@ def test_check_edges_02(braess):
     edges = braess
 
     with pytest.raises(TypeError, match=r"pandas DataFrame"):
-        sp = Dijkstra("yeaaahhh!!!", check_edges=True)
+        _ = Dijkstra("yeaaahhh!!!", check_edges=True)
     with pytest.raises(KeyError, match=r"not found in graph edges dataframe"):
-        sp = Dijkstra(edges, tail="source", check_edges=True)
+        _ = Dijkstra(edges, tail="source", check_edges=True)
     with pytest.raises(KeyError, match=r"not found in graph edges dataframe"):
-        sp = Dijkstra(edges, head="target", check_edges=True)
+        _ = Dijkstra(edges, head="target", check_edges=True)
     with pytest.raises(KeyError, match=r"not found in graph edges dataframe"):
-        sp = Dijkstra(edges, weight="cost", check_edges=True)
+        _ = Dijkstra(edges, weight="cost", check_edges=True)
     with pytest.raises(ValueError, match=r"missing value"):
-        sp = Dijkstra(edges.replace(0, np.nan), check_edges=True)
+        _ = Dijkstra(edges.replace(0, np.nan), check_edges=True)
     with pytest.raises(TypeError, match=r"should be of integer type"):
-        sp = Dijkstra(edges.astype({"tail": float}), check_edges=True)
+        _ = Dijkstra(edges.astype({"tail": float}), check_edges=True)
     with pytest.raises(TypeError, match=r"should be of numeric type"):
-        sp = Dijkstra(edges.astype({"weight": str}), check_edges=True)
+        _ = Dijkstra(edges.astype({"weight": str}), check_edges=True)
 
 
 def test_run_01(braess):
@@ -288,9 +288,9 @@ def test_path_tracking_01():
     assert len(record) == 1
 
     # run the shortest path algorithm
-    path_lengths = sp.run(
+    _ = sp.run(
         vertex_idx=0, path_tracking=True, return_inf=True, return_series=False
-    )
+    )  # path_lengths unused
     path_links_ref = np.array(
         [
             0,
@@ -339,7 +339,7 @@ def test_SF_in_01():
     hp = HyperpathGenerating(edges, check_edges=False)
     hp.run(origin=0, destination=12, volume=1.0)
 
-    assert np.allclose(edges["volume_ref"].values, hp._edges["volume"].values)
+    assert np.allclose(edges["volume_ref"].values, hp._edges["volume"].values)  # type: ignore
 
     u_i_vec_ref = np.array(
         [
@@ -361,7 +361,7 @@ def test_SF_in_01():
             0.00000000e00,
         ]
     )
-    assert np.allclose(u_i_vec_ref, hp.u_i_vec, rtol=1e-08, atol=1e-08)
+    assert np.allclose(u_i_vec_ref, hp.u_i_vec, rtol=1e-08, atol=1e-08)  # type: ignore
 
 
 def test_SF_dwell_and_transfer_01():
@@ -439,7 +439,7 @@ def test_SF_dwell_and_transfer_01():
     hp = HyperpathGenerating(edges, check_edges=False)
     hp.run(origin=0, destination=2, volume=1.0)
 
-    assert np.allclose(edges["volume_ref"].values, hp._edges["volume"].values)
+    assert np.allclose(edges["volume_ref"].values, hp._edges["volume"].values)  # type: ignore
 
     u_i_vec_ref = np.array(
         [
@@ -448,7 +448,7 @@ def test_SF_dwell_and_transfer_01():
             0.0,
         ]
     )
-    assert np.allclose(u_i_vec_ref, hp.u_i_vec, rtol=1e-08, atol=1e-08)
+    assert np.allclose(u_i_vec_ref, hp.u_i_vec, rtol=1e-08, atol=1e-08)  # type: ignore
 
     # now we change the dwell edge into a transfer edge
     freq[0] = line_freq
@@ -475,10 +475,10 @@ def test_SF_dwell_and_transfer_01():
     # This implies a small resistance to the path going through vertex 1.
     # If we decrease by a tiny amount the frequency of edge 0, the flow goes
     # though vertex 1.
-    assert np.allclose(edges["volume_ref"].values, hp._edges["volume"].values)
+    assert np.allclose(edges["volume_ref"].values, hp._edges["volume"].values)  # type: ignore
 
     u_i_vec_ref = [305.0, 302.5, 0.0]
-    assert np.allclose(u_i_vec_ref, hp.u_i_vec, rtol=1e-08, atol=1e-08)
+    assert np.allclose(u_i_vec_ref, hp.u_i_vec, rtol=1e-08, atol=1e-08)  # type: ignore
 
 
 def test_dijkstra_early_termination_sssp(braess):
@@ -734,7 +734,7 @@ def test_bellman_ford_path_tracking():
     )
 
     bf = BellmanFord(edges)
-    distances = bf.run(vertex_idx=0, path_tracking=True)
+    _ = bf.run(vertex_idx=0, path_tracking=True)  # distances unused
 
     # Get path from 0 to 4
     path = bf.get_path(4)
@@ -760,7 +760,7 @@ def test_bellman_ford_orientation_in():
     bf_in = BellmanFord(edges, orientation="in")
 
     # SSSP from vertex 0
-    dist_from_0 = bf_out.run(vertex_idx=0)
+    _ = bf_out.run(vertex_idx=0)  # dist_from_0 unused
 
     # STSP to vertex 0
     dist_to_0 = bf_in.run(vertex_idx=0)
