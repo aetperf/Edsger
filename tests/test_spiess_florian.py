@@ -3,7 +3,7 @@
 py.test tests/test_spiess_florian.py
 """
 
-from edsger.spiess_florian import *
+from edsger.spiess_florian import *  # type: ignore
 
 
 def test_compute_SF_in_01():

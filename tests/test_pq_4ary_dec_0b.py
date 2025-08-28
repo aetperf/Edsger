@@ -3,7 +3,7 @@
 py.test tests/test_pq_4ary_dec_0b.py
 """
 
-from edsger.pq_4ary_dec_0b import *
+from edsger.pq_4ary_dec_0b import *  # type: ignore
 
 
 def test_init_01():
