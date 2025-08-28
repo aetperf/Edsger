@@ -5,9 +5,9 @@ py.test tests/test_bellman_ford.py
 
 import numpy as np
 import pandas as pd
-import pytest
-from scipy.sparse import csr_matrix
-from scipy.sparse.csgraph import bellman_ford as scipy_bellman_ford
+import pytest  # type: ignore
+from scipy.sparse import csr_matrix  # type: ignore
+from scipy.sparse.csgraph import bellman_ford as scipy_bellman_ford  # type: ignore
 
 from edsger.path import BellmanFord, Dijkstra
 
@@ -396,7 +396,7 @@ class TestBellmanFord:
                 for i in range(len(our_path) - 1):
                     curr, next_v = our_path[i + 1], our_path[i]
                     edge_mask = (edges["tail"] == curr) & (edges["head"] == next_v)
-                    our_path_cost += edges[edge_mask]["weight"].iloc[0]
+                    our_path_cost += edges[edge_mask]["weight"].iloc[0]  # type: ignore
 
                 # Path cost should match distance
                 assert abs(our_path_cost - our_dist[target]) < 1e-10
@@ -440,7 +440,7 @@ class TestBellmanFord:
                         curr, next_v = our_path[i + 1], our_path[i]
                         edge_mask = (edges["tail"] == curr) & (edges["head"] == next_v)
                         if edge_mask.any():
-                            path_cost += edges[edge_mask]["weight"].iloc[0]
+                            path_cost += edges[edge_mask]["weight"].iloc[0]  # type: ignore
 
                     # Should match computed distance
                     assert abs(path_cost - our_dist[target]) < 1e-10
