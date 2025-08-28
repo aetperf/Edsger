@@ -239,7 +239,7 @@ class Dijkstra:
 
     def _check_edges(self, edges, tail, head, weight):
         """Checks if the edges DataFrame is well-formed. If not, raises an appropriate error."""
-        if not isinstance(edges, pd.core.frame.DataFrame):
+        if not isinstance(edges, pd.DataFrame):
             raise TypeError("edges should be a pandas DataFrame")
 
         if tail not in edges:
@@ -257,7 +257,7 @@ class Dijkstra:
                 f"edge weight column '{weight}' not found in graph edges dataframe"
             )
 
-        if edges[[tail, head, weight]].isna().any().any():
+        if edges[[tail, head, weight]].isnull().to_numpy().any():
             raise ValueError(
                 " ".join(
                     [
@@ -379,7 +379,7 @@ class Dijkstra:
                 ) from exc
         if vertex_idx < 0:
             raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be positive")
-        if self._permute:
+        if self._permute and self._permutation is not None:
             if vertex_idx not in self._permutation.vert_idx_old.values:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
             vertex_new = self._permutation.loc[
@@ -428,7 +428,7 @@ class Dijkstra:
                 raise ValueError("argument 'termination_nodes' must not be empty")
 
             # handle vertex permutation if needed
-            if self._permute:
+            if self._permute and self._permutation is not None:
                 termination_nodes_permuted = []
                 for termination_node in termination_nodes_array:
                     if termination_node not in self._permutation.vert_idx_old.values:
@@ -546,7 +546,7 @@ class Dijkstra:
                         heap_length,
                     )
 
-            if self._permute:
+            if self._permute and self._permutation is not None:
                 # permute back the path vertex indices
                 path_df = pd.DataFrame(
                     data={
@@ -592,11 +592,17 @@ class Dijkstra:
 
         # reorder path lengths
         if return_series:
-            if self._permute and termination_nodes_array is None:
+            if (
+                self._permute
+                and termination_nodes_array is None
+                and self._permutation is not None
+            ):
                 self._permutation["path_length"] = path_length_values
-                path_lengths_df = self._permutation[
-                    ["vert_idx_old", "path_length"]
-                ].sort_values(by="vert_idx_old")
+                path_lengths_df = (
+                    self._permutation[["vert_idx_old", "path_length"]]
+                    .copy()
+                    .sort_values("vert_idx_old")
+                )  # type: ignore
                 path_lengths_df.set_index("vert_idx_old", drop=True, inplace=True)
                 path_lengths_df.index.name = "vertex_idx"
                 path_lengths_series = path_lengths_df.path_length
@@ -604,7 +610,11 @@ class Dijkstra:
                 path_lengths_series = pd.Series(path_length_values)
                 path_lengths_series.index.name = "vertex_idx"
                 path_lengths_series.name = "path_length"
-                if self._permute and termination_nodes_array is not None:
+                if (
+                    self._permute
+                    and termination_nodes_array is not None
+                    and termination_nodes is not None
+                ):
                     # For early termination with permutation, use original termination node indices
                     path_lengths_series.index = termination_nodes
 
@@ -614,12 +624,13 @@ class Dijkstra:
         if termination_nodes_array is not None:
             return path_length_values
 
-        if self._permute:
+        if self._permute and self._permutation is not None:
             self._permutation["path_length"] = path_length_values
             if return_inf:
                 path_length_values = np.inf * np.ones(self.__n_vertices_init)
             else:
                 path_length_values = DTYPE_INF_PY * np.ones(self.__n_vertices_init)
+            assert self._permutation is not None  # guaranteed by condition above
             path_length_values[self._permutation.vert_idx_old.values] = (
                 self._permutation.path_length.values
             )
@@ -638,7 +649,7 @@ class Dijkstra:
         vertices : ndarray
             A 1-D array containing the unique vertices.
         """
-        if self._permute:
+        if self._permute and self._permutation is not None:
             return self._permutation.vert_idx_old.values
         return np.union1d(self._edges["tail"], self._edges["head"])
 
@@ -871,7 +882,7 @@ class BellmanFord:
 
     def _check_edges(self, edges, tail, head, weight):
         """Checks if the edges DataFrame is well-formed. If not, raises an appropriate error."""
-        if not isinstance(edges, pd.core.frame.DataFrame):
+        if not isinstance(edges, pd.DataFrame):
             raise TypeError("edges should be a pandas DataFrame")
 
         if tail not in edges:
@@ -889,7 +900,7 @@ class BellmanFord:
                 f"edge weight column '{weight}' not found in graph edges dataframe"
             )
 
-        if edges[[tail, head, weight]].isna().any().any():
+        if edges[[tail, head, weight]].isnull().to_numpy().any():
             raise ValueError(
                 " ".join(
                     [
@@ -1010,7 +1021,7 @@ class BellmanFord:
                 ) from exc
         if vertex_idx < 0:
             raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be positive")
-        if self._permute:
+        if self._permute and self._permutation is not None:
             if vertex_idx not in self._permutation.vert_idx_old.values:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
             vertex_new = self._permutation.loc[
@@ -1075,7 +1086,7 @@ class BellmanFord:
                     self._n_vertices,
                 )
 
-            if self._permute:
+            if self._permute and self._permutation is not None:
                 # permute back the path vertex indices
                 path_df = pd.DataFrame(
                     data={
@@ -1146,7 +1157,7 @@ class BellmanFord:
 
         # reorder path lengths
         if return_series:
-            if self._permute:
+            if self._permute and self._permutation is not None:
                 path_df = pd.DataFrame(
                     data={"path_length": path_length_values[: self._n_vertices]}
                 )
@@ -1170,7 +1181,7 @@ class BellmanFord:
             return path_lengths_series
 
         # No else needed - de-indent the code
-        if self._permute:
+        if self._permute and self._permutation is not None:
             path_df = pd.DataFrame(
                 data={"path_length": path_length_values[: self._n_vertices]}
             )
@@ -1456,7 +1467,7 @@ class HyperpathGenerating:
         assert v >= 0.0
 
     def _check_edges(self, edges, tail, head, trav_time, freq):
-        if not isinstance(edges, pd.core.frame.DataFrame):
+        if not isinstance(edges, pd.DataFrame):
             raise TypeError("edges should be a pandas DataFrame")
 
         for col in [tail, head, trav_time, freq]:
@@ -1465,7 +1476,7 @@ class HyperpathGenerating:
                     f"edge column '{col}' not found in graph edges dataframe"
                 )
 
-        if edges[[tail, head, trav_time, freq]].isna().any().any():
+        if edges[[tail, head, trav_time, freq]].isnull().to_numpy().any():
             raise ValueError(
                 " ".join(
                     [
