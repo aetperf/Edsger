@@ -171,6 +171,25 @@ make format
 make lint
 ```
 
+### Pre-commit Hooks
+
+This project uses pre-commit hooks to maintain code quality. The hooks behave differently based on the branch:
+
+- **Protected branches (main, release*)**: All hooks run including pyright type checking
+- **Feature branches**: Only formatting hooks run (black, cython-lint) for faster commits
+  - Run `make typecheck` or `pre-commit run --all-files` to manually check types before merging
+
+```bash
+# Install pre-commit hooks
+pre-commit install
+
+# Run all hooks manually
+pre-commit run --all-files
+
+# Skip specific hooks if needed
+SKIP=pyright git commit -m "your message"
+```
+
 ### Available Make Commands
 
 ```bash
