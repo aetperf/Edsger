@@ -13,12 +13,12 @@ repos:
         files: '\.(pyx|pxd)$'
         args: [--max-line-length=88]
 
-  # - repo: local
-  #   hooks:
-  #     - id: pyright
-  #       name: pyright
-  #       entry: pyright
-  #       language: system
-  #       types: [python]
-  #       pass_filenames: false
-  #       always_run: true
+  - repo: local
+    hooks:
+      - id: pyright
+        name: pyright
+        entry: pyright
+        language: system
+        types: [python]
+        pass_filenames: false
+        always_run: true
