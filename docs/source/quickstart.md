@@ -1,11 +1,11 @@
 # Quick Start Guide
 
-Welcome to our Python library for graph algorithms. The library includes both Dijkstra's and Bellman-Ford's algorithms, with plans to add more common path algorithms later. It is also open-source and easy to integrate with other Python libraries.
+Welcome to our Python library for **directed graph** algorithms. The library includes both Dijkstra's and Bellman-Ford's algorithms, with plans to add more common path algorithms later. **All algorithms work exclusively with directed graphs.** It is also open-source and easy to integrate with other Python libraries.
 
 
 ## Graph Data Format
 
-Edsger expects graph data as a pandas DataFrame with the following structure:
+Edsger expects directed graph data as a pandas DataFrame with the following structure:
 
 | Column | Type    | Description                                    |
 |--------|---------|------------------------------------------------|
@@ -37,7 +37,7 @@ Note that it is also possible to use a graph with different column names for the
 
 ## Dijkstra's Algorithm
 
-To use Dijkstra's algorithm, you can import the `Dijkstra` class from the `path` module. The function takes a graph and a source node as input, and returns the shortest path from the source node to all other nodes in the graph. If your graph contains parallel edges (multiple edges between the same pair of vertices), Dijkstra automatically keeps only the edge with minimum weight for each vertex pair.
+To use Dijkstra's algorithm, you can import the `Dijkstra` class from the `path` module. The function takes a directed graph and a source node as input, and returns the shortest path from the source node to all other nodes in the directed graph. If your directed graph contains parallel edges (multiple edges between the same pair of vertices), Dijkstra automatically keeps only the edge with minimum weight for each vertex pair.
 
 ```python
 from edsger.path import Dijkstra
@@ -72,7 +72,7 @@ print("Shortest paths:", shortest_paths)
 
     Shortest paths: [0.  1.  3.  4.5 5.5]
 
-We get the shortest paths from the source node 0 to all other nodes in the graph. The output is an array with the shortest path length to each node. A path length is the sum of the weights of the edges in the path.
+We get the shortest paths from the source node 0 to all other nodes in the directed graph. The output is an array with the shortest path length to each node. A path length is the sum of the weights of the edges in the path.
 
 The column names can be specified using the `tail`, `head` and `weight` arguments:
 
@@ -342,7 +342,7 @@ This is an experimental parameter that controls the size of the heap used in the
 
 ## Bellman-Ford Algorithm
 
-The Bellman-Ford algorithm is designed for graphs that may contain negative edge weights and can detect negative cycles. Unlike Dijkstra's algorithm, Bellman-Ford can handle a broader class of problems but with a higher computational cost.
+The Bellman-Ford algorithm is designed for directed graphs that may contain negative edge weights and can detect negative cycles. Unlike Dijkstra's algorithm, Bellman-Ford can handle a broader class of problems but with a higher computational cost.
 
 ### Basic Usage
 
@@ -433,19 +433,19 @@ print("Path to vertex 3:", path)
 ### When to Use Bellman-Ford vs Dijkstra
 
 **Use Bellman-Ford when:**
-- Your graph contains negative edge weights
-- You need to detect negative cycles
+- Your directed graph contains negative edge weights
+- You need to detect negative cycles in directed graphs
 - Working with financial networks, arbitrage detection, or differential constraints
 - Performance is less critical than correctness
 
 **Use Dijkstra when:**
 - All edge weights are non-negative (e.g., distances, travel times, costs)
 - You need the fastest possible performance (O((V+E)logV) vs O(VE))
-- Working with road networks, shortest distance problems
+- Working with directed road networks, shortest distance problems in directed graphs
 
 ### Performance Considerations
 
-Bellman-Ford has O(VE) time complexity compared to Dijkstra's O((V+E)logV). For large graphs with only positive weights, Dijkstra is significantly faster. However, the performance difference may be acceptable for smaller graphs or when negative weights are essential to your problem.
+Bellman-Ford has O(VE) time complexity compared to Dijkstra's O((V+E)logV). For large directed graphs with only positive weights, Dijkstra is significantly faster. However, the performance difference may be acceptable for smaller directed graphs or when negative weights are essential to your problem.
 
 ## Next Steps
 

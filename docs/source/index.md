@@ -4,13 +4,13 @@ github_url: https://github.com/aetperf/Edsger
 
 # Edsger
 
-*Graph algorithms in Cython*
+*Directed graph algorithms in Cython*
 
-Welcome to the Edsger documentation! Edsger is a Python library for efficient graph algorithms implemented in Cython. The library focuses on shortest path algorithms, featuring so far both Dijkstra's algorithm for positive-weight graphs and Bellman-Ford algorithm for graphs with negative weights and cycle detection.
+Welcome to the Edsger documentation! Edsger is a Python library for efficient graph algorithms implemented in Cython. The library focuses on shortest path algorithms, featuring so far both Dijkstra's algorithm for positive-weight directed graphs and Bellman-Ford algorithm for directed graphs with negative weights and cycle detection.
 
 ## Why Use Edsger?
 
-Edsger is designed to be **dataframe-friendly**, providing seamless integration with pandas workflows for graph algorithms. Also it is rather efficient on Linux. Our benchmarks on the USA road network (23.9M vertices, 57.7M edges) demonstrate nice performance:
+Edsger is designed to be **dataframe-friendly**, providing seamless integration with pandas workflows for directed graph algorithms. Also it is rather efficient on Linux. Our benchmarks on the USA road network (23.9M vertices, 57.7M edges) demonstrate nice performance:
 
 <img src="assets/dijkstra_benchmark_comparison.png" alt="Dijkstra Performance Comparison" width="700">
 
@@ -37,7 +37,7 @@ distances = bf.run(vertex_idx=0)
 ```
 
 ## Key Features
-
+s
 - **Native pandas DataFrame support** - No graph object conversion required
 - **High performance** - Cython implementation
 - **Memory efficient** - Optimized for real-world datasets

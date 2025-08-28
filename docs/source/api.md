@@ -6,11 +6,11 @@ This section provides detailed documentation for all public classes and function
 
 ### Dijkstra Class
 
-The main class for performing Dijkstra's shortest path algorithm.
+The main class for performing Dijkstra's shortest path algorithm on directed graphs.
 
 #### Constructor Parameters
 
-- `edges`: pandas.DataFrame containing the graph edges
+- `edges`: pandas.DataFrame containing the directed graph edges
 - `tail`: Column name for edge source nodes (default: 'tail')
 - `head`: Column name for edge destination nodes (default: 'head')
 - `weight`: Column name for edge weights (default: 'weight')
@@ -73,7 +73,7 @@ Returns all vertices in the graph.
 from edsger.path import Dijkstra
 import pandas as pd
 
-# Create a graph
+# Create a directed graph
 edges = pd.DataFrame({
     'tail': [0, 0, 1],
     'head': [1, 2, 2],
@@ -118,11 +118,11 @@ paths = dijkstra.run(
 
 ### BellmanFord Class
 
-The class for performing Bellman-Ford shortest path algorithm, which handles graphs with negative edge weights and detects negative cycles.
+The class for performing Bellman-Ford shortest path algorithm on directed graphs, which handles directed graphs with negative edge weights and detects negative cycles.
 
 #### Constructor Parameters
 
-- `edges`: pandas.DataFrame containing the graph edges
+- `edges`: pandas.DataFrame containing the directed graph edges
 - `tail`: Column name for edge source nodes (default: 'tail')
 - `head`: Column name for edge destination nodes (default: 'head')
 - `weight`: Column name for edge weights (default: 'weight')
@@ -188,7 +188,7 @@ Returns all vertices in the graph.
 from edsger.path import BellmanFord
 import pandas as pd
 
-# Create a graph with negative weights
+# Create a directed graph with negative weights
 edges = pd.DataFrame({
     'tail': [0, 0, 1, 1, 2, 3],
     'head': [1, 2, 2, 3, 3, 4],
@@ -206,7 +206,7 @@ print(paths)  # [ 0.  1. -1.  0.  3.]
 ##### Negative Cycle Detection
 
 ```python
-# Create a graph with a negative cycle
+# Create a directed graph with a negative cycle
 edges_cycle = pd.DataFrame({
     'tail': [0, 1, 2],
     'head': [1, 2, 0],
@@ -240,7 +240,7 @@ paths = bf.run(vertex_idx=0, detect_negative_cycles=False)
 
 ## Parallel Edges Handling
 
-Both `Dijkstra` and `BellmanFord` classes automatically handle parallel edges (multiple edges between the same pair of vertices) during initialization. When parallel edges are detected:
+Both `Dijkstra` and `BellmanFord` classes automatically handle parallel edges (multiple directed edges between the same pair of vertices) during initialization. When parallel edges are detected:
 
 1. **Automatic Processing**: The `_preprocess_edges()` method is called internally during initialization
 2. **Minimum Weight Selection**: For each pair of vertices with multiple edges, only the edge with the minimum weight is kept
@@ -252,9 +252,9 @@ Both `Dijkstra` and `BellmanFord` classes automatically handle parallel edges (m
 import pandas as pd
 from edsger.path import Dijkstra
 
-# Graph with parallel edges between vertices 0->1
+# Directed graph with parallel edges between vertices 0->1
 edges = pd.DataFrame({
-    'tail': [0, 0, 1],     # Two edges from 0->1
+    'tail': [0, 0, 1],     # Two directed edges from 0->1
     'head': [1, 1, 2],     # with weights 5.0 and 3.0
     'weight': [5.0, 3.0, 2.0]
 })
@@ -263,11 +263,11 @@ edges = pd.DataFrame({
 dijkstra = Dijkstra(edges, verbose=True)
 # Output: "Automatically removed 1 parallel edge(s). For each pair of vertices, kept the edge with minimum weight."
 
-# The graph now has only the edge 0->1 with weight 3.0 (minimum)
+# The directed graph now has only the edge 0->1 with weight 3.0 (minimum)
 print(dijkstra.n_edges)  # Will show 2 instead of 3
 ```
 
 This automatic handling ensures:
-- Consistent graph representation
+- Consistent directed graph representation
 - Optimal shortest paths (using minimum weight edges)
-- No duplicate edges in the internal graph structure
+- No duplicate edges in the internal directed graph structure
