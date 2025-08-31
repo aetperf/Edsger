@@ -29,6 +29,13 @@ cpdef functions:
     are reached. Compute successors.
 """
 
+# cython: language_level=3
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: embedsignature=False
+# cython: cdivision=True
+# cython: initializedcheck=False
+
 cimport numpy as cnp
 
 from edsger.commons cimport (

@@ -124,25 +124,13 @@ with open("requirements.txt") as fp:
 
 
 def setup_package():
-    # Enable coverage for Cython when CYTHON_TRACE is set
-    compiler_directives = {
-        "language_level": "3",
-        "boundscheck": False,
-        "wraparound": False,
-        "embedsignature": False,
-        "cdivision": True,
-        "initializedcheck": False,
-    }
-
+    # Compiler directives are defined at the top of each .pyx file
     if os.environ.get("CYTHON_TRACE", "0") == "1":
-        compiler_directives["linetrace"] = True
-        compiler_directives["profile"] = True
-        print("Building with coverage support for Cython code")
+        print("Building with CYTHON_TRACE=1 (coverage mode)")
 
     setup(
         ext_modules=cythonize(
             extensions,
-            compiler_directives=compiler_directives,
             include_path=["src/edsger/"],
         ),
         install_requires=install_requires,

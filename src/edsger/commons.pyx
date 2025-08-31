@@ -2,6 +2,13 @@
 Common definitions.
 """
 
+# cython: language_level=3
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: embedsignature=False
+# cython: cdivision=True
+# cython: initializedcheck=False
+
 import numpy as np
 
 DTYPE_PY = np.float64
