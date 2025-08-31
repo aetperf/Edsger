@@ -2,6 +2,7 @@
 Path-related methods.
 """
 
+from typing import Optional, Union, List, Any
 import warnings
 
 import numpy as np
@@ -13,6 +14,14 @@ from edsger.commons import (
     DTYPE_PY,
     INF_FREQ_PY,
     MIN_FREQ_PY,
+)
+from edsger.bellman_ford import (
+    compute_bf_sssp,
+    compute_bf_sssp_w_path,
+    compute_bf_stsp,
+    compute_bf_stsp_w_path,
+    detect_negative_cycle,
+    detect_negative_cycle_csc,
 )
 from edsger.dijkstra import (
     compute_sssp,
@@ -32,17 +41,15 @@ from edsger.star import (
     convert_graph_to_csr_float64,
     convert_graph_to_csr_uint32,
 )
-from edsger.bfs_reorder import (
-    bfs_reorder_from_source,
-    bfs_reorder_from_target,
-    create_reorder_permutation,
-)
 
 
 class Dijkstra:
     """
     Dijkstra's algorithm for finding the shortest paths between nodes in directed graphs with
     positive edge weights.
+
+    Note: If parallel edges exist between the same pair of vertices, only the edge with the minimum
+    weight will be kept automatically during initialization.
 
     Parameters:
     -----------
@@ -66,23 +73,30 @@ class Dijkstra:
     permute: bool, optional (default=False)
         Whether to permute the IDs of the nodes. If set to True, the node IDs will be reindexed to
         start from 0 and be contiguous.
+    verbose: bool, optional (default=False)
+        Whether to print messages about parallel edge removal.
     """
 
     def __init__(
         self,
-        edges,
-        tail="tail",
-        head="head",
-        weight="weight",
-        orientation="out",
-        check_edges=False,
-        permute=False,
-    ):
+        edges: pd.DataFrame,
+        tail: str = "tail",
+        head: str = "head",
+        weight: str = "weight",
+        orientation: str = "out",
+        check_edges: bool = False,
+        permute: bool = False,
+        verbose: bool = False,
+    ) -> None:
         # load the edges
         if check_edges:
             self._check_edges(edges, tail, head, weight)
         self._edges = edges[[tail, head, weight]].copy(deep=True)
         self._n_edges = len(self._edges)
+        self._verbose = verbose
+
+        # preprocess edges to handle parallel edges
+        self._preprocess_edges(tail, head, weight)
 
         # reindex the vertices
         self._permute = permute
@@ -125,7 +139,7 @@ class Dijkstra:
         self._path_links = None
 
     @property
-    def edges(self):
+    def edges(self) -> Any:
         """
         Getter for the graph edge dataframe.
 
@@ -137,7 +151,7 @@ class Dijkstra:
         return self._edges
 
     @property
-    def n_edges(self):
+    def n_edges(self) -> int:
         """
         Getter for the number of graph edges.
 
@@ -149,7 +163,7 @@ class Dijkstra:
         return self._n_edges
 
     @property
-    def n_vertices(self):
+    def n_vertices(self) -> int:
         """
         Getter for the number of graph vertices.
 
@@ -161,7 +175,7 @@ class Dijkstra:
         return self._n_vertices
 
     @property
-    def orientation(self):
+    def orientation(self) -> str:
         """
         Getter of Dijkstra's algorithm orientation ("in" or "out").
 
@@ -173,7 +187,7 @@ class Dijkstra:
         return self._orientation
 
     @property
-    def permute(self):
+    def permute(self) -> bool:
         """
         Getter for the graph permutation/reindexing option.
 
@@ -185,7 +199,7 @@ class Dijkstra:
         return self._permute
 
     @property
-    def path_links(self):
+    def path_links(self) -> Optional[np.ndarray]:
         """
         Getter for the graph permutation/reindexing option.
 
@@ -196,9 +210,37 @@ class Dijkstra:
         """
         return self._path_links
 
+    def _preprocess_edges(self, tail, head, weight):
+        """
+        Preprocess edges to handle parallel edges by keeping only the minimum weight edge
+        between any pair of vertices.
+
+        Parameters
+        ----------
+        tail : str
+            The column name for tail vertices
+        head : str
+            The column name for head vertices
+        weight : str
+            The column name for edge weights
+        """
+        original_count = len(self._edges)
+        self._edges = self._edges.groupby([tail, head], as_index=False)[weight].min()
+        final_count = len(self._edges)
+
+        if original_count > final_count:
+            parallel_edges_removed = original_count - final_count
+            if self._verbose:
+                print(
+                    f"Automatically removed {parallel_edges_removed} parallel edge(s). "
+                    f"For each pair of vertices, kept the edge with minimum weight."
+                )
+
+        self._n_edges = len(self._edges)
+
     def _check_edges(self, edges, tail, head, weight):
         """Checks if the edges DataFrame is well-formed. If not, raises an appropriate error."""
-        if not isinstance(edges, pd.core.frame.DataFrame):
+        if not isinstance(edges, pd.DataFrame):
             raise TypeError("edges should be a pandas DataFrame")
 
         if tail not in edges:
@@ -216,7 +258,7 @@ class Dijkstra:
                 f"edge weight column '{weight}' not found in graph edges dataframe"
             )
 
-        if edges[[tail, head, weight]].isna().any().any():
+        if edges[[tail, head, weight]].isnull().to_numpy().any():
             raise ValueError(
                 " ".join(
                     [
@@ -246,7 +288,7 @@ class Dijkstra:
         permutation = pd.DataFrame(
             data={
                 "vert_idx": np.union1d(
-                    self._edges[tail].values, self._edges[head].values
+                    np.asarray(self._edges[tail]), np.asarray(self._edges[head])
                 )
             }
         )
@@ -287,62 +329,15 @@ class Dijkstra:
         if orientation not in ["in", "out"]:
             raise ValueError("orientation should be either 'in' on 'out'")
 
-    def _apply_vertex_reordering(self, permutation):
-        """Apply vertex reordering to the graph structure efficiently."""
-        # Create inverse permutation for mapping vertices
-        inverse_perm = np.empty_like(permutation)
-        inverse_perm[permutation] = np.arange(len(permutation))
-
-        # Reorder the indices array (map old vertex IDs to new vertex IDs)
-        self.__indices = inverse_perm[self.__indices]
-
-        # Create new indptr by reordering the adjacency structure efficiently
-        new_indptr = np.zeros_like(self.__indptr)
-        new_indices = np.empty_like(self.__indices)
-        new_edge_weights = np.empty_like(self.__edge_weights)
-
-        # Create efficient inverse permutation lookup O(n) once
-        inverse_vertex_map = np.empty(self._n_vertices, dtype=np.int32)
-        for old_vertex in range(self._n_vertices):
-            new_vertex = permutation[old_vertex]
-            inverse_vertex_map[new_vertex] = old_vertex
-
-        edge_idx = 0
-        for new_vertex in range(self._n_vertices):
-            # Get the original vertex for this new position - O(1) lookup
-            old_vertex = inverse_vertex_map[new_vertex]
-
-            # Copy edges from the original vertex
-            start_idx = self.__indptr[old_vertex]
-            end_idx = self.__indptr[old_vertex + 1]
-            num_edges = end_idx - start_idx
-
-            new_indptr[new_vertex + 1] = new_indptr[new_vertex] + num_edges
-
-            if num_edges > 0:
-                new_indices[edge_idx : edge_idx + num_edges] = self.__indices[
-                    start_idx:end_idx
-                ]
-                new_edge_weights[edge_idx : edge_idx + num_edges] = self.__edge_weights[
-                    start_idx:end_idx
-                ]
-                edge_idx += num_edges
-
-        # Update the arrays
-        self.__indptr = new_indptr
-        self.__indices = new_indices
-        self.__edge_weights = new_edge_weights
-
     def run(
         self,
-        vertex_idx,
-        path_tracking=False,
-        return_inf=True,
-        return_series=False,
-        heap_length_ratio=1.0,
-        termination_nodes=None,
-        bfs_reorder=True,
-    ):
+        vertex_idx: int,
+        path_tracking: bool = False,
+        return_inf: bool = True,
+        return_series: bool = False,
+        heap_length_ratio: float = 1.0,
+        termination_nodes: Optional[List[int]] = None,
+    ) -> Union[np.ndarray, pd.Series]:
         """
         Runs shortest path algorithm between a given vertex and all other vertices in the graph.
 
@@ -365,10 +360,6 @@ class Dijkstra:
             these are target nodes to reach. For STSP (orientation='in'), these are source nodes
             to find paths from. When provided, the algorithm stops once all specified nodes have
             been processed, potentially improving performance. If None, runs to completion.
-        bfs_reorder : bool, optional (default=False)
-            Whether to apply BFS reordering preprocessing. For SSSP (orientation='out'), reorders
-            vertices starting from the source. For STSP (orientation='in'), reorders vertices
-            starting from the target. This can improve cache locality and performance.
 
         Returns
         -------
@@ -379,17 +370,10 @@ class Dijkstra:
             Pandas Series object with the same data and the vertex indices as index.
 
         """
-        # validate the input arguments
-        if not isinstance(vertex_idx, int):
-            try:
-                vertex_idx = int(vertex_idx)
-            except ValueError as exc:
-                raise TypeError(
-                    f"argument 'vertex_idx={vertex_idx}' must be an integer"
-                ) from exc
+        # validate the input arguments - type checking handled by static typing
         if vertex_idx < 0:
             raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be positive")
-        if self._permute:
+        if self._permute and self._permutation is not None:
             if vertex_idx not in self._permutation.vert_idx_old.values:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
             vertex_new = self._permutation.loc[
@@ -399,16 +383,7 @@ class Dijkstra:
             if vertex_idx >= self._n_vertices:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
             vertex_new = vertex_idx
-        if not isinstance(path_tracking, bool):
-            raise TypeError(
-                f"argument 'path_tracking=f{path_tracking}' must be of bool type"
-            )
-        if not isinstance(return_inf, bool):
-            raise TypeError(f"argument 'return_inf=f{return_inf}' must be of bool type")
-        if not isinstance(return_series, bool):
-            raise TypeError(
-                f"argument 'return_series=f{return_series}' must be of bool type"
-            )
+        # Type checking is now handled by static typing
         if not isinstance(heap_length_ratio, float):
             raise TypeError(
                 f"argument 'heap_length_ratio=f{heap_length_ratio}' must be of float type"
@@ -426,10 +401,10 @@ class Dijkstra:
         if termination_nodes is not None:
             try:
                 termination_nodes_array = np.array(termination_nodes, dtype=np.uint32)
-            except (ValueError, TypeError):
+            except (ValueError, TypeError) as exc:
                 raise TypeError(
                     "argument 'termination_nodes' must be array-like of integers"
-                )
+                ) from exc
 
             if termination_nodes_array.ndim != 1:
                 raise ValueError("argument 'termination_nodes' must be 1-dimensional")
@@ -438,7 +413,7 @@ class Dijkstra:
                 raise ValueError("argument 'termination_nodes' must not be empty")
 
             # handle vertex permutation if needed
-            if self._permute:
+            if self._permute and self._permutation is not None:
                 termination_nodes_permuted = []
                 for termination_node in termination_nodes_array:
                     if termination_node not in self._permutation.vert_idx_old.values:
@@ -461,27 +436,6 @@ class Dijkstra:
                     raise ValueError(
                         "termination_nodes contains invalid vertex indices"
                     )
-
-        # Apply BFS reordering if requested (disabled for now due to correctness issues)
-        reorder_permutation = None
-        original_indptr = None
-        original_indices = None
-        original_edge_weights = None
-
-        if bfs_reorder:
-            if not isinstance(bfs_reorder, bool):
-                raise TypeError("argument 'bfs_reorder' must be of bool type")
-
-            # For now, silently disable BFS reordering due to correctness issues
-            # TODO: Fix the vertex reordering logic to ensure correctness
-            import warnings
-
-            warnings.warn(
-                "BFS reordering is temporarily disabled due to correctness issues. "
-                "Running without reordering.",
-                UserWarning,
-            )
-            bfs_reorder = False
 
         # compute path length
         if not path_tracking:
@@ -577,7 +531,7 @@ class Dijkstra:
                         heap_length,
                     )
 
-            if self._permute:
+            if self._permute and self._permutation is not None:
                 # permute back the path vertex indices
                 path_df = pd.DataFrame(
                     data={
@@ -623,11 +577,17 @@ class Dijkstra:
 
         # reorder path lengths
         if return_series:
-            if self._permute and termination_nodes_array is None:
+            if (
+                self._permute
+                and termination_nodes_array is None
+                and self._permutation is not None
+            ):
                 self._permutation["path_length"] = path_length_values
-                path_lengths_df = self._permutation[
-                    ["vert_idx_old", "path_length"]
-                ].sort_values(by="vert_idx_old")
+                path_lengths_df = (
+                    self._permutation[["vert_idx_old", "path_length"]]
+                    .copy()
+                    .sort_values("vert_idx_old")
+                )  # type: ignore
                 path_lengths_df.set_index("vert_idx_old", drop=True, inplace=True)
                 path_lengths_df.index.name = "vertex_idx"
                 path_lengths_series = path_lengths_df.path_length
@@ -635,67 +595,34 @@ class Dijkstra:
                 path_lengths_series = pd.Series(path_length_values)
                 path_lengths_series.index.name = "vertex_idx"
                 path_lengths_series.name = "path_length"
-                if self._permute and termination_nodes_array is not None:
+                if (
+                    self._permute
+                    and termination_nodes_array is not None
+                    and termination_nodes is not None
+                ):
                     # For early termination with permutation, use original termination node indices
                     path_lengths_series.index = termination_nodes
-
-            # Handle BFS reordering for series results
-            if bfs_reorder and reorder_permutation is not None:
-                if not self._permute and termination_nodes_array is None:
-                    # Map series index back to original vertex ordering
-                    original_values = np.empty_like(path_lengths_series.values)
-                    original_values[reorder_permutation] = path_lengths_series.values
-                    path_lengths_series = pd.Series(original_values, name="path_length")
-                    path_lengths_series.index.name = "vertex_idx"
 
             return path_lengths_series
 
         # For early termination, return results directly (already in correct order)
         if termination_nodes_array is not None:
-            # Restore graph structure if BFS reordering was used
-            if bfs_reorder and reorder_permutation is not None:
-                self.__indptr = original_indptr
-                self.__indices = original_indices
-                self.__edge_weights = original_edge_weights
             return path_length_values
 
-        if self._permute:
+        if self._permute and self._permutation is not None:
             self._permutation["path_length"] = path_length_values
             if return_inf:
                 path_length_values = np.inf * np.ones(self.__n_vertices_init)
             else:
                 path_length_values = DTYPE_INF_PY * np.ones(self.__n_vertices_init)
+            assert self._permutation is not None  # guaranteed by condition above
             path_length_values[self._permutation.vert_idx_old.values] = (
                 self._permutation.path_length.values
             )
 
-        # Restore original graph structure and map results back if BFS reordering was used
-        if bfs_reorder and reorder_permutation is not None:
-            # Restore original graph structure
-            self.__indptr = original_indptr
-            self.__indices = original_indices
-            self.__edge_weights = original_edge_weights
-
-            # Map results back to original vertex ordering
-            if not self._permute and termination_nodes_array is None:
-                # For non-permuted graphs, create inverse mapping of results
-                original_path_lengths = np.empty_like(path_length_values)
-                original_path_lengths[reorder_permutation] = path_length_values
-                path_length_values = original_path_lengths
-
-            # Handle path tracking if enabled
-            if self._path_links is not None:
-                if isinstance(self._path_links, np.ndarray):
-                    # Map path links back to original ordering
-                    original_path_links = np.empty_like(self._path_links)
-                    original_path_links[reorder_permutation] = reorder_permutation[
-                        self._path_links
-                    ]
-                    self._path_links = original_path_links
-
         return path_length_values
 
-    def get_vertices(self):
+    def get_vertices(self) -> Any:
         """
         Get the unique vertices from the graph.
 
@@ -707,11 +634,13 @@ class Dijkstra:
         vertices : ndarray
             A 1-D array containing the unique vertices.
         """
-        if self._permute:
-            return self._permutation.vert_idx_old.values
-        return np.union1d(self._edges["tail"], self._edges["head"])
+        if self._permute and self._permutation is not None:
+            return np.asarray(self._permutation.vert_idx_old)
+        return np.union1d(
+            np.asarray(self._edges["tail"]), np.asarray(self._edges["head"])
+        )
 
-    def get_path(self, vertex_idx):
+    def get_path(self, vertex_idx: int) -> Optional[np.ndarray]:
         """Compute path from predecessors or successors.
 
         Parameters:
@@ -745,6 +674,546 @@ class Dijkstra:
         else:
             path_vertices = compute_path(self._path_links, vertex_idx)
         return path_vertices
+
+
+class BellmanFord:
+    """
+    Bellman-Ford algorithm for finding the shortest paths between nodes in directed graphs.
+    Supports negative edge weights and detects negative cycles.
+
+    Note: If parallel edges exist between the same pair of vertices, only the edge with the minimum
+    weight will be kept automatically during initialization.
+
+    Parameters:
+    -----------
+    edges: pandas.DataFrame
+        DataFrame containing the edges of the graph. It should have three columns: 'tail', 'head',
+        and 'weight'. The 'tail' column should contain the IDs of the starting nodes, the 'head'
+        column should contain the IDs of the ending nodes, and the 'weight' column should contain
+        the weights of the edges (can be negative).
+    tail: str, optional (default='tail')
+        The name of the column in the DataFrame that contains the IDs of the edge starting nodes.
+    head: str, optional (default='head')
+        The name of the column in the DataFrame that contains the IDs of the edge ending nodes.
+    weight: str, optional (default='weight')
+        The name of the column in the DataFrame that contains the weights of the edges.
+    orientation: str, optional (default='out')
+        The orientation of Bellman-Ford's algorithm. It can be either 'out' for single source
+        shortest paths or 'in' for single target shortest path.
+    check_edges: bool, optional (default=False)
+        Whether to check if the edges DataFrame is well-formed. If set to True, the edges
+        DataFrame will be checked for missing values and invalid data types. Note: negative
+        weights are allowed.
+    permute: bool, optional (default=False)
+        Whether to permute the IDs of the nodes. If set to True, the node IDs will be reindexed to
+        start from 0 and be contiguous.
+    verbose: bool, optional (default=False)
+        Whether to print messages about parallel edge removal.
+    """
+
+    def __init__(
+        self,
+        edges: pd.DataFrame,
+        tail: str = "tail",
+        head: str = "head",
+        weight: str = "weight",
+        orientation: str = "out",
+        check_edges: bool = False,
+        permute: bool = False,
+        verbose: bool = False,
+    ) -> None:
+        # load the edges
+        if check_edges:
+            self._check_edges(edges, tail, head, weight)
+        self._edges = edges[[tail, head, weight]].copy(deep=True)
+        self._n_edges = len(self._edges)
+        self._verbose = verbose
+
+        # preprocess edges to handle parallel edges
+        self._preprocess_edges(tail, head, weight)
+
+        # reindex the vertices
+        self._permute = permute
+        if self._permute:
+            self.__n_vertices_init = self._edges[[tail, head]].max(axis=0).max() + 1
+            self._permutation = self._permute_graph(tail, head)
+            self._n_vertices = len(self._permutation)
+        else:
+            self._permutation = None
+            self._n_vertices = self._edges[[tail, head]].max(axis=0).max() + 1
+            self.__n_vertices_init = self._n_vertices
+
+        # convert to CSR/CSC:
+        self._check_orientation(orientation)
+        self._orientation = orientation
+        if self._orientation == "out":
+            fs_indptr, fs_indices, fs_data = convert_graph_to_csr_float64(
+                self._edges, tail, head, weight, self._n_vertices
+            )
+            self.__indices = fs_indices.astype(np.uint32)
+            self.__indptr = fs_indptr.astype(np.uint32)
+            self.__edge_weights = fs_data.astype(DTYPE_PY)
+        else:
+            rs_indptr, rs_indices, rs_data = convert_graph_to_csc_float64(
+                self._edges, tail, head, weight, self._n_vertices
+            )
+            self.__indices = rs_indices.astype(np.uint32)
+            self.__indptr = rs_indptr.astype(np.uint32)
+            self.__edge_weights = rs_data.astype(DTYPE_PY)
+
+        # Check if graph has any negative weights (for optimization)
+        self._has_negative_weights = np.any(self.__edge_weights < 0)
+
+        self._path_links = None
+        self._has_negative_cycle = False
+
+    @property
+    def edges(self) -> Any:
+        """
+        Getter for the graph edge dataframe.
+
+        Returns
+        -------
+        edges: pandas.DataFrame
+            DataFrame containing the edges of the graph.
+        """
+        return self._edges
+
+    @property
+    def n_edges(self) -> int:
+        """
+        Getter for the number of graph edges.
+
+        Returns
+        -------
+        n_edges: int
+            The number of edges in the graph.
+        """
+        return self._n_edges
+
+    @property
+    def n_vertices(self) -> int:
+        """
+        Getter for the number of graph vertices.
+
+        Returns
+        -------
+        n_vertices: int
+            The number of nodes in the graph (after permutation, if _permute is True).
+        """
+        return self._n_vertices
+
+    @property
+    def orientation(self) -> str:
+        """
+        Getter of Bellman-Ford's algorithm orientation ("in" or "out").
+
+        Returns
+        -------
+        orientation : str
+            The orientation of Bellman-Ford's algorithm.
+        """
+        return self._orientation
+
+    @property
+    def permute(self) -> bool:
+        """
+        Getter for the graph permutation/reindexing option.
+
+        Returns
+        -------
+        permute : bool
+            Whether to permute the IDs of the nodes.
+        """
+        return self._permute
+
+    @property
+    def path_links(self) -> Optional[np.ndarray]:
+        """
+        Getter for the path links (predecessors or successors).
+
+        Returns
+        -------
+        path_links: numpy.ndarray
+            predecessors or successors node index if the path tracking is activated.
+        """
+        return self._path_links
+
+    def _preprocess_edges(self, tail, head, weight):
+        """
+        Preprocess edges to handle parallel edges by keeping only the minimum weight edge
+        between any pair of vertices.
+
+        Parameters
+        ----------
+        tail : str
+            The column name for tail vertices
+        head : str
+            The column name for head vertices
+        weight : str
+            The column name for edge weights
+        """
+        original_count = len(self._edges)
+        self._edges = self._edges.groupby([tail, head], as_index=False)[weight].min()
+        final_count = len(self._edges)
+
+        if original_count > final_count:
+            parallel_edges_removed = original_count - final_count
+            if self._verbose:
+                print(
+                    f"Automatically removed {parallel_edges_removed} parallel edge(s). "
+                    f"For each pair of vertices, kept the edge with minimum weight."
+                )
+
+        self._n_edges = len(self._edges)
+
+    def _check_edges(self, edges, tail, head, weight):
+        """Checks if the edges DataFrame is well-formed. If not, raises an appropriate error."""
+        if not isinstance(edges, pd.DataFrame):
+            raise TypeError("edges should be a pandas DataFrame")
+
+        if tail not in edges:
+            raise KeyError(
+                f"edge tail column '{tail}' not found in graph edges dataframe"
+            )
+
+        if head not in edges:
+            raise KeyError(
+                f"edge head column '{head}' not found in graph edges dataframe"
+            )
+
+        if weight not in edges:
+            raise KeyError(
+                f"edge weight column '{weight}' not found in graph edges dataframe"
+            )
+
+        if edges[[tail, head, weight]].isnull().to_numpy().any():
+            raise ValueError(
+                " ".join(
+                    [
+                        f"edges[[{tail}, {head}, {weight}]] ",
+                        "should not have any missing value",
+                    ]
+                )
+            )
+
+        for col in [tail, head]:
+            if not pd.api.types.is_integer_dtype(edges[col].dtype):
+                raise TypeError(f"edges['{col}'] should be of integer type")
+
+        if not pd.api.types.is_numeric_dtype(edges[weight].dtype):
+            raise TypeError(f"edges['{weight}'] should be of numeric type")
+
+        # Note: Unlike Dijkstra, we allow negative weights for Bellman-Ford
+        if not np.isfinite(edges[weight]).all():
+            raise ValueError(f"edges['{weight}'] should be finite")
+
+    def _permute_graph(self, tail, head):
+        """Permute the IDs of the nodes to start from 0 and be contiguous.
+        Returns a DataFrame with the permuted IDs."""
+
+        permutation = pd.DataFrame(
+            data={
+                "vert_idx": np.union1d(
+                    np.asarray(self._edges[tail]), np.asarray(self._edges[head])
+                )
+            }
+        )
+        permutation["vert_idx_new"] = permutation.index
+        permutation.index.name = "index"
+
+        self._edges = pd.merge(
+            self._edges,
+            permutation[["vert_idx", "vert_idx_new"]],
+            left_on=tail,
+            right_on="vert_idx",
+            how="left",
+        )
+        self._edges.drop([tail, "vert_idx"], axis=1, inplace=True)
+        self._edges.rename(columns={"vert_idx_new": tail}, inplace=True)
+
+        self._edges = pd.merge(
+            self._edges,
+            permutation[["vert_idx", "vert_idx_new"]],
+            left_on=head,
+            right_on="vert_idx",
+            how="left",
+        )
+        self._edges.drop([head, "vert_idx"], axis=1, inplace=True)
+        self._edges.rename(columns={"vert_idx_new": head}, inplace=True)
+
+        permutation.rename(columns={"vert_idx": "vert_idx_old"}, inplace=True)
+        permutation.reset_index(drop=True, inplace=True)
+        permutation.sort_values(by="vert_idx_new", inplace=True)
+
+        permutation.index.name = "index"
+        self._edges.index.name = "index"
+
+        return permutation
+
+    def _check_orientation(self, orientation):
+        """Checks the orientation attribute."""
+        if orientation not in ["in", "out"]:
+            raise ValueError("orientation should be either 'in' on 'out'")
+
+    def run(
+        self,
+        vertex_idx: int,
+        path_tracking: bool = False,
+        return_inf: bool = True,
+        return_series: bool = False,
+        detect_negative_cycles: bool = True,
+    ) -> Union[np.ndarray, pd.Series]:
+        """
+        Runs Bellman-Ford shortest path algorithm between a given vertex and all other vertices
+        in the graph.
+
+        Parameters
+        ----------
+        vertex_idx : int
+            The index of the source/target vertex.
+        path_tracking : bool, optional (default=False)
+            Whether to track the shortest path(s) from the source vertex to all other vertices in
+            the graph.
+        return_inf : bool, optional (default=True)
+            Whether to return path length(s) as infinity (np.inf) when no path exists.
+        return_series : bool, optional (default=False)
+            Whether to return a Pandas Series object indexed by vertex indices with path length(s)
+            as values.
+        detect_negative_cycles : bool, optional (default=True)
+            Whether to detect negative cycles in the graph. If True and a negative cycle is
+            detected,
+            raises a ValueError.
+
+        Returns
+        -------
+        path_length_values or path_lengths_series : array_like or Pandas Series
+            If `return_series=False`, a 1D Numpy array of shape (n_vertices,) with the shortest
+            path length from the source vertex to each vertex in the graph (`orientation="out"`), or
+            from each vertex to the target vertex (`orientation="in"`). If `return_series=True`, a
+            Pandas Series object with the same data and the vertex indices as index.
+
+        Raises
+        ------
+        ValueError
+            If detect_negative_cycles is True and a negative cycle is detected in the graph.
+        """
+        # validate the input arguments - type checking handled by static typing
+        if vertex_idx < 0:
+            raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be positive")
+        if self._permute and self._permutation is not None:
+            if vertex_idx not in self._permutation.vert_idx_old.values:
+                raise ValueError(f"vertex {vertex_idx} not found in graph")
+            vertex_new = self._permutation.loc[
+                self._permutation.vert_idx_old == vertex_idx, "vert_idx_new"
+            ].iloc[0]
+        else:
+            if vertex_idx >= self._n_vertices:
+                raise ValueError(f"vertex {vertex_idx} not found in graph")
+            vertex_new = vertex_idx
+        # Type checking is now handled by static typing
+
+        # compute path length
+        if not path_tracking:
+            self._path_links = None
+            if self._orientation == "in":
+                path_length_values = compute_bf_stsp(
+                    self.__indptr,
+                    self.__indices,
+                    self.__edge_weights,
+                    vertex_new,
+                    self._n_vertices,
+                )
+            else:
+                path_length_values = compute_bf_sssp(
+                    self.__indptr,
+                    self.__indices,
+                    self.__edge_weights,
+                    vertex_new,
+                    self._n_vertices,
+                )
+        else:
+            self._path_links = np.arange(0, self._n_vertices, dtype=np.uint32)
+            if self._orientation == "in":
+                path_length_values = compute_bf_stsp_w_path(
+                    self.__indptr,
+                    self.__indices,
+                    self.__edge_weights,
+                    self._path_links,
+                    vertex_new,
+                    self._n_vertices,
+                )
+            else:
+                path_length_values = compute_bf_sssp_w_path(
+                    self.__indptr,
+                    self.__indices,
+                    self.__edge_weights,
+                    self._path_links,
+                    vertex_new,
+                    self._n_vertices,
+                )
+
+            if self._permute and self._permutation is not None:
+                # permute back the path vertex indices
+                path_df = pd.DataFrame(
+                    data={
+                        "vertex_idx": np.arange(self._n_vertices),
+                        "associated_idx": self._path_links,
+                    }
+                )
+                path_df = pd.merge(
+                    path_df,
+                    self._permutation,
+                    left_on="vertex_idx",
+                    right_on="vert_idx_new",
+                    how="left",
+                )
+                path_df.drop(["vertex_idx", "vert_idx_new"], axis=1, inplace=True)
+                path_df.rename(columns={"vert_idx_old": "vertex_idx"}, inplace=True)
+                path_df = pd.merge(
+                    path_df,
+                    self._permutation,
+                    left_on="associated_idx",
+                    right_on="vert_idx_new",
+                    how="left",
+                )
+                path_df.drop(["associated_idx", "vert_idx_new"], axis=1, inplace=True)
+                path_df.rename(columns={"vert_idx_old": "associated_idx"}, inplace=True)
+
+                if return_series:
+                    path_df.set_index("vertex_idx", inplace=True)
+                    self._path_links = path_df.associated_idx.astype(np.uint32)
+                else:
+                    self._path_links = np.arange(
+                        self.__n_vertices_init, dtype=np.uint32
+                    )
+                    self._path_links[path_df.vertex_idx.values] = (
+                        path_df.associated_idx.values
+                    )
+
+        # detect negative cycles if requested (only if negative weights exist)
+        if detect_negative_cycles and self._has_negative_weights:
+            if self._orientation == "out":
+                # CSR format - can use detect_negative_cycle directly
+                self._has_negative_cycle = detect_negative_cycle(
+                    self.__indptr,
+                    self.__indices,
+                    self.__edge_weights,
+                    path_length_values,
+                    self._n_vertices,
+                )
+            else:
+                # CSC format - use CSC-specific negative cycle detection
+                # Much more efficient than converting CSC→CSR
+                self._has_negative_cycle = detect_negative_cycle_csc(
+                    self.__indptr,
+                    self.__indices,
+                    self.__edge_weights,
+                    path_length_values,
+                    self._n_vertices,
+                )
+
+            if self._has_negative_cycle:
+                raise ValueError("Negative cycle detected in the graph")
+
+        # deal with infinity
+        if return_inf:
+            path_length_values = np.where(
+                path_length_values == DTYPE_INF_PY, np.inf, path_length_values
+            )
+
+        # reorder path lengths
+        if return_series:
+            if self._permute and self._permutation is not None:
+                path_df = pd.DataFrame(
+                    data={"path_length": path_length_values[: self._n_vertices]}
+                )
+                path_df["vert_idx_new"] = path_df.index
+                path_df = pd.merge(
+                    path_df,
+                    self._permutation,
+                    left_on="vert_idx_new",
+                    right_on="vert_idx_new",
+                    how="left",
+                )
+                path_df.drop(["vert_idx_new"], axis=1, inplace=True)
+                path_df.set_index("vert_idx_old", inplace=True)
+                path_lengths_series = path_df.path_length.astype(DTYPE_PY)
+            else:
+                path_lengths_series = pd.Series(
+                    data=path_length_values[: self._n_vertices], dtype=DTYPE_PY
+                )
+                path_lengths_series.index = np.arange(self._n_vertices)
+            path_lengths_series.index.name = None
+            return path_lengths_series
+
+        # No else needed - de-indent the code
+        if self._permute and self._permutation is not None:
+            path_df = pd.DataFrame(
+                data={"path_length": path_length_values[: self._n_vertices]}
+            )
+            path_df["vert_idx_new"] = path_df.index
+            path_df = pd.merge(
+                path_df,
+                self._permutation,
+                left_on="vert_idx_new",
+                right_on="vert_idx_new",
+                how="left",
+            )
+            path_df.drop(["vert_idx_new"], axis=1, inplace=True)
+            path_length_values = np.full(self.__n_vertices_init, DTYPE_INF_PY)
+            path_length_values[path_df.vert_idx_old.values] = path_df.path_length.values
+            if return_inf:
+                path_length_values = np.where(
+                    path_length_values == DTYPE_INF_PY, np.inf, path_length_values
+                )
+        return path_length_values
+
+    def get_path(self, vertex_idx: int) -> Optional[np.ndarray]:
+        """Compute path from predecessors or successors.
+
+        Parameters:
+        -----------
+
+        vertex_idx : int
+            source or target vertex index.
+
+        Returns
+        -------
+
+        path_vertices : numpy.ndarray
+            Array of np.uint32 type storing the path from or to the given vertex index. If we are
+            dealing with the sssp algorithm, the input vertex is the target vertex and the path to
+            the source is given backward from the target to the source using the predecessors. If
+            we are dealing with the stsp algorithm, the input vertex is the source vertex and the
+            path to the target is given backward from the target to the source using the
+            successors.
+
+        """
+        if self._path_links is None:
+            warnings.warn(
+                "Current BellmanFord instance has not path attribute : \
+                make sure path_tracking is set to True, and run the \
+                shortest path algorithm",
+                UserWarning,
+            )
+            return None
+        if isinstance(self._path_links, pd.Series):
+            path_vertices = compute_path(self._path_links.values, vertex_idx)
+        else:
+            path_vertices = compute_path(self._path_links, vertex_idx)
+        return path_vertices
+
+    def has_negative_cycle(self):
+        """
+        Check if the last run detected a negative cycle.
+
+        Returns
+        -------
+        has_negative_cycle : bool
+            True if a negative cycle was detected in the last run, False otherwise.
+        """
+        return self._has_negative_cycle
 
 
 class HyperpathGenerating:
@@ -810,14 +1279,14 @@ class HyperpathGenerating:
 
     def __init__(
         self,
-        edges,
-        tail="tail",
-        head="head",
-        trav_time="trav_time",
-        freq="freq",
-        check_edges=False,
-        orientation="in",
-    ):
+        edges: pd.DataFrame,
+        tail: str = "tail",
+        head: str = "head",
+        trav_time: str = "trav_time",
+        freq: str = "freq",
+        check_edges: bool = False,
+        orientation: str = "in",
+    ) -> None:
         # load the edges
         if check_edges:
             self._check_edges(edges, tail, head, trav_time, freq)
@@ -863,15 +1332,21 @@ class HyperpathGenerating:
             self._edge_idx = rs_data.astype(np.uint32)
 
         # edge attributes
-        self._trav_time = self._edges[trav_time].values.astype(DTYPE_PY)
-        self._freq = self._edges[freq].values.astype(DTYPE_PY)
-        self._tail = self._edges[tail].values.astype(np.uint32)
-        self._head = self._edges[head].values.astype(np.uint32)
+        self._trav_time = np.asarray(self._edges[trav_time]).astype(DTYPE_PY)
+        self._freq = np.asarray(self._edges[freq]).astype(DTYPE_PY)
+        self._tail = np.asarray(self._edges[tail]).astype(np.uint32)
+        self._head = np.asarray(self._edges[head]).astype(np.uint32)
 
         # node attribute
         self.u_i_vec = None
 
-    def run(self, origin, destination, volume, return_inf=False):
+    def run(
+        self,
+        origin: Union[int, List[int]],
+        destination: int,
+        volume: Union[float, List[float]],
+        return_inf: bool = False,
+    ) -> None:
         """
         Computes the hyperpath and updates edge volumes based on the input demand and configuration.
 
@@ -919,32 +1394,25 @@ class HyperpathGenerating:
         # input check
         if not isinstance(volume, list):
             volume = [volume]
-        if self._orientation == "out":
-            self._check_vertex_idx(origin)
-            if not isinstance(destination, list):
-                destination = [destination]
-            assert len(destination) == len(volume)
-            for i, item in enumerate(destination):
-                self._check_vertex_idx(item)
-                self._check_volume(volume[i])
-            demand_indices = np.array(destination, dtype=np.uint32)
-        elif self._orientation == "in":
-            if not isinstance(origin, list):
-                origin = [origin]
-            assert len(origin) == len(volume)
-            for i, item in enumerate(origin):
-                self._check_vertex_idx(item)
-                self._check_volume(volume[i])
-            self._check_vertex_idx(destination)
-            demand_indices = np.array(origin, dtype=np.uint32)
-        assert isinstance(return_inf, bool)
-
-        demand_values = np.array(volume, dtype=DTYPE_PY)
 
         if self._orientation == "out":
             raise NotImplementedError(
                 "one-to-many Spiess & Florian's algorithm not implemented yet"
             )
+
+        # Only "in" orientation is supported currently
+        if not isinstance(origin, list):
+            origin = [origin]
+        assert len(origin) == len(volume)
+        for i, item in enumerate(origin):
+            self._check_vertex_idx(item)
+            self._check_volume(volume[i])
+        self._check_vertex_idx(destination)
+        demand_indices = np.array(origin, dtype=np.uint32)
+
+        assert isinstance(return_inf, bool)
+
+        demand_values = np.array(volume, dtype=DTYPE_PY)
 
         compute_SF_in(
             self.__indptr,
@@ -955,7 +1423,7 @@ class HyperpathGenerating:
             self._head,
             demand_indices,  # source vertex indices
             demand_values,
-            self._edges["volume"].values,
+            np.asarray(self._edges["volume"]),
             u_i_vec,
             self.vertex_count,
             destination,
@@ -972,7 +1440,7 @@ class HyperpathGenerating:
         assert v >= 0.0
 
     def _check_edges(self, edges, tail, head, trav_time, freq):
-        if not isinstance(edges, pd.core.frame.DataFrame):
+        if not isinstance(edges, pd.DataFrame):
             raise TypeError("edges should be a pandas DataFrame")
 
         for col in [tail, head, trav_time, freq]:
@@ -981,7 +1449,7 @@ class HyperpathGenerating:
                     f"edge column '{col}' not found in graph edges dataframe"
                 )
 
-        if edges[[tail, head, trav_time, freq]].isna().any().any():
+        if edges[[tail, head, trav_time, freq]].isnull().to_numpy().any():
             raise ValueError(
                 " ".join(
                     [

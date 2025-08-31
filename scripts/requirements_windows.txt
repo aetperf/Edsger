@@ -1,0 +1,9 @@
+numpy
+pandas
+loguru
+scipy
+networkit
+loguru
+pyarrow
+tol-colors
+matplotlib

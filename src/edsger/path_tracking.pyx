@@ -14,6 +14,13 @@ cdef functions:
     Compute the sequence of vertices forming a path.
 """
 
+# cython: language_level=3
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: embedsignature=False
+# cython: cdivision=True
+# cython: initializedcheck=False
+
 import numpy as np
 cimport numpy as cnp
 

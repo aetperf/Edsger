@@ -1,8 +1,11 @@
 """
-Run Dijkstra's algorithm (SSSP) on DIMACS networks.
+Run Bellman-Ford algorithm (SSSP) on DIMACS networks.
+
+The Bellman-Ford algorithm can handle negative edge weights and detect negative cycles,
+unlike Dijkstra's algorithm which requires non-negative weights.
 
 Example :
-> python dijkstra_dimacs.py -n USA -r 4 -c True
+> python bellman_ford_dimacs.py -n USA -r 4 -c True
 """
 
 import os
@@ -13,17 +16,18 @@ from time import perf_counter
 
 import numpy as np
 import pandas as pd
-from edsger.path import Dijkstra
 from loguru import logger
 from scipy.sparse import coo_array
-from scipy.sparse.csgraph import dijkstra
+from scipy.sparse.csgraph import bellman_ford
+
+from edsger.path import BellmanFord
 
 logger.remove()
-fmt = (
+FMT = (
     "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> |"
     + " <level>{message}</level>"
 )
-logger.add(sys.stderr, format=fmt)
+logger.add(sys.stderr, format=FMT)
 
 # Determine default data directory based on OS
 if platform.system() == "Windows":
@@ -31,22 +35,22 @@ if platform.system() == "Windows":
     if os.path.exists(
         r"C:\Users\fpacu\Documents\Workspace\Edsger\data\DIMACS_road_networks"
     ):
-        default_data_dir = (
+        DEFAULT_DATA_DIR = (
             r"C:\Users\fpacu\Documents\Workspace\Edsger\data\DIMACS_road_networks"
         )
     else:
-        default_data_dir = os.path.join(
+        DEFAULT_DATA_DIR = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             "data",
             "DIMACS_road_networks",
         )
 else:
-    default_data_dir = "/home/francois/Data/DIMACS_road_networks/"
+    DEFAULT_DATA_DIR = "/home/francois/Data/DIMACS_road_networks/"
 
 # Use environment variable if set, otherwise use OS-specific default
-default_data_dir = os.getenv("DIMACS_DATA_DIR", default_data_dir)
+DEFAULT_DATA_DIR = os.getenv("DIMACS_DATA_DIR", DEFAULT_DATA_DIR)
 
-parser = ArgumentParser(description="Command line interface to dijkstra_dimacs.py")
+parser = ArgumentParser(description="Command line interface to bellman_ford_dimacs.py")
 parser.add_argument(
     "-d",
     "--dir",
@@ -55,7 +59,7 @@ parser.add_argument(
     metavar="TXT",
     type=str,
     required=False,
-    default=default_data_dir,
+    default=DEFAULT_DATA_DIR,
 )
 parser.add_argument(
     "-n",
@@ -71,7 +75,7 @@ parser.add_argument(
     "-l",
     "--library",
     dest="library_name",
-    help='library name, must be "E" (Edsger), "GT" (graph-tool), "NK" (NetworKit)',
+    help='library name, must be "E" (Edsger), "GT" (graph-tool)',
     metavar="TXT",
     type=str,
     required=False,
@@ -105,14 +109,11 @@ parser.add_argument(
     action="store_true",
 )
 parser.add_argument(
-    "-q",
-    "--heap_length_ratio",
-    dest="heap_length_ratio",
-    help="heap length ratio (0, 1]",
-    metavar="FLOAT",
-    type=float,
-    required=False,
-    default=1.0,
+    "--detect-negative-cycles",
+    dest="detect_negative_cycles",
+    help="enable negative cycle detection (default: disabled)",
+    action="store_true",
+    default=False,
 )
 args = parser.parse_args()
 data_dir = args.data_dir
@@ -123,10 +124,14 @@ idx_from = args.idx_from
 repeat = args.repeat
 check_result = args.check_result
 lib = args.library_name.upper()
-heap_length_ratio = args.heap_length_ratio
+detect_negative_cycles = args.detect_negative_cycles
 
 # lib name check
-assert lib in ["E", "GT", "NK"]
+if lib not in ["E", "GT"]:
+    logger.critical(
+        f"library '{lib}' invalid for Bellman-Ford. Must be 'E' (Edsger) or 'GT' (graph-tool)"
+    )
+    sys.exit()
 
 data_dir_found = os.path.exists(data_dir)
 if data_dir_found:
@@ -174,6 +179,8 @@ else:
     logger.critical(f"invalid value '{check_result}' for check_result")
     sys.exit()
 
+logger.info(f"detect negative cycles : {detect_negative_cycles}")
+
 # locate the parquet file
 network_file_path = os.path.join(
     data_dir, os.path.join(reg, f"USA-road-t.{reg}.gr.parquet")
@@ -192,13 +199,16 @@ edge_count = len(edges)
 vertex_count = edges[["tail", "head"]].max().max() + 1
 logger.info(f"{edge_count} edges and {vertex_count} vertices")
 
+# Initialize dist_matrix to None to avoid possibly-used-before-assignment
+dist_matrix = None  # pylint: disable=invalid-name
+
 if lib == "E":
     # Edsger
     # ------
 
     logger.info("Edsger init")
     edges[["tail", "head"]] = edges[["tail", "head"]].astype(np.uint32)
-    sp = Dijkstra(edges, orientation="out", check_edges=False)
+    sp = BellmanFord(edges, orientation="out", check_edges=False, verbose=False)
 
     # SSSP
 
@@ -209,14 +219,25 @@ if lib == "E":
 
         start = perf_counter()
 
-        dist_matrix = sp.run(
-            vertex_idx=idx_from, return_inf=True, heap_length_ratio=heap_length_ratio
-        )
+        try:
+            dist_matrix = sp.run(
+                vertex_idx=idx_from,
+                return_inf=True,
+                detect_negative_cycles=detect_negative_cycles,
+            )
+            negative_cycle_detected = False  # pylint: disable=invalid-name
+        except ValueError as e:
+            if "negative cycle" in str(e).lower():
+                logger.warning(f"Negative cycle detected in trial {i+1}")
+                negative_cycle_detected = True  # pylint: disable=invalid-name
+                dist_matrix = None  # pylint: disable=invalid-name
+            else:
+                raise
 
         end = perf_counter()
         elapsed_time = end - start
         logger.info(
-            f"Edsger Dijkstra {i+1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
+            f"Edsger Bellman-Ford {i+1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
         )
 
         d = {
@@ -224,11 +245,14 @@ if lib == "E":
             "network": reg,
             "trial": i,
             "elapsed_time": elapsed_time,
+            "negative_cycle": negative_cycle_detected,
         }
         results.append(d)
 
     df = pd.DataFrame.from_records(results)
     logger.info(f"Edsger min elapsed time : {df.elapsed_time.min():8.4f} s")
+    if df.negative_cycle.any():
+        logger.info(f"Negative cycles detected in {df.negative_cycle.sum()} trials")
 
 elif lib == "GT":
     # graph-tool
@@ -237,7 +261,6 @@ elif lib == "GT":
     logger.info("graph-tool init")
 
     import graph_tool as gt
-    from graph_tool import topology
 
     # create the graph
     g = gt.Graph(directed=True)
@@ -262,19 +285,28 @@ elif lib == "GT":
 
         start = perf_counter()
 
-        dist = gt.topology.shortest_distance(
-            g,
-            source=g.vertex(idx_from),
-            weights=g.ep.t,
-            negative_weights=False,
-            directed=True,
-        )
-        dist_matrix = dist.a
+        try:
+            dist = gt.topology.shortest_distance(
+                g,
+                source=g.vertex(idx_from),
+                weights=g.ep.t,
+                negative_weights=True,  # Enable negative weights for Bellman-Ford
+                directed=True,
+            )
+            dist_matrix = dist.a  # pylint: disable=invalid-name
+            negative_cycle_detected = False  # pylint: disable=invalid-name
+        except (RuntimeError, ValueError) as e:
+            if "negative" in str(e).lower() and "cycle" in str(e).lower():
+                logger.warning(f"Negative cycle detected in trial {i+1}")
+                negative_cycle_detected = True  # pylint: disable=invalid-name
+                dist_matrix = None  # pylint: disable=invalid-name
+            else:
+                raise
 
         end = perf_counter()
         elapsed_time = end - start
         logger.info(
-            f"graph-tool Dijkstra {i+1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
+            f"graph-tool Bellman-Ford {i+1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
         )
 
         d = {
@@ -282,70 +314,17 @@ elif lib == "GT":
             "network": reg,
             "trial": i,
             "elapsed_time": elapsed_time,
+            "negative_cycle": negative_cycle_detected,
         }
         results.append(d)
 
     df = pd.DataFrame.from_records(results)
     logger.info(f"graph-tool min elapsed time : {df.elapsed_time.min():8.4f} s")
-
-elif lib == "NK":
-    # NetworKit
-    # ---------
-
-    import networkit as nk
-
-    nk_file_format = nk.graphio.Format.NetworkitBinary
-    networkit_file_path = os.path.join(
-        data_dir, f"{reg}/USA-road-t.{reg}.gr.NetworkitBinary"
-    )
-
-    if os.path.exists(networkit_file_path):
-        g = nk.graphio.readGraph(networkit_file_path, nk_file_format)
-
-    else:
-        g = nk.Graph(n=vertex_count, weighted=True, directed=True, edgesIndexed=False)
-
-        for row in edges.itertuples():
-            g.addEdge(row.tail, row.head, w=row.weight)
-
-        nk.graphio.writeGraph(g, networkit_file_path, nk_file_format)
-
-    nk_dijkstra = nk.distance.Dijkstra(
-        g, idx_from, storePaths=False, storeNodesSortedByDistance=False
-    )
-
-    # SSSP
-
-    results = []
-    logger.info("NetworKit Run")
-    for i in range(repeat):
-        d = {}
-
-        start = perf_counter()
-
-        nk_dijkstra.run()
-        dist_matrix = np.asarray(nk_dijkstra.getDistances(asarray=True))
-        dist_matrix = np.where(dist_matrix >= 1.79769313e308, np.inf, dist_matrix)
-
-        end = perf_counter()
-        elapsed_time = end - start
-        logger.info(
-            f"NetworKit Dijkstra {i+1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
-        )
-
-        d = {
-            "library": "NetworKit",
-            "network": reg,
-            "trial": i,
-            "elapsed_time": elapsed_time,
-        }
-        results.append(d)
-
-    df = pd.DataFrame.from_records(results)
-    logger.info(f"NetworKit min elapsed time : {df.elapsed_time.min():8.4f} s")
+    if df.negative_cycle.any():
+        logger.info(f"Negative cycles detected in {df.negative_cycle.sum()} trials")
 
 
-if check_result:
+if check_result and dist_matrix is not None:
     logger.info("result check")
 
     # SciPy
@@ -358,20 +337,35 @@ if check_result:
 
     logger.info("SciPy run")
     start = perf_counter()
-    dist_matrix_ref = dijkstra(
-        csgraph=graph_csr,
-        directed=True,
-        indices=idx_from,
-        return_predecessors=False,
-    )
+
+    try:
+        dist_matrix_ref = bellman_ford(
+            csgraph=graph_csr,
+            directed=True,
+            indices=idx_from,
+            return_predecessors=False,
+        )
+        scipy_negative_cycle = False  # pylint: disable=invalid-name
+    except (RuntimeError, ValueError) as e:
+        if "negative cycle" in str(e).lower():
+            logger.warning("SciPy detected negative cycle")
+            scipy_negative_cycle = True  # pylint: disable=invalid-name
+            dist_matrix_ref = None  # pylint: disable=invalid-name
+        else:
+            raise
+
     end = perf_counter()
     elapsed_time = end - start
 
-    logger.info(f"SciPy Dijkstra - Elapsed time: {elapsed_time:8.4f} s")
-    logger.info(f"isinf : {np.isinf(dist_matrix_ref).any()}")
-    logger.info(
-        f"allclose : {np.allclose(dist_matrix_ref, dist_matrix, equal_nan=True)}"
-    )
+    logger.info(f"SciPy Bellman-Ford - Elapsed time: {elapsed_time:8.4f} s")
+
+    if dist_matrix_ref is not None and dist_matrix is not None:
+        logger.info(f"isinf : {np.isinf(dist_matrix_ref).any()}")
+        logger.info(
+            f"allclose : {np.allclose(dist_matrix_ref, dist_matrix, equal_nan=True)}"
+        )
+    elif scipy_negative_cycle:
+        logger.info("Both algorithms detected negative cycles (if applicable)")
 
 
 logger.info("exit")

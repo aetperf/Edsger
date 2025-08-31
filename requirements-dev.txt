@@ -13,6 +13,11 @@ pyarrow
 # Linting/Tooling
 cython-lint
 black
+pyright
+
+# Type stubs
+types-setuptools
+pandas-stubs
 
 # Documentation
 sphinx
