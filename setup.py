@@ -38,36 +38,58 @@ def get_compiler_flags():
 
     if system == "Windows":
         if is_mingw():
-            # MinGW/GCC on Windows - Conservative optimizations for better performance
-            print("Building with MinGW/GCC optimizations on Windows (conservative)")
+            # MinGW/GCC on Windows - Aggressive optimizations matching Linux performance
+            print("Building with MinGW/GCC optimizations on Windows (aggressive)")
             compile_args = [
-                "-O2",
-                "-march=x86-64",
-                "-mtune=generic",
-                "-msse2",
-                "-ffast-math",
+                "-O3",  # Maximum optimization (or use -Ofast for even more aggressive)
+                "-march=native",  # Optimize for the current CPU architecture
+                "-mtune=native",  # Tune for the current CPU
+                "-flto",  # Link-time optimization
+                "-ffast-math",  # Fast floating-point math
+                "-funroll-loops",  # Unroll loops for better performance
+                "-ftree-vectorize",  # Enable auto-vectorization
+                "-msse4.2",  # Enable SSE4.2 instructions (most modern CPUs support this)
+                "-mavx2",  # Enable AVX2 if your CPU supports it (comment out if not)
             ]
-            link_args = []
+            link_args = [
+                "-flto",  # Link-time optimization
+                "-Wl,-O1",  # Optimize linker output
+            ]
             # Windows-specific macros for better performance
             windows_macros = [
                 ("WIN32_LEAN_AND_MEAN", None),  # Exclude rarely-used APIs
                 ("NOMINMAX", None),  # Prevent min/max macro conflicts
                 ("_USE_MATH_DEFINES", None),  # Enable math constants
+                ("NDEBUG", None),  # Disable debug assertions
             ]
         else:
-            # MSVC on Windows - Conservative optimizations for better performance
-            print("Building with MSVC optimizations on Windows (conservative)")
-            compile_args = ["/O2", "/fp:fast", "/arch:SSE2", "/favor:INTEL64"]
-            link_args = []
+            # MSVC on Windows - Aggressive optimizations for maximum performance
+            print("Building with MSVC optimizations on Windows (aggressive)")
+            compile_args = [
+                "/O2",  # Maximum speed optimization
+                "/Ob2",  # Inline function expansion
+                "/Oi",  # Enable intrinsic functions
+                "/Ot",  # Favor fast code
+                "/Oy",  # Omit frame pointers
+                "/GL",  # Whole program optimization
+                "/fp:fast",  # Fast floating-point model
+                "/arch:AVX2",  # Use AVX2 instructions (or /arch:SSE2 for older CPUs)
+                "/favor:INTEL64",  # Optimize for Intel 64-bit processors
+                "/GS-",  # Disable security checks for performance
+                "/Gw",  # Optimize global data
+            ]
+            link_args = [
+                "/LTCG",  # Link-time code generation
+                "/OPT:REF",  # Eliminate unreferenced functions/data
+                "/OPT:ICF",  # Enable COMDAT folding
+            ]
             # Windows-specific macros for better performance
             windows_macros = [
                 ("WIN32_LEAN_AND_MEAN", None),  # Exclude rarely-used APIs
                 ("NOMINMAX", None),  # Prevent min/max macro conflicts
                 ("_USE_MATH_DEFINES", None),  # Enable math constants
-                (
-                    "_CRT_SECURE_NO_WARNINGS",
-                    None,
-                ),  # Disable CRT warnings for performance
+                ("_CRT_SECURE_NO_WARNINGS", None),  # Disable CRT warnings
+                ("NDEBUG", None),  # Disable debug assertions
             ]
         return compile_args, link_args, windows_macros
     elif system in ["Linux", "Darwin"]:
