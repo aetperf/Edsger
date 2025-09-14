@@ -32,27 +32,73 @@ def get_compiler_flags():
     # Check if we're building with coverage support
     if os.environ.get("CYTHON_TRACE", "0") == "1":
         print("Building with coverage support (CYTHON_TRACE=1)")
-        return ["-O0", "-g"], []  # Debug flags for accurate coverage
+        return ["-O0", "-g"], [], []  # Debug flags for accurate coverage
 
     system = platform.system()
 
     if system == "Windows":
         if is_mingw():
-            # MinGW/GCC on Windows
-            print("Building with MinGW/GCC optimizations on Windows")
-            compile_args = ["-Ofast", "-flto", "-march=native"]
-            link_args = ["-flto"]
+            # MinGW/GCC on Windows - Aggressive optimizations matching Linux performance
+            print("Building with MinGW/GCC optimizations on Windows (aggressive)")
+            compile_args = [
+                "-O3",  # Maximum optimization (or use -Ofast for even more aggressive)
+                "-march=native",  # Optimize for the current CPU architecture
+                "-mtune=native",  # Tune for the current CPU
+                "-flto",  # Link-time optimization
+                "-ffast-math",  # Fast floating-point math
+                "-funroll-loops",  # Unroll loops for better performance
+                "-ftree-vectorize",  # Enable auto-vectorization
+                "-msse4.2",  # Enable SSE4.2 instructions (most modern CPUs support this)
+                "-mavx2",  # Enable AVX2 if your CPU supports it (comment out if not)
+            ]
+            link_args = [
+                "-flto",  # Link-time optimization
+                "-Wl,-O1",  # Optimize linker output
+            ]
+            # Windows-specific macros for better performance
+            windows_macros = [
+                ("WIN32_LEAN_AND_MEAN", None),  # Exclude rarely-used APIs
+                ("NOMINMAX", None),  # Prevent min/max macro conflicts
+                ("_USE_MATH_DEFINES", None),  # Enable math constants
+                ("NDEBUG", None),  # Disable debug assertions
+            ]
         else:
-            # MSVC on Windows
-            print("Building with MSVC optimizations on Windows")
-            compile_args = ["/O2", "/GL", "/arch:AVX2"]
-            link_args = ["/LTCG"]
+            # MSVC on Windows - Aggressive optimizations for maximum performance
+            print("Building with MSVC optimizations on Windows (aggressive)")
+            compile_args = [
+                "/O2",  # Maximum speed optimization
+                "/Ob2",  # Inline function expansion
+                "/Oi",  # Enable intrinsic functions
+                "/Ot",  # Favor fast code
+                "/Oy",  # Omit frame pointers
+                "/GL",  # Whole program optimization
+                "/fp:fast",  # Fast floating-point model
+                "/arch:AVX2",  # Use AVX2 instructions (or /arch:SSE2 for older CPUs)
+                "/favor:INTEL64",  # Optimize for Intel 64-bit processors
+                "/GS-",  # Disable security checks for performance
+                "/Gw",  # Optimize global data
+            ]
+            link_args = [
+                "/LTCG",  # Link-time code generation
+                "/OPT:REF",  # Eliminate unreferenced functions/data
+                "/OPT:ICF",  # Enable COMDAT folding
+            ]
+            # Windows-specific macros for better performance
+            windows_macros = [
+                ("WIN32_LEAN_AND_MEAN", None),  # Exclude rarely-used APIs
+                ("NOMINMAX", None),  # Prevent min/max macro conflicts
+                ("_USE_MATH_DEFINES", None),  # Enable math constants
+                ("_CRT_SECURE_NO_WARNINGS", None),  # Disable CRT warnings
+                ("NDEBUG", None),  # Disable debug assertions
+            ]
+        return compile_args, link_args, windows_macros
     elif system in ["Linux", "Darwin"]:
         # Linux or macOS with GCC/Clang
         compiler_name = "GCC/Clang" if system == "Linux" else "Clang"
         print(f"Building with {compiler_name} optimizations on {system}")
         compile_args = ["-Ofast", "-flto", "-march=native"]
         link_args = ["-flto"]
+        return compile_args, link_args, []
     else:
         # Unknown platform, use conservative flags
         print(
@@ -60,12 +106,14 @@ def get_compiler_flags():
         )
         compile_args = ["-O2"]
         link_args = []
-
-    return compile_args, link_args
+        return compile_args, link_args, []
 
 
 # Get platform-specific compiler flags
-extra_compile_args, extra_link_args = get_compiler_flags()
+extra_compile_args, extra_link_args, platform_macros = get_compiler_flags()
+
+# Combine numpy macros with platform-specific macros
+define_macros = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")] + platform_macros
 
 extensions = [
     Extension(
@@ -73,49 +121,49 @@ extensions = [
         ["src/edsger/commons.pyx"],
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
-        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+        define_macros=define_macros,
     ),
     Extension(
         "edsger.pq_4ary_dec_0b",
         ["src/edsger/pq_4ary_dec_0b.pyx"],
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
-        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+        define_macros=define_macros,
     ),
     Extension(
         "edsger.dijkstra",
         ["src/edsger/dijkstra.pyx"],
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
-        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+        define_macros=define_macros,
     ),
     Extension(
         "edsger.spiess_florian",
         ["src/edsger/spiess_florian.pyx"],
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
-        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+        define_macros=define_macros,
     ),
     Extension(
         "edsger.star",
         ["src/edsger/star.pyx"],
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
-        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+        define_macros=define_macros,
     ),
     Extension(
         "edsger.path_tracking",
         ["src/edsger/path_tracking.pyx"],
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
-        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+        define_macros=define_macros,
     ),
     Extension(
         "edsger.bellman_ford",
         ["src/edsger/bellman_ford.pyx"],
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
-        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+        define_macros=define_macros,
     ),
 ]
 
