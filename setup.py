@@ -165,6 +165,13 @@ extensions = [
         extra_link_args=extra_link_args,
         define_macros=define_macros,
     ),
+    # Extension(
+    #     "edsger.dijkstra_prefetch",
+    #     ["src/edsger/dijkstra_prefetch.pyx"],
+    #     extra_compile_args=extra_compile_args,
+    #     extra_link_args=extra_link_args,
+    #     define_macros=define_macros,
+    # ),
 ]
 
 with open("requirements.txt") as fp:
