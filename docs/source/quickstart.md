@@ -5,7 +5,7 @@ Welcome to our Python library for **directed graph** algorithms. The library inc
 
 ## Graph Data Format
 
-Edsger expects directed graph data as a pandas DataFrame with the following structure:
+Edsger accepts directed graph data in multiple DataFrame formats, all with the same basic structure:
 
 | Column | Type    | Description                                    |
 |--------|---------|------------------------------------------------|
@@ -13,7 +13,9 @@ Edsger expects directed graph data as a pandas DataFrame with the following stru
 | head   | int     | Destination vertex ID                          |
 | weight | float   | Edge weight (non-negative for Dijkstra, can be negative for Bellman-Ford) |
 
-Example:
+### Supported DataFrame Backends
+
+#### pandas with NumPy backend (default)
 ```python
 import pandas as pd
 
@@ -22,16 +24,40 @@ edges = pd.DataFrame({
     'head': [1, 2, 2, 3],
     'weight': [1.0, 4.0, 2.0, 1.0]
 })
-edges
 ```
 
-|    |   tail |   head |   weight |
-|---:|-------:|-------:|---------:|
-|  0 |      0 |      1 |        1 |
-|  1 |      0 |      2 |        4 |
-|  2 |      1 |      2 |        2 |
-|  3 |      2 |      3 |        1 |
+#### pandas with Arrow backend
+```python
+import pandas as pd
+import pyarrow as pa
 
+# Create with Arrow dtypes
+edges_arrow = pd.DataFrame({
+    'tail': pd.array([0, 0, 1, 2], dtype=pd.ArrowDtype(pa.int64())),
+    'head': pd.array([1, 2, 2, 3], dtype=pd.ArrowDtype(pa.int64())),
+    'weight': pd.array([1.0, 4.0, 2.0, 1.0], dtype=pd.ArrowDtype(pa.float64()))
+})
+
+# Or convert existing DataFrame
+edges_arrow = edges.astype({
+    'tail': pd.ArrowDtype(pa.int64()),
+    'head': pd.ArrowDtype(pa.int64()),
+    'weight': pd.ArrowDtype(pa.float64())
+})
+```
+
+#### Polars DataFrame
+```python
+import polars as pl
+
+edges_polars = pl.DataFrame({
+    'tail': [0, 0, 1, 2],
+    'head': [1, 2, 2, 3],
+    'weight': [1.0, 4.0, 2.0, 1.0]
+})
+```
+
+All these formats work seamlessly with Edsger's algorithms - the library automatically detects and handles the DataFrame type.
 
 Note that it is also possible to use a graph with different column names for the tail, head and weight values, but we need then to specify the name mapping, as described in the following.
 
@@ -446,6 +472,45 @@ print("Path to vertex 3:", path)
 ### Performance Considerations
 
 Bellman-Ford has O(VE) time complexity compared to Dijkstra's O((V+E)logV). For large directed graphs with only positive weights, Dijkstra is significantly faster. However, the performance difference may be acceptable for smaller directed graphs or when negative weights are essential to your problem.
+
+## DataFrame Backend Selection
+
+Edsger automatically detects and optimizes for your DataFrame backend. Here's when to use each:
+
+### pandas with NumPy backend
+- **Best for**: Small to medium graphs, existing pandas workflows
+- **Memory**: Standard NumPy arrays
+- **Example**:
+```python
+edges = pd.DataFrame({...})  # Default pandas
+dijkstra = Dijkstra(edges)
+```
+
+### pandas with Arrow backend
+- **Best for**: Large graphs, memory-constrained environments
+- **Memory**: Columnar format, often more efficient
+- **Automatic optimization**: Integer columns use uint32 when possible
+- **Example**:
+```python
+edges = pd.DataFrame({...}).astype({
+    'tail': pd.ArrowDtype(pa.int64()),
+    'head': pd.ArrowDtype(pa.int64()),
+    'weight': pd.ArrowDtype(pa.float64())
+})
+dijkstra = Dijkstra(edges)
+```
+
+### Polars DataFrame
+- **Best for**: High-performance workflows, large-scale data processing
+- **Memory**: Efficient columnar storage
+- **Automatic optimization**: Integer columns use uint32 when possible
+- **Example**:
+```python
+edges = pl.DataFrame({...})
+dijkstra = Dijkstra(edges)
+```
+
+All backends are automatically converted to optimal NumPy arrays internally for maximum Cython performance, while preserving the convenience of your preferred DataFrame library.
 
 ## Next Steps
 

@@ -271,3 +271,131 @@ This automatic handling ensures:
 - Consistent directed graph representation
 - Optimal shortest paths (using minimum weight edges)
 - No duplicate edges in the internal directed graph structure
+
+## edsger.graph_importer Module
+
+### GraphImporter Architecture
+
+The GraphImporter system provides automatic DataFrame backend detection and optimization for all graph algorithms in Edsger.
+
+#### Key Features
+
+- **Automatic Detection**: Identifies DataFrame type (pandas NumPy, pandas Arrow, or Polars)
+- **Memory Optimization**: Automatically uses uint32 for vertex indices when possible
+- **Contiguous Memory**: Ensures C-contiguous arrays for optimal Cython performance
+- **Factory Pattern**: Simple interface with automatic backend selection
+
+### standardize_graph_dataframe Function
+
+```python
+from edsger.graph_importer import standardize_graph_dataframe
+
+def standardize_graph_dataframe(edges, tail='tail', head='head', weight='weight')
+```
+
+Standardizes any supported DataFrame format to NumPy-backed pandas DataFrame.
+
+**Parameters:**
+- `edges`: Input DataFrame (pandas, pandas with Arrow, or Polars)
+- `tail`: Column name for source vertices
+- `head`: Column name for destination vertices
+- `weight`: Column name for edge weights
+
+**Returns:**
+- pandas DataFrame with NumPy arrays, optimized dtypes, and contiguous memory
+
+#### Example Usage
+
+```python
+import pandas as pd
+import polars as pl
+from edsger.graph_importer import standardize_graph_dataframe
+
+# Works with any DataFrame type
+edges_polars = pl.DataFrame({
+    'source': [0, 1, 2],
+    'target': [1, 2, 3],
+    'cost': [1.0, 2.0, 3.0]
+})
+
+# Automatic conversion and optimization
+edges_numpy = standardize_graph_dataframe(
+    edges_polars,
+    tail='source',
+    head='target',
+    weight='cost'
+)
+
+print(edges_numpy.dtypes)
+# source    uint32  (optimized from int64)
+# target    uint32  (optimized from int64)
+# cost      float64
+```
+
+### GraphImporter Classes
+
+#### GraphImporter (Base Class)
+
+Abstract base class providing the factory method for automatic DataFrame type detection.
+
+##### Class Method: from_dataframe
+
+```python
+@staticmethod
+def from_dataframe(edges, tail='tail', head='head', weight='weight')
+```
+
+Factory method that automatically selects the appropriate importer based on DataFrame type.
+
+**Detection Priority:**
+1. Polars DataFrame
+2. pandas with Arrow backend
+3. pandas with NumPy backend (default)
+
+#### PandasNumpyImporter
+
+Handles standard pandas DataFrames with NumPy backend.
+
+- Minimal overhead for already NumPy-backed DataFrames
+- Ensures contiguous memory layout
+- Maintains existing dtypes
+
+#### PandasArrowImporter
+
+Handles pandas DataFrames with PyArrow backend.
+
+- Converts Arrow columns to NumPy arrays
+- Optimizes integer dtypes (uint32 when possible)
+- Handles nullable types gracefully
+
+#### PolarsImporter
+
+Handles Polars DataFrames.
+
+- Efficient conversion using Polars' to_pandas() method
+- Automatic dtype optimization
+- Preserves performance benefits of columnar storage during conversion
+
+### Performance Considerations
+
+The GraphImporter system optimizes for:
+
+1. **Memory Efficiency**: Uses smallest possible dtype for vertex indices
+2. **Cache Locality**: Ensures C-contiguous memory layout
+3. **Conversion Speed**: Single conversion at initialization
+4. **Zero-Copy When Possible**: Minimizes data copying during conversion
+
+### Integration with Algorithms
+
+All path algorithms (Dijkstra, BellmanFord, HyperpathGenerating) automatically use the GraphImporter system:
+
+```python
+from edsger.path import Dijkstra
+import polars as pl
+
+# GraphImporter is used internally
+edges = pl.DataFrame({...})
+dijkstra = Dijkstra(edges)  # Automatic detection and conversion
+```
+
+No manual conversion is needed - the algorithms handle everything automatically!
