@@ -11,6 +11,20 @@ from scipy.sparse.csgraph import bellman_ford as scipy_bellman_ford  # type: ign
 
 from edsger.path import BellmanFord, Dijkstra
 
+try:
+    import pyarrow as pa
+
+    PYARROW_AVAILABLE = True
+except ImportError:
+    PYARROW_AVAILABLE = False
+
+try:
+    import polars as pl
+
+    POLARS_AVAILABLE = True
+except ImportError:
+    POLARS_AVAILABLE = False
+
 
 @pytest.fixture
 def braess():
@@ -676,6 +690,322 @@ class TestBellmanFord:
         # The new CSC method should be significantly faster than the old CSR conversion
         # (This is more of a sanity check - actual performance test would need more setup)
         assert csc_time < 1.0  # Should be fast for 1000 vertices
+
+
+class TestBellmanFordDataFrameBackends:
+    """Test BellmanFord consistency across different DataFrame backends."""
+
+    def create_test_dataframes(self, data: dict):
+        """Create test DataFrames in all available formats."""
+        dataframes = {}
+
+        # pandas with NumPy backend
+        dataframes["pandas_numpy"] = pd.DataFrame(data)
+
+        # pandas with Arrow backend
+        if PYARROW_AVAILABLE:
+            df_arrow = pd.DataFrame(data)
+            # Convert to Arrow backend
+            arrow_dtypes = {}
+            for col, values in data.items():
+                if col in ["tail", "head"]:
+                    arrow_dtypes[col] = pd.ArrowDtype(pa.int64())
+                else:
+                    arrow_dtypes[col] = pd.ArrowDtype(pa.float64())
+            df_arrow = df_arrow.astype(arrow_dtypes)
+            dataframes["pandas_arrow"] = df_arrow
+
+        # Polars DataFrame
+        if POLARS_AVAILABLE:
+            dataframes["polars"] = pl.DataFrame(data)
+
+        return dataframes
+
+    def test_bellmanford_positive_weights_backend_consistency(self):
+        """Test BellmanFord with positive weights across DataFrame backends."""
+        data = {
+            "tail": [0, 0, 1, 1, 2],
+            "head": [1, 2, 2, 3, 3],
+            "weight": [1.0, 2.0, 0.0, 2.0, 1.0],
+        }
+
+        dataframes = self.create_test_dataframes(data)
+        results = {}
+
+        # Run BellmanFord on each DataFrame backend
+        for backend_name, df in dataframes.items():
+            bf = BellmanFord(df, orientation="out")
+            results[backend_name] = bf.run(vertex_idx=0, return_inf=True)
+
+        # All results should be identical
+        reference_result = list(results.values())[0]
+        for backend_name, result in results.items():
+            np.testing.assert_array_equal(
+                reference_result,
+                result,
+                err_msg=f"BellmanFord positive weights results differ for {backend_name}",
+            )
+
+    def test_bellmanford_negative_weights_backend_consistency(self):
+        """Test BellmanFord with negative weights across DataFrame backends."""
+        data = {
+            "tail": [0, 0, 1, 1, 2, 3],
+            "head": [1, 2, 2, 3, 3, 4],
+            "weight": [1.0, 4.0, -2.0, 5.0, 1.0, 3.0],
+        }
+
+        dataframes = self.create_test_dataframes(data)
+        results = {}
+
+        # Run BellmanFord on each DataFrame backend
+        for backend_name, df in dataframes.items():
+            bf = BellmanFord(df, orientation="out")
+            results[backend_name] = bf.run(vertex_idx=0, return_inf=True)
+
+        # All results should be identical
+        reference_result = list(results.values())[0]
+        for backend_name, result in results.items():
+            np.testing.assert_array_equal(
+                reference_result,
+                result,
+                err_msg=f"BellmanFord negative weights results differ for {backend_name}",
+            )
+
+    def test_bellmanford_path_tracking_backend_consistency(self):
+        """Test BellmanFord path tracking across DataFrame backends."""
+        data = {
+            "tail": [0, 0, 1, 1, 2, 3],
+            "head": [1, 2, 2, 3, 3, 4],
+            "weight": [1.0, 4.0, -2.0, 5.0, 1.0, 3.0],
+        }
+
+        dataframes = self.create_test_dataframes(data)
+        paths = {}
+
+        # Run BellmanFord with path tracking on each DataFrame backend
+        for backend_name, df in dataframes.items():
+            bf = BellmanFord(df, orientation="out")
+            bf.run(vertex_idx=0, path_tracking=True, return_inf=True)
+            paths[backend_name] = bf.get_path(4)
+
+        # All paths should be identical
+        reference_path = list(paths.values())[0]
+        for backend_name, path in paths.items():
+            if reference_path is None:
+                assert path is None, f"Path differs for {backend_name}: expected None"
+            else:
+                np.testing.assert_array_equal(
+                    reference_path,
+                    path,
+                    err_msg=f"BellmanFord path tracking results differ for {backend_name}",
+                )
+
+    def test_bellmanford_negative_cycle_detection_backend_consistency(self):
+        """Test negative cycle detection across DataFrame backends."""
+        data = {
+            "tail": [0, 1, 2, 2],
+            "head": [1, 2, 0, 3],
+            "weight": [1.0, -2.0, -1.0, 1.0],  # Cycle 0->1->2->0 has weight -2
+        }
+
+        dataframes = self.create_test_dataframes(data)
+
+        # All backends should detect the negative cycle
+        for backend_name, df in dataframes.items():
+            bf = BellmanFord(df)
+            with pytest.raises(ValueError, match="Negative cycle detected"):
+                bf.run(vertex_idx=0, detect_negative_cycles=True)
+
+    def test_bellmanford_orientation_in_backend_consistency(self):
+        """Test BellmanFord with 'in' orientation across DataFrame backends."""
+        data = {
+            "tail": [0, 0, 1, 1, 2],
+            "head": [1, 2, 2, 3, 3],
+            "weight": [1.0, 2.0, 0.0, 2.0, 1.0],
+        }
+
+        dataframes = self.create_test_dataframes(data)
+        results = {}
+
+        # Run BellmanFord with orientation="in" on each DataFrame backend
+        for backend_name, df in dataframes.items():
+            bf = BellmanFord(df, orientation="in")
+            results[backend_name] = bf.run(vertex_idx=3, return_inf=True)
+
+        # All results should be identical
+        reference_result = list(results.values())[0]
+        for backend_name, result in results.items():
+            np.testing.assert_array_equal(
+                reference_result,
+                result,
+                err_msg=f"BellmanFord orientation='in' results differ for {backend_name}",
+            )
+
+    def test_bellmanford_permutation_backend_consistency(self):
+        """Test BellmanFord with vertex permutation across DataFrame backends."""
+        data = {
+            "tail": [10, 10, 20, 30],
+            "head": [20, 30, 30, 40],
+            "weight": [1.0, 4.0, -2.0, 3.0],
+        }
+
+        dataframes = self.create_test_dataframes(data)
+        results = {}
+
+        # Run BellmanFord with permute=True on each DataFrame backend
+        for backend_name, df in dataframes.items():
+            bf = BellmanFord(df, permute=True)
+            results[backend_name] = bf.run(vertex_idx=10, return_inf=True)
+
+        # All results should be identical
+        reference_result = list(results.values())[0]
+        for backend_name, result in results.items():
+            np.testing.assert_array_equal(
+                reference_result,
+                result,
+                err_msg=f"BellmanFord permutation results differ for {backend_name}",
+            )
+
+    def test_bellmanford_internal_dtype_optimization(self):
+        """Test internal dtype optimization across DataFrame backends."""
+        data = {
+            "tail": [0, 1, 2, 3],
+            "head": [1, 2, 3, 4],
+            "weight": [1.0, 2.0, 3.0, 4.0],
+        }
+
+        dataframes = self.create_test_dataframes(data)
+
+        # Check internal representations are consistent
+        for backend_name, df in dataframes.items():
+            bf = BellmanFord(df)
+
+            # All backends should use optimal internal dtypes for weights
+            assert (
+                bf._edges["weight"].dtype == np.float64
+            ), f"{backend_name} weight dtype"
+
+            # Memory should be contiguous for all backends
+            assert bf._edges["tail"].values.flags[
+                "C_CONTIGUOUS"
+            ], f"{backend_name} tail not contiguous"
+            assert bf._edges["head"].values.flags[
+                "C_CONTIGUOUS"
+            ], f"{backend_name} head not contiguous"
+            assert bf._edges["weight"].values.flags[
+                "C_CONTIGUOUS"
+            ], f"{backend_name} weight not contiguous"
+
+            # For vertex indices, different backends may use different dtypes but should be integer types
+            assert np.issubdtype(
+                bf._edges["tail"].dtype, np.integer
+            ), f"{backend_name} tail should be integer"
+            assert np.issubdtype(
+                bf._edges["head"].dtype, np.integer
+            ), f"{backend_name} head should be integer"
+
+    def test_bellmanford_custom_columns_backend_consistency(self):
+        """Test custom column names across DataFrame backends."""
+        data = {
+            "source": [0, 0, 1, 2],
+            "target": [1, 2, 2, 3],
+            "cost": [1.0, 4.0, -2.0, 1.0],
+        }
+
+        dataframes = self.create_test_dataframes(data)
+        results = {}
+
+        # Run with custom column names
+        for backend_name, df in dataframes.items():
+            bf = BellmanFord(df, tail="source", head="target", weight="cost")
+            results[backend_name] = bf.run(vertex_idx=0, return_inf=True)
+
+        # All results should be identical
+        reference_result = list(results.values())[0]
+        for backend_name, result in results.items():
+            np.testing.assert_array_equal(
+                reference_result,
+                result,
+                err_msg=f"BellmanFord custom columns results differ for {backend_name}",
+            )
+
+    def test_bellmanford_return_series_backend_consistency(self):
+        """Test return_series=True across DataFrame backends."""
+        data = {
+            "tail": [0, 0, 1, 2],
+            "head": [1, 2, 2, 3],
+            "weight": [1.0, 3.0, 1.0, 1.0],
+        }
+
+        dataframes = self.create_test_dataframes(data)
+        results = {}
+
+        # Run with return_series=True
+        for backend_name, df in dataframes.items():
+            bf = BellmanFord(df)
+            results[backend_name] = bf.run(vertex_idx=0, return_series=True)
+
+        # All results should be identical Series
+        reference_result = list(results.values())[0]
+        for backend_name, result in results.items():
+            assert isinstance(result, pd.Series), f"{backend_name} should return Series"
+            try:
+                pd.testing.assert_series_equal(
+                    reference_result,
+                    result,
+                    check_names=False,  # Series names might differ
+                )
+            except AssertionError as e:
+                raise AssertionError(
+                    f"BellmanFord return_series results differ for {backend_name}: {e}"
+                )
+
+    def test_bellmanford_large_graph_backend_consistency(self):
+        """Test consistency with larger graphs across DataFrame backends."""
+        np.random.seed(42)  # For reproducible results
+        n = 50
+        m = 200
+
+        data = {
+            "tail": np.random.randint(0, n, m).tolist(),
+            "head": np.random.randint(0, n, m).tolist(),
+            "weight": (np.random.randn(m) * 2.0).tolist(),  # Mix of positive/negative
+        }
+
+        # Remove self-loops
+        df_temp = pd.DataFrame(data)
+        df_temp = df_temp[df_temp["tail"] != df_temp["head"]]
+        data = df_temp.to_dict("list")
+
+        dataframes = self.create_test_dataframes(data)
+        results = {}
+
+        # Run on larger graphs (without negative cycle detection to avoid randomness)
+        for backend_name, df in dataframes.items():
+            bf = BellmanFord(df)
+            try:
+                results[backend_name] = bf.run(
+                    vertex_idx=0, detect_negative_cycles=False, return_inf=True
+                )
+            except Exception as e:
+                # If any backend fails, all should fail consistently
+                results[backend_name] = f"Error: {type(e).__name__}"
+
+        # Check consistency - either all succeed or all fail with similar errors
+        reference_result = list(results.values())[0]
+        if isinstance(reference_result, str):  # Error case
+            # All should have similar errors
+            for backend_name, result in results.items():
+                assert isinstance(
+                    result, str
+                ), f"Inconsistent error handling for {backend_name}"
+        else:  # Success case
+            for backend_name, result in results.items():
+                np.testing.assert_array_equal(
+                    reference_result,
+                    result,
+                    err_msg=f"Large graph BellmanFord results differ for {backend_name}",
+                )
 
 
 # author : Francois Pacull

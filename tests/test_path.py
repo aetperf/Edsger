@@ -12,6 +12,20 @@ from edsger.path import BellmanFord, Dijkstra, HyperpathGenerating
 from scipy.sparse import coo_array  # type: ignore  # csr_matrix unused
 from scipy.sparse.csgraph import dijkstra  # type: ignore
 
+try:
+    import pyarrow as pa
+
+    PYARROW_AVAILABLE = True
+except ImportError:
+    PYARROW_AVAILABLE = False
+
+try:
+    import polars as pl
+
+    POLARS_AVAILABLE = True
+except ImportError:
+    POLARS_AVAILABLE = False
+
 
 @pytest.fixture
 def braess():
@@ -832,3 +846,262 @@ def test_bellman_ford_check_edges_allows_negative():
     # Dijkstra should reject negative weights
     with pytest.raises(ValueError, match=r"nonnegative"):
         Dijkstra(edges, check_edges=True)
+
+
+# ============================================================================ #
+# DataFrame Backend Cross-Compatibility Tests                                 #
+# ============================================================================ #
+
+
+class TestDataFrameBackendCompatibility:
+    """Test that algorithms work consistently across different DataFrame backends."""
+
+    def create_test_dataframes(self, data: dict):
+        """Create test DataFrames in all available formats."""
+        dataframes = {}
+
+        # pandas with NumPy backend
+        dataframes["pandas_numpy"] = pd.DataFrame(data)
+
+        # pandas with Arrow backend
+        if PYARROW_AVAILABLE:
+            df_arrow = pd.DataFrame(data)
+            # Convert to Arrow backend
+            arrow_dtypes = {}
+            for col, values in data.items():
+                if col in ["tail", "head"]:
+                    arrow_dtypes[col] = pd.ArrowDtype(pa.int64())
+                else:
+                    arrow_dtypes[col] = pd.ArrowDtype(pa.float64())
+            df_arrow = df_arrow.astype(arrow_dtypes)
+            dataframes["pandas_arrow"] = df_arrow
+
+        # Polars DataFrame
+        if POLARS_AVAILABLE:
+            dataframes["polars"] = pl.DataFrame(data)
+
+        return dataframes
+
+    def test_dijkstra_backend_consistency(self):
+        """Test Dijkstra consistency across DataFrame backends."""
+        data = {
+            "tail": [0, 0, 1, 1, 2],
+            "head": [1, 2, 2, 3, 3],
+            "weight": [1.0, 4.0, 2.0, 5.0, 1.0],
+        }
+
+        dataframes = self.create_test_dataframes(data)
+        results = {}
+
+        # Run Dijkstra on each DataFrame backend
+        for backend_name, df in dataframes.items():
+            dijkstra = Dijkstra(df, orientation="out")
+            results[backend_name] = dijkstra.run(vertex_idx=0, return_inf=True)
+
+        # All results should be identical
+        reference_result = list(results.values())[0]
+        for backend_name, result in results.items():
+            np.testing.assert_array_equal(
+                reference_result,
+                result,
+                err_msg=f"Dijkstra results differ for {backend_name}",
+            )
+
+    def test_bellmanford_backend_consistency(self):
+        """Test BellmanFord consistency across DataFrame backends."""
+        data = {
+            "tail": [0, 0, 1, 1, 2, 3],
+            "head": [1, 2, 2, 3, 3, 4],
+            "weight": [1.0, 4.0, -2.0, 5.0, 1.0, 3.0],
+        }
+
+        dataframes = self.create_test_dataframes(data)
+        results = {}
+
+        # Run BellmanFord on each DataFrame backend
+        for backend_name, df in dataframes.items():
+            bf = BellmanFord(df, orientation="out")
+            results[backend_name] = bf.run(vertex_idx=0, return_inf=True)
+
+        # All results should be identical
+        reference_result = list(results.values())[0]
+        for backend_name, result in results.items():
+            np.testing.assert_array_equal(
+                reference_result,
+                result,
+                err_msg=f"BellmanFord results differ for {backend_name}",
+            )
+
+    def test_hyperpath_backend_consistency(self):
+        """Test HyperpathGenerating consistency across DataFrame backends."""
+        data = {
+            "tail": [0, 0, 1, 2],
+            "head": [1, 2, 2, 3],
+            "trav_time": [1.0, 2.0, 1.0, 1.0],
+            "freq": [0.1, 0.1, 0.1, 0.1],
+        }
+
+        dataframes = self.create_test_dataframes(data)
+        results = {}
+
+        # Run HyperpathGenerating on each DataFrame backend
+        for backend_name, df in dataframes.items():
+            hp = HyperpathGenerating(df)
+            hp.run(origin=0, destination=3, volume=1.0, return_inf=True)
+            results[backend_name] = hp.u_i_vec.copy()
+
+        # All results should be identical (within tolerance)
+        reference_result = list(results.values())[0]
+        for backend_name, result in results.items():
+            np.testing.assert_allclose(
+                reference_result,
+                result,
+                rtol=1e-10,
+                err_msg=f"HyperpathGenerating results differ for {backend_name}",
+            )
+
+    def test_path_tracking_backend_consistency(self):
+        """Test path tracking consistency across DataFrame backends."""
+        data = {
+            "tail": [0, 0, 1, 1, 2],
+            "head": [1, 2, 2, 3, 3],
+            "weight": [1.0, 4.0, 2.0, 5.0, 1.0],
+        }
+
+        dataframes = self.create_test_dataframes(data)
+        paths = {}
+
+        # Run Dijkstra with path tracking on each DataFrame backend
+        for backend_name, df in dataframes.items():
+            dijkstra = Dijkstra(df, orientation="out")
+            dijkstra.run(vertex_idx=0, path_tracking=True, return_inf=True)
+            paths[backend_name] = dijkstra.get_path(3)
+
+        # All paths should be identical
+        reference_path = list(paths.values())[0]
+        for backend_name, path in paths.items():
+            if reference_path is None:
+                assert path is None, f"Path differs for {backend_name}: expected None"
+            else:
+                np.testing.assert_array_equal(
+                    reference_path,
+                    path,
+                    err_msg=f"Path tracking results differ for {backend_name}",
+                )
+
+    def test_custom_column_names_backend_consistency(self):
+        """Test custom column names work consistently across backends."""
+        data = {
+            "from_node": [0, 0, 1, 2],
+            "to_node": [1, 2, 2, 3],
+            "cost": [1.0, 4.0, 2.0, 1.0],
+        }
+
+        dataframes = self.create_test_dataframes(data)
+        results = {}
+
+        # Run with custom column names
+        for backend_name, df in dataframes.items():
+            dijkstra = Dijkstra(df, tail="from_node", head="to_node", weight="cost")
+            results[backend_name] = dijkstra.run(vertex_idx=0, return_inf=True)
+
+        # All results should be identical
+        reference_result = list(results.values())[0]
+        for backend_name, result in results.items():
+            np.testing.assert_array_equal(
+                reference_result,
+                result,
+                err_msg=f"Custom column results differ for {backend_name}",
+            )
+
+    def test_internal_dtype_optimization_consistency(self):
+        """Test that internal dtype optimization works across backends."""
+        data = {
+            "tail": [0, 1, 2, 3],
+            "head": [1, 2, 3, 4],
+            "weight": [1.0, 2.0, 3.0, 4.0],
+        }
+
+        dataframes = self.create_test_dataframes(data)
+
+        # Check internal representations are consistent
+        for backend_name, df in dataframes.items():
+            dijkstra = Dijkstra(df)
+
+            # All backends should use optimal internal dtypes for weights
+            assert (
+                dijkstra._edges["weight"].dtype == np.float64
+            ), f"{backend_name} weight dtype"
+
+            # Memory should be contiguous for all backends
+            assert dijkstra._edges["tail"].values.flags[
+                "C_CONTIGUOUS"
+            ], f"{backend_name} tail not contiguous"
+            assert dijkstra._edges["head"].values.flags[
+                "C_CONTIGUOUS"
+            ], f"{backend_name} head not contiguous"
+            assert dijkstra._edges["weight"].values.flags[
+                "C_CONTIGUOUS"
+            ], f"{backend_name} weight not contiguous"
+
+            # For vertex indices, different backends may use different dtypes but should be integer types
+            assert np.issubdtype(
+                dijkstra._edges["tail"].dtype, np.integer
+            ), f"{backend_name} tail should be integer"
+            assert np.issubdtype(
+                dijkstra._edges["head"].dtype, np.integer
+            ), f"{backend_name} head should be integer"
+
+    def test_permutation_backend_consistency(self):
+        """Test vertex permutation works consistently across backends."""
+        data = {
+            "tail": [10, 10, 20, 30],
+            "head": [20, 30, 30, 40],
+            "weight": [1.0, 4.0, 2.0, 1.0],
+        }
+
+        dataframes = self.create_test_dataframes(data)
+        results = {}
+
+        # Run with permute=True
+        for backend_name, df in dataframes.items():
+            dijkstra = Dijkstra(df, permute=True)
+            results[backend_name] = dijkstra.run(vertex_idx=10, return_inf=True)
+
+        # All results should be identical
+        reference_result = list(results.values())[0]
+        for backend_name, result in results.items():
+            np.testing.assert_array_equal(
+                reference_result,
+                result,
+                err_msg=f"Permutation results differ for {backend_name}",
+            )
+
+    def test_large_graph_backend_consistency(self):
+        """Test consistency with larger graphs across backends."""
+        np.random.seed(42)  # For reproducible results
+        n = 100
+        m = 500
+
+        data = {
+            "tail": np.random.randint(0, n, m).tolist(),
+            "head": np.random.randint(0, n, m).tolist(),
+            "weight": np.random.uniform(0.1, 10.0, m).tolist(),
+        }
+
+        dataframes = self.create_test_dataframes(data)
+        results = {}
+
+        # Run on larger graphs
+        for backend_name, df in dataframes.items():
+            dijkstra = Dijkstra(df)
+            results[backend_name] = dijkstra.run(vertex_idx=0, return_inf=True)
+
+        # All results should be identical
+        reference_result = list(results.values())[0]
+        for backend_name, result in results.items():
+            np.testing.assert_array_equal(
+                reference_result,
+                result,
+                err_msg=f"Large graph results differ for {backend_name}",
+            )

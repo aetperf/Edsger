@@ -37,31 +37,6 @@ import numpy as np
 cimport numpy as cnp
 
 
-cdef safe_to_numpy(series, dtype):
-    """
-    Convert pandas Series to numpy array, handling both NumPy and Arrow backends.
-
-    Parameters
-    ----------
-    series : pandas.Series
-        The series to convert to numpy array
-    dtype : numpy.dtype
-        The target numpy dtype
-
-    Returns
-    -------
-    numpy.ndarray
-        A contiguous numpy array with the specified dtype
-    """
-    # Check if this is an Arrow-backed series
-    if hasattr(series, 'dtype') and hasattr(series.dtype, 'pyarrow_dtype'):
-        # Arrow backend - use to_numpy() for guaranteed contiguous array
-        return series.to_numpy(dtype=dtype, copy=True)
-    else:
-        # NumPy backend - use values for efficiency
-        return series.values.astype(dtype)
-
-
 cpdef convert_graph_to_csr_uint32(edges, tail, head, data, vertex_count):
     """
     Convert an edge dataframe in COO format into CSR format, with uint32
@@ -93,9 +68,9 @@ cpdef convert_graph_to_csr_uint32(edges, tail, head, data, vertex_count):
     fs_data = np.empty(edge_count, dtype=np.uint32)
 
     _coo_to_csr_uint32(
-        safe_to_numpy(edges[tail], np.uint32),
-        safe_to_numpy(edges[head], np.uint32),
-        safe_to_numpy(edges[data], np.uint32),
+        edges[tail].values.astype(np.uint32),
+        edges[head].values.astype(np.uint32),
+        edges[data].values.astype(np.uint32),
         fs_indptr,
         fs_indices,
         fs_data,
@@ -135,9 +110,9 @@ cpdef convert_graph_to_csc_uint32(edges, tail, head, data, vertex_count):
     rs_data = np.empty(edge_count, dtype=np.uint32)
 
     _coo_to_csc_uint32(
-        safe_to_numpy(edges[tail], np.uint32),
-        safe_to_numpy(edges[head], np.uint32),
-        safe_to_numpy(edges[data], np.uint32),
+        edges[tail].values.astype(np.uint32),
+        edges[head].values.astype(np.uint32),
+        edges[data].values.astype(np.uint32),
         rs_indptr,
         rs_indices,
         rs_data,
@@ -177,9 +152,9 @@ cpdef convert_graph_to_csr_float64(edges, tail, head, data, vertex_count):
     fs_data = np.empty(edge_count, dtype=np.float64)
 
     _coo_to_csr_float64(
-        safe_to_numpy(edges[tail], np.uint32),
-        safe_to_numpy(edges[head], np.uint32),
-        safe_to_numpy(edges[data], np.float64),
+        edges[tail].values.astype(np.uint32),
+        edges[head].values.astype(np.uint32),
+        edges[data].values.astype(np.float64),
         fs_indptr,
         fs_indices,
         fs_data,
@@ -219,9 +194,9 @@ cpdef convert_graph_to_csc_float64(edges, tail, head, data, vertex_count):
     rs_data = np.empty(edge_count, dtype=np.float64)
 
     _coo_to_csc_float64(
-        safe_to_numpy(edges[tail], np.uint32),
-        safe_to_numpy(edges[head], np.uint32),
-        safe_to_numpy(edges[data], np.float64),
+        edges[tail].values.astype(np.uint32),
+        edges[head].values.astype(np.uint32),
+        edges[data].values.astype(np.float64),
         rs_indptr,
         rs_indices,
         rs_data,
