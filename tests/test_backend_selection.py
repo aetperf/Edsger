@@ -202,6 +202,7 @@ class TestErrorHandlingAndEdgeCases:
         assert len(result) == 0
         assert list(result.columns) == ["tail", "head", "weight"]
 
+    @pytest.mark.filterwarnings("ignore:Unknown DataFrame type:UserWarning")
     def test_malformed_dataframe_object(self):
         """Test handling of objects that look like DataFrames but aren't."""
 
@@ -250,6 +251,7 @@ class TestErrorHandlingAndEdgeCases:
             # Restore original state
             pass
 
+    @pytest.mark.filterwarnings("ignore:Unknown DataFrame type:UserWarning")
     def test_class_attribute_access_error(self):
         """Test handling when __class__ or __module__ access fails."""
 

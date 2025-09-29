@@ -67,6 +67,9 @@ write_to_template = '__version__ = "{version}"'
 testpaths = [
     "tests"
 ]
+markers = [
+    "performance: marks tests as performance benchmarks (deselect with '-m \"not performance\"')",
+]
 
 [tool.black]
 extend-exclude = '''

@@ -232,13 +232,20 @@ class PolarsImporter(GraphImporter):
         if hasattr(selected_df, "to_pandas"):
             result_df = selected_df.to_pandas()
 
+            # Handle empty DataFrames
+            if len(result_df) == 0:
+                return result_df
+
             # Ensure proper dtypes
             for i, col in enumerate(columns):
                 if i < 2:  # Vertex indices
-                    # Try to use uint32 for efficiency
-                    max_val = result_df[col].max()
-                    if max_val < np.iinfo(np.uint32).max:
-                        result_df[col] = result_df[col].astype(np.uint32)
+                    # Check if column contains numeric data
+                    if np.issubdtype(result_df[col].dtype, np.integer):
+                        # Try to use uint32 for efficiency
+                        max_val = result_df[col].max()
+                        if not pd.isna(max_val) and max_val < np.iinfo(np.uint32).max:
+                            result_df[col] = result_df[col].astype(np.uint32)
+                    # If not numeric (e.g., strings), leave as is
                 else:
                     # Weights/times/frequencies
                     result_df[col] = result_df[col].astype(np.float64)
@@ -247,16 +254,27 @@ class PolarsImporter(GraphImporter):
 
         # Method 2: Column-by-column conversion
         result_data = {}
+
+        # Handle empty DataFrames
+        if len(selected_df) == 0:
+            return selected_df.to_pandas()
+
         for i, col in enumerate(columns):
             series = selected_df[col]
 
             # Determine target dtype
             if i < 2:  # Vertex indices
-                max_val = series.max()
-                if max_val < np.iinfo(np.uint32).max:
-                    target_dtype = np.uint32
+                # Check if the series contains numeric data
+                if hasattr(series, "dtype") and series.dtype.is_integer():
+                    max_val = series.max()
+                    if max_val is not None and max_val < np.iinfo(np.uint32).max:
+                        target_dtype = np.uint32
+                    else:
+                        target_dtype = np.uint64
                 else:
-                    target_dtype = np.uint64
+                    # Non-numeric columns, convert to pandas as is
+                    result_data[col] = series.to_pandas()
+                    continue
             else:
                 target_dtype = np.float64
 

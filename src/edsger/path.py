@@ -102,7 +102,12 @@ class Dijkstra:
 
         # reindex the vertices
         self._permute = permute
-        if self._permute:
+        if len(self._edges) == 0:
+            # Handle empty graphs
+            self._permutation = None
+            self._n_vertices = 0
+            self.__n_vertices_init = 0
+        elif self._permute:
             self.__n_vertices_init = self._edges[[tail, head]].max(axis=0).max() + 1
             self._permutation = self._permute_graph(tail, head)
             self._n_vertices = len(self._permutation)
@@ -737,7 +742,12 @@ class BellmanFord:
 
         # reindex the vertices
         self._permute = permute
-        if self._permute:
+        if len(self._edges) == 0:
+            # Handle empty graphs
+            self._permutation = None
+            self._n_vertices = 0
+            self.__n_vertices_init = 0
+        elif self._permute:
             self.__n_vertices_init = self._edges[[tail, head]].max(axis=0).max() + 1
             self._permutation = self._permute_graph(tail, head)
             self._n_vertices = len(self._permutation)
