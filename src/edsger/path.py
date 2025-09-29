@@ -8,6 +8,7 @@ import warnings
 import numpy as np
 import pandas as pd
 
+from edsger.graph_importer import standardize_graph_dataframe
 from edsger.commons import (
     A_VERY_SMALL_TIME_INTERVAL_PY,
     DTYPE_INF_PY,
@@ -91,7 +92,8 @@ class Dijkstra:
         # load the edges
         if check_edges:
             self._check_edges(edges, tail, head, weight)
-        self._edges = edges[[tail, head, weight]].copy(deep=True)
+        # Convert to standardized NumPy-backed pandas DataFrame
+        self._edges = standardize_graph_dataframe(edges, tail, head, weight)
         self._n_edges = len(self._edges)
         self._verbose = verbose
 
@@ -725,7 +727,8 @@ class BellmanFord:
         # load the edges
         if check_edges:
             self._check_edges(edges, tail, head, weight)
-        self._edges = edges[[tail, head, weight]].copy(deep=True)
+        # Convert to standardized NumPy-backed pandas DataFrame
+        self._edges = standardize_graph_dataframe(edges, tail, head, weight)
         self._n_edges = len(self._edges)
         self._verbose = verbose
 
@@ -1290,7 +1293,10 @@ class HyperpathGenerating:
         # load the edges
         if check_edges:
             self._check_edges(edges, tail, head, trav_time, freq)
-        self._edges = edges[[tail, head, trav_time, freq]].copy(deep=True)
+        # Convert to standardized NumPy-backed pandas DataFrame
+        self._edges = standardize_graph_dataframe(
+            edges, tail, head, trav_time=trav_time, freq=freq
+        )
         self.edge_count = len(self._edges)
 
         # remove inf values if any, and values close to zero
