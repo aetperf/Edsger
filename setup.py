@@ -165,6 +165,13 @@ extensions = [
         extra_link_args=extra_link_args,
         define_macros=define_macros,
     ),
+    Extension(
+        "edsger.bfs",
+        ["src/edsger/bfs.pyx"],
+        extra_compile_args=extra_compile_args,
+        extra_link_args=extra_link_args,
+        define_macros=define_macros,
+    ),
 ]
 
 with open("requirements.txt") as fp:
