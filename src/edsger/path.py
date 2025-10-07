@@ -42,7 +42,7 @@ from edsger.star import (
     convert_graph_to_csr_float64,
     convert_graph_to_csr_uint32,
 )
-from edsger.bfs import bfs_csr, bfs_csc
+from edsger.bfs import bfs_csr, bfs_csc  # pylint: disable=no-name-in-module
 
 
 class Dijkstra:
