@@ -34,7 +34,7 @@ class GraphImporter(ABC):
         self.edges_df = edges_df
 
     @staticmethod
-    def from_dataframe(
+    def from_dataframe(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         edges,
         tail: str = "tail",
         head: str = "head",
@@ -65,6 +65,9 @@ class GraphImporter(ABC):
         GraphImporter
             An instance of the appropriate importer subclass.
         """
+        # Note: tail, head, weight, trav_time, freq are part of API but not used here
+        # They're used by calling code after factory creates the importer
+        # pylint: disable=unused-argument
         try:
             # Check for Polars DataFrame
             if hasattr(edges, "__class__") and edges.__class__.__module__.startswith(
@@ -85,8 +88,7 @@ class GraphImporter(ABC):
 
                 if has_arrow:
                     return PandasArrowImporter(edges)
-                else:
-                    return PandasNumpyImporter(edges)
+                return PandasNumpyImporter(edges)
             except (AttributeError, TypeError):
                 # If dtype checking fails, assume NumPy backend
                 return PandasNumpyImporter(edges)
@@ -113,7 +115,6 @@ class GraphImporter(ABC):
         pd.DataFrame
             A pandas DataFrame with NumPy backend and contiguous memory.
         """
-        pass
 
     def _ensure_contiguous(self, array: np.ndarray) -> np.ndarray:
         """
@@ -211,19 +212,21 @@ class PolarsImporter(GraphImporter):
     Converts Polars DataFrames to NumPy-backed pandas DataFrames.
     """
 
-    def to_numpy_edges(self, columns: List[str]) -> pd.DataFrame:
+    def to_numpy_edges(
+        self, columns: List[str]
+    ) -> pd.DataFrame:  # pylint: disable=too-many-branches
         """
         Convert Polars DataFrame to NumPy-backed pandas DataFrame.
 
         Uses Polars' to_pandas() method or to_numpy() depending on what's available.
         """
         try:
-            import polars  # type: ignore  # noqa: F401
-        except ImportError:
+            import polars  # pylint: disable=import-outside-toplevel,unused-import
+        except ImportError as exc:
             raise ImportError(
                 "Polars is required to import Polars DataFrames. "
                 "Install it with: pip install polars"
-            )
+            ) from exc
 
         # Select only needed columns
         selected_df = self.edges_df.select(columns)
@@ -292,7 +295,7 @@ class PolarsImporter(GraphImporter):
         return pd.DataFrame(result_data)
 
 
-def standardize_graph_dataframe(
+def standardize_graph_dataframe(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     edges,
     tail: str = "tail",
     head: str = "head",
