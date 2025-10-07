@@ -7,7 +7,7 @@ standardized NumPy-backed pandas DataFrame format that is optimal for the graph 
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional, List, Union
+from typing import Optional, List
 import warnings
 
 import numpy as np
@@ -218,7 +218,7 @@ class PolarsImporter(GraphImporter):
         Uses Polars' to_pandas() method or to_numpy() depending on what's available.
         """
         try:
-            import polars as pl
+            import polars  # type: ignore  # noqa: F401
         except ImportError:
             raise ImportError(
                 "Polars is required to import Polars DataFrames. "
