@@ -238,9 +238,163 @@ print(path)  # Path using the negative weight edge
 paths = bf.run(vertex_idx=0, detect_negative_cycles=False)
 ```
 
+### BFS Class
+
+The class for performing Breadth-First Search on directed graphs, finding shortest paths based on minimum number of edges rather than weighted distances.
+
+#### Constructor Parameters
+
+- `edges`: pandas.DataFrame containing the directed graph edges
+- `tail`: Column name for edge source nodes (default: 'tail')
+- `head`: Column name for edge destination nodes (default: 'head')
+- `orientation`: Either 'out' (single-source) or 'in' (single-target) (default: 'out')
+- `check_edges`: Whether to validate edge data (default: False)
+- `permute`: Whether to optimize node indexing (default: False)
+- `verbose`: Whether to print messages about parallel edge removal (default: False)
+
+**Note**: Weight column is not used by BFS. If present in the DataFrame, it will be ignored.
+
+#### Methods
+
+##### run
+
+```python
+def run(self, vertex_idx, path_tracking=False, return_series=False)
+```
+
+Runs BFS from/to the specified vertex.
+
+**Parameters:**
+- `vertex_idx`: Source/target vertex index
+- `path_tracking`: Whether to track paths for reconstruction (default: False)
+- `return_series`: Return results as pandas Series (default: False)
+
+**Returns:**
+- Array or Series of predecessor indices
+  - `-9999` indicates unreachable vertex or start vertex
+  - Other values indicate the predecessor in the shortest path
+
+##### get_path
+
+```python
+def get_path(self, vertex_idx)
+```
+
+Reconstructs the shortest path to/from a vertex (requires `path_tracking=True`).
+
+**Parameters:**
+- `vertex_idx`: Destination/source vertex index
+
+**Returns:**
+- Array of vertex indices forming the path (from target to source)
+
+##### get_vertices
+
+```python
+def get_vertices(self)
+```
+
+Returns all vertices in the directed graph.
+
+**Returns:**
+- Array of vertex indices
+
+#### Examples
+
+##### Basic BFS
+
+```python
+from edsger.path import BFS
+import pandas as pd
+
+# Create a directed graph
+edges = pd.DataFrame({
+    'tail': [0, 0, 1, 2, 2, 3],
+    'head': [1, 2, 3, 3, 4, 4]
+})
+
+# Initialize BFS
+bfs = BFS(edges)
+
+# Find shortest paths (by hop count) from vertex 0
+predecessors = bfs.run(vertex_idx=0)
+print(predecessors)  # [-9999     0     0     1     2]
+```
+
+##### With Path Tracking
+
+```python
+# Enable path tracking
+predecessors = bfs.run(vertex_idx=0, path_tracking=True)
+
+# Get the actual path to vertex 4
+path = bfs.get_path(vertex_idx=4)
+print(path)  # [4 2 0] - path from target to source
+```
+
+##### With Non-Contiguous Vertex IDs
+
+```python
+# Directed graph with non-contiguous vertex IDs
+edges_sparse = pd.DataFrame({
+    'tail': [0, 0, 10, 20],
+    'head': [10, 20, 20, 30]
+})
+
+# Use permute=True for efficiency
+bfs = BFS(edges_sparse, permute=True)
+predecessors = bfs.run(vertex_idx=0, path_tracking=True)
+path = bfs.get_path(vertex_idx=30)
+print(path)  # [30 20  0]
+```
+
+##### Backward Search (orientation='in')
+
+```python
+# Find vertices that can reach a target
+bfs_in = BFS(edges, orientation='in')
+predecessors = bfs_in.run(vertex_idx=4)
+# Shows successors in backward traversal
+```
+
+##### Return as Pandas Series
+
+```python
+# Get results as labeled Series
+predecessors = bfs.run(vertex_idx=0, return_series=True)
+print(predecessors)
+# vertex_idx
+# 0       -9999
+# 1           0
+# 2           0
+# 3           1
+# 4           2
+# Name: predecessor, dtype: int32
+```
+
+#### Performance Characteristics
+
+- **Time Complexity**: O(V + E) - linear in vertices and edges
+- **Space Complexity**: O(V) - queue and predecessor arrays
+- **Optimal For**: Unweighted directed graphs, minimum hop paths
+- **Not Suitable For**: Weighted graphs (use Dijkstra or Bellman-Ford instead)
+
+#### BFS vs Dijkstra for Unweighted Graphs
+
+While both can handle unweighted directed graphs (by setting all weights to 1), BFS is:
+- **Faster**: No priority queue overhead
+- **Simpler**: No weight comparisons
+- **More appropriate**: Semantically correct for hop-count problems
+
+```python
+# For unweighted directed graphs, BFS is more efficient than:
+dijkstra = Dijkstra(edges_with_unit_weights)  # Slower, uses priority queue
+bfs = BFS(edges)  # Faster, optimal for unweighted
+```
+
 ## Parallel Edges Handling
 
-Both `Dijkstra` and `BellmanFord` classes automatically handle parallel edges (multiple directed edges between the same pair of vertices) during initialization. When parallel edges are detected:
+The `Dijkstra`, `BellmanFord`, and `BFS` classes automatically handle parallel edges (multiple directed edges between the same pair of vertices) during initialization. When parallel edges are detected:
 
 1. **Automatic Processing**: The `_preprocess_edges()` method is called internally during initialization
 2. **Minimum Weight Selection**: For each pair of vertices with multiple edges, only the edge with the minimum weight is kept
@@ -387,7 +541,7 @@ The GraphImporter system optimizes for:
 
 ### Integration with Algorithms
 
-All path algorithms (Dijkstra, BellmanFord, HyperpathGenerating) automatically use the GraphImporter system:
+All path algorithms (Dijkstra, BellmanFord, BFS, HyperpathGenerating) automatically use the GraphImporter system:
 
 ```python
 from edsger.path import Dijkstra

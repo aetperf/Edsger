@@ -473,6 +473,81 @@ print("Path to vertex 3:", path)
 
 Bellman-Ford has O(VE) time complexity compared to Dijkstra's O((V+E)logV). For large directed graphs with only positive weights, Dijkstra is significantly faster. However, the performance difference may be acceptable for smaller directed graphs or when negative weights are essential to your problem.
 
+## Breadth-First Search: Unweighted Directed Graphs
+
+BFS (Breadth-First Search) finds shortest paths in directed graphs where edge weights are ignored (or treated as equal). It's optimal for finding minimum-hop paths in directed graphs.
+
+### Basic Usage
+
+```python
+from edsger.path import BFS
+
+# Create a directed graph (weights will be ignored if present)
+edges_bfs = pd.DataFrame({
+    'tail': [0, 0, 1, 2, 2, 3],
+    'head': [1, 2, 3, 3, 4, 4]
+})
+
+# Initialize BFS
+bfs = BFS(edges_bfs)
+
+# Run BFS from vertex 0
+predecessors = bfs.run(vertex_idx=0)
+print("Predecessors:", predecessors)
+```
+
+    Predecessors: [-9999     0     0     1     2]
+
+### Understanding BFS Output
+
+Unlike Dijkstra and Bellman-Ford which return distances, BFS returns **predecessors**:
+- Value `-9999`: Unreachable vertex or start vertex
+- Other values: The predecessor vertex in the shortest path
+
+### Path Tracking
+
+BFS supports path reconstruction just like Dijkstra:
+
+```python
+# Run with path tracking enabled
+predecessors = bfs.run(vertex_idx=0, path_tracking=True)
+
+# Get the actual path to vertex 4
+path = bfs.get_path(vertex_idx=4)
+print("Path from 0 to 4:", path)
+```
+
+    Path from 0 to 4: [4 2 0]
+
+The path is returned as an array from target to source.
+
+### Orientation
+
+BFS supports both orientations like other algorithms:
+
+```python
+# Single-source (forward search from source)
+bfs_out = BFS(edges_bfs, orientation='out')
+pred_out = bfs_out.run(vertex_idx=0)
+
+# Single-target (backward search to target)
+bfs_in = BFS(edges_bfs, orientation='in')
+pred_in = bfs_in.run(vertex_idx=4)
+```
+
+### When to Use BFS
+
+**Use BFS when:**
+- All edges should be treated equally (unweighted directed graphs)
+- Finding minimum number of hops/edges in directed paths
+- Maximum performance for unweighted directed graphs (O(V+E) time)
+- Social network analysis (degrees of separation in directed networks)
+- Network routing with hop counts in directed topologies
+
+**Use Dijkstra/Bellman-Ford when:**
+- Edge weights matter (distances, costs, times)
+- You need weighted shortest paths in directed graphs
+
 ## DataFrame Backend Selection
 
 Edsger automatically detects and optimizes for your DataFrame backend. Here's when to use each:
