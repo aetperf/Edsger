@@ -92,21 +92,18 @@ def get_compiler_flags():
                 ("NDEBUG", None),  # Disable debug assertions
             ]
         return compile_args, link_args, windows_macros
-    elif system in ["Linux", "Darwin"]:
+    if system in ["Linux", "Darwin"]:
         # Linux or macOS with GCC/Clang
         compiler_name = "GCC/Clang" if system == "Linux" else "Clang"
         print(f"Building with {compiler_name} optimizations on {system}")
         compile_args = ["-Ofast", "-flto", "-march=native"]
         link_args = ["-flto"]
         return compile_args, link_args, []
-    else:
-        # Unknown platform, use conservative flags
-        print(
-            f"Building on unknown platform {system}, using conservative optimizations"
-        )
-        compile_args = ["-O2"]
-        link_args = []
-        return compile_args, link_args, []
+    # Unknown platform, use conservative flags
+    print(f"Building on unknown platform {system}, using conservative optimizations")
+    compile_args = ["-O2"]
+    link_args = []
+    return compile_args, link_args, []
 
 
 # Get platform-specific compiler flags
@@ -174,11 +171,12 @@ extensions = [
     ),
 ]
 
-with open("requirements.txt") as fp:
+with open("requirements.txt", encoding="utf-8") as fp:
     install_requires = fp.read().strip().split("\n")
 
 
 def setup_package():
+    """Configure and run the package setup with Cython extensions."""
     # Compiler directives are defined at the top of each .pyx file
     if os.environ.get("CYTHON_TRACE", "0") == "1":
         print("Building with CYTHON_TRACE=1 (coverage mode)")
