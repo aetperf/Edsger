@@ -42,6 +42,7 @@ from edsger.star import (
     convert_graph_to_csr_float64,
     convert_graph_to_csr_uint32,
 )
+from edsger.bfs import bfs_csr, bfs_csc
 
 
 class Dijkstra:
@@ -1485,6 +1486,517 @@ class HyperpathGenerating:
 
             if edges[col].min() < 0.0:
                 raise ValueError(f"column '{col}' should be nonnegative")
+
+
+class BFS:
+    """
+    Breadth-First Search algorithm for finding shortest paths in directed graphs.
+
+    BFS ignores edge weights (treats all edges as having equal weight) and finds the shortest
+    path in terms of the minimum number of edges/hops between vertices. This implementation
+    works on directed graphs using CSR format for forward traversal and CSC format for
+    backward traversal.
+
+    Note: If parallel edges exist between the same pair of vertices, only one edge will be
+    kept automatically during initialization.
+
+    Parameters:
+    -----------
+    edges: pandas.DataFrame
+        DataFrame containing the edges of the graph. It should have two columns: 'tail' and 'head'.
+        The 'tail' column should contain the IDs of the starting nodes, and the 'head' column
+        should contain the IDs of the ending nodes. If a 'weight' column is present, it will be
+        ignored.
+    tail: str, optional (default='tail')
+        The name of the column in the DataFrame that contains the IDs of the edge starting nodes.
+    head: str, optional (default='head')
+        The name of the column in the DataFrame that contains the IDs of the edge ending nodes.
+    orientation: str, optional (default='out')
+        The orientation of BFS algorithm. It can be either 'out' for single source shortest
+        paths or 'in' for single target shortest path.
+    check_edges: bool, optional (default=False)
+        Whether to check if the edges DataFrame is well-formed. If set to True, the edges
+        DataFrame will be checked for missing values and invalid data types.
+    permute: bool, optional (default=False)
+        Whether to permute the IDs of the nodes. If set to True, the node IDs will be reindexed
+        to start from 0 and be contiguous.
+    verbose: bool, optional (default=False)
+        Whether to print messages about parallel edge removal.
+    """
+
+    # Sentinel value for unreachable nodes (matches bfs.pyx)
+    UNREACHABLE = -9999
+
+    def __init__(
+        self,
+        edges: pd.DataFrame,
+        tail: str = "tail",
+        head: str = "head",
+        orientation: str = "out",
+        check_edges: bool = False,
+        permute: bool = False,
+        verbose: bool = False,
+    ) -> None:
+        # load the edges
+        if check_edges:
+            self._check_edges(edges, tail, head)
+        # Convert to standardized NumPy-backed pandas DataFrame
+        # Note: BFS doesn't need weights, but standardize_graph_dataframe handles that
+        self._edges = standardize_graph_dataframe(edges, tail, head)
+        self._n_edges = len(self._edges)
+        self._verbose = verbose
+
+        # preprocess edges to handle parallel edges
+        self._preprocess_edges(tail, head)
+
+        # reindex the vertices
+        self._permute = permute
+        if len(self._edges) == 0:
+            # Handle empty graphs
+            self._permutation = None
+            self._n_vertices = 0
+            self.__n_vertices_init = 0
+        elif self._permute:
+            self.__n_vertices_init = self._edges[[tail, head]].max(axis=0).max() + 1
+            self._permutation = self._permute_graph(tail, head)
+            self._n_vertices = len(self._permutation)
+        else:
+            self._permutation = None
+            self._n_vertices = self._edges[[tail, head]].max(axis=0).max() + 1
+            self.__n_vertices_init = self._n_vertices
+
+        # convert to CSR/CSC
+        self._check_orientation(orientation)
+        self._orientation = orientation
+        if self._orientation == "out":
+            # Use dummy weight column for conversion (BFS doesn't use weights)
+            self._edges["_bfs_dummy_weight"] = 1.0
+            fs_indptr, fs_indices, _ = convert_graph_to_csr_float64(
+                self._edges, tail, head, "_bfs_dummy_weight", self._n_vertices
+            )
+            self._edges.drop("_bfs_dummy_weight", axis=1, inplace=True)
+            self.__indices = fs_indices.astype(np.uint32)
+            self.__indptr = fs_indptr.astype(np.uint32)
+        else:
+            self._edges["_bfs_dummy_weight"] = 1.0
+            rs_indptr, rs_indices, _ = convert_graph_to_csc_float64(
+                self._edges, tail, head, "_bfs_dummy_weight", self._n_vertices
+            )
+            self._edges.drop("_bfs_dummy_weight", axis=1, inplace=True)
+            self.__indices = rs_indices.astype(np.uint32)
+            self.__indptr = rs_indptr.astype(np.uint32)
+
+        self._path_links = None
+
+    @property
+    def edges(self) -> Any:
+        """
+        Getter for the graph edge dataframe.
+
+        Returns
+        -------
+        edges: pandas.DataFrame
+            DataFrame containing the edges of the graph.
+        """
+        return self._edges
+
+    @property
+    def n_edges(self) -> int:
+        """
+        Getter for the number of graph edges.
+
+        Returns
+        -------
+        n_edges: int
+            The number of edges in the graph.
+        """
+        return self._n_edges
+
+    @property
+    def n_vertices(self) -> int:
+        """
+        Getter for the number of graph vertices.
+
+        Returns
+        -------
+        n_vertices: int
+            The number of nodes in the graph (after permutation, if _permute is True).
+        """
+        return self._n_vertices
+
+    @property
+    def orientation(self) -> str:
+        """
+        Getter of BFS algorithm orientation ("in" or "out").
+
+        Returns
+        -------
+        orientation : str
+            The orientation of BFS algorithm.
+        """
+        return self._orientation
+
+    @property
+    def permute(self) -> bool:
+        """
+        Getter for the graph permutation/reindexing option.
+
+        Returns
+        -------
+        permute : bool
+            Whether to permute the IDs of the nodes.
+        """
+        return self._permute
+
+    @property
+    def path_links(self) -> Optional[np.ndarray]:
+        """
+        Getter for the path links (predecessors or successors).
+
+        Returns
+        -------
+        path_links: numpy.ndarray
+            predecessors or successors node index if the path tracking is activated.
+        """
+        return self._path_links
+
+    def _preprocess_edges(self, tail, head):
+        """
+        Preprocess edges to handle parallel edges by keeping only one edge
+        between any pair of vertices (BFS doesn't use weights).
+
+        Parameters
+        ----------
+        tail : str
+            The column name for tail vertices
+        head : str
+            The column name for head vertices
+        """
+        original_count = len(self._edges)
+        self._edges = self._edges.groupby([tail, head], as_index=False).first()
+        final_count = len(self._edges)
+
+        if original_count > final_count:
+            parallel_edges_removed = original_count - final_count
+            if self._verbose:
+                print(
+                    f"Automatically removed {parallel_edges_removed} parallel edge(s). "
+                    f"BFS treats all edges equally."
+                )
+
+        self._n_edges = len(self._edges)
+
+    def _check_edges(self, edges, tail, head):
+        """Checks if the edges DataFrame is well-formed. If not, raises an appropriate error."""
+        if not isinstance(edges, pd.DataFrame):
+            raise TypeError("edges should be a pandas DataFrame")
+
+        if tail not in edges:
+            raise KeyError(
+                f"edge tail column '{tail}' not found in graph edges dataframe"
+            )
+
+        if head not in edges:
+            raise KeyError(
+                f"edge head column '{head}' not found in graph edges dataframe"
+            )
+
+        if edges[[tail, head]].isnull().to_numpy().any():
+            raise ValueError(
+                " ".join(
+                    [
+                        f"edges[[{tail}, {head}]] ",
+                        "should not have any missing value",
+                    ]
+                )
+            )
+
+        for col in [tail, head]:
+            if not pd.api.types.is_integer_dtype(edges[col].dtype):
+                raise TypeError(f"edges['{col}'] should be of integer type")
+
+    def _permute_graph(self, tail, head):
+        """Permute the IDs of the nodes to start from 0 and be contiguous.
+        Returns a DataFrame with the permuted IDs."""
+
+        permutation = pd.DataFrame(
+            data={
+                "vert_idx": np.union1d(
+                    np.asarray(self._edges[tail]), np.asarray(self._edges[head])
+                )
+            }
+        )
+        permutation["vert_idx_new"] = permutation.index
+        permutation.index.name = "index"
+
+        self._edges = pd.merge(
+            self._edges,
+            permutation[["vert_idx", "vert_idx_new"]],
+            left_on=tail,
+            right_on="vert_idx",
+            how="left",
+        )
+        self._edges.drop([tail, "vert_idx"], axis=1, inplace=True)
+        self._edges.rename(columns={"vert_idx_new": tail}, inplace=True)
+
+        self._edges = pd.merge(
+            self._edges,
+            permutation[["vert_idx", "vert_idx_new"]],
+            left_on=head,
+            right_on="vert_idx",
+            how="left",
+        )
+        self._edges.drop([head, "vert_idx"], axis=1, inplace=True)
+        self._edges.rename(columns={"vert_idx_new": head}, inplace=True)
+
+        permutation.rename(columns={"vert_idx": "vert_idx_old"}, inplace=True)
+        permutation.reset_index(drop=True, inplace=True)
+        permutation.sort_values(by="vert_idx_new", inplace=True)
+
+        permutation.index.name = "index"
+        self._edges.index.name = "index"
+
+        return permutation
+
+    def _check_orientation(self, orientation):
+        """Checks the orientation attribute."""
+        if orientation not in ["in", "out"]:
+            raise ValueError("orientation should be either 'in' on 'out'")
+
+    def run(
+        self,
+        vertex_idx: int,
+        path_tracking: bool = False,
+        return_series: bool = False,
+    ) -> Union[np.ndarray, pd.Series]:
+        """
+        Runs BFS algorithm between a given vertex and all other vertices in the graph.
+
+        Parameters
+        ----------
+        vertex_idx : int
+            The index of the source/target vertex.
+        path_tracking : bool, optional (default=False)
+            Whether to track the shortest path(s) from the source vertex to all other vertices
+            in the graph. When True, predecessors are stored and can be retrieved with get_path().
+        return_series : bool, optional (default=False)
+            Whether to return a Pandas Series object indexed by vertex indices with predecessors
+            as values.
+
+        Returns
+        -------
+        predecessors : np.ndarray or pd.Series
+            If `return_series=False`, a 1D Numpy array of shape (n_vertices,) with the
+            predecessor of each vertex in the BFS tree (`orientation="out"`), or
+            the successor of each vertex (`orientation="in"`).
+            Unreachable vertices and the start vertex have value -9999.
+            If `return_series=True`, a Pandas Series object with the same data and the
+            vertex indices as index.
+        """
+        # validate the input arguments
+        if vertex_idx < 0:
+            raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be non-negative")
+        if self._permute and self._permutation is not None:
+            if vertex_idx not in self._permutation.vert_idx_old.values:
+                raise ValueError(f"vertex {vertex_idx} not found in graph")
+            vertex_new = self._permutation.loc[
+                self._permutation.vert_idx_old == vertex_idx, "vert_idx_new"
+            ].iloc[0]
+        else:
+            if vertex_idx >= self._n_vertices:
+                raise ValueError(f"vertex {vertex_idx} not found in graph")
+            vertex_new = vertex_idx
+
+        # compute BFS predecessors
+        if self._orientation == "out":
+            predecessors = bfs_csr(
+                self.__indptr, self.__indices, vertex_new, self._n_vertices
+            )
+        else:
+            predecessors = bfs_csc(
+                self.__indptr, self.__indices, vertex_new, self._n_vertices
+            )
+
+        # store path links if tracking is enabled
+        if path_tracking:
+            # Convert predecessors to path_links format (uint32)
+            # Replace UNREACHABLE (-9999) with vertex's own index (like Dijkstra does)
+            self._path_links = np.arange(self._n_vertices, dtype=np.uint32)
+            reachable_mask = predecessors != self.UNREACHABLE
+            self._path_links[reachable_mask] = predecessors[reachable_mask].astype(
+                np.uint32
+            )
+
+            if self._permute and self._permutation is not None:
+                # permute back the path vertex indices (same approach as Dijkstra)
+                path_df = pd.DataFrame(
+                    data={
+                        "vertex_idx": np.arange(self._n_vertices),
+                        "associated_idx": self._path_links,
+                    }
+                )
+                path_df = pd.merge(
+                    path_df,
+                    self._permutation,
+                    left_on="vertex_idx",
+                    right_on="vert_idx_new",
+                    how="left",
+                )
+                path_df.drop(["vertex_idx", "vert_idx_new"], axis=1, inplace=True)
+                path_df.rename(columns={"vert_idx_old": "vertex_idx"}, inplace=True)
+                path_df = pd.merge(
+                    path_df,
+                    self._permutation,
+                    left_on="associated_idx",
+                    right_on="vert_idx_new",
+                    how="left",
+                )
+                path_df.drop(["associated_idx", "vert_idx_new"], axis=1, inplace=True)
+                path_df.rename(columns={"vert_idx_old": "associated_idx"}, inplace=True)
+
+                if return_series:
+                    path_df.set_index("vertex_idx", inplace=True)
+                    self._path_links = path_df.associated_idx.astype(np.uint32)
+                else:
+                    self._path_links = np.arange(
+                        self.__n_vertices_init, dtype=np.uint32
+                    )
+                    self._path_links[path_df.vertex_idx.values] = (
+                        path_df.associated_idx.values
+                    )
+        else:
+            self._path_links = None
+
+        # reorder predecessors for permuted graphs
+        if return_series:
+            if self._permute and self._permutation is not None:
+                pred_df = pd.DataFrame(data={"predecessor": predecessors})
+                pred_df["vert_idx_new"] = pred_df.index
+                pred_df = pd.merge(
+                    pred_df,
+                    self._permutation,
+                    left_on="vert_idx_new",
+                    right_on="vert_idx_new",
+                    how="left",
+                )
+
+                # Map predecessor values back to original IDs
+                valid_mask = pred_df["predecessor"] != self.UNREACHABLE
+                if valid_mask.any():
+                    pred_df_valid = pred_df[valid_mask].copy()
+                    pred_df_valid = pd.merge(
+                        pred_df_valid,
+                        self._permutation,
+                        left_on="predecessor",
+                        right_on="vert_idx_new",
+                        how="left",
+                        suffixes=("", "_pred"),
+                    )
+                    pred_df.loc[valid_mask, "predecessor"] = pred_df_valid[
+                        "vert_idx_old_pred"
+                    ].values.astype(np.int32)
+
+                pred_df.set_index("vert_idx_old", inplace=True)
+                predecessors_series = pred_df.predecessor.astype(np.int32)
+                predecessors_series.index.name = "vertex_idx"
+                predecessors_series.name = "predecessor"
+            else:
+                predecessors_series = pd.Series(predecessors, dtype=np.int32)
+                predecessors_series.index.name = "vertex_idx"
+                predecessors_series.name = "predecessor"
+
+            return predecessors_series
+
+        # For array output with permutation
+        if self._permute and self._permutation is not None:
+            pred_df = pd.DataFrame(data={"predecessor": predecessors})
+            pred_df["vert_idx_new"] = pred_df.index
+            pred_df = pd.merge(
+                pred_df,
+                self._permutation,
+                left_on="vert_idx_new",
+                right_on="vert_idx_new",
+                how="left",
+            )
+
+            # Map predecessor values back to original IDs
+            valid_mask = pred_df["predecessor"] != self.UNREACHABLE
+            if valid_mask.any():
+                pred_df_valid = pred_df[valid_mask].copy()
+                pred_df_valid = pd.merge(
+                    pred_df_valid,
+                    self._permutation,
+                    left_on="predecessor",
+                    right_on="vert_idx_new",
+                    how="left",
+                    suffixes=("", "_pred"),
+                )
+                pred_df.loc[valid_mask, "predecessor"] = pred_df_valid[
+                    "vert_idx_old_pred"
+                ].values.astype(np.int32)
+
+            predecessors_array = np.full(
+                self.__n_vertices_init, self.UNREACHABLE, dtype=np.int32
+            )
+            predecessors_array[pred_df.vert_idx_old.values] = (
+                pred_df.predecessor.values.astype(np.int32)
+            )
+            return predecessors_array
+
+        return predecessors
+
+    def get_vertices(self) -> Any:
+        """
+        Get the unique vertices from the graph.
+
+        If the graph has been permuted, this method returns the vertices based on the original
+        indexing. Otherwise, it returns the union of tail and head vertices from the edges.
+
+        Returns
+        -------
+        vertices : ndarray
+            A 1-D array containing the unique vertices.
+        """
+        if self._permute and self._permutation is not None:
+            return np.asarray(self._permutation.vert_idx_old)
+        return np.union1d(
+            np.asarray(self._edges["tail"]), np.asarray(self._edges["head"])
+        )
+
+    def get_path(self, vertex_idx: int) -> Optional[np.ndarray]:
+        """Compute path from predecessors or successors.
+
+        Parameters:
+        -----------
+
+        vertex_idx : int
+            source or target vertex index.
+
+        Returns
+        -------
+
+        path_vertices : numpy.ndarray
+            Array of np.int32 type storing the path from or to the given vertex index. If we are
+            dealing with BFS from a source (orientation="out"), the input vertex is the target
+            vertex and the path to the source is given backward from the target to the source
+            using the predecessors. If we are dealing with BFS to a target (orientation="in"),
+            the input vertex is the source vertex and the path to the target is given backward
+            from the target to the source using the successors.
+
+        """
+        if self._path_links is None:
+            warnings.warn(
+                "Current BFS instance has no path attribute: "
+                "make sure path_tracking is set to True, and run the "
+                "BFS algorithm",
+                UserWarning,
+            )
+            return None
+        if isinstance(self._path_links, pd.Series):
+            path_vertices = compute_path(self._path_links.values, vertex_idx)
+        else:
+            path_vertices = compute_path(self._path_links, vertex_idx)
+        return path_vertices
 
 
 # author : Francois Pacull
