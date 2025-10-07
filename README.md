@@ -115,6 +115,53 @@ except ValueError as e:
 
     Error: Negative cycle detected in the graph
 
+## Breadth-First Search: Unweighted Directed Graphs
+
+The BFS (Breadth-First Search) algorithm finds shortest paths in directed graphs where edge weights are ignored (or all edges are treated as having equal weight). It's particularly efficient for finding paths based on the minimum number of hops/edges rather than weighted distances.
+
+```python
+from edsger.path import BFS
+
+# Create an unweighted directed graph
+edges_unweighted = pd.DataFrame({
+    'tail': [0, 0, 1, 2, 2, 3],
+    'head': [1, 2, 3, 3, 4, 4]
+})
+edges_unweighted
+```
+
+|    |   tail |   head |
+|---:|-------:|-------:|
+|  0 |      0 |      1 |
+|  1 |      0 |      2 |
+|  2 |      1 |      3 |
+|  3 |      2 |      3 |
+|  4 |      2 |      4 |
+|  5 |      3 |      4 |
+
+```python
+# Initialize BFS
+bfs = BFS(edges_unweighted)
+
+# Run BFS from vertex 0 with path tracking
+predecessors = bfs.run(vertex_idx=0, path_tracking=True)
+print("Predecessors:", predecessors)
+
+# Extract the path to vertex 4
+path = bfs.get_path(4)
+print("Path from 0 to 4:", path)
+```
+
+    Predecessors: [-9999     0     0     1     2]
+    Path from 0 to 4: [4 2 0]
+
+The BFS algorithm is ideal for directed graphs when:
+- All edges should be treated equally (ignoring edge weights)
+- You need to find paths with the minimum number of edges/hops
+- You want the fastest path-finding algorithm for unweighted directed graphs (O(V + E) time complexity)
+
+Note: The predecessor value -9999 indicates either the start vertex or an unreachable vertex. In the path output, vertices are listed from target to source.
+
 ## Installation
 
 ### Standard Installation
