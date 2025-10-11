@@ -19,15 +19,12 @@ cpdef functions:
 cimport numpy as cnp
 import numpy as np
 
-# Sentinel value for unreachable nodes
-cdef int UNREACHABLE = -9999
-
-
 cpdef cnp.ndarray bfs_csr(
         cnp.uint32_t[::1] csr_indptr,
         cnp.uint32_t[::1] csr_indices,
         int start_vert_idx,
-        int vertex_count):
+        int vertex_count,
+        int sentinel=-9999):
     """
     Compute BFS tree using CSR format (forward traversal from start vertex).
 
@@ -41,13 +38,15 @@ cpdef cnp.ndarray bfs_csr(
         Starting vertex index
     vertex_count : int
         Total number of vertices
+    sentinel : int, optional
+        Sentinel value for unreachable nodes and start vertex (default: -9999)
 
     Returns
     -------
     predecessors : cnp.ndarray
         Predecessor array where predecessors[i] contains the predecessor
         of vertex i in the BFS tree. Unreachable vertices and the start
-        vertex have value -9999.
+        vertex have the sentinel value.
     """
 
     cdef:
@@ -61,7 +60,7 @@ cpdef cnp.ndarray bfs_csr(
     # Allocate arrays
     queue = np.empty(vertex_count, dtype=np.uint32)
     visited = np.zeros(vertex_count, dtype=np.int8)
-    predecessors = np.full(vertex_count, UNREACHABLE, dtype=np.int32)
+    predecessors = np.full(vertex_count, sentinel, dtype=np.int32)
 
     with nogil:
         # Initialize: mark start vertex as visited and enqueue it
@@ -94,7 +93,8 @@ cpdef cnp.ndarray bfs_csc(
         cnp.uint32_t[::1] csc_indptr,
         cnp.uint32_t[::1] csc_indices,
         int start_vert_idx,
-        int vertex_count):
+        int vertex_count,
+        int sentinel=-9999):
     """
     Compute BFS tree using CSC format (backward traversal from start vertex).
 
@@ -108,13 +108,15 @@ cpdef cnp.ndarray bfs_csc(
         Starting vertex index
     vertex_count : int
         Total number of vertices
+    sentinel : int, optional
+        Sentinel value for unreachable nodes and start vertex (default: -9999)
 
     Returns
     -------
     predecessors : cnp.ndarray
         Predecessor array where predecessors[i] contains the successor
         of vertex i in the BFS tree (since we're traversing backward).
-        Unreachable vertices and the start vertex have value -9999.
+        Unreachable vertices and the start vertex have the sentinel value.
     """
 
     cdef:
@@ -128,7 +130,7 @@ cpdef cnp.ndarray bfs_csc(
     # Allocate arrays
     queue = np.empty(vertex_count, dtype=np.uint32)
     visited = np.zeros(vertex_count, dtype=np.int8)
-    predecessors = np.full(vertex_count, UNREACHABLE, dtype=np.int32)
+    predecessors = np.full(vertex_count, sentinel, dtype=np.int32)
 
     with nogil:
         # Initialize: mark start vertex as visited and enqueue it
@@ -194,6 +196,7 @@ cdef generate_simple_graph_csc():
 
 cpdef test_bfs_csr_01():
     """Test BFS CSR on simple graph from vertex 0."""
+    cdef int UNREACHABLE = -9999
     csr_indptr, csr_indices = generate_simple_graph_csr()
 
     predecessors = bfs_csr(csr_indptr, csr_indices, 0, 4)
@@ -207,6 +210,7 @@ cpdef test_bfs_csr_01():
 
 cpdef test_bfs_csc_01():
     """Test BFS CSC on simple graph to vertex 3."""
+    cdef int UNREACHABLE = -9999
     csc_indptr, csc_indices = generate_simple_graph_csc()
 
     predecessors = bfs_csc(csc_indptr, csc_indices, 3, 4)
@@ -219,6 +223,7 @@ cpdef test_bfs_csc_01():
 
 cpdef test_bfs_unreachable():
     """Test BFS with unreachable vertices."""
+    cdef int UNREACHABLE = -9999
     # Graph: 0 -> 1, 2 -> 3 (two disconnected components)
     csr_indptr = np.array([0, 1, 1, 2, 2], dtype=np.uint32)
     csr_indices = np.array([1, 3], dtype=np.uint32)

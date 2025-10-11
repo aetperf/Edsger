@@ -82,7 +82,7 @@ def test_bfs_basic_out(simple_graph):
     predecessors = bfs.run(vertex_idx=0)
 
     # From vertex 0
-    assert predecessors[0] == BFS.UNREACHABLE  # start vertex
+    assert predecessors[0] == bfs.UNREACHABLE  # start vertex
     assert predecessors[1] == 0  # reached from 0
     assert predecessors[2] == 0  # reached from 0
     assert predecessors[3] in [1, 2]  # could be reached from 1 or 2
@@ -94,11 +94,11 @@ def test_bfs_basic_in(simple_graph):
     predecessors = bfs.run(vertex_idx=3)
 
     # To vertex 3 (working backward)
-    assert predecessors[3] == BFS.UNREACHABLE  # start vertex
+    assert predecessors[3] == bfs.UNREACHABLE  # start vertex
     # Vertex 3 can be reached from 1 or 2
-    assert predecessors[1] in [3, BFS.UNREACHABLE] or predecessors[2] in [
+    assert predecessors[1] in [3, bfs.UNREACHABLE] or predecessors[2] in [
         3,
-        BFS.UNREACHABLE,
+        bfs.UNREACHABLE,
     ]
 
 
@@ -107,7 +107,7 @@ def test_bfs_linear_graph(linear_graph):
     bfs = BFS(linear_graph, orientation="out")
     predecessors = bfs.run(vertex_idx=0)
 
-    assert predecessors[0] == BFS.UNREACHABLE
+    assert predecessors[0] == bfs.UNREACHABLE
     assert predecessors[1] == 0
     assert predecessors[2] == 1
     assert predecessors[3] == 2
@@ -119,10 +119,10 @@ def test_bfs_disconnected_graph(disconnected_graph):
     predecessors = bfs.run(vertex_idx=0)
 
     # From vertex 0, can only reach vertex 1
-    assert predecessors[0] == BFS.UNREACHABLE  # start
+    assert predecessors[0] == bfs.UNREACHABLE  # start
     assert predecessors[1] == 0  # reachable
-    assert predecessors[2] == BFS.UNREACHABLE  # unreachable
-    assert predecessors[3] == BFS.UNREACHABLE  # unreachable
+    assert predecessors[2] == bfs.UNREACHABLE  # unreachable
+    assert predecessors[3] == bfs.UNREACHABLE  # unreachable
 
 
 def test_bfs_cyclic_graph(cyclic_graph):
@@ -131,7 +131,7 @@ def test_bfs_cyclic_graph(cyclic_graph):
     predecessors = bfs.run(vertex_idx=0)
 
     # All vertices reachable from 0 in a cycle
-    assert predecessors[0] == BFS.UNREACHABLE  # start
+    assert predecessors[0] == bfs.UNREACHABLE  # start
     assert predecessors[1] == 0
     assert predecessors[2] == 1
     # Note: 0 is reachable from 2, but it's already visited, so its predecessor remains UNREACHABLE
@@ -162,7 +162,7 @@ def test_bfs_two_nodes():
     bfs = BFS(edges, orientation="out")
     predecessors = bfs.run(vertex_idx=0)
 
-    assert predecessors[0] == BFS.UNREACHABLE
+    assert predecessors[0] == bfs.UNREACHABLE
     assert predecessors[1] == 0
 
 
@@ -247,7 +247,7 @@ def test_bfs_permute_true():
     predecessors = bfs.run(vertex_idx=0, path_tracking=True)
 
     # Check that vertex 0 is the start
-    assert predecessors[0] == BFS.UNREACHABLE
+    assert predecessors[0] == bfs.UNREACHABLE
     assert predecessors[10] == 0
     assert predecessors[20] in [0, 10]
     assert predecessors[30] == 20
@@ -272,7 +272,7 @@ def test_bfs_permute_false():
 
     # Without permutation, array includes all indices from 0 to max
     assert len(predecessors) == 31  # 0 to 30
-    assert predecessors[0] == BFS.UNREACHABLE
+    assert predecessors[0] == bfs.UNREACHABLE
     assert predecessors[10] == 0
     assert predecessors[20] in [0, 10]
     assert predecessors[30] == 20
@@ -292,7 +292,7 @@ def test_bfs_permute_return_series():
     assert isinstance(result, pd.Series)
     assert result.index.name == "vertex_idx"
     assert result.name == "predecessor"
-    assert result[10] == BFS.UNREACHABLE
+    assert result[10] == bfs.UNREACHABLE
     assert result[20] == 10
     assert result[30] == 20
 
@@ -419,7 +419,7 @@ def test_bfs_custom_column_names():
     bfs = BFS(edges, tail="from_node", head="to_node")
     predecessors = bfs.run(vertex_idx=0)
 
-    assert predecessors[0] == BFS.UNREACHABLE
+    assert predecessors[0] == bfs.UNREACHABLE
     assert predecessors[1] == 0
     assert predecessors[2] == 0
     assert predecessors[3] in [1, 2]
@@ -602,7 +602,7 @@ def test_bfs_correctness_comparison():
     # 4: from 1 or 2 (whichever is visited first in BFS)
     # 5: from 3
     # 6: from 3 or 4
-    assert predecessors[0] == BFS.UNREACHABLE
+    assert predecessors[0] == bfs.UNREACHABLE
     assert predecessors[1] == 0
     assert predecessors[2] == 0
     assert predecessors[3] == 1
@@ -631,13 +631,61 @@ def test_bfs_orientation_symmetry():
     # In this linear graph, the paths should be consistent
     # From 0: 0 -> 1 -> 2 -> 3
     # To 3: 0 -> 1 -> 2 -> 3 (same path)
-    assert pred_out[0] == BFS.UNREACHABLE
+    assert pred_out[0] == bfs_out.UNREACHABLE
     assert pred_out[1] == 0
     assert pred_out[2] == 1
     assert pred_out[3] == 2
 
-    assert pred_in[3] == BFS.UNREACHABLE
+    assert pred_in[3] == bfs_in.UNREACHABLE
     # In backward search, predecessors are successors
     assert pred_in[2] == 3
     assert pred_in[1] == 2
     assert pred_in[0] == 1
+
+
+def test_bfs_custom_sentinel():
+    """Test BFS with custom sentinel value."""
+    edges = pd.DataFrame(
+        data={
+            "tail": [0, 0, 1, 2],
+            "head": [1, 2, 3, 3],
+        }
+    )
+
+    # Test with custom sentinel value
+    custom_sentinel = -1
+    bfs = BFS(edges, sentinel=custom_sentinel)
+    predecessors = bfs.run(vertex_idx=0)
+
+    # Verify custom sentinel is used
+    assert bfs.UNREACHABLE == custom_sentinel
+    assert predecessors[0] == custom_sentinel  # start vertex
+    assert predecessors[1] == 0  # reached from 0
+    assert predecessors[2] == 0  # reached from 0
+    assert predecessors[3] in [1, 2]  # could be reached from 1 or 2
+
+
+def test_bfs_sentinel_validation():
+    """Test BFS sentinel parameter validation."""
+    edges = pd.DataFrame(
+        data={
+            "tail": [0, 1],
+            "head": [1, 2],
+        }
+    )
+
+    # Test positive sentinel (should fail)
+    with pytest.raises(ValueError, match="sentinel must be negative"):
+        BFS(edges, sentinel=1)
+
+    # Test zero sentinel (should fail)
+    with pytest.raises(ValueError, match="sentinel must be negative"):
+        BFS(edges, sentinel=0)
+
+    # Test non-integer sentinel (should fail)
+    with pytest.raises(TypeError, match="sentinel must be an integer"):
+        BFS(edges, sentinel=-9999.5)
+
+    # Test sentinel outside int32 range (should fail)
+    with pytest.raises(ValueError, match="sentinel must fit in int32 range"):
+        BFS(edges, sentinel=-(10**15))
