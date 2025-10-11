@@ -99,15 +99,32 @@ def get_compiler_flags():
         # Check if building a universal binary on macOS
         is_universal_build = False
         if system == "Darwin":
-            # Check ARCHFLAGS environment variable (used by pip/setuptools)
+            # Debug output to diagnose universal binary detection
+            platform_str = sysconfig.get_platform()
             archflags = os.environ.get("ARCHFLAGS", "")
-            # Check if multiple architectures are specified (universal binary)
-            if archflags.count("-arch") > 1 or "universal2" in archflags:
-                is_universal_build = True
-            # Also check _PYTHON_HOST_PLATFORM for cibuildwheel
             host_platform = os.environ.get("_PYTHON_HOST_PLATFORM", "")
-            if "universal2" in host_platform:
+
+            print(f"macOS build detection:")
+            print(f"  sysconfig.get_platform(): {platform_str}")
+            print(f"  ARCHFLAGS: {archflags if archflags else '(not set)'}")
+            print(
+                f"  _PYTHON_HOST_PLATFORM: {host_platform if host_platform else '(not set)'}"
+            )
+
+            # Check sysconfig.get_platform() (most reliable for pip builds)
+            if "universal2" in platform_str:
                 is_universal_build = True
+                print(f"  -> Universal binary detected via sysconfig.get_platform()")
+            # Check ARCHFLAGS environment variable (used by pip/setuptools)
+            elif archflags.count("-arch") > 1 or "universal2" in archflags:
+                is_universal_build = True
+                print(f"  -> Universal binary detected via ARCHFLAGS")
+            # Also check _PYTHON_HOST_PLATFORM for cibuildwheel
+            elif "universal2" in host_platform:
+                is_universal_build = True
+                print(f"  -> Universal binary detected via _PYTHON_HOST_PLATFORM")
+            else:
+                print(f"  -> Native build (not universal binary)")
 
         if is_universal_build:
             print(
