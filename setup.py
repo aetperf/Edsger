@@ -95,8 +95,30 @@ def get_compiler_flags():
     if system in ["Linux", "Darwin"]:
         # Linux or macOS with GCC/Clang
         compiler_name = "GCC/Clang" if system == "Linux" else "Clang"
-        print(f"Building with {compiler_name} optimizations on {system}")
-        compile_args = ["-Ofast", "-flto", "-march=native"]
+
+        # Check if building a universal binary on macOS
+        is_universal_build = False
+        if system == "Darwin":
+            # Check ARCHFLAGS environment variable (used by pip/setuptools)
+            archflags = os.environ.get("ARCHFLAGS", "")
+            # Check if multiple architectures are specified (universal binary)
+            if archflags.count("-arch") > 1 or "universal2" in archflags:
+                is_universal_build = True
+            # Also check _PYTHON_HOST_PLATFORM for cibuildwheel
+            host_platform = os.environ.get("_PYTHON_HOST_PLATFORM", "")
+            if "universal2" in host_platform:
+                is_universal_build = True
+
+        if is_universal_build:
+            print(
+                f"Building with {compiler_name} optimizations on {system} (universal binary)"
+            )
+            # Skip -march=native for universal binaries (incompatible with cross-compilation)
+            compile_args = ["-Ofast", "-flto"]
+        else:
+            print(f"Building with {compiler_name} optimizations on {system}")
+            compile_args = ["-Ofast", "-flto", "-march=native"]
+
         link_args = ["-flto"]
         return compile_args, link_args, []
     # Unknown platform, use conservative flags
