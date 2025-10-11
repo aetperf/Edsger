@@ -6,9 +6,21 @@ This guide will help you install the `edsger` package on your system.
 
 Before you begin, ensure you have the following prerequisites:
 
-- Python 3.11 or higher
+- Python 3.9 or higher (3.11+ recommended)
 - pip (Python package installer) or uv (recommended)
 - (Optional) git for installing from source
+
+### Optional Dependencies
+
+Edsger supports multiple DataFrame backends. Install the ones you need:
+
+```bash
+# For pandas Arrow backend support (recommended for large graphs)
+pip install pyarrow
+
+# For Polars DataFrame support
+pip install polars
+```
 
 ## Method 1: Using Python venv + pip
 

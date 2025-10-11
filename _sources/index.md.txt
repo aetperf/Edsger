@@ -4,44 +4,54 @@ github_url: https://github.com/aetperf/Edsger
 
 # Edsger
 
-*Graph algorithms in Cython*
+*Directed graph algorithms in Cython*
 
-Welcome to the Edsger documentation! Edsger is a Python library for efficient graph algorithms implemented in Cython. The library focuses on shortest path algorithms, featuring so far both Dijkstra's algorithm for positive-weight graphs and Bellman-Ford algorithm for graphs with negative weights and cycle detection.
+Welcome to the Edsger documentation! Edsger is a Python library for efficient graph algorithms implemented in Cython. The library focuses so far on shortest path algorithms, featuring Dijkstra's algorithm for positive-weight directed graphs, Bellman-Ford algorithm for directed graphs with negative weights and cycle detection, and BFS (Breadth-First Search) for unweighted directed graphs.
 
 ## Why Use Edsger?
 
-Edsger is designed to be **dataframe-friendly**, providing seamless integration with pandas workflows for graph algorithms. Also it is rather efficient on Linux. Our benchmarks on the USA road network (23.9M vertices, 57.7M edges) demonstrate nice performance:
+Edsger is designed to be **dataframe-friendly**, providing seamless integration with pandas workflows for directed graph algorithms. Also it is rather efficient on Linux. Our benchmarks on the USA road network (23.9M vertices, 57.7M edges) demonstrate nice performance:
 
 <img src="assets/dijkstra_benchmark_comparison.png" alt="Dijkstra Performance Comparison" width="700">
 
-### Pandas Integration Made Simple
+### Multiple DataFrame Backends Supported
 
 ```python
 import pandas as pd
-from edsger.path import Dijkstra, BellmanFord
+import polars as pl
+from edsger.path import Dijkstra, BellmanFord, BFS
 
-# Your graph data is already in a DataFrame
-edges = pd.DataFrame({
+# Works with pandas (NumPy backend)
+edges_pandas = pd.DataFrame({
     'tail': [0, 0, 1, 2],
-    'head': [1, 2, 2, 3], 
+    'head': [1, 2, 2, 3],
     'weight': [1.0, 2.0, 1.5, 1.0]
 })
 
-# Use Dijkstra for positive weights (faster)
-dijkstra = Dijkstra(edges)
-distances = dijkstra.run(vertex_idx=0)
+# Works with pandas (Arrow backend)
+edges_arrow = edges_pandas.astype({
+    'tail': pd.ArrowDtype(pa.int64()),
+    'head': pd.ArrowDtype(pa.int64()),
+    'weight': pd.ArrowDtype(pa.float64())
+})
 
-# Use Bellman-Ford for negative weights or cycle detection
-bf = BellmanFord(edges)
-distances = bf.run(vertex_idx=0)
+# Works with Polars DataFrames
+edges_polars = pl.DataFrame({
+    'tail': [0, 0, 1, 2],
+    'head': [1, 2, 2, 3],
+    'weight': [1.0, 2.0, 1.5, 1.0]
+})
+
+# All work seamlessly with the same API!
+dijkstra = Dijkstra(edges_polars)  # or edges_pandas or edges_arrow
+distances = dijkstra.run(vertex_idx=0)
 ```
 
 ## Key Features
 
-- **Native pandas DataFrame support** - No graph object conversion required
-- **High performance** - Cython implementation
-- **Memory efficient** - Optimized for real-world datasets
-- **Easy integration** with NumPy and Pandas workflows
+- **Multiple DataFrame backends** - Native support for pandas (NumPy & Arrow) and Polars
+- **High performance** - Cython implementation with optimized memory layout
+- **Easy integration** - Works with your existing DataFrame workflows
 - **Production ready** - Comprehensive testing across Python 3.9-3.13
 
 ## Quick Links

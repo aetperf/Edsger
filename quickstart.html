@@ -1,14 +1,14 @@
 <!doctype html>
 <html class="no-js" lang="en" data-content_root="./">
-  <head><meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="API Reference" href="api.html" /><link rel="prev" title="Installation Guide" href="installation.html" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="API Reference" href="api.html"><link rel="prev" title="Installation Guide" href="installation.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.07.19 -->
-        <title>Quick Start Guide - Edsger 0.1.5 documentation</title>
+    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
+        <title>Quick Start Guide - Edsger 0.1.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=25af2a20" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -24,14 +24,14 @@
   }
   @media not print {
     body[data-theme="dark"] {
-      --color-code-background: #2b2b2b;
-  --color-code-foreground: #f8f8f2;
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
-        --color-code-background: #2b2b2b;
-  --color-code-foreground: #f8f8f2;
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
   
       }
     }
@@ -146,14 +146,10 @@
   </symbol>
 </svg>
 
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
-<label class="overlay sidebar-overlay" for="__navigation">
-  <div class="visually-hidden">Hide navigation sidebar</div>
-</label>
-<label class="overlay toc-overlay" for="__toc">
-  <div class="visually-hidden">Hide table of contents sidebar</div>
-</label>
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
 
 <a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
@@ -163,17 +159,15 @@
   <header class="mobile-header">
     <div class="header-left">
       <label class="nav-overlay-icon" for="__navigation">
-        <div class="visually-hidden">Toggle site navigation sidebar</div>
-        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Edsger 0.1.5 documentation</div></a>
+      <a href="index.html"><div class="brand">Edsger 0.1.6 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle">
-          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
           <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
           <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
           <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
@@ -181,8 +175,7 @@
         </button>
       </div>
       <label class="toc-overlay-icon toc-header-icon" for="__toc">
-        <div class="visually-hidden">Toggle table of contents sidebar</div>
-        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
   </header>
@@ -191,7 +184,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">Edsger 0.1.5 documentation</span>
+  <span class="sidebar-brand-text">Edsger 0.1.6 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -237,8 +230,7 @@
   </a>
 </div>
 <div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle">
-              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
               <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
               <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
               <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
@@ -246,17 +238,16 @@
             </button>
           </div>
           <label class="toc-overlay-icon toc-content-icon" for="__toc">
-            <div class="visually-hidden">Toggle table of contents sidebar</div>
-            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
           <section id="quick-start-guide">
 <h1>Quick Start Guide<a class="headerlink" href="#quick-start-guide" title="Link to this heading">¶</a></h1>
-<p>Welcome to our Python library for graph algorithms. The library includes both Dijkstra’s and Bellman-Ford’s algorithms, with plans to add more common path algorithms later. It is also open-source and easy to integrate with other Python libraries.</p>
+<p>Welcome to our Python library for <strong>graph</strong> algorithms. The library includes BFS, Dijkstra’s and Bellman-Ford’s algorithms, with plans to add more algorithms later. It is also open-source and easy to integrate with other Python libraries.</p>
 <section id="graph-data-format">
 <h2>Graph Data Format<a class="headerlink" href="#graph-data-format" title="Link to this heading">¶</a></h2>
-<p>Edsger expects graph data as a pandas DataFrame with the following structure:</p>
+<p>Edsger accepts directed graph data in multiple DataFrame formats, all with the same basic structure:</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
@@ -281,7 +272,10 @@
 </tbody>
 </table>
 </div>
-<p>Example:</p>
+<section id="supported-dataframe-backends">
+<h3>Supported DataFrame Backends<a class="headerlink" href="#supported-dataframe-backends" title="Link to this heading">¶</a></h3>
+<section id="pandas-with-numpy-backend-default">
+<h4>pandas with NumPy backend (default)<a class="headerlink" href="#pandas-with-numpy-backend-default" title="Link to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
@@ -289,47 +283,49 @@
     <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
     <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
 <span class="p">})</span>
-<span class="n">edges</span>
 </pre></div>
 </div>
-<div class="table-wrapper colwidths-auto docutils container">
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head text-right"><p></p></th>
-<th class="head text-right"><p>tail</p></th>
-<th class="head text-right"><p>head</p></th>
-<th class="head text-right"><p>weight</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td class="text-right"><p>0</p></td>
-<td class="text-right"><p>0</p></td>
-<td class="text-right"><p>1</p></td>
-<td class="text-right"><p>1</p></td>
-</tr>
-<tr class="row-odd"><td class="text-right"><p>1</p></td>
-<td class="text-right"><p>0</p></td>
-<td class="text-right"><p>2</p></td>
-<td class="text-right"><p>4</p></td>
-</tr>
-<tr class="row-even"><td class="text-right"><p>2</p></td>
-<td class="text-right"><p>1</p></td>
-<td class="text-right"><p>2</p></td>
-<td class="text-right"><p>2</p></td>
-</tr>
-<tr class="row-odd"><td class="text-right"><p>3</p></td>
-<td class="text-right"><p>2</p></td>
-<td class="text-right"><p>3</p></td>
-<td class="text-right"><p>1</p></td>
-</tr>
-</tbody>
-</table>
+</section>
+<section id="pandas-with-arrow-backend">
+<h4>pandas with Arrow backend<a class="headerlink" href="#pandas-with-arrow-backend" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+
+<span class="c1"># Create with Arrow dtypes</span>
+<span class="n">edges_arrow</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">())),</span>
+    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">())),</span>
+    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">float64</span><span class="p">()))</span>
+<span class="p">})</span>
+
+<span class="c1"># Or convert existing DataFrame</span>
+<span class="n">edges_arrow</span> <span class="o">=</span> <span class="n">edges</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span>
+    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">()),</span>
+    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">()),</span>
+    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">float64</span><span class="p">())</span>
+<span class="p">})</span>
+</pre></div>
 </div>
+</section>
+<section id="polars-dataframe">
+<h4>Polars DataFrame<a class="headerlink" href="#polars-dataframe" title="Link to this heading">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+
+<span class="n">edges_polars</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>All these formats work seamlessly with Edsger’s algorithms - the library automatically detects and handles the DataFrame type.</p>
 <p>Note that it is also possible to use a graph with different column names for the tail, head and weight values, but we need then to specify the name mapping, as described in the following.</p>
+</section>
+</section>
 </section>
 <section id="dijkstra-s-algorithm">
 <h2>Dijkstra’s Algorithm<a class="headerlink" href="#dijkstra-s-algorithm" title="Link to this heading">¶</a></h2>
-<p>To use Dijkstra’s algorithm, you can import the <code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code> class from the <code class="docutils literal notranslate"><span class="pre">path</span></code> module. The function takes a graph and a source node as input, and returns the shortest path from the source node to all other nodes in the graph.</p>
+<p>To use Dijkstra’s algorithm, you can import the <code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code> class from the <code class="docutils literal notranslate"><span class="pre">path</span></code> module. The function takes a directed graph and a source node as input, and returns the shortest path from the source node to all other nodes in the directed graph. If your directed graph contains parallel edges (multiple edges between the same pair of vertices), Dijkstra automatically keeps only the edge with minimum weight for each vertex pair.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dijkstra</span>
 
 <span class="c1"># Create a DataFrame with the edges of the graph</span>
@@ -395,7 +391,7 @@
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Shortest paths: [0.  1.  3.  4.5 5.5]
 </pre></div>
 </div>
-<p>We get the shortest paths from the source node 0 to all other nodes in the graph. The output is an array with the shortest path length to each node. A path length is the sum of the weights of the edges in the path.</p>
+<p>We get the shortest paths from the source node 0 to all other nodes in the directed graph. The output is an array with the shortest path length to each node. A path length is the sum of the weights of the edges in the path.</p>
 <p>The column names can be specified using the <code class="docutils literal notranslate"><span class="pre">tail</span></code>, <code class="docutils literal notranslate"><span class="pre">head</span></code> and <code class="docutils literal notranslate"><span class="pre">weight</span></code> arguments:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">other_edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
     <span class="s1">&#39;from&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
@@ -703,7 +699,7 @@ Path to vertex 5: [5 3 2 1 0]
 </section>
 <section id="bellman-ford-algorithm">
 <h2>Bellman-Ford Algorithm<a class="headerlink" href="#bellman-ford-algorithm" title="Link to this heading">¶</a></h2>
-<p>The Bellman-Ford algorithm is designed for graphs that may contain negative edge weights and can detect negative cycles. Unlike Dijkstra’s algorithm, Bellman-Ford can handle a broader class of problems but with a higher computational cost.</p>
+<p>The Bellman-Ford algorithm is designed for directed graphs that may contain negative edge weights and can detect negative cycles. Unlike Dijkstra’s algorithm, Bellman-Ford can handle a broader class of problems but with a higher computational cost.</p>
 <section id="basic-usage">
 <h3>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">BellmanFord</span>
@@ -793,8 +789,8 @@ Path to vertex 5: [5 3 2 1 0]
 <h3>When to Use Bellman-Ford vs Dijkstra<a class="headerlink" href="#when-to-use-bellman-ford-vs-dijkstra" title="Link to this heading">¶</a></h3>
 <p><strong>Use Bellman-Ford when:</strong></p>
 <ul class="simple">
-<li><p>Your graph contains negative edge weights</p></li>
-<li><p>You need to detect negative cycles</p></li>
+<li><p>Your directed graph contains negative edge weights</p></li>
+<li><p>You need to detect negative cycles in directed graphs</p></li>
 <li><p>Working with financial networks, arbitrage detection, or differential constraints</p></li>
 <li><p>Performance is less critical than correctness</p></li>
 </ul>
@@ -802,12 +798,145 @@ Path to vertex 5: [5 3 2 1 0]
 <ul class="simple">
 <li><p>All edge weights are non-negative (e.g., distances, travel times, costs)</p></li>
 <li><p>You need the fastest possible performance (O((V+E)logV) vs O(VE))</p></li>
-<li><p>Working with road networks, shortest distance problems</p></li>
+<li><p>Working with directed road networks, shortest distance problems in directed graphs</p></li>
 </ul>
 </section>
 <section id="performance-considerations">
 <h3>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Link to this heading">¶</a></h3>
-<p>Bellman-Ford has O(VE) time complexity compared to Dijkstra’s O((V+E)logV). For large graphs with only positive weights, Dijkstra is significantly faster. However, the performance difference may be acceptable for smaller graphs or when negative weights are essential to your problem.</p>
+<p>Bellman-Ford has O(VE) time complexity compared to Dijkstra’s O((V+E)logV). For large directed graphs with only positive weights, Dijkstra is significantly faster. However, the performance difference may be acceptable for smaller directed graphs or when negative weights are essential to your problem.</p>
+</section>
+</section>
+<section id="breadth-first-search-unweighted-directed-graphs">
+<h2>Breadth-First Search: Unweighted Directed Graphs<a class="headerlink" href="#breadth-first-search-unweighted-directed-graphs" title="Link to this heading">¶</a></h2>
+<p>BFS (Breadth-First Search) finds shortest paths in directed graphs where edge weights are ignored (or treated as equal). It’s optimal for finding minimum-hop paths in directed graphs.</p>
+<section id="id2">
+<h3>Basic Usage<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">BFS</span>
+
+<span class="c1"># Create a directed graph (weights will be ignored if present)</span>
+<span class="n">edges_bfs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="p">})</span>
+
+<span class="c1"># Initialize BFS</span>
+<span class="n">bfs</span> <span class="o">=</span> <span class="n">BFS</span><span class="p">(</span><span class="n">edges_bfs</span><span class="p">)</span>
+
+<span class="c1"># Run BFS from vertex 0</span>
+<span class="n">predecessors</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Predecessors:&quot;</span><span class="p">,</span> <span class="n">predecessors</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Predecessors: [-9999     0     0     1     2]
+</pre></div>
+</div>
+</section>
+<section id="understanding-bfs-output">
+<h3>Understanding BFS Output<a class="headerlink" href="#understanding-bfs-output" title="Link to this heading">¶</a></h3>
+<p>Unlike Dijkstra and Bellman-Ford which return distances, BFS returns <strong>predecessors</strong>:</p>
+<ul class="simple">
+<li><p>Value <code class="docutils literal notranslate"><span class="pre">-9999</span></code> (default sentinel): Unreachable vertex or start vertex</p></li>
+<li><p>Other values: The predecessor vertex in the shortest path</p></li>
+</ul>
+<p>You can customize the sentinel value if needed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use a different sentinel value for unreachable nodes</span>
+<span class="n">bfs</span> <span class="o">=</span> <span class="n">BFS</span><span class="p">(</span><span class="n">edges_bfs</span><span class="p">,</span> <span class="n">sentinel</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">predecessors</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="c1"># Unreachable nodes will now be marked with -1 instead of -9999</span>
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h3>Path Tracking<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<p>BFS supports path reconstruction just like Dijkstra:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run with path tracking enabled</span>
+<span class="n">predecessors</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">path_tracking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Get the actual path to vertex 4</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Path from 0 to 4:&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Path from 0 to 4: [4 2 0]
+</pre></div>
+</div>
+<p>The path is returned as an array from target to source.</p>
+</section>
+<section id="id4">
+<h3>Orientation<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<p>BFS supports both orientations like other algorithms:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Single-source (forward search from source)</span>
+<span class="n">bfs_out</span> <span class="o">=</span> <span class="n">BFS</span><span class="p">(</span><span class="n">edges_bfs</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;out&#39;</span><span class="p">)</span>
+<span class="n">pred_out</span> <span class="o">=</span> <span class="n">bfs_out</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Single-target (backward search to target)</span>
+<span class="n">bfs_in</span> <span class="o">=</span> <span class="n">BFS</span><span class="p">(</span><span class="n">edges_bfs</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">)</span>
+<span class="n">pred_in</span> <span class="o">=</span> <span class="n">bfs_in</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="when-to-use-bfs">
+<h3>When to Use BFS<a class="headerlink" href="#when-to-use-bfs" title="Link to this heading">¶</a></h3>
+<p><strong>Use BFS when:</strong></p>
+<ul class="simple">
+<li><p>All edges should be treated equally (unweighted directed graphs)</p></li>
+<li><p>Finding minimum number of hops/edges in directed paths</p></li>
+<li><p>Maximum performance for unweighted directed graphs (O(V+E) time)</p></li>
+<li><p>Social network analysis (degrees of separation in directed networks)</p></li>
+<li><p>Network routing with hop counts in directed topologies</p></li>
+</ul>
+<p><strong>Use Dijkstra/Bellman-Ford when:</strong></p>
+<ul class="simple">
+<li><p>Edge weights matter (distances, costs, times)</p></li>
+<li><p>You need weighted shortest paths in directed graphs</p></li>
+</ul>
+</section>
+</section>
+<section id="dataframe-backend-selection">
+<h2>DataFrame Backend Selection<a class="headerlink" href="#dataframe-backend-selection" title="Link to this heading">¶</a></h2>
+<p>Edsger automatically detects and optimizes for your DataFrame backend. Here’s when to use each:</p>
+<section id="pandas-with-numpy-backend">
+<h3>pandas with NumPy backend<a class="headerlink" href="#pandas-with-numpy-backend" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Best for</strong>: Small to medium graphs, existing pandas workflows</p></li>
+<li><p><strong>Memory</strong>: Standard NumPy arrays</p></li>
+<li><p><strong>Example</strong>:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="o">...</span><span class="p">})</span>  <span class="c1"># Default pandas</span>
+<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h3>pandas with Arrow backend<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Best for</strong>: Large graphs, memory-constrained environments</p></li>
+<li><p><strong>Memory</strong>: Columnar format, often more efficient</p></li>
+<li><p><strong>Automatic optimization</strong>: Integer columns use uint32 when possible</p></li>
+<li><p><strong>Example</strong>:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="o">...</span><span class="p">})</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span>
+    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">()),</span>
+    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">()),</span>
+    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">float64</span><span class="p">())</span>
+<span class="p">})</span>
+<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h3>Polars DataFrame<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Best for</strong>: High-performance workflows, large-scale data processing</p></li>
+<li><p><strong>Memory</strong>: Efficient columnar storage</p></li>
+<li><p><strong>Automatic optimization</strong>: Integer columns use uint32 when possible</p></li>
+<li><p><strong>Example</strong>:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">edges</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="o">...</span><span class="p">})</span>
+<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>All backends are automatically converted to optimal NumPy arrays internally for maximum Cython performance, while preserving the convenience of your preferred DataFrame library.</p>
 </section>
 </section>
 <section id="next-steps">
@@ -875,7 +1004,15 @@ Path to vertex 5: [5 3 2 1 0]
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Quick Start Guide</a><ul>
-<li><a class="reference internal" href="#graph-data-format">Graph Data Format</a></li>
+<li><a class="reference internal" href="#graph-data-format">Graph Data Format</a><ul>
+<li><a class="reference internal" href="#supported-dataframe-backends">Supported DataFrame Backends</a><ul>
+<li><a class="reference internal" href="#pandas-with-numpy-backend-default">pandas with NumPy backend (default)</a></li>
+<li><a class="reference internal" href="#pandas-with-arrow-backend">pandas with Arrow backend</a></li>
+<li><a class="reference internal" href="#polars-dataframe">Polars DataFrame</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a class="reference internal" href="#dijkstra-s-algorithm">Dijkstra’s Algorithm</a><ul>
 <li><a class="reference internal" href="#orientation">Orientation</a></li>
 <li><a class="reference internal" href="#run-multiple-times">Run Multiple Times</a></li>
@@ -901,6 +1038,20 @@ Path to vertex 5: [5 3 2 1 0]
 <li><a class="reference internal" href="#performance-considerations">Performance Considerations</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#breadth-first-search-unweighted-directed-graphs">Breadth-First Search: Unweighted Directed Graphs</a><ul>
+<li><a class="reference internal" href="#id2">Basic Usage</a></li>
+<li><a class="reference internal" href="#understanding-bfs-output">Understanding BFS Output</a></li>
+<li><a class="reference internal" href="#id3">Path Tracking</a></li>
+<li><a class="reference internal" href="#id4">Orientation</a></li>
+<li><a class="reference internal" href="#when-to-use-bfs">When to Use BFS</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dataframe-backend-selection">DataFrame Backend Selection</a><ul>
+<li><a class="reference internal" href="#pandas-with-numpy-backend">pandas with NumPy backend</a></li>
+<li><a class="reference internal" href="#id5">pandas with Arrow backend</a></li>
+<li><a class="reference internal" href="#id6">Polars DataFrame</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#next-steps">Next Steps</a></li>
 </ul>
 </li>
@@ -913,7 +1064,7 @@ Path to vertex 5: [5 3 2 1 0]
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=59fadc99"></script>
+</div><script src="_static/documentation_options.js?v=6e0256f3"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
