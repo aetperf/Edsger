@@ -389,21 +389,6 @@ print(predecessors)
 
 - **Time Complexity**: O(V + E) - linear in vertices and edges
 - **Space Complexity**: O(V) - queue and predecessor arrays
-- **Optimal For**: Unweighted directed graphs, minimum hop paths
-- **Not Suitable For**: Weighted graphs (use Dijkstra or Bellman-Ford instead)
-
-#### BFS vs Dijkstra for Unweighted Graphs
-
-While both can handle unweighted directed graphs (by setting all weights to 1), BFS is:
-- **Faster**: No priority queue overhead
-- **Simpler**: No weight comparisons
-- **More appropriate**: Semantically correct for hop-count problems
-
-```python
-# For unweighted directed graphs, BFS is more efficient than:
-dijkstra = Dijkstra(edges_with_unit_weights)  # Slower, uses priority queue
-bfs = BFS(edges)  # Faster, optimal for unweighted
-```
 
 ## Parallel Edges Handling
 

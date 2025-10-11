@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Welcome to our Python library for **directed graph** algorithms. The library includes both Dijkstra's and Bellman-Ford's algorithms, with plans to add more common path algorithms later. **All algorithms work exclusively with directed graphs.** It is also open-source and easy to integrate with other Python libraries.
+Welcome to our Python library for **graph** algorithms. The library includes BFS, Dijkstra's and Bellman-Ford's algorithms, with plans to add more algorithms later. It is also open-source and easy to integrate with other Python libraries.
 
 
 ## Graph Data Format
