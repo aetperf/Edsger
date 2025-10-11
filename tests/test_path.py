@@ -8,9 +8,9 @@ import pandas as pd
 import pytest  # type: ignore
 from edsger.commons import DTYPE_INF_PY  # A_VERY_SMALL_TIME_INTERVAL_PY unused
 from edsger.networks import create_sf_network
-from edsger.path import BellmanFord, Dijkstra, HyperpathGenerating
+from edsger.path import BellmanFord, BFS, Dijkstra, HyperpathGenerating
 from scipy.sparse import coo_array  # type: ignore  # csr_matrix unused
-from scipy.sparse.csgraph import dijkstra  # type: ignore
+from scipy.sparse.csgraph import breadth_first_order, dijkstra  # type: ignore
 
 try:
     import pyarrow as pa
@@ -846,6 +846,67 @@ def test_bellman_ford_check_edges_allows_negative():
     # Dijkstra should reject negative weights
     with pytest.raises(ValueError, match=r"nonnegative"):
         Dijkstra(edges, check_edges=True)
+
+
+# ============================================================================ #
+# BFS tests                                                                    #
+# ============================================================================ #
+
+
+def test_bfs_scipy_comparison(random_seed=124, n=1000):
+    """Test BFS against scipy.sparse.csgraph.breadth_first_order."""
+    np.random.seed(random_seed)
+    tail = np.random.randint(0, int(n / 5), n)
+    head = np.random.randint(0, int(n / 5), n)
+    # BFS doesn't use weights, but include for consistency with graph structure
+    weight = np.random.rand(n)
+    edges = pd.DataFrame(data={"tail": tail, "head": head, "weight": weight})
+    edges.drop_duplicates(subset=["tail", "head"], inplace=True)
+    edges = edges.loc[edges["tail"] != edges["head"]]
+    edges.reset_index(drop=True, inplace=True)
+
+    # SciPy BFS
+    vertex_count = edges[["tail", "head"]].max().max() + 1
+    # For BFS, we can use unit weights (or no weights)
+    data = np.ones(len(edges), dtype=np.float64)
+    row = edges["tail"].values.astype(np.int32)
+    col = edges["head"].values.astype(np.int32)
+    graph_coo = coo_array((data, (row, col)), shape=(vertex_count, vertex_count))
+    graph_csr = graph_coo.tocsr()
+
+    # Run scipy's breadth_first_order from vertex 0
+    node_array_ref, predecessors_ref = breadth_first_order(
+        csgraph=graph_csr, i_start=0, directed=True, return_predecessors=True
+    )
+
+    # In-house BFS
+    # Test with orientation="out" and permute=False
+    bfs = BFS(edges, orientation="out", check_edges=False, permute=False)
+    predecessors = bfs.run(vertex_idx=0)
+
+    # Compare predecessors for all reachable nodes
+    # scipy's node_array contains the reachable vertices
+    for node in node_array_ref:
+        assert (
+            predecessors[node] == predecessors_ref[node]
+        ), f"Predecessor mismatch at node {node}: {predecessors[node]} != {predecessors_ref[node]}"
+
+    # Check that unreachable nodes have sentinel value
+    unreachable_nodes = set(range(vertex_count)) - set(node_array_ref)
+    for node in unreachable_nodes:
+        assert (
+            predecessors[node] == bfs.UNREACHABLE
+        ), f"Unreachable node {node} should have sentinel value"
+
+    # Test with permute=True
+    bfs_permute = BFS(edges, orientation="out", check_edges=False, permute=True)
+    predecessors_permute = bfs_permute.run(vertex_idx=0)
+
+    # Compare results with permute=True
+    for node in node_array_ref:
+        assert (
+            predecessors_permute[node] == predecessors_ref[node]
+        ), f"Permute: Predecessor mismatch at node {node}"
 
 
 # ============================================================================ #
