@@ -260,4 +260,4 @@ Edsger is licensed under the MIT License. See the LICENSE file for more details.
 
 ## Contact
 
-For any questions or inquiries, please contact François Pacull at [francois.pacull@architecture-performance.fr](mailto:francois.pacull@architecture-performance.fr).
+For any questions or inquiries, please contact me at [francois.pacull@architecture-performance.fr](mailto:francois.pacull@architecture-performance.fr).
