@@ -1522,10 +1522,10 @@ class BFS:
         to start from 0 and be contiguous.
     verbose: bool, optional (default=False)
         Whether to print messages about parallel edge removal.
+    sentinel: int, optional (default=-9999)
+        Sentinel value for unreachable nodes and the start vertex in the predecessor array.
+        Must be a negative integer that fits in int32 range.
     """
-
-    # Sentinel value for unreachable nodes (matches bfs.pyx)
-    UNREACHABLE = -9999
 
     def __init__(
         self,
@@ -1536,7 +1536,22 @@ class BFS:
         check_edges: bool = False,
         permute: bool = False,
         verbose: bool = False,
+        sentinel: int = -9999,
     ) -> None:
+        # Validate sentinel value
+        if not isinstance(sentinel, int):
+            raise TypeError(
+                f"sentinel must be an integer, got {type(sentinel).__name__}"
+            )
+        if sentinel >= 0:
+            raise ValueError(f"sentinel must be negative, got {sentinel}")
+        if sentinel < np.iinfo(np.int32).min or sentinel > np.iinfo(np.int32).max:
+            raise ValueError(
+                f"sentinel must fit in int32 range [{np.iinfo(np.int32).min}, "
+                f"{np.iinfo(np.int32).max}], got {sentinel}"
+            )
+        self._sentinel = sentinel
+
         # load the edges
         if check_edges:
             self._check_edges(edges, tail, head)
@@ -1587,6 +1602,18 @@ class BFS:
             self.__indptr = rs_indptr.astype(np.uint32)
 
         self._path_links = None
+
+    @property
+    def UNREACHABLE(self) -> int:
+        """
+        Getter for the sentinel value used for unreachable nodes.
+
+        Returns
+        -------
+        sentinel : int
+            The sentinel value for unreachable nodes and the start vertex.
+        """
+        return self._sentinel
 
     @property
     def edges(self) -> Any:
@@ -1789,7 +1816,7 @@ class BFS:
             If `return_series=False`, a 1D Numpy array of shape (n_vertices,) with the
             predecessor of each vertex in the BFS tree (`orientation="out"`), or
             the successor of each vertex (`orientation="in"`).
-            Unreachable vertices and the start vertex have value -9999.
+            Unreachable vertices and the start vertex have the sentinel value (default: -9999).
             If `return_series=True`, a Pandas Series object with the same data and the
             vertex indices as index.
         """
@@ -1810,19 +1837,27 @@ class BFS:
         # compute BFS predecessors
         if self._orientation == "out":
             predecessors = bfs_csr(
-                self.__indptr, self.__indices, vertex_new, self._n_vertices
+                self.__indptr,
+                self.__indices,
+                vertex_new,
+                self._n_vertices,
+                self._sentinel,
             )
         else:
             predecessors = bfs_csc(
-                self.__indptr, self.__indices, vertex_new, self._n_vertices
+                self.__indptr,
+                self.__indices,
+                vertex_new,
+                self._n_vertices,
+                self._sentinel,
             )
 
         # store path links if tracking is enabled
         if path_tracking:
             # Convert predecessors to path_links format (uint32)
-            # Replace UNREACHABLE (-9999) with vertex's own index (like Dijkstra does)
+            # Replace sentinel value with vertex's own index (like Dijkstra does)
             self._path_links = np.arange(self._n_vertices, dtype=np.uint32)
-            reachable_mask = predecessors != self.UNREACHABLE
+            reachable_mask = predecessors != self._sentinel
             self._path_links[reachable_mask] = predecessors[reachable_mask].astype(
                 np.uint32
             )
@@ -1881,7 +1916,7 @@ class BFS:
                 )
 
                 # Map predecessor values back to original IDs
-                valid_mask = pred_df["predecessor"] != self.UNREACHABLE
+                valid_mask = pred_df["predecessor"] != self._sentinel
                 if valid_mask.any():
                     pred_df_valid = pred_df[valid_mask].copy()
                     pred_df_valid = pd.merge(
@@ -1920,7 +1955,7 @@ class BFS:
             )
 
             # Map predecessor values back to original IDs
-            valid_mask = pred_df["predecessor"] != self.UNREACHABLE
+            valid_mask = pred_df["predecessor"] != self._sentinel
             if valid_mask.any():
                 pred_df_valid = pred_df[valid_mask].copy()
                 pred_df_valid = pd.merge(
@@ -1936,7 +1971,7 @@ class BFS:
                 ].values.astype(np.int32)
 
             predecessors_array = np.full(
-                self.__n_vertices_init, self.UNREACHABLE, dtype=np.int32
+                self.__n_vertices_init, self._sentinel, dtype=np.int32
             )
             predecessors_array[pred_df.vert_idx_old.values] = (
                 pred_df.predecessor.values.astype(np.int32)

@@ -501,8 +501,17 @@ print("Predecessors:", predecessors)
 ### Understanding BFS Output
 
 Unlike Dijkstra and Bellman-Ford which return distances, BFS returns **predecessors**:
-- Value `-9999`: Unreachable vertex or start vertex
+- Value `-9999` (default sentinel): Unreachable vertex or start vertex
 - Other values: The predecessor vertex in the shortest path
+
+You can customize the sentinel value if needed:
+
+```python
+# Use a different sentinel value for unreachable nodes
+bfs = BFS(edges_bfs, sentinel=-1)
+predecessors = bfs.run(vertex_idx=0)
+# Unreachable nodes will now be marked with -1 instead of -9999
+```
 
 ### Path Tracking
 
