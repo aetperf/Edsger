@@ -251,6 +251,7 @@ The class for performing Breadth-First Search on directed graphs, finding shorte
 - `check_edges`: Whether to validate edge data (default: False)
 - `permute`: Whether to optimize node indexing (default: False)
 - `verbose`: Whether to print messages about parallel edge removal (default: False)
+- `sentinel`: Sentinel value for unreachable nodes (default: -9999). Must be a negative integer that fits in int32 range.
 
 **Note**: Weight column is not used by BFS. If present in the DataFrame, it will be ignored.
 
@@ -271,7 +272,7 @@ Runs BFS from/to the specified vertex.
 
 **Returns:**
 - Array or Series of predecessor indices
-  - `-9999` indicates unreachable vertex or start vertex
+  - The sentinel value (default `-9999`) indicates unreachable vertex or start vertex
   - Other values indicate the predecessor in the shortest path
 
 ##### get_path
@@ -319,6 +320,18 @@ bfs = BFS(edges)
 # Find shortest paths (by hop count) from vertex 0
 predecessors = bfs.run(vertex_idx=0)
 print(predecessors)  # [-9999     0     0     1     2]
+```
+
+##### Custom Sentinel Value
+
+```python
+# Create BFS with custom sentinel for unreachable nodes
+bfs = BFS(edges, sentinel=-1)
+predecessors = bfs.run(vertex_idx=0)
+
+# Check the sentinel value
+print(bfs.UNREACHABLE)  # -1
+# Unreachable nodes will have value -1 instead of -9999
 ```
 
 ##### With Path Tracking
