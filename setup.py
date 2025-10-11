@@ -32,11 +32,19 @@ def get_compiler_flags():
     # Check if we're building with coverage support
     if os.environ.get("CYTHON_TRACE", "0") == "1":
         print("Building with coverage support (CYTHON_TRACE=1)")
-        return ["-O0", "-g"], [], []  # Debug flags for accurate coverage
+        return ["-O0", "-g"], [], [], []  # Debug flags for accurate coverage
 
     system = platform.system()
 
+    # Check if Large Pages support is requested
+    use_large_pages = os.environ.get("USE_LARGE_PAGES", "0") == "1"
+
     if system == "Windows":
+        # Libraries needed for Windows-specific memory APIs
+        libraries = []
+        if use_large_pages:
+            libraries.append("advapi32")  # For privilege APIs
+
         if is_mingw():
             # MinGW/GCC on Windows - Aggressive optimizations matching Linux performance
             print("Building with MinGW/GCC optimizations on Windows (aggressive)")
@@ -62,6 +70,10 @@ def get_compiler_flags():
                 ("_USE_MATH_DEFINES", None),  # Enable math constants
                 ("NDEBUG", None),  # Disable debug assertions
             ]
+            if use_large_pages:
+                compile_args.append("-DUSE_LARGE_PAGES")
+                windows_macros.append(("USE_LARGE_PAGES", None))
+                print("  → Large Pages support: ENABLED")
         else:
             # MSVC on Windows - Aggressive optimizations for maximum performance
             print("Building with MSVC optimizations on Windows (aggressive)")
@@ -91,26 +103,41 @@ def get_compiler_flags():
                 ("_CRT_SECURE_NO_WARNINGS", None),  # Disable CRT warnings
                 ("NDEBUG", None),  # Disable debug assertions
             ]
-        return compile_args, link_args, windows_macros
+            if use_large_pages:
+                compile_args.append("/DUSE_LARGE_PAGES")
+                windows_macros.append(("USE_LARGE_PAGES", None))
+                print("  → Large Pages support: ENABLED")
+        return compile_args, link_args, windows_macros, libraries
     if system in ["Linux", "Darwin"]:
         # Linux or macOS with GCC/Clang
         compiler_name = "GCC/Clang" if system == "Linux" else "Clang"
         print(f"Building with {compiler_name} optimizations on {system}")
         compile_args = ["-Ofast", "-flto", "-march=native"]
         link_args = ["-flto"]
-        return compile_args, link_args, []
+        platform_macros = []
+        libraries = []
+
+        if use_large_pages and system == "Linux":
+            compile_args.append("-DUSE_LARGE_PAGES")
+            platform_macros.append(("USE_LARGE_PAGES", None))
+            print("  → Large Pages support (transparent huge pages): ENABLED")
+
+        return compile_args, link_args, platform_macros, libraries
     # Unknown platform, use conservative flags
     print(f"Building on unknown platform {system}, using conservative optimizations")
     compile_args = ["-O2"]
     link_args = []
-    return compile_args, link_args, []
+    return compile_args, link_args, [], []
 
 
 # Get platform-specific compiler flags
-extra_compile_args, extra_link_args, platform_macros = get_compiler_flags()
+extra_compile_args, extra_link_args, platform_macros, libraries = get_compiler_flags()
 
 # Combine numpy macros with platform-specific macros
 define_macros = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")] + platform_macros
+
+# Include directories for header files
+include_dirs = [np.get_include(), "src/edsger/"]
 
 extensions = [
     Extension(
@@ -119,6 +146,8 @@ extensions = [
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
         define_macros=define_macros,
+        include_dirs=include_dirs,
+        libraries=libraries,
     ),
     Extension(
         "edsger.pq_4ary_dec_0b",
@@ -126,6 +155,8 @@ extensions = [
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
         define_macros=define_macros,
+        include_dirs=include_dirs,
+        libraries=libraries,
     ),
     Extension(
         "edsger.dijkstra",
@@ -133,6 +164,8 @@ extensions = [
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
         define_macros=define_macros,
+        include_dirs=include_dirs,
+        libraries=libraries,
     ),
     Extension(
         "edsger.spiess_florian",
@@ -140,6 +173,8 @@ extensions = [
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
         define_macros=define_macros,
+        include_dirs=include_dirs,
+        libraries=libraries,
     ),
     Extension(
         "edsger.star",
@@ -147,6 +182,8 @@ extensions = [
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
         define_macros=define_macros,
+        include_dirs=include_dirs,
+        libraries=libraries,
     ),
     Extension(
         "edsger.path_tracking",
@@ -154,6 +191,8 @@ extensions = [
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
         define_macros=define_macros,
+        include_dirs=include_dirs,
+        libraries=libraries,
     ),
     Extension(
         "edsger.bellman_ford",
@@ -161,6 +200,8 @@ extensions = [
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
         define_macros=define_macros,
+        include_dirs=include_dirs,
+        libraries=libraries,
     ),
     Extension(
         "edsger.bfs",
@@ -168,6 +209,8 @@ extensions = [
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
         define_macros=define_macros,
+        include_dirs=include_dirs,
+        libraries=libraries,
     ),
 ]
 
@@ -187,7 +230,6 @@ def setup_package():
             include_path=["src/edsger/"],
         ),
         install_requires=install_requires,
-        include_dirs=[np.get_include()],
     )
 
 

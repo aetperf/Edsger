@@ -43,12 +43,19 @@ cdef functions:
 # cython: initializedcheck=False
 
 cimport numpy as cnp
-from libc.stdlib cimport free, malloc
 
 from edsger.commons import DTYPE_PY
 from edsger.commons cimport (
     DTYPE_INF, LABELED, UNLABELED, SCANNED, DTYPE_t
 )
+
+# Import MemoryStats struct from pxd file
+from edsger.pq_4ary_dec_0b cimport MemoryStats
+
+# Platform-specific memory allocation functions
+cdef extern from "memory_alloc.h":
+    void* platform_malloc(size_t size, MemoryStats* stats) nogil
+    void platform_free(void* ptr, MemoryStats* stats) nogil
 
 
 cdef void init_pqueue(
@@ -72,8 +79,14 @@ cdef void init_pqueue(
 
     pqueue.length = heap_length
     pqueue.size = 0
-    pqueue.A = <size_t*> malloc(heap_length * sizeof(size_t))
-    pqueue.Elements = <Element*> malloc(element_count * sizeof(Element))
+
+    # Use platform-specific memory allocation for better performance
+    pqueue.A = <size_t*> platform_malloc(
+        heap_length * sizeof(size_t), &pqueue.stats_A
+    )
+    pqueue.Elements = <Element*> platform_malloc(
+        element_count * sizeof(Element), &pqueue.stats_Elements
+    )
 
     for i in range(heap_length):
         pqueue.A[i] = heap_length
@@ -107,8 +120,8 @@ cdef void free_pqueue(
     =====
     * PriorityQueue* pqueue : priority queue
     """
-    free(pqueue.A)
-    free(pqueue.Elements)
+    platform_free(pqueue.A, &pqueue.stats_A)
+    platform_free(pqueue.Elements, &pqueue.stats_Elements)
 
 
 cdef void insert(
