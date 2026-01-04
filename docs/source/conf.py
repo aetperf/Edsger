@@ -29,8 +29,8 @@ try:
     version = __version__
 except ImportError:
     # Fallback if import fails
-    release = "0.0.15"
-    version = "0.0.15"
+    release = "0.1.7"
+    version = "0.1.7"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
