@@ -250,6 +250,8 @@ Edsger is designed to be **dataframe-friendly**, providing seamless integration 
 
 <img src="https://raw.githubusercontent.com/aetperf/edsger/release/docs/source/assets/dijkstra_benchmark_comparison.png" alt="Dijkstra Performance Comparison" width="700">
 
+Note that benchmarks are run on slightly different Intel processors between Linux and Windows.
+
 ## Contributing
 
 We welcome contributions to the Edsger library. If you have any suggestions, bug reports, or feature requests, please open an issue on our [GitHub repository](https://github.com/aetperf/Edsger).
