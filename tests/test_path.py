@@ -40,6 +40,12 @@ def braess():
     return edges
 
 
+@pytest.fixture
+def spiess_florian_network():
+    edges = create_sf_network()
+    return edges
+
+
 def test_check_edges_01():
     """Negative weights."""
 
@@ -493,6 +499,21 @@ def test_SF_dwell_and_transfer_01():
 
     u_i_vec_ref = [305.0, 302.5, 0.0]
     assert np.allclose(u_i_vec_ref, hp.u_i_vec, rtol=1e-08, atol=1e-08)  # type: ignore
+
+
+def test_SF_network_run_01(spiess_florian_network):
+
+    edges = spiess_florian_network
+
+    hp = HyperpathGenerating(edges)
+    hp.run(origin=0, destination=12, volume=1.0)
+
+    print(edges["volume_ref"].values)
+    print(hp._edges["volume"].values)
+
+    np.testing.assert_allclose(
+        edges["volume_ref"].values, hp._edges["volume"].values, rtol=1e-05, atol=1e-08
+    )
 
 
 def test_dijkstra_early_termination_sssp(braess):
