@@ -237,6 +237,7 @@ elif lib == "GT":
     logger.info("graph-tool init")
 
     import graph_tool as gt
+    from graph_tool import topology as gt_topology
 
     # create the graph
     g = gt.Graph(directed=True)
@@ -261,7 +262,7 @@ elif lib == "GT":
 
         start = perf_counter()
 
-        dist = gt.shortest_distance(
+        dist = gt_topology.shortest_distance(
             g,
             source=g.vertex(idx_from),
             weights=g.ep.t,
