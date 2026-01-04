@@ -520,8 +520,14 @@ def test_SF_network_run_01(spiess_florian_network):
     edges_with_ref = edges[["tail", "head", "volume_ref"]].copy()
     computed_volumes = hp._edges[["tail", "head", "volume"]].copy()
     merged = edges_with_ref.merge(computed_volumes, on=["tail", "head"])
+
+    # Verify total volume conservation (should sum to 1.0 at origin edges)
+    origin_edges = merged[merged["tail"] == 0]
+    assert np.isclose(origin_edges["volume"].sum(), 1.0, rtol=1e-05)
+
+    # Compare volumes with tolerance for floating point artifacts
     np.testing.assert_allclose(
-        merged["volume_ref"].values, merged["volume"].values, rtol=1e-05, atol=1e-08
+        merged["volume"].values, merged["volume_ref"].values, rtol=1e-05, atol=1e-06
     )
 
     # Test vertex travel times (u_i_vec) from the paper

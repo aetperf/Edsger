@@ -107,9 +107,10 @@ cpdef void compute_SF_in(
         )
 
         # sort the links with descreasing order of u_j + c_a
+        # Use stable sort to ensure consistent ordering across Python/NumPy versions
         h_a_count = h_a_vec.sum()
         masked_a = np.ma.array(-u_j_c_a_vec, mask=~h_a_vec)
-        edge_indices = np.argsort(masked_a).astype(np.uint32)
+        edge_indices = np.argsort(masked_a, kind='stable').astype(np.uint32)
 
         _SF_in_second_pass(
             edge_indices,
