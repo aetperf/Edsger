@@ -261,7 +261,7 @@ elif lib == "GT":
 
         start = perf_counter()
 
-        dist = gt.topology.shortest_distance(
+        dist = gt.shortest_distance(
             g,
             source=g.vertex(idx_from),
             weights=g.ep.t,
