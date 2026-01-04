@@ -515,9 +515,13 @@ def test_SF_network_run_01(spiess_florian_network):
     hp = HyperpathGenerating(edges)
     hp.run(origin=0, destination=12, volume=1.0)
 
-    # Test edge volumes
+    # Test edge volumes - merge by (tail, head) to ensure correct alignment
+    # since HyperpathGenerating may reorder edges internally
+    edges_with_ref = edges[["tail", "head", "volume_ref"]].copy()
+    computed_volumes = hp._edges[["tail", "head", "volume"]].copy()
+    merged = edges_with_ref.merge(computed_volumes, on=["tail", "head"])
     np.testing.assert_allclose(
-        edges["volume_ref"].values, hp._edges["volume"].values, rtol=1e-05, atol=1e-08
+        merged["volume_ref"].values, merged["volume"].values, rtol=1e-05, atol=1e-08
     )
 
     # Test vertex travel times (u_i_vec) from the paper
