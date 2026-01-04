@@ -12,7 +12,6 @@ def convert_graph_to_csr_uint32(
     data: str,
     vertex_count: int,
 ) -> Tuple[npt.NDArray[np.uint32], npt.NDArray[np.uint32], npt.NDArray[np.uint32]]: ...
-
 def convert_graph_to_csc_uint32(
     edges: pd.DataFrame,
     tail: str,
@@ -20,7 +19,6 @@ def convert_graph_to_csc_uint32(
     data: str,
     vertex_count: int,
 ) -> Tuple[npt.NDArray[np.uint32], npt.NDArray[np.uint32], npt.NDArray[np.uint32]]: ...
-
 def convert_graph_to_csr_float64(
     edges: pd.DataFrame,
     tail: str,
@@ -28,7 +26,6 @@ def convert_graph_to_csr_float64(
     data: str,
     vertex_count: int,
 ) -> Tuple[npt.NDArray[np.uint32], npt.NDArray[np.uint32], npt.NDArray[np.float64]]: ...
-
 def convert_graph_to_csc_float64(
     edges: pd.DataFrame,
     tail: str,

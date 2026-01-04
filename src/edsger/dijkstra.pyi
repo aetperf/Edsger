@@ -11,7 +11,6 @@ def compute_sssp(
     vertex_count: int,
     heap_length: int,
 ) -> npt.NDArray[np.float64]: ...
-
 def compute_sssp_w_path(
     csr_indptr: npt.NDArray[np.uint32],
     csr_indices: npt.NDArray[np.uint32],
@@ -21,7 +20,6 @@ def compute_sssp_w_path(
     vertex_count: int,
     heap_length: int,
 ) -> npt.NDArray[np.float64]: ...
-
 def compute_sssp_early_termination(
     csr_indptr: npt.NDArray[np.uint32],
     csr_indices: npt.NDArray[np.uint32],
@@ -31,7 +29,6 @@ def compute_sssp_early_termination(
     vertex_count: int,
     heap_length: int,
 ) -> npt.NDArray[np.float64]: ...
-
 def compute_sssp_w_path_early_termination(
     csr_indptr: npt.NDArray[np.uint32],
     csr_indices: npt.NDArray[np.uint32],
@@ -42,7 +39,6 @@ def compute_sssp_w_path_early_termination(
     vertex_count: int,
     heap_length: int,
 ) -> npt.NDArray[np.float64]: ...
-
 def compute_stsp(
     csc_indptr: npt.NDArray[np.uint32],
     csc_indices: npt.NDArray[np.uint32],
@@ -51,7 +47,6 @@ def compute_stsp(
     vertex_count: int,
     heap_length: int,
 ) -> npt.NDArray[np.float64]: ...
-
 def compute_stsp_w_path(
     csc_indptr: npt.NDArray[np.uint32],
     csc_indices: npt.NDArray[np.uint32],
@@ -61,7 +56,6 @@ def compute_stsp_w_path(
     vertex_count: int,
     heap_length: int,
 ) -> npt.NDArray[np.float64]: ...
-
 def compute_stsp_early_termination(
     csc_indptr: npt.NDArray[np.uint32],
     csc_indices: npt.NDArray[np.uint32],
@@ -71,7 +65,6 @@ def compute_stsp_early_termination(
     vertex_count: int,
     heap_length: int,
 ) -> npt.NDArray[np.float64]: ...
-
 def compute_stsp_w_path_early_termination(
     csc_indptr: npt.NDArray[np.uint32],
     csc_indices: npt.NDArray[np.uint32],
@@ -82,7 +75,6 @@ def compute_stsp_w_path_early_termination(
     vertex_count: int,
     heap_length: int,
 ) -> npt.NDArray[np.float64]: ...
-
 def compute_sssp_01() -> None: ...
 def compute_stsp_01() -> None: ...
 def compute_sssp_02() -> None: ...

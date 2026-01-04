@@ -678,7 +678,8 @@ class Dijkstra:
             )
             return None
         if isinstance(self._path_links, pd.Series):
-            path_vertices = compute_path(self._path_links.values, vertex_idx)
+            path_links_arr = np.asarray(self._path_links.values, dtype=np.uint32)
+            path_vertices = compute_path(path_links_arr, vertex_idx)
         else:
             path_vertices = compute_path(self._path_links, vertex_idx)
         return path_vertices
@@ -1213,7 +1214,8 @@ class BellmanFord:
             )
             return None
         if isinstance(self._path_links, pd.Series):
-            path_vertices = compute_path(self._path_links.values, vertex_idx)
+            path_links_arr = np.asarray(self._path_links.values, dtype=np.uint32)
+            path_vertices = compute_path(path_links_arr, vertex_idx)
         else:
             path_vertices = compute_path(self._path_links, vertex_idx)
         return path_vertices
@@ -1538,8 +1540,10 @@ class BFS:
         verbose: bool = False,
         sentinel: int = -9999,
     ) -> None:
-        # Validate sentinel value
-        if not isinstance(sentinel, int):
+        # Validate sentinel value (runtime check for callers without type checking)
+        if not isinstance(
+            sentinel, int
+        ):  # pyright: ignore[reportUnnecessaryIsInstance]
             raise TypeError(
                 f"sentinel must be an integer, got {type(sentinel).__name__}"
             )
@@ -2028,7 +2032,8 @@ class BFS:
             )
             return None
         if isinstance(self._path_links, pd.Series):
-            path_vertices = compute_path(self._path_links.values, vertex_idx)
+            path_links_arr = np.asarray(self._path_links.values, dtype=np.uint32)
+            path_vertices = compute_path(path_links_arr, vertex_idx)
         else:
             path_vertices = compute_path(self._path_links, vertex_idx)
         return path_vertices

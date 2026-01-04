@@ -2,7 +2,6 @@
 
 from typing import Type
 import numpy as np
-import numpy.typing as npt
 
 DTYPE_PY: Type[np.float64]
 DTYPE_INF_PY: float
