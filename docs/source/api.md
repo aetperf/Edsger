@@ -390,6 +390,154 @@ print(predecessors)
 - **Time Complexity**: O(V + E) - linear in vertices and edges
 - **Space Complexity**: O(V) - queue and predecessor arrays
 
+### HyperpathGenerating Class
+
+The class for computing hyperpath-based routing using the Spiess-Florian algorithm, designed for transit network assignment and optimal strategy computation.
+
+**Reference**: Spiess, H. and Florian, M. (1989). *Optimal strategies: A new assignment model for transit networks*. Transportation Research Part B 23(2), 83-102.
+
+#### Overview
+
+The Spiess-Florian algorithm computes optimal travel strategies in transit networks where passengers can choose between multiple routes with different frequencies and travel times. Unlike traditional shortest path algorithms, it models the probabilistic nature of transit where passengers may take the first arriving vehicle among a set of attractive lines.
+
+The algorithm outputs:
+- **Edge volumes**: How passenger demand is distributed across transit lines
+- **Travel times (u_i_vec)**: Expected travel time from each vertex to the destination, including waiting time
+
+#### Constructor Parameters
+
+- `edges`: pandas.DataFrame containing transit network edges
+- `tail`: Column name for edge source nodes (default: 'tail')
+- `head`: Column name for edge destination nodes (default: 'head')
+- `trav_time`: Column name for travel times (default: 'trav_time')
+- `freq`: Column name for service frequencies (default: 'freq')
+- `check_edges`: Whether to validate edge data (default: False)
+- `orientation`: Currently only 'in' is supported (default: 'in')
+
+#### Attributes
+
+- `edge_count`: Number of edges in the graph
+- `vertex_count`: Number of vertices in the graph
+- `u_i_vec`: Array of expected travel times from each vertex to the destination (available after `run()`)
+- `_edges`: DataFrame containing edges with computed 'volume' column (available after `run()`)
+
+#### Methods
+
+##### run
+
+```python
+def run(self, origin, destination, volume, return_inf=False)
+```
+
+Computes the hyperpath and distributes demand volume across edges.
+
+**Parameters:**
+- `origin`: Origin vertex index (int) or list of origin indices
+- `destination`: Destination vertex index (int)
+- `volume`: Demand volume (float) or list of volumes corresponding to each origin
+- `return_inf`: Whether to keep infinity for unreachable vertices (default: False)
+
+**Returns:**
+- None (results are stored in instance attributes `u_i_vec` and `_edges['volume']`)
+
+#### Examples
+
+##### Basic Transit Network
+
+```python
+from edsger.path import HyperpathGenerating
+import pandas as pd
+
+# Create a simple transit network
+# Two parallel lines from stop 0 to stop 2 via different intermediate stops
+edges = pd.DataFrame({
+    'tail': [0, 0, 1, 3],
+    'head': [1, 3, 2, 2],
+    'trav_time': [5.0, 4.0, 3.0, 4.0],  # Travel times in minutes
+    'freq': [0.1, 0.15, 0.2, 0.2]  # Frequencies (vehicles per minute)
+})
+
+# Initialize the algorithm
+hp = HyperpathGenerating(edges)
+
+# Compute hyperpath from origin 0 to destination 2 with 100 passengers
+hp.run(origin=0, destination=2, volume=100.0)
+
+# Access expected travel times to destination
+print("Travel times to destination:", hp.u_i_vec)
+
+# Access edge volumes (how passengers are distributed)
+print(hp._edges[['tail', 'head', 'volume']])
+```
+
+##### Multiple Origins
+
+```python
+# Compute hyperpath from multiple origins to a single destination
+hp = HyperpathGenerating(edges)
+hp.run(
+    origin=[0, 1],           # Two origins
+    destination=2,           # Single destination
+    volume=[80.0, 20.0]      # Different demand volumes
+)
+
+# Total edge volumes reflect combined demand from all origins
+print("Edge volumes:", hp._edges['volume'].values)
+```
+
+##### Custom Column Names
+
+```python
+# Transit data with custom column names
+transit_edges = pd.DataFrame({
+    'from_stop': [0, 0, 1, 2],
+    'to_stop': [1, 2, 2, 3],
+    'travel_time': [2.0, 5.0, 1.5, 3.0],
+    'frequency': [0.1, 0.05, 0.2, 0.15]
+})
+
+hp = HyperpathGenerating(
+    transit_edges,
+    tail='from_stop',
+    head='to_stop',
+    trav_time='travel_time',
+    freq='frequency'
+)
+hp.run(origin=0, destination=3, volume=1.0)
+```
+
+##### With Edge Validation
+
+```python
+# Enable input validation
+hp = HyperpathGenerating(edges, check_edges=True)
+
+# This will raise an error if:
+# - Required columns are missing
+# - Data types are incorrect
+# - Travel times or frequencies are negative
+# - Missing values exist
+```
+
+#### Understanding the Output
+
+After calling `run()`, two key outputs are available:
+
+1. **`u_i_vec`**: Expected travel time from each vertex to the destination
+   - Includes both in-vehicle travel time and expected waiting time
+   - Infinite values indicate unreachable vertices
+
+2. **`_edges['volume']`**: Passenger volumes on each edge
+   - Shows how total demand is distributed across the transit network
+   - Higher volumes indicate more heavily used transit lines
+
+#### Use Cases
+
+- **Transit assignment**: Distribute passenger demand across a transit network
+- **Line planning**: Identify heavily used routes that may need more capacity
+- **Service evaluation**: Assess expected travel times for different origin-destination pairs
+- **Network design**: Evaluate the impact of adding or removing transit lines
+
 ## Parallel Edges Handling
 
 The `Dijkstra`, `BellmanFord`, and `BFS` classes automatically handle parallel edges (multiple directed edges between the same pair of vertices) during initialization. When parallel edges are detected:
