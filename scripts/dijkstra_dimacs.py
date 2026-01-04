@@ -71,7 +71,7 @@ parser.add_argument(
     "-l",
     "--library",
     dest="library_name",
-    help='library name, must be "E" (Edsger), "GT" (graph-tool), "NK" (NetworKit)',
+    help='library name, must be "E" (Edsger), "GT" (graph-tool), "NK" (NetworKit), "S" (SciPy)',
     metavar="TXT",
     type=str,
     required=False,
@@ -126,7 +126,7 @@ lib = args.library_name.upper()
 heap_length_ratio = args.heap_length_ratio
 
 # lib name check
-assert lib in ["E", "GT", "NK"]
+assert lib in ["E", "GT", "NK", "S"]
 
 data_dir_found = os.path.exists(data_dir)
 if data_dir_found:
@@ -237,7 +237,6 @@ elif lib == "GT":
     logger.info("graph-tool init")
 
     import graph_tool as gt
-    from graph_tool import topology
 
     # create the graph
     g = gt.Graph(directed=True)
@@ -344,8 +343,52 @@ elif lib == "NK":
     df = pd.DataFrame.from_records(results)
     logger.info(f"NetworKit min elapsed time : {df.elapsed_time.min():8.4f} s")
 
+elif lib == "S":
+    # SciPy
+    # -----
 
-if check_result:
+    logger.info("SciPy init")
+    data = edges["weight"].values
+    row = edges["tail"].values.astype(np.int32)
+    col = edges["head"].values.astype(np.int32)
+    graph_coo = coo_array((data, (row, col)), shape=(vertex_count, vertex_count))
+    graph_csr = graph_coo.tocsr()
+
+    # SSSP
+
+    results = []
+    logger.info("SciPy run")
+    for i in range(repeat):
+        d = {}
+
+        start = perf_counter()
+
+        dist_matrix = dijkstra(
+            csgraph=graph_csr,
+            directed=True,
+            indices=idx_from,
+            return_predecessors=False,
+        )
+
+        end = perf_counter()
+        elapsed_time = end - start
+        logger.info(
+            f"SciPy Dijkstra {i+1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
+        )
+
+        d = {
+            "library": "SciPy",
+            "network": reg,
+            "trial": i,
+            "elapsed_time": elapsed_time,
+        }
+        results.append(d)
+
+    df = pd.DataFrame.from_records(results)
+    logger.info(f"SciPy min elapsed time : {df.elapsed_time.min():8.4f} s")
+
+
+if check_result and lib != "S":
     logger.info("result check")
 
     # SciPy
