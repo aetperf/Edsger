@@ -77,6 +77,7 @@ def get_compiler_flags():
                 "/favor:INTEL64",  # Optimize for Intel 64-bit processors
                 "/GS-",  # Disable security checks for performance
                 "/Gw",  # Optimize global data
+                "/Qspectre-",  # Disable Spectre mitigations for performance
             ]
             link_args = [
                 "/LTCG",  # Link-time code generation

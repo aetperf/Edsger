@@ -50,6 +50,13 @@ from edsger.commons cimport (
     DTYPE_INF, LABELED, UNLABELED, SCANNED, DTYPE_t
 )
 
+# Memory prefetching support
+cdef extern from "prefetch_compat.h":
+    void prefetch_t0(void*) nogil
+    void prefetch_t1(void*) nogil
+    int PREFETCH_T0
+    int PREFETCH_T1
+
 
 cdef void init_pqueue(
         PriorityQueue* pqueue,
@@ -305,6 +312,7 @@ cdef void _min_heapify(
     """
     cdef:
         size_t c1, c2, c3, c4, i = node_idx, s
+        size_t gc1  # grandchild index for prefetching
         DTYPE_t val_tmp, val_min
 
     while True:
@@ -313,6 +321,16 @@ cdef void _min_heapify(
         c2 = c1 + 1
         c3 = c2 + 1
         c4 = c3 + 1
+
+        # Prefetch grandchildren for next iteration (2 levels down)
+        # gc1 is the first grandchild of c1
+        gc1 = 4 * c1 + 1
+        if gc1 < pqueue.size:
+            # Prefetch heap array entries for grandchildren
+            prefetch_t1(<void*>&pqueue.A[gc1])
+            # Prefetch element data for first grandchild
+            if pqueue.A[gc1] < pqueue.length:
+                prefetch_t1(<void*>&pqueue.Elements[pqueue.A[gc1]])
 
         s = i
         val_min = pqueue.Elements[pqueue.A[s]].key
@@ -386,12 +404,20 @@ cdef void _decrease_key_from_node_index(
     * key_new < pqueue.Elements[pqueue.A[node_idx]].key
     """
     cdef:
-        size_t i = node_idx, j
+        size_t i = node_idx, j, gp
         DTYPE_t key_j
 
     pqueue.Elements[pqueue.A[i]].key = key_new
     while i > 0:
         j = (i - 1) // 4
+
+        # Prefetch grandparent for next iteration (2 levels up)
+        if j > 0:
+            gp = (j - 1) // 4
+            prefetch_t1(<void*>&pqueue.A[gp])
+            if pqueue.A[gp] < pqueue.length:
+                prefetch_t1(<void*>&pqueue.Elements[pqueue.A[gp]])
+
         key_j = pqueue.Elements[pqueue.A[j]].key
         if key_j > key_new:
             _exchange_nodes(pqueue, i, j)
