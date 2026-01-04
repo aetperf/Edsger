@@ -274,7 +274,6 @@ def create_single_os_plot(results, os_name, output_file=None):
     # Prepare data
     libraries = [r["library"] for r in benchmark_results]
     min_times = [r["min_time"] for r in benchmark_results]
-    avg_times = [r["avg_time"] for r in benchmark_results]
     std_times = [r["std_time"] for r in benchmark_results]
 
     # Create figure
