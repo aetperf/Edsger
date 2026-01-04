@@ -502,18 +502,49 @@ def test_SF_dwell_and_transfer_01():
 
 
 def test_SF_network_run_01(spiess_florian_network):
+    """
+    Test from Spiess, H. and Florian, M. (1989).
+    Optimal strategies: A new assignment model for transit networks.
+    Transportation Research Part B 23(2), 83-102.
 
+    This test validates both edge volumes and vertex travel times (u_i_vec)
+    against the reference values from the paper.
+    """
     edges = spiess_florian_network
 
     hp = HyperpathGenerating(edges)
     hp.run(origin=0, destination=12, volume=1.0)
 
-    print(edges["volume_ref"].values)
-    print(hp._edges["volume"].values)
-
+    # Test edge volumes
     np.testing.assert_allclose(
         edges["volume_ref"].values, hp._edges["volume"].values, rtol=1e-05, atol=1e-08
     )
+
+    # Test vertex travel times (u_i_vec) from the paper
+    # These are the expected travel times from each vertex to the destination (vertex 12)
+    u_i_vec_ref = np.array(
+        [
+            1.66500000e03,  # vertex 0 (stop A)
+            1.47000000e03,  # vertex 1
+            1.50000000e03,  # vertex 2
+            1.14428572e03,  # vertex 3 (stop X)
+            4.80000000e02,  # vertex 4
+            1.05000000e03,  # vertex 5
+            1.05000000e03,  # vertex 6
+            6.90000000e02,  # vertex 7 (stop Y)
+            6.00000000e02,  # vertex 8
+            2.40000000e02,  # vertex 9
+            2.40000000e02,  # vertex 10
+            6.90000000e02,  # vertex 11
+            0.00000000e00,  # vertex 12 (stop B - destination)
+            0.00000000e00,  # vertex 13
+            0.00000000e00,  # vertex 14
+            0.00000000e00,  # vertex 15
+        ]
+    )
+
+    # Use atol=1e-06 to account for small dwell_time effects at destination vertices
+    np.testing.assert_allclose(u_i_vec_ref, hp.u_i_vec, rtol=1e-05, atol=1e-06)
 
 
 def test_dijkstra_early_termination_sssp(braess):
