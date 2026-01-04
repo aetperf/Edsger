@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="API Reference" href="api.html"><link rel="prev" title="Installation Guide" href="installation.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>Quick Start Guide - Edsger 0.1.6 documentation</title>
+    <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
+        <title>Quick Start Guide - Edsger 0.1.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -163,7 +163,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Edsger 0.1.6 documentation</div></a>
+      <a href="index.html"><div class="brand">Edsger 0.1.7 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -184,7 +184,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">Edsger 0.1.6 documentation</span>
+  <span class="sidebar-brand-text">Edsger 0.1.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -892,6 +892,107 @@ Path to vertex 5: [5 3 2 1 0]
 </ul>
 </section>
 </section>
+<section id="spiess-florian-hyperpath-algorithm">
+<h2>Spiess-Florian Hyperpath Algorithm<a class="headerlink" href="#spiess-florian-hyperpath-algorithm" title="Link to this heading">¶</a></h2>
+<p>The Spiess-Florian algorithm (also known as HyperpathGenerating) is designed for transit network assignment. Unlike traditional shortest path algorithms, it models how passengers distribute across multiple transit lines based on service frequencies and travel times.</p>
+<section id="transit-network-data-format">
+<h3>Transit Network Data Format<a class="headerlink" href="#transit-network-data-format" title="Link to this heading">¶</a></h3>
+<p>For hyperpath computation, edges require <strong>travel time</strong> and <strong>frequency</strong> columns instead of a single weight:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>tail</p></td>
+<td><p>int</p></td>
+<td><p>Source stop/vertex ID</p></td>
+</tr>
+<tr class="row-odd"><td><p>head</p></td>
+<td><p>int</p></td>
+<td><p>Destination stop/vertex ID</p></td>
+</tr>
+<tr class="row-even"><td><p>trav_time</p></td>
+<td><p>float</p></td>
+<td><p>Travel time on this edge (e.g., minutes)</p></td>
+</tr>
+<tr class="row-odd"><td><p>freq</p></td>
+<td><p>float</p></td>
+<td><p>Service frequency (e.g., vehicles per minute)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id5">
+<h3>Basic Usage<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">HyperpathGenerating</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># Create a transit network</span>
+<span class="c1"># Multiple lines connecting stops with different frequencies</span>
+<span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+    <span class="s1">&#39;trav_time&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>  <span class="c1"># Travel times</span>
+    <span class="s1">&#39;freq&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]</span>      <span class="c1"># Frequencies</span>
+<span class="p">})</span>
+
+<span class="c1"># Initialize the algorithm</span>
+<span class="n">hp</span> <span class="o">=</span> <span class="n">HyperpathGenerating</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+
+<span class="c1"># Run from origin 0 to destination 4 with 100 passengers</span>
+<span class="n">hp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">100.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="understanding-the-results">
+<h3>Understanding the Results<a class="headerlink" href="#understanding-the-results" title="Link to this heading">¶</a></h3>
+<p>After running the algorithm, you can access:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Expected travel times from each vertex to destination</span>
+<span class="c1"># Includes waiting time based on line frequencies</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Travel times to destination:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">hp</span><span class="o">.</span><span class="n">u_i_vec</span><span class="p">)</span>
+
+<span class="c1"># Edge volumes showing passenger distribution</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Passenger volumes on each edge:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">hp</span><span class="o">.</span><span class="n">_edges</span><span class="p">[[</span><span class="s1">&#39;tail&#39;</span><span class="p">,</span> <span class="s1">&#39;head&#39;</span><span class="p">,</span> <span class="s1">&#39;trav_time&#39;</span><span class="p">,</span> <span class="s1">&#39;freq&#39;</span><span class="p">,</span> <span class="s1">&#39;volume&#39;</span><span class="p">]])</span>
+</pre></div>
+</div>
+<p>The <strong>volume</strong> column shows how passengers are distributed across the network. Higher frequencies attract more passengers, as they reduce expected waiting time.</p>
+</section>
+<section id="multiple-origins">
+<h3>Multiple Origins<a class="headerlink" href="#multiple-origins" title="Link to this heading">¶</a></h3>
+<p>You can compute demand from multiple origins simultaneously:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">hp</span> <span class="o">=</span> <span class="n">HyperpathGenerating</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+<span class="n">hp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="n">origin</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>        <span class="c1"># Multiple origins</span>
+    <span class="n">destination</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>            <span class="c1"># Single destination</span>
+    <span class="n">volume</span><span class="o">=</span><span class="p">[</span><span class="mf">50.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">]</span> <span class="c1"># Demand from each origin</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="when-to-use-spiess-florian">
+<h3>When to Use Spiess-Florian<a class="headerlink" href="#when-to-use-spiess-florian" title="Link to this heading">¶</a></h3>
+<p><strong>Use HyperpathGenerating when:</strong></p>
+<ul class="simple">
+<li><p>Modeling public transit networks with multiple competing lines</p></li>
+<li><p>Computing transit assignment (distributing passenger demand)</p></li>
+<li><p>Evaluating expected travel times including waiting</p></li>
+<li><p>Analyzing line utilization and capacity requirements</p></li>
+</ul>
+<p><strong>Use Dijkstra/Bellman-Ford when:</strong></p>
+<ul class="simple">
+<li><p>Finding deterministic shortest paths</p></li>
+<li><p>Working with networks where “frequency” doesn’t apply (roads, etc.)</p></li>
+<li><p>You only need path distances, not demand distribution</p></li>
+</ul>
+</section>
+</section>
 <section id="dataframe-backend-selection">
 <h2>DataFrame Backend Selection<a class="headerlink" href="#dataframe-backend-selection" title="Link to this heading">¶</a></h2>
 <p>Edsger automatically detects and optimizes for your DataFrame backend. Here’s when to use each:</p>
@@ -907,8 +1008,8 @@ Path to vertex 5: [5 3 2 1 0]
 </pre></div>
 </div>
 </section>
-<section id="id5">
-<h3>pandas with Arrow backend<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<section id="id6">
+<h3>pandas with Arrow backend<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><strong>Best for</strong>: Large graphs, memory-constrained environments</p></li>
 <li><p><strong>Memory</strong>: Columnar format, often more efficient</p></li>
@@ -924,8 +1025,8 @@ Path to vertex 5: [5 3 2 1 0]
 </pre></div>
 </div>
 </section>
-<section id="id6">
-<h3>Polars DataFrame<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<section id="id7">
+<h3>Polars DataFrame<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><strong>Best for</strong>: High-performance workflows, large-scale data processing</p></li>
 <li><p><strong>Memory</strong>: Efficient columnar storage</p></li>
@@ -1046,10 +1147,18 @@ Path to vertex 5: [5 3 2 1 0]
 <li><a class="reference internal" href="#when-to-use-bfs">When to Use BFS</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#spiess-florian-hyperpath-algorithm">Spiess-Florian Hyperpath Algorithm</a><ul>
+<li><a class="reference internal" href="#transit-network-data-format">Transit Network Data Format</a></li>
+<li><a class="reference internal" href="#id5">Basic Usage</a></li>
+<li><a class="reference internal" href="#understanding-the-results">Understanding the Results</a></li>
+<li><a class="reference internal" href="#multiple-origins">Multiple Origins</a></li>
+<li><a class="reference internal" href="#when-to-use-spiess-florian">When to Use Spiess-Florian</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#dataframe-backend-selection">DataFrame Backend Selection</a><ul>
 <li><a class="reference internal" href="#pandas-with-numpy-backend">pandas with NumPy backend</a></li>
-<li><a class="reference internal" href="#id5">pandas with Arrow backend</a></li>
-<li><a class="reference internal" href="#id6">Polars DataFrame</a></li>
+<li><a class="reference internal" href="#id6">pandas with Arrow backend</a></li>
+<li><a class="reference internal" href="#id7">Polars DataFrame</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#next-steps">Next Steps</a></li>
@@ -1064,7 +1173,7 @@ Path to vertex 5: [5 3 2 1 0]
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=6e0256f3"></script>
+</div><script src="_static/documentation_options.js?v=ca7ad2ea"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

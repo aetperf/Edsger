@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Contributing to Edsger" href="contributing.html"><link rel="prev" title="Quick Start Guide" href="quickstart.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>API Reference - Edsger 0.1.6 documentation</title>
+    <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
+        <title>API Reference - Edsger 0.1.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -163,7 +163,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Edsger 0.1.6 documentation</div></a>
+      <a href="index.html"><div class="brand">Edsger 0.1.7 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -184,7 +184,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">Edsger 0.1.6 documentation</span>
+  <span class="sidebar-brand-text">Edsger 0.1.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -656,6 +656,169 @@
 </ul>
 </section>
 </section>
+<section id="hyperpathgenerating-class">
+<h3>HyperpathGenerating Class<a class="headerlink" href="#hyperpathgenerating-class" title="Link to this heading">¶</a></h3>
+<p>The class for computing hyperpath-based routing using the Spiess-Florian algorithm, designed for transit network assignment and optimal strategy computation.</p>
+<p><strong>Reference</strong>: Spiess, H. and Florian, M. (1989). <em>Optimal strategies: A new assignment model for transit networks</em>. Transportation Research Part B 23(2), 83-102.</p>
+<section id="overview">
+<h4>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h4>
+<p>The Spiess-Florian algorithm computes optimal travel strategies in transit networks where passengers can choose between multiple routes with different frequencies and travel times. Unlike traditional shortest path algorithms, it models the probabilistic nature of transit where passengers may take the first arriving vehicle among a set of attractive lines.</p>
+<p>The algorithm outputs:</p>
+<ul class="simple">
+<li><p><strong>Edge volumes</strong>: How passenger demand is distributed across transit lines</p></li>
+<li><p><strong>Travel times (u_i_vec)</strong>: Expected travel time from each vertex to the destination, including waiting time</p></li>
+</ul>
+</section>
+<section id="id14">
+<h4>Constructor Parameters<a class="headerlink" href="#id14" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">edges</span></code>: pandas.DataFrame containing transit network edges</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tail</span></code>: Column name for edge source nodes (default: ‘tail’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">head</span></code>: Column name for edge destination nodes (default: ‘head’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trav_time</span></code>: Column name for travel times (default: ‘trav_time’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">freq</span></code>: Column name for service frequencies (default: ‘freq’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">check_edges</span></code>: Whether to validate edge data (default: False)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">orientation</span></code>: Currently only ‘in’ is supported (default: ‘in’)</p></li>
+</ul>
+</section>
+<section id="attributes">
+<h4>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">edge_count</span></code>: Number of edges in the graph</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vertex_count</span></code>: Number of vertices in the graph</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u_i_vec</span></code>: Array of expected travel times from each vertex to the destination (available after <code class="docutils literal notranslate"><span class="pre">run()</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_edges</span></code>: DataFrame containing edges with computed ‘volume’ column (available after <code class="docutils literal notranslate"><span class="pre">run()</span></code>)</p></li>
+</ul>
+</section>
+<section id="id15">
+<h4>Methods<a class="headerlink" href="#id15" title="Link to this heading">¶</a></h4>
+<section id="id16">
+<h5>run<a class="headerlink" href="#id16" title="Link to this heading">¶</a></h5>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">return_inf</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Computes the hyperpath and distributes demand volume across edges.</p>
+<p><strong>Parameters:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: Origin vertex index (int) or list of origin indices</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">destination</span></code>: Destination vertex index (int)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">volume</span></code>: Demand volume (float) or list of volumes corresponding to each origin</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">return_inf</span></code>: Whether to keep infinity for unreachable vertices (default: False)</p></li>
+</ul>
+<p><strong>Returns:</strong></p>
+<ul class="simple">
+<li><p>None (results are stored in instance attributes <code class="docutils literal notranslate"><span class="pre">u_i_vec</span></code> and <code class="docutils literal notranslate"><span class="pre">_edges['volume']</span></code>)</p></li>
+</ul>
+</section>
+</section>
+<section id="id17">
+<h4>Examples<a class="headerlink" href="#id17" title="Link to this heading">¶</a></h4>
+<section id="basic-transit-network">
+<h5>Basic Transit Network<a class="headerlink" href="#basic-transit-network" title="Link to this heading">¶</a></h5>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">HyperpathGenerating</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># Create a simple transit network</span>
+<span class="c1"># Two parallel lines from stop 0 to stop 2 via different intermediate stops</span>
+<span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="s1">&#39;trav_time&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">],</span>  <span class="c1"># Travel times in minutes</span>
+    <span class="s1">&#39;freq&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]</span>  <span class="c1"># Frequencies (vehicles per minute)</span>
+<span class="p">})</span>
+
+<span class="c1"># Initialize the algorithm</span>
+<span class="n">hp</span> <span class="o">=</span> <span class="n">HyperpathGenerating</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+
+<span class="c1"># Compute hyperpath from origin 0 to destination 2 with 100 passengers</span>
+<span class="n">hp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">100.0</span><span class="p">)</span>
+
+<span class="c1"># Access expected travel times to destination</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Travel times to destination:&quot;</span><span class="p">,</span> <span class="n">hp</span><span class="o">.</span><span class="n">u_i_vec</span><span class="p">)</span>
+
+<span class="c1"># Access edge volumes (how passengers are distributed)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">hp</span><span class="o">.</span><span class="n">_edges</span><span class="p">[[</span><span class="s1">&#39;tail&#39;</span><span class="p">,</span> <span class="s1">&#39;head&#39;</span><span class="p">,</span> <span class="s1">&#39;volume&#39;</span><span class="p">]])</span>
+</pre></div>
+</div>
+</section>
+<section id="multiple-origins">
+<h5>Multiple Origins<a class="headerlink" href="#multiple-origins" title="Link to this heading">¶</a></h5>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compute hyperpath from multiple origins to a single destination</span>
+<span class="n">hp</span> <span class="o">=</span> <span class="n">HyperpathGenerating</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+<span class="n">hp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="n">origin</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>           <span class="c1"># Two origins</span>
+    <span class="n">destination</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>           <span class="c1"># Single destination</span>
+    <span class="n">volume</span><span class="o">=</span><span class="p">[</span><span class="mf">80.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">]</span>      <span class="c1"># Different demand volumes</span>
+<span class="p">)</span>
+
+<span class="c1"># Total edge volumes reflect combined demand from all origins</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Edge volumes:&quot;</span><span class="p">,</span> <span class="n">hp</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="s1">&#39;volume&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-column-names">
+<h5>Custom Column Names<a class="headerlink" href="#custom-column-names" title="Link to this heading">¶</a></h5>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Transit data with custom column names</span>
+<span class="n">transit_edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;from_stop&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="s1">&#39;to_stop&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="s1">&#39;travel_time&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
+    <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">]</span>
+<span class="p">})</span>
+
+<span class="n">hp</span> <span class="o">=</span> <span class="n">HyperpathGenerating</span><span class="p">(</span>
+    <span class="n">transit_edges</span><span class="p">,</span>
+    <span class="n">tail</span><span class="o">=</span><span class="s1">&#39;from_stop&#39;</span><span class="p">,</span>
+    <span class="n">head</span><span class="o">=</span><span class="s1">&#39;to_stop&#39;</span><span class="p">,</span>
+    <span class="n">trav_time</span><span class="o">=</span><span class="s1">&#39;travel_time&#39;</span><span class="p">,</span>
+    <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;frequency&#39;</span>
+<span class="p">)</span>
+<span class="n">hp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="with-edge-validation">
+<h5>With Edge Validation<a class="headerlink" href="#with-edge-validation" title="Link to this heading">¶</a></h5>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable input validation</span>
+<span class="n">hp</span> <span class="o">=</span> <span class="n">HyperpathGenerating</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">check_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># This will raise an error if:</span>
+<span class="c1"># - Required columns are missing</span>
+<span class="c1"># - Data types are incorrect</span>
+<span class="c1"># - Travel times or frequencies are negative</span>
+<span class="c1"># - Missing values exist</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="understanding-the-output">
+<h4>Understanding the Output<a class="headerlink" href="#understanding-the-output" title="Link to this heading">¶</a></h4>
+<p>After calling <code class="docutils literal notranslate"><span class="pre">run()</span></code>, two key outputs are available:</p>
+<ol class="arabic simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">u_i_vec</span></code></strong>: Expected travel time from each vertex to the destination</p>
+<ul class="simple">
+<li><p>Includes both in-vehicle travel time and expected waiting time</p></li>
+<li><p>Infinite values indicate unreachable vertices</p></li>
+</ul>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">_edges['volume']</span></code></strong>: Passenger volumes on each edge</p>
+<ul class="simple">
+<li><p>Shows how total demand is distributed across the transit network</p></li>
+<li><p>Higher volumes indicate more heavily used transit lines</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="use-cases">
+<h4>Use Cases<a class="headerlink" href="#use-cases" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><strong>Transit assignment</strong>: Distribute passenger demand across a transit network</p></li>
+<li><p><strong>Line planning</strong>: Identify heavily used routes that may need more capacity</p></li>
+<li><p><strong>Service evaluation</strong>: Assess expected travel times for different origin-destination pairs</p></li>
+<li><p><strong>Network design</strong>: Evaluate the impact of adding or removing transit lines</p></li>
+</ul>
+</section>
+</section>
 </section>
 <section id="parallel-edges-handling">
 <h2>Parallel Edges Handling<a class="headerlink" href="#parallel-edges-handling" title="Link to this heading">¶</a></h2>
@@ -940,6 +1103,25 @@
 <li><a class="reference internal" href="#performance-characteristics">Performance Characteristics</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#hyperpathgenerating-class">HyperpathGenerating Class</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#id14">Constructor Parameters</a></li>
+<li><a class="reference internal" href="#attributes">Attributes</a></li>
+<li><a class="reference internal" href="#id15">Methods</a><ul>
+<li><a class="reference internal" href="#id16">run</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id17">Examples</a><ul>
+<li><a class="reference internal" href="#basic-transit-network">Basic Transit Network</a></li>
+<li><a class="reference internal" href="#multiple-origins">Multiple Origins</a></li>
+<li><a class="reference internal" href="#custom-column-names">Custom Column Names</a></li>
+<li><a class="reference internal" href="#with-edge-validation">With Edge Validation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#understanding-the-output">Understanding the Output</a></li>
+<li><a class="reference internal" href="#use-cases">Use Cases</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#parallel-edges-handling">Parallel Edges Handling</a><ul>
@@ -980,7 +1162,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=6e0256f3"></script>
+</div><script src="_static/documentation_options.js?v=ca7ad2ea"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

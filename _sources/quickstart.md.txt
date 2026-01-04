@@ -557,6 +557,86 @@ pred_in = bfs_in.run(vertex_idx=4)
 - Edge weights matter (distances, costs, times)
 - You need weighted shortest paths in directed graphs
 
+## Spiess-Florian Hyperpath Algorithm
+
+The Spiess-Florian algorithm (also known as HyperpathGenerating) is designed for transit network assignment. Unlike traditional shortest path algorithms, it models how passengers distribute across multiple transit lines based on service frequencies and travel times.
+
+### Transit Network Data Format
+
+For hyperpath computation, edges require **travel time** and **frequency** columns instead of a single weight:
+
+| Column    | Type    | Description                                         |
+|-----------|---------|-----------------------------------------------------|
+| tail      | int     | Source stop/vertex ID                               |
+| head      | int     | Destination stop/vertex ID                          |
+| trav_time | float   | Travel time on this edge (e.g., minutes)            |
+| freq      | float   | Service frequency (e.g., vehicles per minute)       |
+
+### Basic Usage
+
+```python
+from edsger.path import HyperpathGenerating
+import pandas as pd
+
+# Create a transit network
+# Multiple lines connecting stops with different frequencies
+edges = pd.DataFrame({
+    'tail': [0, 0, 1, 1, 2, 3],
+    'head': [1, 2, 2, 3, 3, 4],
+    'trav_time': [2.0, 5.0, 1.5, 3.0, 2.5, 1.0],  # Travel times
+    'freq': [0.1, 0.05, 0.2, 0.15, 0.1, 0.3]      # Frequencies
+})
+
+# Initialize the algorithm
+hp = HyperpathGenerating(edges)
+
+# Run from origin 0 to destination 4 with 100 passengers
+hp.run(origin=0, destination=4, volume=100.0)
+```
+
+### Understanding the Results
+
+After running the algorithm, you can access:
+
+```python
+# Expected travel times from each vertex to destination
+# Includes waiting time based on line frequencies
+print("Travel times to destination:")
+print(hp.u_i_vec)
+
+# Edge volumes showing passenger distribution
+print("\nPassenger volumes on each edge:")
+print(hp._edges[['tail', 'head', 'trav_time', 'freq', 'volume']])
+```
+
+The **volume** column shows how passengers are distributed across the network. Higher frequencies attract more passengers, as they reduce expected waiting time.
+
+### Multiple Origins
+
+You can compute demand from multiple origins simultaneously:
+
+```python
+hp = HyperpathGenerating(edges)
+hp.run(
+    origin=[0, 1, 2],        # Multiple origins
+    destination=4,            # Single destination
+    volume=[50.0, 30.0, 20.0] # Demand from each origin
+)
+```
+
+### When to Use Spiess-Florian
+
+**Use HyperpathGenerating when:**
+- Modeling public transit networks with multiple competing lines
+- Computing transit assignment (distributing passenger demand)
+- Evaluating expected travel times including waiting
+- Analyzing line utilization and capacity requirements
+
+**Use Dijkstra/Bellman-Ford when:**
+- Finding deterministic shortest paths
+- Working with networks where "frequency" doesn't apply (roads, etc.)
+- You only need path distances, not demand distribution
+
 ## DataFrame Backend Selection
 
 Edsger automatically detects and optimizes for your DataFrame backend. Here's when to use each:
