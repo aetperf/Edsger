@@ -220,13 +220,13 @@ class PolarsImporter(GraphImporter):
 
         Uses Polars' to_pandas() method or to_numpy() depending on what's available.
         """
-        try:
-            import polars  # pylint: disable=import-outside-toplevel,unused-import
-        except ImportError as exc:
+        import importlib.util
+
+        if importlib.util.find_spec("polars") is None:
             raise ImportError(
                 "Polars is required to import Polars DataFrames. "
                 "Install it with: pip install polars"
-            ) from exc
+            )
 
         # Select only needed columns
         selected_df = self.edges_df.select(columns)
