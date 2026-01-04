@@ -1,9 +1,11 @@
-numpy
-pandas
-loguru
-scipy
-networkit
-loguru
-pyarrow
-tol-colors
-matplotlib
+# Benchmark script dependencies for Windows
+# Note: graph-tool is not available on Windows
+
+numpy==2.4.0
+pandas==2.3.1
+loguru==0.7.3
+scipy==1.16.3
+networkit==11.1.post1
+pyarrow==22.0.0
+tol-colors==2.0.0.post1
+matplotlib==3.10.8

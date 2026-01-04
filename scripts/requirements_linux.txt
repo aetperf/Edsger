@@ -1,10 +1,11 @@
-numpy
-pandas
-loguru
-scipy
-graph-tool
-networkit
-loguru
-pyarrow
-tol-colors
-matplotlib
+# Benchmark script dependencies for Linux
+# Note: graph-tool is typically installed via conda: conda install -c conda-forge graph-tool
+
+numpy==2.4.0
+pandas==2.3.1
+loguru==0.7.3
+scipy==1.16.3
+networkit==11.1.post1
+pyarrow==22.0.0
+tol-colors==2.0.0.post1
+matplotlib==3.10.8
