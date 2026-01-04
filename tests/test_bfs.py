@@ -174,7 +174,7 @@ def test_bfs_two_nodes():
 def test_bfs_path_tracking_out(simple_graph):
     """Test BFS path tracking with orientation='out'."""
     bfs = BFS(simple_graph, orientation="out")
-    predecessors = bfs.run(vertex_idx=0, path_tracking=True)
+    bfs.run(vertex_idx=0, path_tracking=True)
 
     # Check predecessors are stored
     assert bfs.path_links is not None
@@ -191,7 +191,7 @@ def test_bfs_path_tracking_out(simple_graph):
 def test_bfs_path_tracking_in(simple_graph):
     """Test BFS path tracking with orientation='in'."""
     bfs = BFS(simple_graph, orientation="in")
-    predecessors = bfs.run(vertex_idx=3, path_tracking=True)
+    bfs.run(vertex_idx=3, path_tracking=True)
 
     # Check predecessors are stored
     assert bfs.path_links is not None

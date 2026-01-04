@@ -178,7 +178,7 @@ class TestPerformanceComparison:
     def measure_initialization_time(self, df, algorithm_class):
         """Measure time to initialize algorithm with given DataFrame."""
         start_time = time.time()
-        algorithm = algorithm_class(df)
+        _ = algorithm_class(df)
         end_time = time.time()
         return end_time - start_time
 

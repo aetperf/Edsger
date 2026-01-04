@@ -12,7 +12,7 @@ except ImportError:
     PYARROW_AVAILABLE = False
 
 from edsger.path import Dijkstra, BellmanFord, HyperpathGenerating
-from edsger.graph_importer import GraphImporter, standardize_graph_dataframe
+from edsger.graph_importer import GraphImporter
 
 
 def create_test_graph_numpy():
@@ -379,7 +379,7 @@ class TestErrorHandling:
 
         # Should raise an error during edge checking or conversion
         with pytest.raises((ValueError, TypeError)):
-            dijkstra = Dijkstra(df, check_edges=True)
+            Dijkstra(df, check_edges=True)
 
 
 if __name__ == "__main__":

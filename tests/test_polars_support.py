@@ -220,7 +220,7 @@ class TestPolarsAdvancedFeatures:
 
         # Should handle null values gracefully or raise appropriate error
         with pytest.raises((ValueError, TypeError)):
-            dijkstra = Dijkstra(df, check_edges=True)
+            Dijkstra(df, check_edges=True)
 
     def test_polars_hyperpath_support(self):
         """Test that Polars works with HyperpathGenerating algorithm."""
@@ -323,7 +323,7 @@ class TestPolarsErrorHandling:
 
         # Should raise error during conversion or validation
         with pytest.raises((ValueError, TypeError)):
-            dijkstra = Dijkstra(df, check_edges=True)
+            Dijkstra(df, check_edges=True)
 
 
 if __name__ == "__main__":

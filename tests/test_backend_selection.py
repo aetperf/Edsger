@@ -1,9 +1,7 @@
 """Test the GraphImporter factory method and backend selection logic."""
 
 import pytest
-import numpy as np
 import pandas as pd
-import warnings
 from unittest.mock import patch, MagicMock
 
 try:
@@ -240,7 +238,6 @@ class TestErrorHandlingAndEdgeCases:
 
         # This is artificial corruption - in real scenarios, this shouldn't happen
         # but we test defensive programming
-        original_dtype = df["tail"].dtype
         try:
             df["tail"] = df["tail"].astype(pd.ArrowDtype(pa.int64()))
 
@@ -322,7 +319,7 @@ class TestStandardizeFunctionIntegration:
             )
             mock_factory.return_value = mock_importer
 
-            result = standardize_graph_dataframe(df, "tail", "head", "weight")
+            _ = standardize_graph_dataframe(df, "tail", "head", "weight")
 
             # Verify factory was called with correct parameters
             mock_factory.assert_called_once()
