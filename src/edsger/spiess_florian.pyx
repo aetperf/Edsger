@@ -107,10 +107,13 @@ cpdef void compute_SF_in(
         )
 
         # sort the links with descreasing order of u_j + c_a
-        # Use stable sort to ensure consistent ordering across Python/NumPy versions
-        h_a_count = h_a_vec.sum()
-        masked_a = np.ma.array(-u_j_c_a_vec, mask=~h_a_vec)
-        edge_indices = np.argsort(masked_a, kind='stable').astype(np.uint32)
+        # Use direct indexing instead of masked arrays for deterministic behavior
+        # across all NumPy versions and Python environments (including coverage mode)
+        hyperpath_indices = np.where(h_a_vec)[0].astype(np.uint32)
+        h_a_count = len(hyperpath_indices)
+        values_to_sort = -u_j_c_a_vec[hyperpath_indices]
+        sorted_positions = np.argsort(values_to_sort, kind='stable')
+        edge_indices = hyperpath_indices[sorted_positions]
 
         _SF_in_second_pass(
             edge_indices,
