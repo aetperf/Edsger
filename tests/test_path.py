@@ -522,7 +522,11 @@ def test_SF_network_run_01(spiess_florian_network):
     merged = edges_with_ref.merge(computed_volumes, on=["tail", "head"])
 
     # Debug: print comparison for CI diagnosis
+    import sys
+
     print("\n=== DEBUG: Spiess-Florian volume comparison ===")
+    print(f"Python: {sys.version}")
+    print(f"NumPy: {np.__version__}")
     print(f"Number of edges: {len(merged)}")
     for i, row in merged.iterrows():
         diff = abs(row["volume"] - row["volume_ref"])

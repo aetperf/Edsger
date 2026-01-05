@@ -63,7 +63,8 @@ cpdef void compute_SF_in(
     v_i_vec = np.zeros(vertex_count, dtype=DTYPE_PY)  # vertex volume
 
     # edge properties
-    h_a_vec = np.zeros(edge_count, dtype=bool)  # edge belonging to hyperpath
+    # Use uint8 explicitly to match Cython cnp.uint8_t[::1] type declaration
+    h_a_vec = np.zeros(edge_count, dtype=np.uint8)  # edge belonging to hyperpath
 
     # first pass #
     # ---------- #
