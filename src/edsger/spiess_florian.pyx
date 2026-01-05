@@ -139,7 +139,7 @@ cdef void _SF_in_first_pass_full(
     DTYPE_t[::1] u_j_c_a_vec,
     cnp.uint8_t[::1] h_a_vec,
     int dest_vert_index,
-) nogil:
+):
     """SF in first pass.
 
     Note : all vertices are visited.
@@ -168,7 +168,9 @@ cdef void _SF_in_first_pass_full(
     while pqueue.size > 0:
 
         edge_idx = pq.extract_min(&pqueue)
-        u_j_c_a = pqueue.Elements[edge_idx].key
+        # Use stored u_j_c_a value instead of reading from heap after extraction
+        # This avoids potential issues with CYTHON_TRACE affecting heap access
+        u_j_c_a = u_j_c_a_vec[edge_idx]
         tail_vert_idx = <size_t>tail_indices[edge_idx]
         u_i = u_i_vec[tail_vert_idx]
 
@@ -217,7 +219,8 @@ cdef void _SF_in_first_pass_full(
                     pq.insert(&pqueue, edge_idx, u_j_c_a)
                     u_j_c_a_vec[edge_idx] = u_j_c_a
 
-                elif (pqueue.Elements[edge_idx].key > u_j_c_a):
+                # Use stored value for comparison to avoid CYTHON_TRACE issues
+                elif (u_j_c_a_vec[edge_idx] > u_j_c_a):
 
                     pq.decrease_key(&pqueue, edge_idx, u_j_c_a)
                     u_j_c_a_vec[edge_idx] = u_j_c_a

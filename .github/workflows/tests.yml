@@ -27,7 +27,7 @@ jobs:
         pip install -r requirements-dev.txt
         pip install .
     - name: Reinstall package with coverage support
-      if: matrix.os == 'ubuntu-22.04' && matrix.python-version == '3.11'
+      if: matrix.os == 'ubuntu-22.04' && matrix.python-version == '3.13'
       run: |
         pip uninstall -y edsger
         CYTHON_TRACE=1 pip install -e .
@@ -38,15 +38,15 @@ jobs:
       run: |
         cython-lint src/edsger/commons.pyx src/edsger/dijkstra.pyx src/edsger/path_tracking.pyx src/edsger/pq_4ary_dec_0b.pyx src/edsger/spiess_florian.pyx src/edsger/star.pyx src/edsger/commons.pxd src/edsger/pq_4ary_dec_0b.pxd
     - name: Run tests with coverage
-      if: matrix.os == 'ubuntu-22.04' && matrix.python-version == '3.11'
+      if: matrix.os == 'ubuntu-22.04' && matrix.python-version == '3.13'
       run: |
         pytest --cov=src/edsger --cov-branch --cov-report=xml tests/
     - name: Run tests without coverage
-      if: matrix.os != 'ubuntu-22.04' || matrix.python-version != '3.11'
+      if: matrix.os != 'ubuntu-22.04' || matrix.python-version != '3.13'
       run: |
         pytest tests/
     - name: Upload results to Codecov
-      if: matrix.os == 'ubuntu-22.04' && matrix.python-version == '3.11'
+      if: matrix.os == 'ubuntu-22.04' && matrix.python-version == '3.13'
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
