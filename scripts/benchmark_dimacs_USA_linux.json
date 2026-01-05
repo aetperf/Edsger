@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-01-04T21:39:41.332048",
+  "timestamp": "2026-01-05T09:39:32.067774",
   "os": "linux",
   "network": "USA",
   "system_info": {
@@ -7,8 +7,8 @@
     "platform": "Linux-5.15.0-161-generic-x86_64-with-glibc2.35",
     "processor": "x86_64",
     "os_name": "Linux",
-    "conda_version": "conda 23.11.0",
-    "edsger_version": "0.1.6.post1.dev12+g192812eff",
+    "conda_version": "conda 25.11.1",
+    "edsger_version": "0.1.7",
     "networkit_version": "11.1.post1",
     "graph-tool_version": "2.98 (commit c96a6bf3, )",
     "scipy_version": "1.16.3",
@@ -27,58 +27,58 @@
     {
       "library": "E",
       "times": [
-        2.5805,
-        2.5796,
-        2.5794,
-        2.5801,
-        2.583
+        2.5666,
+        2.5576,
+        2.56,
+        2.5605,
+        2.5586
       ],
-      "min_time": 2.5794,
-      "avg_time": 2.58052,
-      "std_time": 0.0012983065893694403,
-      "total_duration": 21.616779327392578
+      "min_time": 2.5576,
+      "avg_time": 2.5606600000000004,
+      "std_time": 0.003141719274537505,
+      "total_duration": 21.705482959747314
     },
     {
       "library": "NK",
       "times": [
-        5.0511,
-        4.9165,
-        4.9132,
-        4.9106,
-        4.9063
+        4.9793,
+        4.8843,
+        4.8808,
+        4.8943,
+        4.8835
       ],
-      "min_time": 4.9063,
-      "avg_time": 4.939539999999999,
-      "std_time": 0.05587967788024555,
-      "total_duration": 29.509084701538086
+      "min_time": 4.8808,
+      "avg_time": 4.904439999999999,
+      "std_time": 0.03770886367951193,
+      "total_duration": 29.387848138809204
     },
     {
       "library": "GT",
       "times": [
-        5.2508,
-        5.2427,
-        5.2716,
-        5.2372,
-        5.2542
+        5.3055,
+        5.3175,
+        5.3099,
+        5.2916,
+        5.2901
       ],
-      "min_time": 5.2372,
-      "avg_time": 5.2513,
-      "std_time": 0.011777266236270787,
-      "total_duration": 34.17214512825012
+      "min_time": 5.2901,
+      "avg_time": 5.302919999999999,
+      "std_time": 0.010587237600054178,
+      "total_duration": 34.371864318847656
     },
     {
       "library": "SciPy",
       "times": [
-        2.9471,
-        2.969,
-        2.9441,
-        2.9657,
-        2.9721
+        3.0513,
+        3.0504,
+        3.0333,
+        3.0398,
+        3.0218
       ],
-      "min_time": 2.9441,
-      "avg_time": 2.9596000000000005,
-      "std_time": 0.011647488999780178,
-      "total_duration": 74.64384293556213
+      "min_time": 3.0218,
+      "avg_time": 3.03932,
+      "std_time": 0.01104271705695657,
+      "total_duration": 74.47416257858276
     }
   ]
 }
