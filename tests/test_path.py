@@ -521,6 +521,19 @@ def test_SF_network_run_01(spiess_florian_network):
     computed_volumes = hp._edges[["tail", "head", "volume"]].copy()
     merged = edges_with_ref.merge(computed_volumes, on=["tail", "head"])
 
+    # Debug: print comparison for CI diagnosis
+    print("\n=== DEBUG: Spiess-Florian volume comparison ===")
+    print(f"Number of edges: {len(merged)}")
+    for i, row in merged.iterrows():
+        diff = abs(row["volume"] - row["volume_ref"])
+        marker = " *** MISMATCH ***" if diff > 1e-5 else ""
+        print(
+            f"Edge ({int(row['tail']):2d}, {int(row['head']):2d}): "
+            f"computed={row['volume']:.6f}, expected={row['volume_ref']:.6f}, "
+            f"diff={diff:.2e}{marker}"
+        )
+    print("=== END DEBUG ===\n")
+
     # Verify total volume conservation (should sum to 1.0 at origin edges)
     origin_edges = merged[merged["tail"] == 0]
     assert np.isclose(origin_edges["volume"].sum(), 1.0, rtol=1e-05)
