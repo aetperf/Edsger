@@ -43,9 +43,13 @@ cdef functions:
 # cython: initializedcheck=False
 
 cimport numpy as cnp
-from libc.stdlib cimport free, malloc
 
 from edsger.commons import DTYPE_PY
+
+# Large pages / THP memory allocation support
+cdef extern from "memory_alloc.h":
+    void* thp_alloc(size_t size) nogil
+    void thp_free(void* ptr, size_t size) nogil
 from edsger.commons cimport (
     DTYPE_INF, LABELED, UNLABELED, SCANNED, DTYPE_t
 )
@@ -79,8 +83,9 @@ cdef void init_pqueue(
 
     pqueue.length = heap_length
     pqueue.size = 0
-    pqueue.A = <size_t*> malloc(heap_length * sizeof(size_t))
-    pqueue.Elements = <Element*> malloc(element_count * sizeof(Element))
+    pqueue.element_count = element_count
+    pqueue.A = <size_t*> thp_alloc(heap_length * sizeof(size_t))
+    pqueue.Elements = <Element*> thp_alloc(element_count * sizeof(Element))
 
     for i in range(heap_length):
         pqueue.A[i] = heap_length
@@ -114,8 +119,8 @@ cdef void free_pqueue(
     =====
     * PriorityQueue* pqueue : priority queue
     """
-    free(pqueue.A)
-    free(pqueue.Elements)
+    thp_free(pqueue.A, pqueue.length * sizeof(size_t))
+    thp_free(pqueue.Elements, pqueue.element_count * sizeof(Element))
 
 
 cdef void insert(

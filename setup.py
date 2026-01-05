@@ -150,7 +150,9 @@ def get_compiler_flags():
 extra_compile_args, extra_link_args, platform_macros = get_compiler_flags()
 
 # Combine numpy macros with platform-specific macros
+# Large Pages / THP support is always enabled
 define_macros = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")] + platform_macros
+define_macros_with_thp = define_macros + [("USE_LARGE_PAGES", None)]
 
 extensions = [
     Extension(
@@ -165,7 +167,7 @@ extensions = [
         ["src/edsger/pq_4ary_dec_0b.pyx"],
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
-        define_macros=define_macros,
+        define_macros=define_macros_with_thp,
     ),
     Extension(
         "edsger.dijkstra",

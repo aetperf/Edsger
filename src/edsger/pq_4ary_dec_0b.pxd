@@ -12,8 +12,9 @@ cdef struct Element:
     size_t node_idx
 
 cdef struct PriorityQueue:
-    size_t length  # number of elements in the array
+    size_t length  # number of elements in the array (heap capacity)
     size_t size  # number of elements in the heap
+    size_t element_count  # total number of elements (for deallocation)
     size_t* A  # array storing the binary tree
     Element* Elements  # array storing the elements
 
