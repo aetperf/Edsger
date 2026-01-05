@@ -14,6 +14,8 @@ Edsger is designed to be **dataframe-friendly**, providing seamless integration 
 
 <img src="assets/dijkstra_benchmark_comparison.png" alt="Dijkstra Performance Comparison" width="700">
 
+Note that benchmarks are run on slightly different Intel processors between Linux and Windows.
+
 ### Multiple DataFrame Backends Supported
 
 ```python
@@ -50,10 +52,10 @@ distances = dijkstra.run(vertex_idx=0)
 ## Key Features
 
 - **Four graph algorithms** - Dijkstra, Bellman-Ford, BFS, and Spiess-Florian hyperpath
-- **Multiple DataFrame backends** - Native support for pandas (NumPy & Arrow) and Polars
+- **Multiple DataFrame backends** - Native support for pandas (NumPy & Arrow backends) and Polars
 - **High performance** - Cython implementation with optimized memory layout
 - **Easy integration** - Works with your existing DataFrame workflows
-- **Production ready** - Comprehensive testing across Python 3.9-3.13
+- **Production ready** - Comprehensive testing across Python 3.10-3.14
 
 ## Quick Links
 

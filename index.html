@@ -251,6 +251,7 @@
 <p>Edsger is designed to be <strong>dataframe-friendly</strong>, providing seamless integration with pandas workflows for directed graph algorithms. Also it is rather efficient on Linux. Our benchmarks on the USA road network (23.9M vertices, 57.7M edges) demonstrate nice performance:</p>
 <a class="reference internal image-reference" href="_images/dijkstra_benchmark_comparison.png"><img alt="Dijkstra Performance Comparison" src="_images/dijkstra_benchmark_comparison.png" style="width: 700px;" />
 </a>
+<p>Note that benchmarks are run on slightly different Intel processors between Linux and Windows.</p>
 <section id="multiple-dataframe-backends-supported">
 <h3>Multiple DataFrame Backends Supported<a class="headerlink" href="#multiple-dataframe-backends-supported" title="Link to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -289,10 +290,10 @@
 <h2>Key Features<a class="headerlink" href="#key-features" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><strong>Four graph algorithms</strong> - Dijkstra, Bellman-Ford, BFS, and Spiess-Florian hyperpath</p></li>
-<li><p><strong>Multiple DataFrame backends</strong> - Native support for pandas (NumPy &amp; Arrow) and Polars</p></li>
+<li><p><strong>Multiple DataFrame backends</strong> - Native support for pandas (NumPy &amp; Arrow backends) and Polars</p></li>
 <li><p><strong>High performance</strong> - Cython implementation with optimized memory layout</p></li>
 <li><p><strong>Easy integration</strong> - Works with your existing DataFrame workflows</p></li>
-<li><p><strong>Production ready</strong> - Comprehensive testing across Python 3.9-3.13</p></li>
+<li><p><strong>Production ready</strong> - Comprehensive testing across Python 3.10-3.14</p></li>
 </ul>
 </section>
 <section id="quick-links">
