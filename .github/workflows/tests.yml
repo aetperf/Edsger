@@ -26,11 +26,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements-dev.txt
         pip install .
-    - name: Reinstall package with coverage support
-      if: matrix.os == 'ubuntu-22.04' && matrix.python-version == '3.10'
-      run: |
-        pip uninstall -y edsger
-        CYTHON_TRACE=1 pip install -e .
     - name: Format Python code with black
       run: |
         black --check --diff .
