@@ -53,7 +53,7 @@ distances = dijkstra.run(vertex_idx=0)
 - **Multiple DataFrame backends** - Native support for pandas (NumPy & Arrow) and Polars
 - **High performance** - Cython implementation with optimized memory layout
 - **Easy integration** - Works with your existing DataFrame workflows
-- **Production ready** - Comprehensive testing across Python 3.9-3.13
+- **Production ready** - Comprehensive testing across Python 3.10-3.14
 
 ## Quick Links
 

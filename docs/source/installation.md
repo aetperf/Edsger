@@ -6,7 +6,7 @@ This guide will help you install the `edsger` package on your system.
 
 Before you begin, ensure you have the following prerequisites:
 
-- Python 3.9 or higher (3.11+ recommended)
+- Python 3.10 or higher
 - pip (Python package installer) or uv (recommended)
 - (Optional) git for installing from source
 
