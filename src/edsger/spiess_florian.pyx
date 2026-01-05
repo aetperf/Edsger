@@ -139,7 +139,7 @@ cdef void _SF_in_first_pass_full(
     DTYPE_t[::1] u_j_c_a_vec,
     cnp.uint8_t[::1] h_a_vec,
     int dest_vert_index,
-):
+) nogil:
     """SF in first pass.
 
     Note : all vertices are visited.
