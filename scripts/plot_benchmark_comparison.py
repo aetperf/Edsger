@@ -30,6 +30,40 @@ def clean_version(version_str):
     return version_str
 
 
+def extract_processor_model(processor_str, os_name):
+    """Extract a clean processor model name from the system info."""
+    import re
+
+    if not processor_str:
+        return None
+
+    # Try to extract Intel Core model (e.g., i7-14700K, i9-12900H)
+    match = re.search(r"i[3579]-\d{4,5}[A-Z]*", processor_str)
+    if match:
+        return match.group(0)
+
+    # For Windows, the processor string is like "Intel64 Family 6 Model 183..."
+    # Map known model numbers to processor names
+    model_mapping = {
+        "Model 183": "i7-14700K",  # Raptor Lake Refresh
+        "Model 154": "i9-12900H",  # Alder Lake
+    }
+    for model_id, name in model_mapping.items():
+        if model_id in processor_str:
+            return name
+
+    # Fallback for known OS/processor combinations where platform.processor()
+    # only returns architecture (e.g., "x86_64" on Linux)
+    os_processor_fallback = {
+        "linux": "i9-12900H",  # Alder Lake
+        "windows": "i7-14700K",  # Raptor Lake Refresh
+    }
+    if processor_str in ("x86_64", "AMD64"):
+        return os_processor_fallback.get(os_name)
+
+    return None
+
+
 def load_benchmark_results():
     """Load all available benchmark result files."""
     results = {}
@@ -221,7 +255,14 @@ def create_comparison_plot(
     info_texts = []
     for os_name, results in all_results.items():
         python_version = results["system_info"]["python_version"]
-        info_texts.append(f"{os_name.capitalize()}: Python {python_version}")
+        processor_str = results["system_info"].get("processor", "")
+        processor_model = extract_processor_model(processor_str, os_name)
+        if processor_model:
+            info_texts.append(
+                f"{os_name.capitalize()}: {processor_model}, Python {python_version}"
+            )
+        else:
+            info_texts.append(f"{os_name.capitalize()}: Python {python_version}")
 
     info_text = " • ".join(info_texts) + f" • {datetime.now().strftime('%Y-%m-%d')}"
     ax.text(
