@@ -152,6 +152,16 @@ def create_comparison_plot(
     x = np.arange(len(libraries_to_plot))
     width = 0.8 / len(os_list)  # Width of bars
 
+    # Build legend labels with processor info
+    os_legend_labels = {}
+    for os_name, results in all_results.items():
+        processor_str = results["system_info"].get("processor", "")
+        processor_model = extract_processor_model(processor_str, os_name)
+        if processor_model:
+            os_legend_labels[os_name] = f"{os_name.capitalize()} ({processor_model})"
+        else:
+            os_legend_labels[os_name] = os_name.capitalize()
+
     # Plot bars for each OS
     for i, os_name in enumerate(os_list):
         positions = x + (i - len(os_list) / 2 + 0.5) * width
@@ -175,7 +185,7 @@ def create_comparison_plot(
             positions,
             min_times,
             width,
-            label=os_name.capitalize(),
+            label=os_legend_labels[os_name],
             color=os_colors.get(os_name, "#808080"),
             alpha=0.8,
             edgecolor="white",
@@ -251,20 +261,8 @@ def create_comparison_plot(
     ax.spines["left"].set_linewidth(1.5)
     ax.spines["bottom"].set_linewidth(1.5)
 
-    # Add system info for each OS
-    info_texts = []
-    for os_name, results in all_results.items():
-        python_version = results["system_info"]["python_version"]
-        processor_str = results["system_info"].get("processor", "")
-        processor_model = extract_processor_model(processor_str, os_name)
-        if processor_model:
-            info_texts.append(
-                f"{os_name.capitalize()}: {processor_model}, Python {python_version}"
-            )
-        else:
-            info_texts.append(f"{os_name.capitalize()}: Python {python_version}")
-
-    info_text = " • ".join(info_texts) + f" • {datetime.now().strftime('%Y-%m-%d')}"
+    # Add date info
+    info_text = datetime.now().strftime("%Y-%m-%d")
     ax.text(
         0.02,
         0.98,
