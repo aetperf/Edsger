@@ -24,16 +24,8 @@ from edsger.bellman_ford import (
     detect_negative_cycle,
     detect_negative_cycle_csc,
 )
-from edsger.dijkstra import (
-    compute_sssp,
-    compute_sssp_w_path,
-    compute_sssp_early_termination,
-    compute_sssp_w_path_early_termination,
-    compute_stsp,
-    compute_stsp_w_path,
-    compute_stsp_early_termination,
-    compute_stsp_w_path_early_termination,
-)
+from edsger import dijkstra as dijkstra_dec
+from edsger import dijkstra_nodec as dijkstra_lazy
 from edsger.path_tracking import compute_path
 from edsger.spiess_florian import compute_SF_in
 from edsger.star import (
@@ -77,6 +69,11 @@ class Dijkstra:
         start from 0 and be contiguous.
     verbose: bool, optional (default=False)
         Whether to print messages about parallel edge removal.
+    lazy: bool, optional (default=True)
+        Whether to use the lazy Dijkstra implementation (without decrease-key operation).
+        The lazy version inserts duplicate entries instead of decreasing keys, which is
+        slightly faster (~5%) on large graphs due to simpler priority queue operations.
+        Set to False to use the classic decrease-key implementation.
     """
 
     def __init__(
@@ -89,7 +86,12 @@ class Dijkstra:
         check_edges: bool = False,
         permute: bool = False,
         verbose: bool = False,
+        lazy: bool = True,
     ) -> None:
+        # Select the dijkstra module based on the lazy parameter
+        self._dijkstra = dijkstra_lazy if lazy else dijkstra_dec
+        self._lazy = lazy
+
         # load the edges
         if check_edges:
             self._check_edges(edges, tail, head, weight)
@@ -205,6 +207,18 @@ class Dijkstra:
             Whether to permute the IDs of the nodes.
         """
         return self._permute
+
+    @property
+    def lazy(self) -> bool:
+        """
+        Getter for the lazy Dijkstra option.
+
+        Returns
+        -------
+        lazy : bool
+            Whether the lazy Dijkstra implementation (without decrease-key) is being used.
+        """
+        return self._lazy
 
     @property
     def path_links(self) -> Optional[np.ndarray]:
@@ -451,7 +465,7 @@ class Dijkstra:
             if termination_nodes_array is not None:
                 # use early termination algorithms
                 if self._orientation == "in":
-                    path_length_values = compute_stsp_early_termination(
+                    path_length_values = self._dijkstra.compute_stsp_early_termination(
                         self.__indptr,
                         self.__indices,
                         self.__edge_weights,
@@ -461,7 +475,7 @@ class Dijkstra:
                         heap_length,
                     )
                 else:
-                    path_length_values = compute_sssp_early_termination(
+                    path_length_values = self._dijkstra.compute_sssp_early_termination(
                         self.__indptr,
                         self.__indices,
                         self.__edge_weights,
@@ -473,7 +487,7 @@ class Dijkstra:
             else:
                 # use standard algorithms
                 if self._orientation == "in":
-                    path_length_values = compute_stsp(
+                    path_length_values = self._dijkstra.compute_stsp(
                         self.__indptr,
                         self.__indices,
                         self.__edge_weights,
@@ -482,7 +496,7 @@ class Dijkstra:
                         heap_length,
                     )
                 else:
-                    path_length_values = compute_sssp(
+                    path_length_values = self._dijkstra.compute_sssp(
                         self.__indptr,
                         self.__indices,
                         self.__edge_weights,
@@ -495,31 +509,35 @@ class Dijkstra:
             if termination_nodes_array is not None:
                 # use early termination algorithms with path tracking
                 if self._orientation == "in":
-                    path_length_values = compute_stsp_w_path_early_termination(
-                        self.__indptr,
-                        self.__indices,
-                        self.__edge_weights,
-                        self._path_links,
-                        termination_nodes_array,
-                        vertex_new,
-                        self._n_vertices,
-                        heap_length,
+                    path_length_values = (
+                        self._dijkstra.compute_stsp_w_path_early_termination(
+                            self.__indptr,
+                            self.__indices,
+                            self.__edge_weights,
+                            self._path_links,
+                            termination_nodes_array,
+                            vertex_new,
+                            self._n_vertices,
+                            heap_length,
+                        )
                     )
                 else:
-                    path_length_values = compute_sssp_w_path_early_termination(
-                        self.__indptr,
-                        self.__indices,
-                        self.__edge_weights,
-                        self._path_links,
-                        termination_nodes_array,
-                        vertex_new,
-                        self._n_vertices,
-                        heap_length,
+                    path_length_values = (
+                        self._dijkstra.compute_sssp_w_path_early_termination(
+                            self.__indptr,
+                            self.__indices,
+                            self.__edge_weights,
+                            self._path_links,
+                            termination_nodes_array,
+                            vertex_new,
+                            self._n_vertices,
+                            heap_length,
+                        )
                     )
             else:
                 # use standard algorithms with path tracking
                 if self._orientation == "in":
-                    path_length_values = compute_stsp_w_path(
+                    path_length_values = self._dijkstra.compute_stsp_w_path(
                         self.__indptr,
                         self.__indices,
                         self.__edge_weights,
@@ -529,7 +547,7 @@ class Dijkstra:
                         heap_length,
                     )
                 else:
-                    path_length_values = compute_sssp_w_path(
+                    path_length_values = self._dijkstra.compute_sssp_w_path(
                         self.__indptr,
                         self.__indices,
                         self.__edge_weights,
