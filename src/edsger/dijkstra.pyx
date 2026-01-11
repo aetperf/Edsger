@@ -41,6 +41,7 @@ cimport numpy as cnp
 from edsger.commons cimport (
     DTYPE_INF, UNLABELED, SCANNED, DTYPE_t, ElementState)
 cimport edsger.pq_4ary_dec_0b as pq  # priority queue
+from edsger.pq_4ary_dec_0b cimport Element  # for element pointer caching
 
 # memory prefetching support (x86/x64 only)
 cdef extern from "prefetch_compat.h":
@@ -81,10 +82,11 @@ cpdef cnp.ndarray compute_sssp(
     """
 
     cdef:
-        size_t tail_vert_idx, head_vert_idx, idx
+        size_t tail_vert_idx, head_vert_idx, idx, edge_end
         DTYPE_t tail_vert_val, head_vert_val
         pq.PriorityQueue pqueue
         ElementState vert_state
+        Element* elem
         size_t source = <size_t>source_vert_idx
 
     with nogil:
@@ -102,26 +104,27 @@ cpdef cnp.ndarray compute_sssp(
             tail_vert_idx = pq.extract_min(&pqueue)
             tail_vert_val = pqueue.Elements[tail_vert_idx].key
 
+            # cache loop bounds to avoid redundant indptr loads
+            edge_end = <size_t>csr_indptr[tail_vert_idx + 1]
+
             # loop on outgoing edges
-            for idx in range(<size_t>csr_indptr[tail_vert_idx],
-                             <size_t>csr_indptr[tail_vert_idx + 1]):
+            for idx in range(<size_t>csr_indptr[tail_vert_idx], edge_end):
 
                 head_vert_idx = <size_t>csr_indices[idx]
 
                 # prefetch next iteration data to improve cache performance
-                if idx + 1 < <size_t>csr_indptr[tail_vert_idx + 1]:
+                if idx + 1 < edge_end:
                     prefetch_hint(<char*>&csr_indices[idx + 1], PREFETCH_T0)
                     prefetch_hint(<char*>&csr_data[idx + 1], PREFETCH_T0)
 
-                vert_state = pqueue.Elements[head_vert_idx].state
+                # cache element pointer to avoid redundant loads
+                elem = &pqueue.Elements[head_vert_idx]
+                vert_state = elem.state
                 if vert_state != SCANNED:
-                    # prefetch priority queue element data for the vertex
-                    prefetch_hint(<char*>&pqueue.Elements[head_vert_idx], PREFETCH_T0)
-
                     head_vert_val = tail_vert_val + csr_data[idx]
                     if vert_state == UNLABELED:
                         pq.insert(&pqueue, head_vert_idx, head_vert_val)
-                    elif pqueue.Elements[head_vert_idx].key > head_vert_val:
+                    elif elem.key > head_vert_val:
                         pq.decrease_key(&pqueue, head_vert_idx, head_vert_val)
 
     # copy the results into a numpy array
@@ -168,10 +171,11 @@ cpdef cnp.ndarray compute_sssp_early_termination(
     """
 
     cdef:
-        size_t tail_vert_idx, head_vert_idx, idx, i
+        size_t tail_vert_idx, head_vert_idx, idx, i, edge_end
         DTYPE_t tail_vert_val, head_vert_val
         pq.PriorityQueue pqueue
         ElementState vert_state
+        Element* elem
         size_t source = <size_t>source_vert_idx
         size_t target_count = termination_nodes.shape[0]
         size_t visited_targets = 0
@@ -203,26 +207,27 @@ cpdef cnp.ndarray compute_sssp_early_termination(
                 if visited_targets == target_count:
                     break
 
+            # cache loop bounds to avoid redundant indptr loads
+            edge_end = <size_t>csr_indptr[tail_vert_idx + 1]
+
             # loop on outgoing edges
-            for idx in range(<size_t>csr_indptr[tail_vert_idx],
-                             <size_t>csr_indptr[tail_vert_idx + 1]):
+            for idx in range(<size_t>csr_indptr[tail_vert_idx], edge_end):
 
                 head_vert_idx = <size_t>csr_indices[idx]
 
                 # prefetch next iteration data to improve cache performance
-                if idx + 1 < <size_t>csr_indptr[tail_vert_idx + 1]:
+                if idx + 1 < edge_end:
                     prefetch_hint(<char*>&csr_indices[idx + 1], PREFETCH_T0)
                     prefetch_hint(<char*>&csr_data[idx + 1], PREFETCH_T0)
 
-                vert_state = pqueue.Elements[head_vert_idx].state
+                # cache element pointer to avoid redundant loads
+                elem = &pqueue.Elements[head_vert_idx]
+                vert_state = elem.state
                 if vert_state != SCANNED:
-                    # prefetch priority queue element data for the vertex
-                    prefetch_hint(<char*>&pqueue.Elements[head_vert_idx], PREFETCH_T0)
-
                     head_vert_val = tail_vert_val + csr_data[idx]
                     if vert_state == UNLABELED:
                         pq.insert(&pqueue, head_vert_idx, head_vert_val)
-                    elif pqueue.Elements[head_vert_idx].key > head_vert_val:
+                    elif elem.key > head_vert_val:
                         pq.decrease_key(&pqueue, head_vert_idx, head_vert_val)
 
     # copy only the termination nodes' results into a numpy array
@@ -274,10 +279,11 @@ cpdef cnp.ndarray compute_sssp_w_path(
     """
 
     cdef:
-        size_t tail_vert_idx, head_vert_idx, idx
+        size_t tail_vert_idx, head_vert_idx, idx, edge_end
         DTYPE_t tail_vert_val, head_vert_val
         pq.PriorityQueue pqueue
         ElementState vert_state
+        Element* elem
         size_t source = <size_t>source_vert_idx
 
     with nogil:
@@ -295,27 +301,28 @@ cpdef cnp.ndarray compute_sssp_w_path(
             tail_vert_idx = pq.extract_min(&pqueue)
             tail_vert_val = pqueue.Elements[tail_vert_idx].key
 
+            # cache loop bounds to avoid redundant indptr loads
+            edge_end = <size_t>csr_indptr[tail_vert_idx + 1]
+
             # loop on outgoing edges
-            for idx in range(<size_t>csr_indptr[tail_vert_idx],
-                             <size_t>csr_indptr[tail_vert_idx + 1]):
+            for idx in range(<size_t>csr_indptr[tail_vert_idx], edge_end):
 
                 head_vert_idx = <size_t>csr_indices[idx]
 
                 # prefetch next iteration data to improve cache performance
-                if idx + 1 < <size_t>csr_indptr[tail_vert_idx + 1]:
+                if idx + 1 < edge_end:
                     prefetch_hint(<char*>&csr_indices[idx + 1], PREFETCH_T0)
                     prefetch_hint(<char*>&csr_data[idx + 1], PREFETCH_T0)
 
-                vert_state = pqueue.Elements[head_vert_idx].state
+                # cache element pointer to avoid redundant loads
+                elem = &pqueue.Elements[head_vert_idx]
+                vert_state = elem.state
                 if vert_state != SCANNED:
-                    # prefetch priority queue element data for the vertex
-                    prefetch_hint(<char*>&pqueue.Elements[head_vert_idx], PREFETCH_T0)
-
                     head_vert_val = tail_vert_val + csr_data[idx]
                     if vert_state == UNLABELED:
                         pq.insert(&pqueue, head_vert_idx, head_vert_val)
                         predecessor[head_vert_idx] = tail_vert_idx
-                    elif pqueue.Elements[head_vert_idx].key > head_vert_val:
+                    elif elem.key > head_vert_val:
                         pq.decrease_key(&pqueue, head_vert_idx, head_vert_val)
                         predecessor[head_vert_idx] = tail_vert_idx
 
@@ -367,10 +374,11 @@ cpdef cnp.ndarray compute_sssp_w_path_early_termination(
     """
 
     cdef:
-        size_t tail_vert_idx, head_vert_idx, idx, i
+        size_t tail_vert_idx, head_vert_idx, idx, i, edge_end
         DTYPE_t tail_vert_val, head_vert_val
         pq.PriorityQueue pqueue
         ElementState vert_state
+        Element* elem
         size_t source = <size_t>source_vert_idx
         size_t target_count = termination_nodes.shape[0]
         size_t visited_targets = 0
@@ -402,27 +410,28 @@ cpdef cnp.ndarray compute_sssp_w_path_early_termination(
                 if visited_targets == target_count:
                     break
 
+            # cache loop bounds to avoid redundant indptr loads
+            edge_end = <size_t>csr_indptr[tail_vert_idx + 1]
+
             # loop on outgoing edges
-            for idx in range(<size_t>csr_indptr[tail_vert_idx],
-                             <size_t>csr_indptr[tail_vert_idx + 1]):
+            for idx in range(<size_t>csr_indptr[tail_vert_idx], edge_end):
 
                 head_vert_idx = <size_t>csr_indices[idx]
 
                 # prefetch next iteration data to improve cache performance
-                if idx + 1 < <size_t>csr_indptr[tail_vert_idx + 1]:
+                if idx + 1 < edge_end:
                     prefetch_hint(<char*>&csr_indices[idx + 1], PREFETCH_T0)
                     prefetch_hint(<char*>&csr_data[idx + 1], PREFETCH_T0)
 
-                vert_state = pqueue.Elements[head_vert_idx].state
+                # cache element pointer to avoid redundant loads
+                elem = &pqueue.Elements[head_vert_idx]
+                vert_state = elem.state
                 if vert_state != SCANNED:
-                    # prefetch priority queue element data for the vertex
-                    prefetch_hint(<char*>&pqueue.Elements[head_vert_idx], PREFETCH_T0)
-
                     head_vert_val = tail_vert_val + csr_data[idx]
                     if vert_state == UNLABELED:
                         pq.insert(&pqueue, head_vert_idx, head_vert_val)
                         predecessor[head_vert_idx] = tail_vert_idx
-                    elif pqueue.Elements[head_vert_idx].key > head_vert_val:
+                    elif elem.key > head_vert_val:
                         pq.decrease_key(&pqueue, head_vert_idx, head_vert_val)
                         predecessor[head_vert_idx] = tail_vert_idx
 
@@ -470,10 +479,11 @@ cpdef cnp.ndarray compute_stsp(
     """
 
     cdef:
-        size_t tail_vert_idx, head_vert_idx, idx
+        size_t tail_vert_idx, head_vert_idx, idx, edge_end
         DTYPE_t tail_vert_val, head_vert_val
         pq.PriorityQueue pqueue
         ElementState vert_state
+        Element* elem
         size_t target = <size_t>target_vert_idx
 
     with nogil:
@@ -491,26 +501,27 @@ cpdef cnp.ndarray compute_stsp(
             head_vert_idx = pq.extract_min(&pqueue)
             head_vert_val = pqueue.Elements[head_vert_idx].key
 
+            # cache loop bounds to avoid redundant indptr loads
+            edge_end = <size_t>csc_indptr[head_vert_idx + 1]
+
             # loop on incoming edges
-            for idx in range(<size_t>csc_indptr[head_vert_idx],
-                             <size_t>csc_indptr[head_vert_idx + 1]):
+            for idx in range(<size_t>csc_indptr[head_vert_idx], edge_end):
 
                 tail_vert_idx = <size_t>csc_indices[idx]
 
                 # prefetch next iteration data to improve cache performance
-                if idx + 1 < <size_t>csc_indptr[head_vert_idx + 1]:
+                if idx + 1 < edge_end:
                     prefetch_hint(<char*>&csc_indices[idx + 1], PREFETCH_T0)
                     prefetch_hint(<char*>&csc_data[idx + 1], PREFETCH_T0)
 
-                vert_state = pqueue.Elements[tail_vert_idx].state
+                # cache element pointer to avoid redundant loads
+                elem = &pqueue.Elements[tail_vert_idx]
+                vert_state = elem.state
                 if vert_state != SCANNED:
-                    # prefetch priority queue element data for the vertex
-                    prefetch_hint(<char*>&pqueue.Elements[tail_vert_idx], PREFETCH_T0)
-
                     tail_vert_val = head_vert_val + csc_data[idx]
                     if vert_state == UNLABELED:
                         pq.insert(&pqueue, tail_vert_idx, tail_vert_val)
-                    elif pqueue.Elements[tail_vert_idx].key > tail_vert_val:
+                    elif elem.key > tail_vert_val:
                         pq.decrease_key(&pqueue, tail_vert_idx, tail_vert_val)
 
     # copy the results into a numpy array
@@ -556,10 +567,11 @@ cpdef cnp.ndarray compute_stsp_w_path(
     """
 
     cdef:
-        size_t tail_vert_idx, head_vert_idx, idx
+        size_t tail_vert_idx, head_vert_idx, idx, edge_end
         DTYPE_t tail_vert_val, head_vert_val
         pq.PriorityQueue pqueue
         ElementState vert_state
+        Element* elem
         size_t target = <size_t>target_vert_idx
 
     with nogil:
@@ -577,27 +589,28 @@ cpdef cnp.ndarray compute_stsp_w_path(
             head_vert_idx = pq.extract_min(&pqueue)
             head_vert_val = pqueue.Elements[head_vert_idx].key
 
+            # cache loop bounds to avoid redundant indptr loads
+            edge_end = <size_t>csc_indptr[head_vert_idx + 1]
+
             # loop on incoming edges
-            for idx in range(<size_t>csc_indptr[head_vert_idx],
-                             <size_t>csc_indptr[head_vert_idx + 1]):
+            for idx in range(<size_t>csc_indptr[head_vert_idx], edge_end):
 
                 tail_vert_idx = <size_t>csc_indices[idx]
 
                 # prefetch next iteration data to improve cache performance
-                if idx + 1 < <size_t>csc_indptr[head_vert_idx + 1]:
+                if idx + 1 < edge_end:
                     prefetch_hint(<char*>&csc_indices[idx + 1], PREFETCH_T0)
                     prefetch_hint(<char*>&csc_data[idx + 1], PREFETCH_T0)
 
-                vert_state = pqueue.Elements[tail_vert_idx].state
+                # cache element pointer to avoid redundant loads
+                elem = &pqueue.Elements[tail_vert_idx]
+                vert_state = elem.state
                 if vert_state != SCANNED:
-                    # prefetch priority queue element data for the vertex
-                    prefetch_hint(<char*>&pqueue.Elements[tail_vert_idx], PREFETCH_T0)
-
                     tail_vert_val = head_vert_val + csc_data[idx]
                     if vert_state == UNLABELED:
                         pq.insert(&pqueue, tail_vert_idx, tail_vert_val)
                         successor[tail_vert_idx] = head_vert_idx
-                    elif pqueue.Elements[tail_vert_idx].key > tail_vert_val:
+                    elif elem.key > tail_vert_val:
                         pq.decrease_key(&pqueue, tail_vert_idx, tail_vert_val)
                         successor[tail_vert_idx] = head_vert_idx
 
@@ -645,10 +658,11 @@ cpdef cnp.ndarray compute_stsp_early_termination(
     """
 
     cdef:
-        size_t tail_vert_idx, head_vert_idx, idx, i
+        size_t tail_vert_idx, head_vert_idx, idx, i, edge_end
         DTYPE_t tail_vert_val, head_vert_val
         pq.PriorityQueue pqueue
         ElementState vert_state
+        Element* elem
         size_t target = <size_t>target_vert_idx
         size_t target_count = termination_nodes.shape[0]
         size_t visited_targets = 0
@@ -680,26 +694,27 @@ cpdef cnp.ndarray compute_stsp_early_termination(
                 if visited_targets == target_count:
                     break
 
+            # cache loop bounds to avoid redundant indptr loads
+            edge_end = <size_t>csc_indptr[head_vert_idx + 1]
+
             # loop on incoming edges
-            for idx in range(<size_t>csc_indptr[head_vert_idx],
-                             <size_t>csc_indptr[head_vert_idx + 1]):
+            for idx in range(<size_t>csc_indptr[head_vert_idx], edge_end):
 
                 tail_vert_idx = <size_t>csc_indices[idx]
 
                 # prefetch next iteration data to improve cache performance
-                if idx + 1 < <size_t>csc_indptr[head_vert_idx + 1]:
+                if idx + 1 < edge_end:
                     prefetch_hint(<char*>&csc_indices[idx + 1], PREFETCH_T0)
                     prefetch_hint(<char*>&csc_data[idx + 1], PREFETCH_T0)
 
-                vert_state = pqueue.Elements[tail_vert_idx].state
+                # cache element pointer to avoid redundant loads
+                elem = &pqueue.Elements[tail_vert_idx]
+                vert_state = elem.state
                 if vert_state != SCANNED:
-                    # prefetch priority queue element data for the vertex
-                    prefetch_hint(<char*>&pqueue.Elements[tail_vert_idx], PREFETCH_T0)
-
                     tail_vert_val = head_vert_val + csc_data[idx]
                     if vert_state == UNLABELED:
                         pq.insert(&pqueue, tail_vert_idx, tail_vert_val)
-                    elif pqueue.Elements[tail_vert_idx].key > tail_vert_val:
+                    elif elem.key > tail_vert_val:
                         pq.decrease_key(&pqueue, tail_vert_idx, tail_vert_val)
 
     # copy only the termination nodes' results into a numpy array
@@ -750,10 +765,11 @@ cpdef cnp.ndarray compute_stsp_w_path_early_termination(
     """
 
     cdef:
-        size_t tail_vert_idx, head_vert_idx, idx, i
+        size_t tail_vert_idx, head_vert_idx, idx, i, edge_end
         DTYPE_t tail_vert_val, head_vert_val
         pq.PriorityQueue pqueue
         ElementState vert_state
+        Element* elem
         size_t target = <size_t>target_vert_idx
         size_t target_count = termination_nodes.shape[0]
         size_t visited_targets = 0
@@ -785,27 +801,28 @@ cpdef cnp.ndarray compute_stsp_w_path_early_termination(
                 if visited_targets == target_count:
                     break
 
+            # cache loop bounds to avoid redundant indptr loads
+            edge_end = <size_t>csc_indptr[head_vert_idx + 1]
+
             # loop on incoming edges
-            for idx in range(<size_t>csc_indptr[head_vert_idx],
-                             <size_t>csc_indptr[head_vert_idx + 1]):
+            for idx in range(<size_t>csc_indptr[head_vert_idx], edge_end):
 
                 tail_vert_idx = <size_t>csc_indices[idx]
 
                 # prefetch next iteration data to improve cache performance
-                if idx + 1 < <size_t>csc_indptr[head_vert_idx + 1]:
+                if idx + 1 < edge_end:
                     prefetch_hint(<char*>&csc_indices[idx + 1], PREFETCH_T0)
                     prefetch_hint(<char*>&csc_data[idx + 1], PREFETCH_T0)
 
-                vert_state = pqueue.Elements[tail_vert_idx].state
+                # cache element pointer to avoid redundant loads
+                elem = &pqueue.Elements[tail_vert_idx]
+                vert_state = elem.state
                 if vert_state != SCANNED:
-                    # prefetch priority queue element data for the vertex
-                    prefetch_hint(<char*>&pqueue.Elements[tail_vert_idx], PREFETCH_T0)
-
                     tail_vert_val = head_vert_val + csc_data[idx]
                     if vert_state == UNLABELED:
                         pq.insert(&pqueue, tail_vert_idx, tail_vert_val)
                         successor[tail_vert_idx] = head_vert_idx
-                    elif pqueue.Elements[tail_vert_idx].key > tail_vert_val:
+                    elif elem.key > tail_vert_val:
                         pq.decrease_key(&pqueue, tail_vert_idx, tail_vert_val)
                         successor[tail_vert_idx] = head_vert_idx
 

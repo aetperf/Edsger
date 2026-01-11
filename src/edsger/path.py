@@ -2,7 +2,7 @@
 Path-related methods.
 """
 
-from typing import Optional, Union, List, Any
+from typing import Optional, Union, List, Any, cast
 import warnings
 
 import numpy as np
@@ -568,7 +568,9 @@ class Dijkstra:
 
                 if return_series:
                     path_df.set_index("vertex_idx", inplace=True)
-                    self._path_links = path_df.associated_idx.astype(np.uint32)
+                    self._path_links = path_df.associated_idx.astype(
+                        np.uint32
+                    ).to_numpy()
                 else:
                     self._path_links = np.arange(
                         self.__n_vertices_init, dtype=np.uint32
@@ -591,11 +593,11 @@ class Dijkstra:
                 and self._permutation is not None
             ):
                 self._permutation["path_length"] = path_length_values
-                path_lengths_df = (
-                    self._permutation[["vert_idx_old", "path_length"]]
-                    .copy()
-                    .sort_values("vert_idx_old")
-                )  # type: ignore
+                path_lengths_df = cast(
+                    pd.DataFrame,
+                    self._permutation[["vert_idx_old", "path_length"]].copy(),
+                )
+                path_lengths_df.sort_values(by="vert_idx_old", inplace=True)
                 path_lengths_df.set_index("vert_idx_old", drop=True, inplace=True)
                 path_lengths_df.index.name = "vertex_idx"
                 path_lengths_series = path_lengths_df.path_length
@@ -609,7 +611,9 @@ class Dijkstra:
                     and termination_nodes is not None
                 ):
                     # For early termination with permutation, use original termination node indices
-                    path_lengths_series.index = termination_nodes
+                    path_lengths_series = path_lengths_series.set_axis(
+                        termination_nodes
+                    )
 
             return path_lengths_series
 
@@ -1097,7 +1101,9 @@ class BellmanFord:
 
                 if return_series:
                     path_df.set_index("vertex_idx", inplace=True)
-                    self._path_links = path_df.associated_idx.astype(np.uint32)
+                    self._path_links = path_df.associated_idx.astype(
+                        np.uint32
+                    ).to_numpy()
                 else:
                     self._path_links = np.arange(
                         self.__n_vertices_init, dtype=np.uint32
@@ -1895,7 +1901,9 @@ class BFS:
 
                 if return_series:
                     path_df.set_index("vertex_idx", inplace=True)
-                    self._path_links = path_df.associated_idx.astype(np.uint32)
+                    self._path_links = path_df.associated_idx.astype(
+                        np.uint32
+                    ).to_numpy()
                 else:
                     self._path_links = np.arange(
                         self.__n_vertices_init, dtype=np.uint32

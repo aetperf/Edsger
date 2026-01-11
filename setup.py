@@ -41,13 +41,13 @@ def get_compiler_flags():
             # MinGW/GCC on Windows - Aggressive optimizations matching Linux performance
             print("Building with MinGW/GCC optimizations on Windows (aggressive)")
             compile_args = [
-                "-O3",  # Maximum optimization (or use -Ofast for even more aggressive)
+                "-Ofast",  # Maximum optimization with fast-math
                 "-march=native",  # Optimize for the current CPU architecture
                 "-mtune=native",  # Tune for the current CPU
                 "-flto",  # Link-time optimization
-                "-ffast-math",  # Fast floating-point math
                 "-funroll-loops",  # Unroll loops for better performance
                 "-ftree-vectorize",  # Enable auto-vectorization
+                "-fno-semantic-interposition",  # Allow more aggressive inlining
                 "-msse4.2",  # Enable SSE4.2 instructions (most modern CPUs support this)
                 "-mavx2",  # Enable AVX2 if your CPU supports it (comment out if not)
             ]
@@ -62,6 +62,7 @@ def get_compiler_flags():
                 ("_USE_MATH_DEFINES", None),  # Enable math constants
                 ("NDEBUG", None),  # Disable debug assertions
             ]
+            return compile_args, link_args, windows_macros
         else:
             # MSVC on Windows - Aggressive optimizations for maximum performance
             print("Building with MSVC optimizations on Windows (aggressive)")
@@ -135,7 +136,14 @@ def get_compiler_flags():
             compile_args = ["-Ofast", "-flto"]
         else:
             print(f"Building with {compiler_name} optimizations on {system}")
-            compile_args = ["-Ofast", "-flto", "-march=native"]
+            compile_args = [
+                "-Ofast",
+                "-flto",
+                "-march=native",
+                "-fno-plt",  # Avoid PLT indirection for faster calls
+                "-fno-semantic-interposition",  # Allow more aggressive inlining
+                "-funroll-loops",  # More aggressive loop unrolling
+            ]
 
         link_args = ["-flto"]
         return compile_args, link_args, []
