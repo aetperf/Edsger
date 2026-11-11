@@ -15,7 +15,7 @@ from edsger.dijkstra import (
     compute_stsp_01,
     compute_stsp_02,
 )
-from edsger.path import Dijkstra
+from edsger.path import BFS, BellmanFord, Dijkstra
 
 
 def test_compute_sssp_01():
@@ -59,3 +59,17 @@ def test_dense_graph_heap_growth(lazy, heap_length_ratio):
     path_lengths = sp.run(vertex_idx=0, heap_length_ratio=heap_length_ratio)
 
     np.testing.assert_array_equal(path_lengths, path_lengths_ref)
+
+
+@pytest.mark.parametrize("algo", [Dijkstra, BellmanFord, BFS])
+def test_negative_vertex_index(algo):
+    """Vertex indices are used without bounds checking: negative ones must be
+    rejected when the graph is built, unless the vertices are re-indexed."""
+    edges = pd.DataFrame(
+        {"tail": [0, -1, 1], "head": [1, 2, 2], "weight": [1.0, 1.0, 1.0]}
+    )
+
+    with pytest.raises(ValueError, match="vertex indices"):
+        algo(edges, permute=False)
+
+    algo(edges, permute=True)

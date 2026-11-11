@@ -1,3 +1,10 @@
+# cython: language_level=3
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: embedsignature=False
+# cython: cdivision=True
+# cython: initializedcheck=False
+
 """
 An implementation of the Bellman-Ford algorithm.
 
@@ -18,13 +25,6 @@ cpdef functions:
 - detect_negative_cycle
     Detect negative cycles in the graph.
 """
-
-# cython: language_level=3
-# cython: boundscheck=False
-# cython: wraparound=False
-# cython: embedsignature=False
-# cython: cdivision=True
-# cython: initializedcheck=False
 
 cimport numpy as cnp
 import numpy as np

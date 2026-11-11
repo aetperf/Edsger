@@ -1,13 +1,13 @@
-"""
-Common definitions.
-"""
-
 # cython: language_level=3
 # cython: boundscheck=False
 # cython: wraparound=False
 # cython: embedsignature=False
 # cython: cdivision=True
 # cython: initializedcheck=False
+
+"""
+Common definitions.
+"""
 
 import numpy as np
 

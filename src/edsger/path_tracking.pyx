@@ -1,3 +1,10 @@
+# cython: language_level=3
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: embedsignature=False
+# cython: cdivision=True
+# cython: initializedcheck=False
+
 """
 Path tracking module.
 
@@ -13,13 +20,6 @@ cdef functions:
 - _compute_path_second_pass
     Compute the sequence of vertices forming a path.
 """
-
-# cython: language_level=3
-# cython: boundscheck=False
-# cython: wraparound=False
-# cython: embedsignature=False
-# cython: cdivision=True
-# cython: initializedcheck=False
 
 import numpy as np
 cimport numpy as cnp
@@ -39,6 +39,13 @@ cpdef cnp.ndarray compute_path(cnp.uint32_t[::1] path_links, int vertex_idx):
     """
 
     cdef int path_length
+
+    # bounds checking is disabled in this module
+    if vertex_idx < 0 or vertex_idx >= path_links.shape[0]:
+        raise IndexError(
+            f"vertex index {vertex_idx} is out of bounds for {path_links.shape[0]} "
+            "vertices"
+        )
 
     path_length = _compute_path_first_pass(path_links, vertex_idx)
     path_vertices = np.empty(path_length, dtype=np.uint32)

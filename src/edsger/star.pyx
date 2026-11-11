@@ -1,3 +1,10 @@
+# cython: language_level=3
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: embedsignature=False
+# cython: cdivision=True
+# cython: initializedcheck=False
+
 """
 Forward and reverse star representations of networks.
 
@@ -26,15 +33,44 @@ cdef functions:
 - _coo_to_csc_float64
 """
 
-# cython: language_level=3
-# cython: boundscheck=False
-# cython: wraparound=False
-# cython: embedsignature=False
-# cython: cdivision=True
-# cython: initializedcheck=False
-
 import numpy as np
 cimport numpy as cnp
+
+
+cdef _get_vertex_indices(edges, tail, head, vertex_count):
+    """
+    Return the tail and head vertex indices of the edges as uint32 arrays,
+    after checking that they are valid: they are used to index arrays of
+    length vertex_count, here and in the graph algorithms, without bounds
+    checking.
+
+    Parameters
+    ----------
+    edges : pandas.core.frame.DataFrame
+        The edges dataframe.
+    tail : str
+        The column name in the edges dataframe for the tail vertex index.
+    head : str
+        The column name in the edges dataframe for the head vertex index.
+    vertex_count : int
+        The vertex count in the given network edges.
+
+    Returns
+    -------
+    tuple[numpy.ndarray, numpy.ndarray]
+    """
+    tail_indices = edges[tail].values.astype(np.uint32)
+    head_indices = edges[head].values.astype(np.uint32)
+
+    # a negative index is a very large one once converted to uint32
+    if len(tail_indices) > 0 and (
+        tail_indices.max() >= vertex_count or head_indices.max() >= vertex_count
+    ):
+        raise ValueError(
+            "vertex indices should be non-negative and smaller than the vertex count"
+        )
+
+    return tail_indices, head_indices
 
 
 cpdef convert_graph_to_csr_uint32(edges, tail, head, data, vertex_count):
@@ -67,9 +103,12 @@ cpdef convert_graph_to_csr_uint32(edges, tail, head, data, vertex_count):
     fs_indices = np.empty(edge_count, dtype=np.uint32)
     fs_data = np.empty(edge_count, dtype=np.uint32)
 
+    tail_indices, head_indices = _get_vertex_indices(
+        edges, tail, head, vertex_count
+    )
     _coo_to_csr_uint32(
-        edges[tail].values.astype(np.uint32),
-        edges[head].values.astype(np.uint32),
+        tail_indices,
+        head_indices,
         edges[data].values.astype(np.uint32),
         fs_indptr,
         fs_indices,
@@ -109,9 +148,12 @@ cpdef convert_graph_to_csc_uint32(edges, tail, head, data, vertex_count):
     rs_indices = np.empty(edge_count, dtype=np.uint32)
     rs_data = np.empty(edge_count, dtype=np.uint32)
 
+    tail_indices, head_indices = _get_vertex_indices(
+        edges, tail, head, vertex_count
+    )
     _coo_to_csc_uint32(
-        edges[tail].values.astype(np.uint32),
-        edges[head].values.astype(np.uint32),
+        tail_indices,
+        head_indices,
         edges[data].values.astype(np.uint32),
         rs_indptr,
         rs_indices,
@@ -151,9 +193,12 @@ cpdef convert_graph_to_csr_float64(edges, tail, head, data, vertex_count):
     fs_indices = np.empty(edge_count, dtype=np.uint32)
     fs_data = np.empty(edge_count, dtype=np.float64)
 
+    tail_indices, head_indices = _get_vertex_indices(
+        edges, tail, head, vertex_count
+    )
     _coo_to_csr_float64(
-        edges[tail].values.astype(np.uint32),
-        edges[head].values.astype(np.uint32),
+        tail_indices,
+        head_indices,
         edges[data].values.astype(np.float64),
         fs_indptr,
         fs_indices,
@@ -193,9 +238,12 @@ cpdef convert_graph_to_csc_float64(edges, tail, head, data, vertex_count):
     rs_indices = np.empty(edge_count, dtype=np.uint32)
     rs_data = np.empty(edge_count, dtype=np.float64)
 
+    tail_indices, head_indices = _get_vertex_indices(
+        edges, tail, head, vertex_count
+    )
     _coo_to_csc_float64(
-        edges[tail].values.astype(np.uint32),
-        edges[head].values.astype(np.uint32),
+        tail_indices,
+        head_indices,
         edges[data].values.astype(np.float64),
         rs_indptr,
         rs_indices,
@@ -249,7 +297,7 @@ cdef void _coo_to_csc_uint32(
         cnp.uint32_t [::1] Ax,
         cnp.uint32_t [::1] Bp,
         cnp.uint32_t [::1] Bi,
-        cnp.uint32_t [::1] Bx) nogil:
+        cnp.uint32_t [::1] Bx) noexcept nogil:
 
     cdef:
         size_t i, col, dest

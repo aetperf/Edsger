@@ -1,3 +1,10 @@
+# cython: language_level=3
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: embedsignature=False
+# cython: cdivision=True
+# cython: initializedcheck=False
+
 """
 An implementation of Spiess and Florian's hyperpath generating algorithm.
 
@@ -16,13 +23,6 @@ cdef functions:
 - _SF_in_second_pass
 
 """
-
-# cython: language_level=3
-# cython: boundscheck=False
-# cython: wraparound=False
-# cython: embedsignature=False
-# cython: cdivision=True
-# cython: initializedcheck=False
 
 import numpy as np
 cimport numpy as cnp
@@ -52,6 +52,17 @@ cpdef void compute_SF_in(
 
     cdef:
         int edge_count = tail_indices.shape[0]
+
+    # bounds checking is disabled in this module
+    if dest_vert_index < 0 or dest_vert_index >= vertex_count:
+        raise IndexError(
+            f"destination vertex index {dest_vert_index} is out of bounds for "
+            f"{vertex_count} vertices"
+        )
+    if len(demand_indices) > 0 and np.max(demand_indices) >= vertex_count:
+        raise IndexError(
+            f"origin vertex index is out of bounds for {vertex_count} vertices"
+        )
 
     # initialization
     u_i_vec[<size_t>dest_vert_index] = 0.0

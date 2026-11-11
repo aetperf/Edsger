@@ -12,10 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - New inline 4-ary heap (`pq_4ary_inline.pxd`) used by `dijkstra.pyx` and `dijkstra_nodec.pyx`: keys stored in the heap nodes, branch-free selection of the smallest child, sentinel keys, hole-based sifts, heap operations inlined into the main loop
 - Prefetching of the adjacency data of the next vertices to be scanned (heap root and its children)
 - No per-vertex state array anymore: the path length array is the output array, written in place
-- `# cython:` compiler directives of `dijkstra.pyx` and `dijkstra_nodec.pyx` moved before the module docstring: they were ignored by Cython where they were, so bounds checking was still active
+- `# cython:` compiler directives moved before the module docstring in all the Cython modules: they were ignored by Cython where they were, so bounds checking was still active. BFS and Bellman-Ford are about 18% faster (E and NY DIMACS networks)
 
 ### Bug Fixes
 - Fixed a heap overflow (memory corruption) of the lazy Dijkstra on dense graphs, where the number of heap entries can exceed the vertex count: the heap now grows when needed
+- Negative vertex indices without `permute=True` now raise a `ValueError` when the graph is built, instead of silently producing wrong results
+- `compute_path` (and so `get_path`) now raises an `IndexError` for an out-of-bounds vertex index, instead of returning an empty path
 
 ## Version 0.1.7 (2026-01-05)
 

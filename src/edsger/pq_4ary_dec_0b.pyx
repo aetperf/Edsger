@@ -1,3 +1,10 @@
+# cython: language_level=3
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: embedsignature=False
+# cython: cdivision=True
+# cython: initializedcheck=False
+
 """
 Priority queue based on a minimum 4-ary heap.
 
@@ -34,13 +41,6 @@ cdef functions:
     Decrease the key of an element in the heap, given its tree index.
 
 """
-
-# cython: language_level=3
-# cython: boundscheck=False
-# cython: wraparound=False
-# cython: embedsignature=False
-# cython: cdivision=True
-# cython: initializedcheck=False
 
 cimport numpy as cnp
 
