@@ -1,19 +1,19 @@
 {
-  "timestamp": "2026-01-05T09:39:32.067774",
+  "timestamp": "2026-11-11T20:59:00.810317",
   "os": "linux",
   "network": "USA",
   "system_info": {
-    "python_version": "3.13.11",
-    "platform": "Linux-5.15.0-161-generic-x86_64-with-glibc2.35",
+    "python_version": "3.14.2",
+    "platform": "Linux-5.15.0-203-generic-x86_64-with-glibc2.35",
     "processor": "x86_64",
     "os_name": "Linux",
-    "conda_version": "conda 25.11.1",
-    "edsger_version": "0.1.7",
-    "networkit_version": "11.1.post1",
-    "graph-tool_version": "2.98 (commit c96a6bf3, )",
-    "scipy_version": "1.16.3",
-    "numpy_version": "2.4.0",
-    "pandas_version": "2.3.1",
+    "conda_version": "conda 26.1.1",
+    "edsger_version": "0.1.7.post1.dev16+gaf78bf8cc.d20261111",
+    "networkit_version": "11.3",
+    "graph-tool_version": "3.9",
+    "scipy_version": "1.18.1",
+    "numpy_version": "2.5.4",
+    "pandas_version": "3.1.1",
     "available_packages": [
       "edsger",
       "networkit",
@@ -27,58 +27,58 @@
     {
       "library": "E",
       "times": [
-        2.5666,
-        2.5576,
-        2.56,
-        2.5605,
-        2.5586
+        1.271,
+        1.2919,
+        1.279,
+        1.2922,
+        1.3086
       ],
-      "min_time": 2.5576,
-      "avg_time": 2.5606600000000004,
-      "std_time": 0.003141719274537505,
-      "total_duration": 21.705482959747314
+      "min_time": 1.271,
+      "avg_time": 1.28854,
+      "std_time": 0.012851085557259391,
+      "total_duration": 13.196001529693604
     },
     {
       "library": "NK",
       "times": [
-        4.9793,
-        4.8843,
-        4.8808,
-        4.8943,
-        4.8835
+        5.4554,
+        5.6523,
+        5.5324,
+        5.4247,
+        5.4315
       ],
-      "min_time": 4.8808,
-      "avg_time": 4.904439999999999,
-      "std_time": 0.03770886367951193,
-      "total_duration": 29.387848138809204
+      "min_time": 5.4247,
+      "avg_time": 5.49926,
+      "std_time": 0.08554976563381127,
+      "total_duration": 32.60303068161011
     },
     {
       "library": "GT",
       "times": [
-        5.3055,
-        5.3175,
-        5.3099,
-        5.2916,
-        5.2901
+        5.1726,
+        5.1367,
+        5.2908,
+        5.4836,
+        5.1604
       ],
-      "min_time": 5.2901,
-      "avg_time": 5.302919999999999,
-      "std_time": 0.010587237600054178,
-      "total_duration": 34.371864318847656
+      "min_time": 5.1367,
+      "avg_time": 5.24882,
+      "std_time": 0.1289049634420645,
+      "total_duration": 33.628666639328
     },
     {
       "library": "SciPy",
       "times": [
-        3.0513,
-        3.0504,
-        3.0333,
-        3.0398,
-        3.0218
+        3.0145,
+        3.1386,
+        3.1232,
+        3.0835,
+        3.1476
       ],
-      "min_time": 3.0218,
-      "avg_time": 3.03932,
-      "std_time": 0.01104271705695657,
-      "total_duration": 74.47416257858276
+      "min_time": 3.0145,
+      "avg_time": 3.10148,
+      "std_time": 0.04871449065729831,
+      "total_duration": 58.324843406677246
     }
   ]
 }

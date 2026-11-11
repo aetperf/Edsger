@@ -1,11 +1,12 @@
 # Benchmark script dependencies for Linux
-# Note: graph-tool is typically installed via conda: conda install -c conda-forge graph-tool
+# Pinned on 2026-11-11 for Python 3.14 (latest releases at that date)
+# Note: graph-tool is installed via conda: conda install -c conda-forge graph-tool-base=3.9
 
-numpy==2.4.0
-pandas==2.3.1
-loguru==0.7.3
-scipy==1.16.3
-networkit==11.1.post1
-pyarrow==22.0.0
-tol-colors==2.0.0.post1
-matplotlib==3.10.8
+numpy==2.5.4
+pandas==3.1.1
+loguru==0.8.0
+scipy==1.18.1
+networkit==11.3
+pyarrow==26.0.1
+tol-colors==2.2.0
+matplotlib==3.11.2
