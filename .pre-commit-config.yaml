@@ -10,7 +10,7 @@ repos:
     rev: v0.16.2
     hooks:
       - id: cython-lint
-        files: '\.(pyx|pxd)$'
+        files: '\.(pyx|pxd|pxi)$'
         args: [--max-line-length=88]
 
   - repo: local

@@ -1,2 +1,3 @@
 include src/edsger/*.pyx
 include src/edsger/*.pxd
+include src/edsger/*.pxi

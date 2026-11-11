@@ -3,8 +3,8 @@
 
 This is the heap used by Dijkstra's algorithm, with (`dijkstra.pyx`) or
 without (`dijkstra_nodec.pyx`) the decrease-key operation. It differs from
-`pq_4ary_dec_0b` and `pq_4ary_nodec_0b` in its memory layout, not in its
-nature: it is still an implicit 4-ary min-heap, zero-based.
+`pq_4ary_dec_0b` in its memory layout, not in its nature: it is still an
+implicit 4-ary min-heap, zero-based.
 
 Layout
 ------
@@ -15,6 +15,8 @@ Layout
   per-vertex arrays.
 - With decrease-key, `pos[v]` is the heap index of vertex `v`. It is only
   meaningful while `v` is in the heap, and does not need to be initialized.
+  Without decrease-key, the sift functions are given a NULL `pos`: the test
+  is removed by the C compiler once the functions are inlined.
 - The heap pointer is offset by `HEAP_OFFSET` nodes from the start of the
   allocation. When the allocation is cache-line aligned, which is the case of
   the large ones, the 4 children of any node share a single 64-byte cache
@@ -48,13 +50,9 @@ cdef inline functions:
 - heap_free
     Free a heap.
 - sift_down
-    Fill the hole left at the root with a given element (with decrease-key).
+    Fill the hole left at the root with a given element.
 - sift_up
-    Place an element at a given heap index, or above (with decrease-key).
-- sift_down_nodec
-    Fill the hole left at the root with a given element (no decrease-key).
-- sift_up_nodec
-    Place an element at a given heap index, or above (no decrease-key).
+    Place an element at a given heap index, or above.
 """
 
 cimport numpy as cnp
@@ -149,12 +147,14 @@ cdef inline void sift_down(
         cnp.uint32_t vert) noexcept nogil:
     """
     Fill the hole left at the root with the element (key, vert) and restore
-    the heap order, keeping track of the heap index of each vertex.
+    the heap order, keeping track of the heap index of each vertex if pos is
+    not NULL.
 
     input
     =====
     * HeapNode* heap : heap array
-    * cnp.uint32_t* pos : heap index of each vertex
+    * cnp.uint32_t* pos : heap index of each vertex, or NULL if it is not
+      tracked (no decrease-key)
     * size_t size : number of nodes in the heap, hole included
     * DTYPE_t key : key of the element to place
     * cnp.uint32_t vert : vertex index of the element to place
@@ -195,7 +195,8 @@ cdef inline void sift_down(
         if km < key:
             # move the smallest child up into the hole
             heap[i] = heap[m]
-            pos[heap[i].vert] = <cnp.uint32_t>i
+            if pos != NULL:
+                pos[heap[i].vert] = <cnp.uint32_t>i
             i = m
             c = 4 * m + 1
         else:
@@ -203,7 +204,8 @@ cdef inline void sift_down(
 
     heap[i].key = key
     heap[i].vert = vert
-    pos[vert] = <cnp.uint32_t>i
+    if pos != NULL:
+        pos[vert] = <cnp.uint32_t>i
 
 
 cdef inline void sift_up(
@@ -214,14 +216,16 @@ cdef inline void sift_up(
         cnp.uint32_t vert) noexcept nogil:
     """
     Place the element (key, vert) at the heap index node_idx, or above, and
-    restore the heap order, keeping track of the heap index of each vertex.
-    This is both the insert operation (node_idx is the first free index) and
-    the decrease-key operation (node_idx is the current index of the vertex).
+    restore the heap order, keeping track of the heap index of each vertex if
+    pos is not NULL. This is both the insert operation (node_idx is the first
+    free index) and the decrease-key operation (node_idx is the current index
+    of the vertex).
 
     input
     =====
     * HeapNode* heap : heap array
-    * cnp.uint32_t* pos : heap index of each vertex
+    * cnp.uint32_t* pos : heap index of each vertex, or NULL if it is not
+      tracked (no decrease-key)
     * size_t node_idx : heap index of the hole
     * DTYPE_t key : key of the element to place
     * cnp.uint32_t vert : vertex index of the element to place
@@ -238,109 +242,16 @@ cdef inline void sift_up(
         if heap[j].key > key:
             # move the parent down into the hole
             heap[i] = heap[j]
-            pos[heap[i].vert] = <cnp.uint32_t>i
+            if pos != NULL:
+                pos[heap[i].vert] = <cnp.uint32_t>i
             i = j
         else:
             break
 
     heap[i].key = key
     heap[i].vert = vert
-    pos[vert] = <cnp.uint32_t>i
-
-
-cdef inline void sift_down_nodec(
-        HeapNode* heap,
-        size_t size,
-        DTYPE_t key,
-        cnp.uint32_t vert) noexcept nogil:
-    """
-    Fill the hole left at the root with the element (key, vert) and restore
-    the heap order. Same as sift_down, without the heap index of the
-    vertices.
-
-    input
-    =====
-    * HeapNode* heap : heap array
-    * size_t size : number of nodes in the heap, hole included
-    * DTYPE_t key : key of the element to place
-    * cnp.uint32_t vert : vertex index of the element to place
-
-    assumptions
-    ===========
-    * size > 0
-    * heap[size], ..., heap[size + HEAP_SENTINELS - 1] hold sentinel keys
-    """
-    cdef:
-        size_t i = 0  # hole index
-        size_t c = 1  # index of the first child of the hole
-        size_t m, a, b
-        HeapNode* p
-        DTYPE_t k0, k1, k2, k3, ka, kb, km
-
-    while c < size:
-        p = &heap[c]
-
-        # get the 16 grandchildren on their way (4 cache lines)
-        prefetch_t0(&heap[4 * c + 1])
-        prefetch_t0(&heap[4 * c + 5])
-        prefetch_t0(&heap[4 * c + 9])
-        prefetch_t0(&heap[4 * c + 13])
-
-        # branch-free selection of the smallest child
-        k0 = p[0].key
-        k1 = p[1].key
-        k2 = p[2].key
-        k3 = p[3].key
-        a = <size_t>(k1 < k0)
-        ka = k1 if k1 < k0 else k0
-        b = 2 + <size_t>(k3 < k2)
-        kb = k3 if k3 < k2 else k2
-        km = kb if kb < ka else ka
-        m = c + (a ^ ((a ^ b) & (-<size_t>(kb < ka))))
-
-        if km < key:
-            # move the smallest child up into the hole
-            heap[i] = heap[m]
-            i = m
-            c = 4 * m + 1
-        else:
-            break
-
-    heap[i].key = key
-    heap[i].vert = vert
-
-
-cdef inline void sift_up_nodec(
-        HeapNode* heap,
-        size_t node_idx,
-        DTYPE_t key,
-        cnp.uint32_t vert) noexcept nogil:
-    """
-    Place the element (key, vert) at the heap index node_idx, or above, and
-    restore the heap order. Same as sift_up, without the heap index of the
-    vertices.
-
-    input
-    =====
-    * HeapNode* heap : heap array
-    * size_t node_idx : heap index of the hole
-    * DTYPE_t key : key of the element to place
-    * cnp.uint32_t vert : vertex index of the element to place
-    """
-    cdef:
-        size_t i = node_idx, j
-
-    while i > 0:
-        j = (i - 1) >> 2
-        if heap[j].key > key:
-            # move the parent down into the hole
-            heap[i] = heap[j]
-            i = j
-        else:
-            break
-
-    heap[i].key = key
-    heap[i].vert = vert
+    if pos != NULL:
+        pos[vert] = <cnp.uint32_t>i
 
 
 # author : Francois Pacull

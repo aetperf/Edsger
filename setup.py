@@ -178,13 +178,6 @@ extensions = [
         define_macros=define_macros_with_thp,
     ),
     Extension(
-        "edsger.pq_4ary_nodec_0b",
-        ["src/edsger/pq_4ary_nodec_0b.pyx"],
-        extra_compile_args=extra_compile_args,
-        extra_link_args=extra_link_args,
-        define_macros=define_macros_with_thp,
-    ),
-    Extension(
         "edsger.dijkstra",
         ["src/edsger/dijkstra.pyx"],
         extra_compile_args=extra_compile_args,

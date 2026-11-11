@@ -26,6 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - The lazy Dijkstra routines stop with a `ValueError` when called directly on a graph with negative weights on which they would not terminate
 - New `edsger.commons.validate_graph(indptr, indices, data=None, nonnegative=True)`: optional full check of a graph in CSR/CSC format (pointers, indices, weights), in linear time (35 ms on the USA network). The algorithms do not call it: it is meant to be run once on arrays that do not come from `edsger.path`, before any number of runs
 
+### Internal
+- `dijkstra.pyx` and `dijkstra_nodec.pyx` now share their code: both include `dijkstra_core.pxi` (algorithm, public functions, embedded tests), compiled with a constant `LAZY` set to 0 or 1. The heap has a single pair of sift functions, with or without decrease-key. No change in speed or results
+- Removed the `pq_4ary_nodec_0b` module, which was not used anymore
+- cython-lint also runs on `.pxi` files (pre-commit, CI)
+
 ## Version 0.1.7 (2026-01-05)
 
 ### Performance Improvements
