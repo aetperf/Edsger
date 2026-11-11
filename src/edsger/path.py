@@ -597,11 +597,10 @@ class Dijkstra:
                         path_df.associated_idx.values
                     )
 
-        # deal with infinity
+        # deal with infinity, in place: the array has just been allocated by the
+        # Dijkstra routine, and a copy of it is costly on large graphs
         if return_inf:
-            path_length_values = np.where(
-                path_length_values == DTYPE_INF_PY, np.inf, path_length_values
-            )
+            path_length_values[path_length_values == DTYPE_INF_PY] = np.inf
 
         # reorder path lengths
         if return_series:

@@ -1,10 +1,17 @@
+# cython: language_level=3
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: embedsignature=False
+# cython: cdivision=True
+# cython: initializedcheck=False
+
 """
 Lazy Dijkstra's algorithm without decrease-key operation.
 
-This implementation uses a simplified priority queue (pq_4ary_nodec_0b) that
-doesn't support decrease-key. Instead, when a shorter path is found, a new
-entry is inserted into the heap with the better value. Stale entries (already
-SCANNED vertices) are skipped during extraction.
+This implementation uses a priority queue without decrease-key operation
+(pq_4ary_inline). Instead, when a shorter path is found, a new entry is
+inserted into the heap with the better value. Stale entries (whose key is
+larger than the path length of their vertex) are skipped during extraction.
 
 cpdef functions:
 
@@ -34,24 +41,224 @@ cpdef functions:
     are reached. Compute successors.
 """
 
-# cython: language_level=3
-# cython: boundscheck=False
-# cython: wraparound=False
-# cython: embedsignature=False
-# cython: cdivision=True
-# cython: initializedcheck=False
-
 cimport numpy as cnp
+import numpy as np
 
-from edsger.commons cimport (
-    DTYPE_INF, UNLABELED, SCANNED, DTYPE_t, ElementState)
-cimport edsger.pq_4ary_nodec_0b as pq  # priority queue without decrease-key
-from edsger.pq_4ary_nodec_0b cimport Element  # for element pointer caching
+from edsger.commons import DTYPE_PY
+from edsger.commons cimport DTYPE_INF, DTYPE_t
+from edsger.pq_4ary_inline cimport (
+    HeapNode, HEAP_OFFSET, HEAP_SENTINELS, heap_alloc, heap_grow, heap_free,
+    sift_down_nodec, sift_up_nodec, prefetch_t0)
 
-# memory prefetching support (x86/x64 only)
-cdef extern from "prefetch_compat.h":
-    void prefetch_hint(char*, int) nogil
-    int PREFETCH_T0
+
+cdef int _dijkstra(
+        const cnp.uint32_t* indptr,
+        const cnp.uint32_t* indices,
+        const DTYPE_t* data,
+        DTYPE_t* dist,
+        cnp.uint32_t* path,
+        const cnp.uint32_t* termination_nodes,
+        size_t termination_count,
+        size_t origin,
+        size_t vertex_count,
+        size_t heap_length) noexcept nogil:
+    """
+    Lazy Dijkstra's algorithm, from one origin vertex, on a graph given in a
+    compressed sparse format. All the public functions of this module call
+    this one: SSSP on the CSR arrays, STSP on the CSC arrays.
+
+    The tentative path lengths are stored in `dist`, which is also the
+    output: DTYPE_INF means that the vertex has not been reached. Each time
+    the path length of a vertex is improved, a new entry is inserted into the
+    heap. The keys inserted for a given vertex are strictly decreasing, so
+    that an extracted entry is stale, and skipped, if and only if its key is
+    larger than the path length of its vertex. No vertex state is needed.
+
+    input
+    =====
+    * const cnp.uint32_t* indptr : pointers in the CSR/CSC format
+    * const cnp.uint32_t* indices : indices in the CSR/CSC format
+    * const DTYPE_t* data : edge weights in the CSR/CSC format
+    * DTYPE_t* dist : path length of each vertex (output)
+    * cnp.uint32_t* path : predecessor/successor of each vertex (output), or
+      NULL if the paths are not tracked
+    * const cnp.uint32_t* termination_nodes : vertices for early termination,
+      or NULL
+    * size_t termination_count : number of termination nodes, 0 for no early
+      termination
+    * size_t origin : origin vertex index
+    * size_t vertex_count : vertex count
+    * size_t heap_length : initial capacity of the heap, which grows if
+      needed
+
+    output
+    ======
+    * int : 0 on success, -1 if a memory allocation failed
+    """
+
+    cdef:
+        size_t size, i, idx, edge_end, tail_vert_idx, head_vert_idx
+        size_t next_vert_idx, next_idx, visited_count
+        size_t iteration_count = 0
+        size_t check_frequency = 16
+        size_t capacity = heap_length if heap_length > 0 else 1
+        DTYPE_t tail_vert_val, head_vert_val
+        DTYPE_t inf = DTYPE_INF
+        HeapNode* heap_base
+        HeapNode* heap_base_new
+        HeapNode* heap
+        HeapNode last
+        int status = 0
+
+    heap_base = heap_alloc(capacity)
+    if heap_base == NULL:
+        return -1
+    heap = heap_base + HEAP_OFFSET
+
+    # all vertices have an INFINITY path length
+    for i in range(vertex_count):
+        dist[i] = inf
+
+    # the origin vertex is inserted into the heap with a zero key
+    dist[origin] = 0.0
+    heap[0].key = 0.0
+    heap[0].vert = <cnp.uint32_t>origin
+    size = 1
+    for i in range(HEAP_SENTINELS):
+        heap[size + i].key = inf
+
+    # main loop
+    while size > 0:
+
+        # extract the entry with min key
+        tail_vert_idx = heap[0].vert
+        tail_vert_val = heap[0].key
+        size -= 1
+        last = heap[size]
+        heap[size].key = inf
+        if size > 0:
+            sift_down_nodec(heap, size, last.key, last.vert)
+
+            # The new root is most likely the next vertex to be scanned, and
+            # its children the ones after that. Their path length and
+            # adjacency data are requested now, so that they are in the cache
+            # when they are needed.
+            next_vert_idx = heap[0].vert
+            prefetch_t0(<void*>&dist[next_vert_idx])
+            next_idx = indptr[next_vert_idx]
+            if next_idx < indptr[next_vert_idx + 1]:
+                prefetch_t0(<void*>&data[next_idx])
+                prefetch_t0(<void*>&dist[indices[next_idx]])
+            if size > 4:
+                for i in range(1, 5):
+                    next_idx = indptr[heap[i].vert]
+                    prefetch_t0(<void*>&indices[next_idx])
+                    prefetch_t0(<void*>&data[next_idx])
+
+        # skip stale entries: the path length of the vertex has been improved
+        # since this entry was inserted
+        if tail_vert_val > dist[tail_vert_idx]:
+            continue
+
+        # Check for early termination every check_frequency iterations. The
+        # path length of a vertex is final as soon as it is not larger than
+        # the key that has just been extracted.
+        if termination_count > 0:
+            iteration_count += 1
+            if iteration_count % check_frequency == 0:
+                visited_count = 0
+                for i in range(termination_count):
+                    if dist[termination_nodes[i]] <= tail_vert_val:
+                        visited_count += 1
+                if visited_count == termination_count:
+                    break
+
+        # loop on outgoing edges
+        edge_end = indptr[tail_vert_idx + 1]
+        for idx in range(indptr[tail_vert_idx], edge_end):
+
+            head_vert_idx = indices[idx]
+            head_vert_val = tail_vert_val + data[idx]
+
+            if head_vert_val < dist[head_vert_idx]:
+                # insert a new entry, whether the vertex is already in the
+                # heap or not
+                dist[head_vert_idx] = head_vert_val
+                prefetch_t0(<void*>&indptr[head_vert_idx])
+                if size == capacity:
+                    heap_base_new = heap_grow(heap_base, capacity, 2 * capacity)
+                    if heap_base_new == NULL:
+                        # leave the main loop
+                        status = -1
+                        size = 0
+                        break
+                    heap_base = heap_base_new
+                    heap = heap_base + HEAP_OFFSET
+                    capacity = 2 * capacity
+                i = size
+                size += 1
+                heap[size + HEAP_SENTINELS - 1].key = inf
+                sift_up_nodec(heap, i, head_vert_val, <cnp.uint32_t>head_vert_idx)
+                if path != NULL:
+                    path[head_vert_idx] = <cnp.uint32_t>tail_vert_idx
+
+    # cleanup
+    heap_free(heap_base, capacity)
+
+    return status
+
+
+cdef cnp.ndarray _run(
+        cnp.uint32_t[::1] indptr,
+        cnp.uint32_t[::1] indices,
+        DTYPE_t[::1] data,
+        cnp.uint32_t[::1] path,
+        cnp.uint32_t[::1] termination_nodes,
+        int origin_vert_idx,
+        int vertex_count,
+        int heap_length):
+    """
+    Allocate the path length array, run Dijkstra's algorithm and return the
+    path lengths: for each vertex, or for each termination node if any.
+
+    `path` and `termination_nodes` may be None.
+    """
+
+    cdef:
+        cnp.ndarray path_lengths = np.empty(vertex_count, dtype=DTYPE_PY)
+        DTYPE_t[::1] dist = path_lengths
+        cnp.uint32_t* path_ptr = NULL
+        cnp.uint32_t* termination_ptr = NULL
+        size_t termination_count = 0
+        int status
+
+    if path is not None:
+        path_ptr = &path[0]
+    if termination_nodes is not None:
+        termination_ptr = &termination_nodes[0]
+        termination_count = termination_nodes.shape[0]
+
+    with nogil:
+        status = _dijkstra(
+            &indptr[0],
+            &indices[0],
+            &data[0],
+            &dist[0],
+            path_ptr,
+            termination_ptr,
+            termination_count,
+            <size_t>origin_vert_idx,
+            <size_t>vertex_count,
+            <size_t>heap_length)
+
+    if status != 0:
+        raise MemoryError("unable to allocate the priority queue")
+
+    if termination_nodes is not None:
+        # only the termination nodes' results
+        return path_lengths[np.asarray(termination_nodes)]
+
+    return path_lengths
 
 
 cpdef cnp.ndarray compute_sssp(
@@ -86,66 +293,9 @@ cpdef cnp.ndarray compute_sssp(
         shortest path length for each vertex
     """
 
-    cdef:
-        size_t tail_vert_idx, head_vert_idx, idx, edge_end
-        DTYPE_t tail_vert_val, head_vert_val
-        pq.PriorityQueue pqueue
-        ElementState vert_state
-        Element* elem
-        size_t source = <size_t>source_vert_idx
-
-    with nogil:
-
-        # initialization of the heap elements
-        # all nodes have INFINITY key and UNLABELED state
-        pq.init_pqueue(&pqueue, <size_t>heap_length, <size_t>vertex_count)
-
-        # the key is set to zero for the source vertex,
-        # which is inserted into the heap
-        pq.insert(&pqueue, source, 0.0)
-
-        # main loop
-        while pqueue.size > 0:
-            tail_vert_idx = pq.extract_min(&pqueue)
-
-            # Skip stale entries (already processed vertices)
-            if pqueue.Elements[tail_vert_idx].state == SCANNED:
-                continue
-
-            # Mark as scanned and get the key value
-            pqueue.Elements[tail_vert_idx].state = SCANNED
-            tail_vert_val = pqueue.Elements[tail_vert_idx].key
-
-            # cache loop bounds to avoid redundant indptr loads
-            edge_end = <size_t>csr_indptr[tail_vert_idx + 1]
-
-            # loop on outgoing edges
-            for idx in range(<size_t>csr_indptr[tail_vert_idx], edge_end):
-
-                head_vert_idx = <size_t>csr_indices[idx]
-
-                # prefetch next iteration data to improve cache performance
-                if idx + 1 < edge_end:
-                    prefetch_hint(<char*>&csr_indices[idx + 1], PREFETCH_T0)
-                    prefetch_hint(<char*>&csr_data[idx + 1], PREFETCH_T0)
-
-                # cache element pointer to avoid redundant loads
-                elem = &pqueue.Elements[head_vert_idx]
-                vert_state = elem.state
-                if vert_state != SCANNED:
-                    head_vert_val = tail_vert_val + csr_data[idx]
-                    # Insert if unlabeled OR if we found a shorter path
-                    if vert_state == UNLABELED or elem.key > head_vert_val:
-                        elem.key = head_vert_val  # Update element's key
-                        pq.insert(&pqueue, head_vert_idx, head_vert_val)
-
-    # copy the results into a numpy array
-    path_lengths = pq.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
-
-    # cleanup
-    pq.free_pqueue(&pqueue)
-
-    return path_lengths
+    return _run(
+        csr_indptr, csr_indices, csr_data, None, None,
+        source_vert_idx, vertex_count, heap_length)
 
 
 cpdef cnp.ndarray compute_sssp_early_termination(
@@ -182,82 +332,9 @@ cpdef cnp.ndarray compute_sssp_early_termination(
         shortest path length for each termination node
     """
 
-    cdef:
-        size_t tail_vert_idx, head_vert_idx, idx, i, edge_end
-        DTYPE_t tail_vert_val, head_vert_val
-        pq.PriorityQueue pqueue
-        ElementState vert_state
-        Element* elem
-        size_t source = <size_t>source_vert_idx
-        size_t target_count = termination_nodes.shape[0]
-        size_t visited_targets = 0
-        size_t iteration_count = 0
-        size_t check_frequency = 16
-
-    with nogil:
-
-        # initialization of the heap elements
-        # all nodes have INFINITY key and UNLABELED state
-        pq.init_pqueue(&pqueue, <size_t>heap_length, <size_t>vertex_count)
-
-        # the key is set to zero for the source vertex,
-        # which is inserted into the heap
-        pq.insert(&pqueue, source, 0.0)
-
-        # main loop
-        while pqueue.size > 0:
-            tail_vert_idx = pq.extract_min(&pqueue)
-
-            # Skip stale entries (already processed vertices)
-            if pqueue.Elements[tail_vert_idx].state == SCANNED:
-                continue
-
-            # Mark as scanned and get the key value
-            pqueue.Elements[tail_vert_idx].state = SCANNED
-            tail_vert_val = pqueue.Elements[tail_vert_idx].key
-
-            # check for early termination every check_frequency iterations
-            iteration_count += 1
-            if iteration_count % check_frequency == 0:
-                visited_targets = 0
-                for i in range(target_count):
-                    if pqueue.Elements[termination_nodes[i]].state == SCANNED:
-                        visited_targets += 1
-                if visited_targets == target_count:
-                    break
-
-            # cache loop bounds to avoid redundant indptr loads
-            edge_end = <size_t>csr_indptr[tail_vert_idx + 1]
-
-            # loop on outgoing edges
-            for idx in range(<size_t>csr_indptr[tail_vert_idx], edge_end):
-
-                head_vert_idx = <size_t>csr_indices[idx]
-
-                # prefetch next iteration data to improve cache performance
-                if idx + 1 < edge_end:
-                    prefetch_hint(<char*>&csr_indices[idx + 1], PREFETCH_T0)
-                    prefetch_hint(<char*>&csr_data[idx + 1], PREFETCH_T0)
-
-                # cache element pointer to avoid redundant loads
-                elem = &pqueue.Elements[head_vert_idx]
-                vert_state = elem.state
-                if vert_state != SCANNED:
-                    head_vert_val = tail_vert_val + csr_data[idx]
-                    # Insert if unlabeled OR if we found a shorter path
-                    if vert_state == UNLABELED or elem.key > head_vert_val:
-                        elem.key = head_vert_val
-                        pq.insert(&pqueue, head_vert_idx, head_vert_val)
-
-    # copy only the termination nodes' results into a numpy array
-    cdef cnp.ndarray path_lengths = np.empty(target_count, dtype=DTYPE_PY)
-    for i in range(target_count):
-        path_lengths[i] = pqueue.Elements[termination_nodes[i]].key
-
-    # cleanup
-    pq.free_pqueue(&pqueue)
-
-    return path_lengths
+    return _run(
+        csr_indptr, csr_indices, csr_data, None, termination_nodes,
+        source_vert_idx, vertex_count, heap_length)
 
 
 cpdef cnp.ndarray compute_sssp_w_path(
@@ -297,67 +374,9 @@ cpdef cnp.ndarray compute_sssp_w_path(
         shortest path length for each vertex
     """
 
-    cdef:
-        size_t tail_vert_idx, head_vert_idx, idx, edge_end
-        DTYPE_t tail_vert_val, head_vert_val
-        pq.PriorityQueue pqueue
-        ElementState vert_state
-        Element* elem
-        size_t source = <size_t>source_vert_idx
-
-    with nogil:
-
-        # initialization of the heap elements
-        # all nodes have INFINITY key and UNLABELED state
-        pq.init_pqueue(&pqueue, <size_t>heap_length, <size_t>vertex_count)
-
-        # the key is set to zero for the source vertex,
-        # which is inserted into the heap
-        pq.insert(&pqueue, source, 0.0)
-
-        # main loop
-        while pqueue.size > 0:
-            tail_vert_idx = pq.extract_min(&pqueue)
-
-            # Skip stale entries (already processed vertices)
-            if pqueue.Elements[tail_vert_idx].state == SCANNED:
-                continue
-
-            # Mark as scanned and get the key value
-            pqueue.Elements[tail_vert_idx].state = SCANNED
-            tail_vert_val = pqueue.Elements[tail_vert_idx].key
-
-            # cache loop bounds to avoid redundant indptr loads
-            edge_end = <size_t>csr_indptr[tail_vert_idx + 1]
-
-            # loop on outgoing edges
-            for idx in range(<size_t>csr_indptr[tail_vert_idx], edge_end):
-
-                head_vert_idx = <size_t>csr_indices[idx]
-
-                # prefetch next iteration data to improve cache performance
-                if idx + 1 < edge_end:
-                    prefetch_hint(<char*>&csr_indices[idx + 1], PREFETCH_T0)
-                    prefetch_hint(<char*>&csr_data[idx + 1], PREFETCH_T0)
-
-                # cache element pointer to avoid redundant loads
-                elem = &pqueue.Elements[head_vert_idx]
-                vert_state = elem.state
-                if vert_state != SCANNED:
-                    head_vert_val = tail_vert_val + csr_data[idx]
-                    # Insert if unlabeled OR if we found a shorter path
-                    if vert_state == UNLABELED or elem.key > head_vert_val:
-                        elem.key = head_vert_val
-                        pq.insert(&pqueue, head_vert_idx, head_vert_val)
-                        predecessor[head_vert_idx] = tail_vert_idx
-
-    # copy the results into a numpy array
-    path_lengths = pq.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
-
-    # cleanup
-    pq.free_pqueue(&pqueue)
-
-    return path_lengths
+    return _run(
+        csr_indptr, csr_indices, csr_data, predecessor, None,
+        source_vert_idx, vertex_count, heap_length)
 
 
 cpdef cnp.ndarray compute_sssp_w_path_early_termination(
@@ -398,83 +417,9 @@ cpdef cnp.ndarray compute_sssp_w_path_early_termination(
         shortest path length for each termination node
     """
 
-    cdef:
-        size_t tail_vert_idx, head_vert_idx, idx, i, edge_end
-        DTYPE_t tail_vert_val, head_vert_val
-        pq.PriorityQueue pqueue
-        ElementState vert_state
-        Element* elem
-        size_t source = <size_t>source_vert_idx
-        size_t target_count = termination_nodes.shape[0]
-        size_t visited_targets = 0
-        size_t iteration_count = 0
-        size_t check_frequency = 16
-
-    with nogil:
-
-        # initialization of the heap elements
-        # all nodes have INFINITY key and UNLABELED state
-        pq.init_pqueue(&pqueue, <size_t>heap_length, <size_t>vertex_count)
-
-        # the key is set to zero for the source vertex,
-        # which is inserted into the heap
-        pq.insert(&pqueue, source, 0.0)
-
-        # main loop
-        while pqueue.size > 0:
-            tail_vert_idx = pq.extract_min(&pqueue)
-
-            # Skip stale entries (already processed vertices)
-            if pqueue.Elements[tail_vert_idx].state == SCANNED:
-                continue
-
-            # Mark as scanned and get the key value
-            pqueue.Elements[tail_vert_idx].state = SCANNED
-            tail_vert_val = pqueue.Elements[tail_vert_idx].key
-
-            # check for early termination every check_frequency iterations
-            iteration_count += 1
-            if iteration_count % check_frequency == 0:
-                visited_targets = 0
-                for i in range(target_count):
-                    if pqueue.Elements[termination_nodes[i]].state == SCANNED:
-                        visited_targets += 1
-                if visited_targets == target_count:
-                    break
-
-            # cache loop bounds to avoid redundant indptr loads
-            edge_end = <size_t>csr_indptr[tail_vert_idx + 1]
-
-            # loop on outgoing edges
-            for idx in range(<size_t>csr_indptr[tail_vert_idx], edge_end):
-
-                head_vert_idx = <size_t>csr_indices[idx]
-
-                # prefetch next iteration data to improve cache performance
-                if idx + 1 < edge_end:
-                    prefetch_hint(<char*>&csr_indices[idx + 1], PREFETCH_T0)
-                    prefetch_hint(<char*>&csr_data[idx + 1], PREFETCH_T0)
-
-                # cache element pointer to avoid redundant loads
-                elem = &pqueue.Elements[head_vert_idx]
-                vert_state = elem.state
-                if vert_state != SCANNED:
-                    head_vert_val = tail_vert_val + csr_data[idx]
-                    # Insert if unlabeled OR if we found a shorter path
-                    if vert_state == UNLABELED or elem.key > head_vert_val:
-                        elem.key = head_vert_val
-                        pq.insert(&pqueue, head_vert_idx, head_vert_val)
-                        predecessor[head_vert_idx] = tail_vert_idx
-
-    # copy only the termination nodes' results into a numpy array
-    cdef cnp.ndarray path_lengths = np.empty(target_count, dtype=DTYPE_PY)
-    for i in range(target_count):
-        path_lengths[i] = pqueue.Elements[termination_nodes[i]].key
-
-    # cleanup
-    pq.free_pqueue(&pqueue)
-
-    return path_lengths
+    return _run(
+        csr_indptr, csr_indices, csr_data, predecessor, termination_nodes,
+        source_vert_idx, vertex_count, heap_length)
 
 
 cpdef cnp.ndarray compute_stsp(
@@ -509,66 +454,9 @@ cpdef cnp.ndarray compute_stsp(
         shortest path length for each vertex
     """
 
-    cdef:
-        size_t tail_vert_idx, head_vert_idx, idx, edge_end
-        DTYPE_t tail_vert_val, head_vert_val
-        pq.PriorityQueue pqueue
-        ElementState vert_state
-        Element* elem
-        size_t target = <size_t>target_vert_idx
-
-    with nogil:
-
-        # initialization of the heap elements
-        # all nodes have INFINITY key and UNLABELED state
-        pq.init_pqueue(&pqueue, <size_t>heap_length, <size_t>vertex_count)
-
-        # the key is set to zero for the target vertex,
-        # which is inserted into the heap
-        pq.insert(&pqueue, target, 0.0)
-
-        # main loop
-        while pqueue.size > 0:
-            head_vert_idx = pq.extract_min(&pqueue)
-
-            # Skip stale entries (already processed vertices)
-            if pqueue.Elements[head_vert_idx].state == SCANNED:
-                continue
-
-            # Mark as scanned and get the key value
-            pqueue.Elements[head_vert_idx].state = SCANNED
-            head_vert_val = pqueue.Elements[head_vert_idx].key
-
-            # cache loop bounds to avoid redundant indptr loads
-            edge_end = <size_t>csc_indptr[head_vert_idx + 1]
-
-            # loop on incoming edges
-            for idx in range(<size_t>csc_indptr[head_vert_idx], edge_end):
-
-                tail_vert_idx = <size_t>csc_indices[idx]
-
-                # prefetch next iteration data to improve cache performance
-                if idx + 1 < edge_end:
-                    prefetch_hint(<char*>&csc_indices[idx + 1], PREFETCH_T0)
-                    prefetch_hint(<char*>&csc_data[idx + 1], PREFETCH_T0)
-
-                # cache element pointer to avoid redundant loads
-                elem = &pqueue.Elements[tail_vert_idx]
-                vert_state = elem.state
-                if vert_state != SCANNED:
-                    tail_vert_val = head_vert_val + csc_data[idx]
-                    # Insert if unlabeled OR if we found a shorter path
-                    if vert_state == UNLABELED or elem.key > tail_vert_val:
-                        elem.key = tail_vert_val
-                        pq.insert(&pqueue, tail_vert_idx, tail_vert_val)
-
-    # copy the results into a numpy array
-    path_lengths = pq.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
-
-    # cleanup
-    pq.free_pqueue(&pqueue)
-
-    return path_lengths
+    return _run(
+        csc_indptr, csc_indices, csc_data, None, None,
+        target_vert_idx, vertex_count, heap_length)
 
 
 cpdef cnp.ndarray compute_stsp_w_path(
@@ -604,67 +492,9 @@ cpdef cnp.ndarray compute_stsp_w_path(
         shortest path length for each vertex
     """
 
-    cdef:
-        size_t tail_vert_idx, head_vert_idx, idx, edge_end
-        DTYPE_t tail_vert_val, head_vert_val
-        pq.PriorityQueue pqueue
-        ElementState vert_state
-        Element* elem
-        size_t target = <size_t>target_vert_idx
-
-    with nogil:
-
-        # initialization of the heap elements
-        # all nodes have INFINITY key and UNLABELED state
-        pq.init_pqueue(&pqueue, <size_t>heap_length, <size_t>vertex_count)
-
-        # the key is set to zero for the target vertex,
-        # which is inserted into the heap
-        pq.insert(&pqueue, target, 0.0)
-
-        # main loop
-        while pqueue.size > 0:
-            head_vert_idx = pq.extract_min(&pqueue)
-
-            # Skip stale entries (already processed vertices)
-            if pqueue.Elements[head_vert_idx].state == SCANNED:
-                continue
-
-            # Mark as scanned and get the key value
-            pqueue.Elements[head_vert_idx].state = SCANNED
-            head_vert_val = pqueue.Elements[head_vert_idx].key
-
-            # cache loop bounds to avoid redundant indptr loads
-            edge_end = <size_t>csc_indptr[head_vert_idx + 1]
-
-            # loop on incoming edges
-            for idx in range(<size_t>csc_indptr[head_vert_idx], edge_end):
-
-                tail_vert_idx = <size_t>csc_indices[idx]
-
-                # prefetch next iteration data to improve cache performance
-                if idx + 1 < edge_end:
-                    prefetch_hint(<char*>&csc_indices[idx + 1], PREFETCH_T0)
-                    prefetch_hint(<char*>&csc_data[idx + 1], PREFETCH_T0)
-
-                # cache element pointer to avoid redundant loads
-                elem = &pqueue.Elements[tail_vert_idx]
-                vert_state = elem.state
-                if vert_state != SCANNED:
-                    tail_vert_val = head_vert_val + csc_data[idx]
-                    # Insert if unlabeled OR if we found a shorter path
-                    if vert_state == UNLABELED or elem.key > tail_vert_val:
-                        elem.key = tail_vert_val
-                        pq.insert(&pqueue, tail_vert_idx, tail_vert_val)
-                        successor[tail_vert_idx] = head_vert_idx
-
-    # copy the results into a numpy array
-    path_lengths = pq.copy_keys_to_numpy(&pqueue, <size_t>vertex_count)
-
-    # cleanup
-    pq.free_pqueue(&pqueue)
-
-    return path_lengths
+    return _run(
+        csc_indptr, csc_indices, csc_data, successor, None,
+        target_vert_idx, vertex_count, heap_length)
 
 
 cpdef cnp.ndarray compute_stsp_early_termination(
@@ -701,82 +531,9 @@ cpdef cnp.ndarray compute_stsp_early_termination(
         shortest path length for each termination node
     """
 
-    cdef:
-        size_t tail_vert_idx, head_vert_idx, idx, i, edge_end
-        DTYPE_t tail_vert_val, head_vert_val
-        pq.PriorityQueue pqueue
-        ElementState vert_state
-        Element* elem
-        size_t target = <size_t>target_vert_idx
-        size_t target_count = termination_nodes.shape[0]
-        size_t visited_targets = 0
-        size_t iteration_count = 0
-        size_t check_frequency = 16
-
-    with nogil:
-
-        # initialization of the heap elements
-        # all nodes have INFINITY key and UNLABELED state
-        pq.init_pqueue(&pqueue, <size_t>heap_length, <size_t>vertex_count)
-
-        # the key is set to zero for the target vertex,
-        # which is inserted into the heap
-        pq.insert(&pqueue, target, 0.0)
-
-        # main loop
-        while pqueue.size > 0:
-            head_vert_idx = pq.extract_min(&pqueue)
-
-            # Skip stale entries (already processed vertices)
-            if pqueue.Elements[head_vert_idx].state == SCANNED:
-                continue
-
-            # Mark as scanned and get the key value
-            pqueue.Elements[head_vert_idx].state = SCANNED
-            head_vert_val = pqueue.Elements[head_vert_idx].key
-
-            # check for early termination every check_frequency iterations
-            iteration_count += 1
-            if iteration_count % check_frequency == 0:
-                visited_targets = 0
-                for i in range(target_count):
-                    if pqueue.Elements[termination_nodes[i]].state == SCANNED:
-                        visited_targets += 1
-                if visited_targets == target_count:
-                    break
-
-            # cache loop bounds to avoid redundant indptr loads
-            edge_end = <size_t>csc_indptr[head_vert_idx + 1]
-
-            # loop on incoming edges
-            for idx in range(<size_t>csc_indptr[head_vert_idx], edge_end):
-
-                tail_vert_idx = <size_t>csc_indices[idx]
-
-                # prefetch next iteration data to improve cache performance
-                if idx + 1 < edge_end:
-                    prefetch_hint(<char*>&csc_indices[idx + 1], PREFETCH_T0)
-                    prefetch_hint(<char*>&csc_data[idx + 1], PREFETCH_T0)
-
-                # cache element pointer to avoid redundant loads
-                elem = &pqueue.Elements[tail_vert_idx]
-                vert_state = elem.state
-                if vert_state != SCANNED:
-                    tail_vert_val = head_vert_val + csc_data[idx]
-                    # Insert if unlabeled OR if we found a shorter path
-                    if vert_state == UNLABELED or elem.key > tail_vert_val:
-                        elem.key = tail_vert_val
-                        pq.insert(&pqueue, tail_vert_idx, tail_vert_val)
-
-    # copy only the termination nodes' results into a numpy array
-    cdef cnp.ndarray path_lengths = np.empty(target_count, dtype=DTYPE_PY)
-    for i in range(target_count):
-        path_lengths[i] = pqueue.Elements[termination_nodes[i]].key
-
-    # cleanup
-    pq.free_pqueue(&pqueue)
-
-    return path_lengths
+    return _run(
+        csc_indptr, csc_indices, csc_data, None, termination_nodes,
+        target_vert_idx, vertex_count, heap_length)
 
 
 cpdef cnp.ndarray compute_stsp_w_path_early_termination(
@@ -815,91 +572,14 @@ cpdef cnp.ndarray compute_stsp_w_path_early_termination(
         shortest path length for each termination node
     """
 
-    cdef:
-        size_t tail_vert_idx, head_vert_idx, idx, i, edge_end
-        DTYPE_t tail_vert_val, head_vert_val
-        pq.PriorityQueue pqueue
-        ElementState vert_state
-        Element* elem
-        size_t target = <size_t>target_vert_idx
-        size_t target_count = termination_nodes.shape[0]
-        size_t visited_targets = 0
-        size_t iteration_count = 0
-        size_t check_frequency = 16
-
-    with nogil:
-
-        # initialization of the heap elements
-        # all nodes have INFINITY key and UNLABELED state
-        pq.init_pqueue(&pqueue, <size_t>heap_length, <size_t>vertex_count)
-
-        # the key is set to zero for the target vertex,
-        # which is inserted into the heap
-        pq.insert(&pqueue, target, 0.0)
-
-        # main loop
-        while pqueue.size > 0:
-            head_vert_idx = pq.extract_min(&pqueue)
-
-            # Skip stale entries (already processed vertices)
-            if pqueue.Elements[head_vert_idx].state == SCANNED:
-                continue
-
-            # Mark as scanned and get the key value
-            pqueue.Elements[head_vert_idx].state = SCANNED
-            head_vert_val = pqueue.Elements[head_vert_idx].key
-
-            # check for early termination every check_frequency iterations
-            iteration_count += 1
-            if iteration_count % check_frequency == 0:
-                visited_targets = 0
-                for i in range(target_count):
-                    if pqueue.Elements[termination_nodes[i]].state == SCANNED:
-                        visited_targets += 1
-                if visited_targets == target_count:
-                    break
-
-            # cache loop bounds to avoid redundant indptr loads
-            edge_end = <size_t>csc_indptr[head_vert_idx + 1]
-
-            # loop on incoming edges
-            for idx in range(<size_t>csc_indptr[head_vert_idx], edge_end):
-
-                tail_vert_idx = <size_t>csc_indices[idx]
-
-                # prefetch next iteration data to improve cache performance
-                if idx + 1 < edge_end:
-                    prefetch_hint(<char*>&csc_indices[idx + 1], PREFETCH_T0)
-                    prefetch_hint(<char*>&csc_data[idx + 1], PREFETCH_T0)
-
-                # cache element pointer to avoid redundant loads
-                elem = &pqueue.Elements[tail_vert_idx]
-                vert_state = elem.state
-                if vert_state != SCANNED:
-                    tail_vert_val = head_vert_val + csc_data[idx]
-                    # Insert if unlabeled OR if we found a shorter path
-                    if vert_state == UNLABELED or elem.key > tail_vert_val:
-                        elem.key = tail_vert_val
-                        pq.insert(&pqueue, tail_vert_idx, tail_vert_val)
-                        successor[tail_vert_idx] = head_vert_idx
-
-    # copy only the termination nodes' results into a numpy array
-    cdef cnp.ndarray path_lengths = np.empty(target_count, dtype=DTYPE_PY)
-    for i in range(target_count):
-        path_lengths[i] = pqueue.Elements[termination_nodes[i]].key
-
-    # cleanup
-    pq.free_pqueue(&pqueue)
-
-    return path_lengths
+    return _run(
+        csc_indptr, csc_indices, csc_data, successor, termination_nodes,
+        target_vert_idx, vertex_count, heap_length)
 
 
 # ============================================================================ #
 # tests                                                                        #
 # ============================================================================ #
-
-from edsger.commons import DTYPE_PY
-import numpy as np
 
 
 cdef generate_single_edge_network_csr():
