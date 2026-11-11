@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Negative vertex indices without `permute=True` now raise a `ValueError` when the graph is built, instead of silently producing wrong results
 - `compute_path` (and so `get_path`) now raises an `IndexError` for an out-of-bounds vertex index, instead of returning an empty path
 - `get_path` on a graph built with `permute=True` (`Dijkstra`, `BellmanFord`, `BFS`): it now returns the right path after `run(..., return_series=True)`, supports negative vertex labels, uses a memory that does not depend on the largest label, and raises a `ValueError` for a vertex that is not in the graph
+- `HyperpathGenerating.run` now works with pandas 3: the edge volumes were written in place in a dataframe column, which is read-only with copy-on-write
+- No more deprecation warnings with pandas 3: the `inplace=True` keyword of the dataframe methods is not used anymore
 
 ### Input Validation
 - `Dijkstra` now always rejects negative and NaN edge weights with a `ValueError` when the graph is built, whatever the value of `check_edges`. The algorithm is not valid with negative weights; use `BellmanFord` instead

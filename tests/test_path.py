@@ -100,9 +100,9 @@ def test_run_02(random_seed=124, n=1000):
     head = np.random.randint(0, int(n / 5), n)
     weight = np.random.rand(n)
     edges = pd.DataFrame(data={"tail": tail, "head": head, "weight": weight})
-    edges.drop_duplicates(subset=["tail", "head"], inplace=True)
+    edges = edges.drop_duplicates(subset=["tail", "head"])
     edges = edges.loc[edges["tail"] != edges["head"]]
-    edges.reset_index(drop=True, inplace=True)
+    edges = edges.reset_index(drop=True)
 
     # SciPy
     vertex_count = edges[["tail", "head"]].max().max() + 1
@@ -925,9 +925,9 @@ def test_bfs_scipy_comparison(random_seed=124, n=1000):
     # BFS doesn't use weights, but include for consistency with graph structure
     weight = np.random.rand(n)
     edges = pd.DataFrame(data={"tail": tail, "head": head, "weight": weight})
-    edges.drop_duplicates(subset=["tail", "head"], inplace=True)
+    edges = edges.drop_duplicates(subset=["tail", "head"])
     edges = edges.loc[edges["tail"] != edges["head"]]
-    edges.reset_index(drop=True, inplace=True)
+    edges = edges.reset_index(drop=True)
 
     # SciPy BFS
     vertex_count = edges[["tail", "head"]].max().max() + 1

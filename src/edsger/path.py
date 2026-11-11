@@ -364,8 +364,8 @@ class Dijkstra:
             right_on="vert_idx",
             how="left",
         )
-        self._edges.drop([tail, "vert_idx"], axis=1, inplace=True)
-        self._edges.rename(columns={"vert_idx_new": tail}, inplace=True)
+        self._edges = self._edges.drop([tail, "vert_idx"], axis=1)
+        self._edges = self._edges.rename(columns={"vert_idx_new": tail})
 
         self._edges = pd.merge(
             self._edges,
@@ -374,12 +374,12 @@ class Dijkstra:
             right_on="vert_idx",
             how="left",
         )
-        self._edges.drop([head, "vert_idx"], axis=1, inplace=True)
-        self._edges.rename(columns={"vert_idx_new": head}, inplace=True)
+        self._edges = self._edges.drop([head, "vert_idx"], axis=1)
+        self._edges = self._edges.rename(columns={"vert_idx_new": head})
 
-        permutation.rename(columns={"vert_idx": "vert_idx_old"}, inplace=True)
-        permutation.reset_index(drop=True, inplace=True)
-        permutation.sort_values(by="vert_idx_new", inplace=True)
+        permutation = permutation.rename(columns={"vert_idx": "vert_idx_old"})
+        permutation = permutation.reset_index(drop=True)
+        permutation = permutation.sort_values(by="vert_idx_new")
 
         permutation.index.name = "index"
         self._edges.index.name = "index"
@@ -613,8 +613,8 @@ class Dijkstra:
                     right_on="vert_idx_new",
                     how="left",
                 )
-                path_df.drop(["vertex_idx", "vert_idx_new"], axis=1, inplace=True)
-                path_df.rename(columns={"vert_idx_old": "vertex_idx"}, inplace=True)
+                path_df = path_df.drop(["vertex_idx", "vert_idx_new"], axis=1)
+                path_df = path_df.rename(columns={"vert_idx_old": "vertex_idx"})
                 path_df = pd.merge(
                     path_df,
                     self._permutation,
@@ -622,11 +622,11 @@ class Dijkstra:
                     right_on="vert_idx_new",
                     how="left",
                 )
-                path_df.drop(["associated_idx", "vert_idx_new"], axis=1, inplace=True)
-                path_df.rename(columns={"vert_idx_old": "associated_idx"}, inplace=True)
+                path_df = path_df.drop(["associated_idx", "vert_idx_new"], axis=1)
+                path_df = path_df.rename(columns={"vert_idx_old": "associated_idx"})
 
                 if return_series:
-                    path_df.set_index("vertex_idx", inplace=True)
+                    path_df = path_df.set_index("vertex_idx")
                     self._path_links = path_df.associated_idx.astype(
                         np.uint32
                     ).to_numpy()
@@ -655,8 +655,8 @@ class Dijkstra:
                     pd.DataFrame,
                     self._permutation[["vert_idx_old", "path_length"]].copy(),
                 )
-                path_lengths_df.sort_values(by="vert_idx_old", inplace=True)
-                path_lengths_df.set_index("vert_idx_old", drop=True, inplace=True)
+                path_lengths_df = path_lengths_df.sort_values(by="vert_idx_old")
+                path_lengths_df = path_lengths_df.set_index("vert_idx_old", drop=True)
                 path_lengths_df.index.name = "vertex_idx"
                 path_lengths_series = path_lengths_df.path_length
             else:
@@ -1006,8 +1006,8 @@ class BellmanFord:
             right_on="vert_idx",
             how="left",
         )
-        self._edges.drop([tail, "vert_idx"], axis=1, inplace=True)
-        self._edges.rename(columns={"vert_idx_new": tail}, inplace=True)
+        self._edges = self._edges.drop([tail, "vert_idx"], axis=1)
+        self._edges = self._edges.rename(columns={"vert_idx_new": tail})
 
         self._edges = pd.merge(
             self._edges,
@@ -1016,12 +1016,12 @@ class BellmanFord:
             right_on="vert_idx",
             how="left",
         )
-        self._edges.drop([head, "vert_idx"], axis=1, inplace=True)
-        self._edges.rename(columns={"vert_idx_new": head}, inplace=True)
+        self._edges = self._edges.drop([head, "vert_idx"], axis=1)
+        self._edges = self._edges.rename(columns={"vert_idx_new": head})
 
-        permutation.rename(columns={"vert_idx": "vert_idx_old"}, inplace=True)
-        permutation.reset_index(drop=True, inplace=True)
-        permutation.sort_values(by="vert_idx_new", inplace=True)
+        permutation = permutation.rename(columns={"vert_idx": "vert_idx_old"})
+        permutation = permutation.reset_index(drop=True)
+        permutation = permutation.sort_values(by="vert_idx_new")
 
         permutation.index.name = "index"
         self._edges.index.name = "index"
@@ -1146,8 +1146,8 @@ class BellmanFord:
                     right_on="vert_idx_new",
                     how="left",
                 )
-                path_df.drop(["vertex_idx", "vert_idx_new"], axis=1, inplace=True)
-                path_df.rename(columns={"vert_idx_old": "vertex_idx"}, inplace=True)
+                path_df = path_df.drop(["vertex_idx", "vert_idx_new"], axis=1)
+                path_df = path_df.rename(columns={"vert_idx_old": "vertex_idx"})
                 path_df = pd.merge(
                     path_df,
                     self._permutation,
@@ -1155,11 +1155,11 @@ class BellmanFord:
                     right_on="vert_idx_new",
                     how="left",
                 )
-                path_df.drop(["associated_idx", "vert_idx_new"], axis=1, inplace=True)
-                path_df.rename(columns={"vert_idx_old": "associated_idx"}, inplace=True)
+                path_df = path_df.drop(["associated_idx", "vert_idx_new"], axis=1)
+                path_df = path_df.rename(columns={"vert_idx_old": "associated_idx"})
 
                 if return_series:
-                    path_df.set_index("vertex_idx", inplace=True)
+                    path_df = path_df.set_index("vertex_idx")
                     self._path_links = path_df.associated_idx.astype(
                         np.uint32
                     ).to_numpy()
@@ -1216,8 +1216,8 @@ class BellmanFord:
                     right_on="vert_idx_new",
                     how="left",
                 )
-                path_df.drop(["vert_idx_new"], axis=1, inplace=True)
-                path_df.set_index("vert_idx_old", inplace=True)
+                path_df = path_df.drop(["vert_idx_new"], axis=1)
+                path_df = path_df.set_index("vert_idx_old")
                 path_lengths_series = path_df.path_length.astype(DTYPE_PY)
             else:
                 path_lengths_series = pd.Series(
@@ -1240,7 +1240,7 @@ class BellmanFord:
                 right_on="vert_idx_new",
                 how="left",
             )
-            path_df.drop(["vert_idx_new"], axis=1, inplace=True)
+            path_df = path_df.drop(["vert_idx_new"], axis=1)
             path_length_values = np.full(self.__n_vertices_init, DTYPE_INF_PY)
             path_length_values[path_df.vert_idx_old.values] = path_df.path_length.values
             if return_inf:
@@ -1497,6 +1497,11 @@ class HyperpathGenerating:
 
         demand_values = np.array(volume, dtype=DTYPE_PY)
 
+        # The edge volumes are computed in their own array and then stored in the
+        # edges dataframe: with the copy-on-write of pandas 3, the values of a column
+        # are read-only and cannot be filled in place.
+        edge_volumes = np.zeros(len(self._edges), dtype=DTYPE_PY)
+
         compute_SF_in(
             self.__indptr,
             self._edge_idx,
@@ -1506,11 +1511,12 @@ class HyperpathGenerating:
             self._head,
             demand_indices,  # source vertex indices
             demand_values,
-            np.asarray(self._edges["volume"]),
+            edge_volumes,
             u_i_vec,
             self.vertex_count,
             destination,
         )
+        self._edges["volume"] = edge_volumes
         self.u_i_vec = u_i_vec
 
     def _check_vertex_idx(self, idx):
@@ -1657,7 +1663,7 @@ class BFS:
             fs_indptr, fs_indices, _ = convert_graph_to_csr_float64(
                 self._edges, tail, head, "_bfs_dummy_weight", self._n_vertices
             )
-            self._edges.drop("_bfs_dummy_weight", axis=1, inplace=True)
+            self._edges = self._edges.drop("_bfs_dummy_weight", axis=1)
             self.__indices = fs_indices.astype(np.uint32)
             self.__indptr = fs_indptr.astype(np.uint32)
         else:
@@ -1665,7 +1671,7 @@ class BFS:
             rs_indptr, rs_indices, _ = convert_graph_to_csc_float64(
                 self._edges, tail, head, "_bfs_dummy_weight", self._n_vertices
             )
-            self._edges.drop("_bfs_dummy_weight", axis=1, inplace=True)
+            self._edges = self._edges.drop("_bfs_dummy_weight", axis=1)
             self.__indices = rs_indices.astype(np.uint32)
             self.__indptr = rs_indptr.astype(np.uint32)
 
@@ -1832,8 +1838,8 @@ class BFS:
             right_on="vert_idx",
             how="left",
         )
-        self._edges.drop([tail, "vert_idx"], axis=1, inplace=True)
-        self._edges.rename(columns={"vert_idx_new": tail}, inplace=True)
+        self._edges = self._edges.drop([tail, "vert_idx"], axis=1)
+        self._edges = self._edges.rename(columns={"vert_idx_new": tail})
 
         self._edges = pd.merge(
             self._edges,
@@ -1842,12 +1848,12 @@ class BFS:
             right_on="vert_idx",
             how="left",
         )
-        self._edges.drop([head, "vert_idx"], axis=1, inplace=True)
-        self._edges.rename(columns={"vert_idx_new": head}, inplace=True)
+        self._edges = self._edges.drop([head, "vert_idx"], axis=1)
+        self._edges = self._edges.rename(columns={"vert_idx_new": head})
 
-        permutation.rename(columns={"vert_idx": "vert_idx_old"}, inplace=True)
-        permutation.reset_index(drop=True, inplace=True)
-        permutation.sort_values(by="vert_idx_new", inplace=True)
+        permutation = permutation.rename(columns={"vert_idx": "vert_idx_old"})
+        permutation = permutation.reset_index(drop=True)
+        permutation = permutation.sort_values(by="vert_idx_new")
 
         permutation.index.name = "index"
         self._edges.index.name = "index"
@@ -1947,8 +1953,8 @@ class BFS:
                     right_on="vert_idx_new",
                     how="left",
                 )
-                path_df.drop(["vertex_idx", "vert_idx_new"], axis=1, inplace=True)
-                path_df.rename(columns={"vert_idx_old": "vertex_idx"}, inplace=True)
+                path_df = path_df.drop(["vertex_idx", "vert_idx_new"], axis=1)
+                path_df = path_df.rename(columns={"vert_idx_old": "vertex_idx"})
                 path_df = pd.merge(
                     path_df,
                     self._permutation,
@@ -1956,11 +1962,11 @@ class BFS:
                     right_on="vert_idx_new",
                     how="left",
                 )
-                path_df.drop(["associated_idx", "vert_idx_new"], axis=1, inplace=True)
-                path_df.rename(columns={"vert_idx_old": "associated_idx"}, inplace=True)
+                path_df = path_df.drop(["associated_idx", "vert_idx_new"], axis=1)
+                path_df = path_df.rename(columns={"vert_idx_old": "associated_idx"})
 
                 if return_series:
-                    path_df.set_index("vertex_idx", inplace=True)
+                    path_df = path_df.set_index("vertex_idx")
                     self._path_links = path_df.associated_idx.astype(
                         np.uint32
                     ).to_numpy()
@@ -2003,7 +2009,7 @@ class BFS:
                         "vert_idx_old_pred"
                     ].values.astype(np.int32)
 
-                pred_df.set_index("vert_idx_old", inplace=True)
+                pred_df = pred_df.set_index("vert_idx_old")
                 predecessors_series = pred_df.predecessor.astype(np.int32)
                 predecessors_series.index.name = "vertex_idx"
                 predecessors_series.name = "predecessor"

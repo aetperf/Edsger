@@ -117,8 +117,8 @@ def generate_random_network(
 
     edges = pd.DataFrame(data={"tail": tail, "head": head, "weight": weight})
     if sort:
-        edges.sort_values(by=["tail", "head"], inplace=True)
-        edges.reset_index(drop=True, inplace=True)
+        edges = edges.sort_values(by=["tail", "head"])
+        edges = edges.reset_index(drop=True)
     return edges
 
 

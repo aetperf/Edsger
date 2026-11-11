@@ -187,7 +187,7 @@ else:
 
 # load the network into a Pandas dataframe
 edges = pd.read_parquet(network_file_path)
-edges.rename(columns={"source": "tail", "target": "head", "tt": "weight"}, inplace=True)
+edges = edges.rename(columns={"source": "tail", "target": "head", "tt": "weight"})
 edge_count = len(edges)
 vertex_count = edges[["tail", "head"]].max().max() + 1
 logger.info(f"{edge_count} edges and {vertex_count} vertices")
