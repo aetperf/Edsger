@@ -19,6 +19,8 @@ cpdef functions:
 """
 
 cimport numpy as cnp
+
+from edsger.commons cimport check_graph_arguments
 import numpy as np
 
 cpdef cnp.ndarray bfs_csr(
@@ -60,6 +62,9 @@ cpdef cnp.ndarray bfs_csr(
         cnp.int32_t[::1] predecessors
 
     # Allocate arrays
+    # bounds checking is disabled in this module
+    check_graph_arguments(csr_indptr, csr_indices, -1, start_vert_idx, vertex_count)
+
     queue = np.empty(vertex_count, dtype=np.uint32)
     visited = np.zeros(vertex_count, dtype=np.int8)
     predecessors = np.full(vertex_count, sentinel, dtype=np.int32)
@@ -130,6 +135,9 @@ cpdef cnp.ndarray bfs_csc(
         cnp.int32_t[::1] predecessors
 
     # Allocate arrays
+    # bounds checking is disabled in this module
+    check_graph_arguments(csc_indptr, csc_indices, -1, start_vert_idx, vertex_count)
+
     queue = np.empty(vertex_count, dtype=np.uint32)
     visited = np.zeros(vertex_count, dtype=np.int8)
     predecessors = np.full(vertex_count, sentinel, dtype=np.int32)
@@ -212,6 +220,9 @@ cpdef tuple bfs_reorder_csr(
         cnp.uint32_t[::1] inverse_permutation
 
     # Allocate arrays
+    # bounds checking is disabled in this module
+    check_graph_arguments(csr_indptr, csr_indices, -1, start_vert_idx, vertex_count)
+
     queue = np.empty(vertex_count, dtype=np.uint32)
     visited = np.zeros(vertex_count, dtype=np.int8)
     permutation = np.empty(vertex_count, dtype=np.uint32)

@@ -40,7 +40,7 @@ cimport numpy as cnp
 import numpy as np
 
 from edsger.commons import DTYPE_PY
-from edsger.commons cimport DTYPE_INF, DTYPE_t
+from edsger.commons cimport DTYPE_INF, DTYPE_t, check_graph_arguments
 from edsger.pq_4ary_inline cimport (
     HeapNode, HEAP_OFFSET, HEAP_SENTINELS, heap_alloc, heap_grow, heap_free,
     sift_down, sift_up, prefetch_t0, thp_alloc, thp_free)
@@ -234,9 +234,22 @@ cdef cnp.ndarray _run(
         size_t termination_count = 0
         int status
 
+    # bounds checking is disabled in this module
+    check_graph_arguments(
+        indptr, indices, data.shape[0], origin_vert_idx, vertex_count)
     if path is not None:
+        if path.shape[0] < vertex_count:
+            raise ValueError(
+                f"the path array has {path.shape[0]} elements for {vertex_count} "
+                "vertices"
+            )
         path_ptr = &path[0]
-    if termination_nodes is not None:
+    if termination_nodes is not None and termination_nodes.shape[0] > 0:
+        if np.max(termination_nodes) >= vertex_count:
+            raise IndexError(
+                f"termination node index is out of bounds for {vertex_count} "
+                "vertices"
+            )
         termination_ptr = &termination_nodes[0]
         termination_count = termination_nodes.shape[0]
 

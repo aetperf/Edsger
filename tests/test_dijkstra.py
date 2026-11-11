@@ -61,15 +61,29 @@ def test_dense_graph_heap_growth(lazy, heap_length_ratio):
     np.testing.assert_array_equal(path_lengths, path_lengths_ref)
 
 
+NEGATIVE_LABEL_EDGES = {
+    "tail": [0, -1, 1],
+    "head": [1, 2, 2],
+    "weight": [1.0, 1.0, 1.0],
+}
+
+
 @pytest.mark.parametrize("algo", [Dijkstra, BellmanFord, BFS])
 def test_negative_vertex_index(algo):
     """Vertex indices are used without bounds checking: negative ones must be
-    rejected when the graph is built, unless the vertices are re-indexed."""
-    edges = pd.DataFrame(
-        {"tail": [0, -1, 1], "head": [1, 2, 2], "weight": [1.0, 1.0, 1.0]}
-    )
+    rejected when the graph is built without re-indexing the vertices."""
+    edges = pd.DataFrame(NEGATIVE_LABEL_EDGES)
 
     with pytest.raises(ValueError, match="vertex indices"):
         algo(edges, permute=False)
 
-    algo(edges, permute=True)
+
+@pytest.mark.parametrize("algo", [Dijkstra, BellmanFord])
+def test_negative_vertex_label_with_permutation(algo):
+    """With re-indexed vertices, negative labels are usable through the
+    Series output, which is indexed by label."""
+    edges = pd.DataFrame(NEGATIVE_LABEL_EDGES)
+
+    path_lengths = algo(edges, permute=True).run(vertex_idx=0, return_series=True)
+
+    assert path_lengths.to_dict() == {-1: np.inf, 0: 0.0, 1: 1.0, 2: 2.0}

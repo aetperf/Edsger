@@ -1228,3 +1228,30 @@ class TestDataFrameBackendCompatibility:
                 result,
                 err_msg=f"Large graph results differ for {backend_name}",
             )
+
+
+@pytest.mark.parametrize("lazy", [True, False])
+def test_dijkstra_rejects_negative_weights_by_default(lazy):
+    """Dijkstra's algorithm is not valid with negative weights: they are
+    rejected when the graph is built, even without check_edges."""
+    edges = pd.DataFrame(
+        data={
+            "tail": [0, 0, 0, 2, 3],
+            "head": [1, 2, 3, 1, 4],
+            "weight": [1.0, 2.0, 3.0, -5.0, 1.0],
+        }
+    )
+    with pytest.raises(ValueError, match=r"nonnegative"):
+        Dijkstra(edges, lazy=lazy)
+
+
+@pytest.mark.parametrize("algo", [Dijkstra, BellmanFord, BFS])
+@pytest.mark.parametrize("return_series", [False, True])
+def test_get_path_with_permutation(algo, return_series):
+    """The vertex labels 0, 2, 3 are not contiguous: the path 0 -> 3 -> 2 must
+    be returned with the original labels, whatever the output format of run."""
+    edges = pd.DataFrame(data={"tail": [0, 3], "head": [3, 2], "weight": [1.0, 1.0]})
+    sp = algo(edges, orientation="out", permute=True)
+    sp.run(vertex_idx=0, path_tracking=True, return_series=return_series)
+
+    np.testing.assert_array_equal(sp.get_path(2), [2, 3, 0])

@@ -48,6 +48,11 @@ cpdef cnp.ndarray compute_path(cnp.uint32_t[::1] path_links, int vertex_idx):
         )
 
     path_length = _compute_path_first_pass(path_links, vertex_idx)
+    if path_length < 0:
+        raise IndexError(
+            f"the path from vertex {vertex_idx} goes through a vertex index that is "
+            f"out of bounds for {path_links.shape[0]} vertices"
+        )
     path_vertices = np.empty(path_length, dtype=np.uint32)
     _compute_path_second_pass(path_links, path_vertices, vertex_idx)
 
@@ -58,11 +63,12 @@ cdef int _compute_path_first_pass(
     cnp.uint32_t[::1] path_links,
     int vertex_idx
 ) noexcept nogil:
-    """Returns the path length.
+    """Returns the path length, or -1 if a link is out of bounds.
     """
 
     cdef:
         size_t i, j
+        size_t vertex_count = <size_t>path_links.shape[0]
         int k
 
     # initialization
@@ -74,6 +80,8 @@ cdef int _compute_path_first_pass(
     while i != j:
         i = j
         j = <size_t>path_links[j]
+        if j >= vertex_count:
+            return -1
         k += 1
 
     return k

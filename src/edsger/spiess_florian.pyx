@@ -63,6 +63,28 @@ cpdef void compute_SF_in(
         raise IndexError(
             f"origin vertex index is out of bounds for {vertex_count} vertices"
         )
+    if demand_values.shape[0] != demand_indices.shape[0]:
+        raise ValueError("demand_indices and demand_values should have the same length")
+    if csc_indptr.shape[0] != vertex_count + 1 or u_i_vec.shape[0] != vertex_count:
+        raise ValueError(
+            "csc_indptr should have vertex_count + 1 elements and u_i_vec "
+            "vertex_count elements"
+        )
+    if (
+        csc_edge_idx.shape[0] != edge_count
+        or c_a_vec.shape[0] != edge_count
+        or f_a_vec.shape[0] != edge_count
+        or head_indices.shape[0] != edge_count
+        or v_a_vec.shape[0] != edge_count
+        or csc_indptr[vertex_count] > edge_count
+    ):
+        raise ValueError("the edge arrays should all have one element per edge")
+    if edge_count > 0 and (
+        np.max(csc_edge_idx) >= edge_count
+        or np.max(tail_indices) >= vertex_count
+        or np.max(head_indices) >= vertex_count
+    ):
+        raise IndexError("edge or vertex index out of bounds in the graph arrays")
 
     # initialization
     u_i_vec[<size_t>dest_vert_index] = 0.0

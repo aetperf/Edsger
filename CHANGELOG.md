@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Fixed a heap overflow (memory corruption) of the lazy Dijkstra on dense graphs, where the number of heap entries can exceed the vertex count: the heap now grows when needed
 - Negative vertex indices without `permute=True` now raise a `ValueError` when the graph is built, instead of silently producing wrong results
 - `compute_path` (and so `get_path`) now raises an `IndexError` for an out-of-bounds vertex index, instead of returning an empty path
+- `get_path` now returns the right path after `run(..., return_series=True)` on a graph built with `permute=True` (`Dijkstra`, `BellmanFord`, `BFS`)
+
+### Input Validation
+- `Dijkstra` now always rejects negative edge weights with a `ValueError` when the graph is built, whatever the value of `check_edges`. The algorithm is not valid with negative weights; use `BellmanFord` instead
+- The Cython functions that can be called from Python (`dijkstra`, `dijkstra_nodec`, `bellman_ford`, `bfs`, `spiess_florian`, `path_tracking`) now check their arguments explicitly, since bounds checking is disabled: `IndexError` for a vertex index out of bounds, `ValueError` for inconsistent array lengths
+- The lazy Dijkstra routines stop with a `ValueError` when called directly on a graph with negative weights on which they would not terminate
 
 ## Version 0.1.7 (2026-01-05)
 

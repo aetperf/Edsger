@@ -29,7 +29,7 @@ cpdef functions:
 cimport numpy as cnp
 import numpy as np
 
-from edsger.commons cimport DTYPE_INF, DTYPE_t
+from edsger.commons cimport DTYPE_INF, DTYPE_t, check_graph_arguments
 from edsger.commons import DTYPE_PY
 
 
@@ -71,6 +71,10 @@ cpdef cnp.ndarray compute_bf_sssp(
             vertex_count, DTYPE_INF, dtype=DTYPE_PY)
         size_t source = <size_t>source_vert_idx
         bint changed
+
+    # bounds checking is disabled in this module
+    check_graph_arguments(
+        csr_indptr, csr_indices, csr_data.shape[0], source_vert_idx, vertex_count)
 
     # Initialize source distance
     dist[source] = 0.0
@@ -150,6 +154,15 @@ cpdef cnp.ndarray compute_bf_sssp_w_path(
         size_t source = <size_t>source_vert_idx
         bint changed
 
+    # bounds checking is disabled in this module
+    check_graph_arguments(
+        csr_indptr, csr_indices, csr_data.shape[0], source_vert_idx, vertex_count)
+    if predecessor.shape[0] < vertex_count:
+        raise ValueError(
+            f"the predecessor array has {predecessor.shape[0]} elements for "
+            f"{vertex_count} vertices"
+        )
+
     # Initialize source distance
     dist[source] = 0.0
 
@@ -223,6 +236,10 @@ cpdef cnp.ndarray compute_bf_stsp(
             vertex_count, DTYPE_INF, dtype=DTYPE_PY)
         size_t target = <size_t>target_vert_idx
         bint changed
+
+    # bounds checking is disabled in this module
+    check_graph_arguments(
+        csc_indptr, csc_indices, csc_data.shape[0], target_vert_idx, vertex_count)
 
     # Initialize target distance
     dist[target] = 0.0
@@ -302,6 +319,15 @@ cpdef cnp.ndarray compute_bf_stsp_w_path(
         size_t target = <size_t>target_vert_idx
         bint changed
 
+    # bounds checking is disabled in this module
+    check_graph_arguments(
+        csc_indptr, csc_indices, csc_data.shape[0], target_vert_idx, vertex_count)
+    if successor.shape[0] < vertex_count:
+        raise ValueError(
+            f"the successor array has {successor.shape[0]} elements for "
+            f"{vertex_count} vertices"
+        )
+
     # Initialize target distance
     dist[target] = 0.0
 
@@ -370,6 +396,14 @@ cpdef bint detect_negative_cycle(
         DTYPE_t tail_vert_val, new_dist
         bint has_negative_cycle = False
 
+    # bounds checking is disabled in this module
+    check_graph_arguments(csr_indptr, csr_indices, csr_data.shape[0], 0, vertex_count)
+    if dist_matrix.shape[0] < vertex_count:
+        raise ValueError(
+            f"the distance array has {dist_matrix.shape[0]} elements for "
+            f"{vertex_count} vertices"
+        )
+
     with nogil:
         # One more iteration to detect negative cycles
         for tail_vert_idx in range(<size_t>vertex_count):
@@ -436,6 +470,14 @@ cpdef bint detect_negative_cycle_csc(
         size_t head_vert_idx, tail_vert_idx, idx
         DTYPE_t new_dist
         bint has_negative_cycle = False
+
+    # bounds checking is disabled in this module
+    check_graph_arguments(csc_indptr, csc_indices, csc_data.shape[0], 0, vertex_count)
+    if stsp_dist.shape[0] < vertex_count:
+        raise ValueError(
+            f"the distance array has {stsp_dist.shape[0]} elements for "
+            f"{vertex_count} vertices"
+        )
 
     with nogil:
         # Iterate over destination vertices (CSC organization)

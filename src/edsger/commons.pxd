@@ -19,6 +19,17 @@ cdef enum ElementState:
     LABELED
 
 
+# argument checking
+# -----------------
+
+cdef int check_graph_arguments(
+    cnp.uint32_t[::1] indptr,
+    cnp.uint32_t[::1] indices,
+    Py_ssize_t data_length,
+    int vert_idx,
+    int vertex_count) except -1
+
+
 # author : Francois Pacull
 # copyright : Architecture & Performance
 # email: francois.pacull@architecture-performance.fr

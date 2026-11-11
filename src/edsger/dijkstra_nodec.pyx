@@ -45,7 +45,7 @@ cimport numpy as cnp
 import numpy as np
 
 from edsger.commons import DTYPE_PY
-from edsger.commons cimport DTYPE_INF, DTYPE_t
+from edsger.commons cimport DTYPE_INF, DTYPE_t, check_graph_arguments
 from edsger.pq_4ary_inline cimport (
     HeapNode, HEAP_OFFSET, HEAP_SENTINELS, heap_alloc, heap_grow, heap_free,
     sift_down_nodec, sift_up_nodec, prefetch_t0)
@@ -74,6 +74,11 @@ cdef int _dijkstra(
     that an extracted entry is stale, and skipped, if and only if its key is
     larger than the path length of its vertex. No vertex state is needed.
 
+    With non-negative edge weights, each vertex is scanned once and each edge
+    is relaxed at most once. The number of insertions is bounded accordingly,
+    so that the algorithm stops, with an error code, on a graph with negative
+    weights, on which it could otherwise loop forever.
+
     input
     =====
     * const cnp.uint32_t* indptr : pointers in the CSR/CSC format
@@ -93,7 +98,8 @@ cdef int _dijkstra(
 
     output
     ======
-    * int : 0 on success, -1 if a memory allocation failed
+    * int : 0 on success, -1 if a memory allocation failed, -2 if more
+      entries were inserted than is possible with non-negative edge weights
     """
 
     cdef:
@@ -102,6 +108,8 @@ cdef int _dijkstra(
         size_t iteration_count = 0
         size_t check_frequency = 16
         size_t capacity = heap_length if heap_length > 0 else 1
+        size_t insert_count = 1  # the origin vertex
+        size_t insert_count_max = <size_t>indptr[vertex_count] + 1
         DTYPE_t tail_vert_val, head_vert_val
         DTYPE_t inf = DTYPE_INF
         HeapNode* heap_base
@@ -185,6 +193,12 @@ cdef int _dijkstra(
                 # heap or not
                 dist[head_vert_idx] = head_vert_val
                 prefetch_t0(<void*>&indptr[head_vert_idx])
+                insert_count += 1
+                if insert_count > insert_count_max:
+                    # negative edge weights: leave the main loop
+                    status = -2
+                    size = 0
+                    break
                 if size == capacity:
                     heap_base_new = heap_grow(heap_base, capacity, 2 * capacity)
                     if heap_base_new == NULL:
@@ -232,9 +246,22 @@ cdef cnp.ndarray _run(
         size_t termination_count = 0
         int status
 
+    # bounds checking is disabled in this module
+    check_graph_arguments(
+        indptr, indices, data.shape[0], origin_vert_idx, vertex_count)
     if path is not None:
+        if path.shape[0] < vertex_count:
+            raise ValueError(
+                f"the path array has {path.shape[0]} elements for {vertex_count} "
+                "vertices"
+            )
         path_ptr = &path[0]
-    if termination_nodes is not None:
+    if termination_nodes is not None and termination_nodes.shape[0] > 0:
+        if np.max(termination_nodes) >= vertex_count:
+            raise IndexError(
+                f"termination node index is out of bounds for {vertex_count} "
+                "vertices"
+            )
         termination_ptr = &termination_nodes[0]
         termination_count = termination_nodes.shape[0]
 
@@ -251,6 +278,10 @@ cdef cnp.ndarray _run(
             <size_t>vertex_count,
             <size_t>heap_length)
 
+    if status == -2:
+        raise ValueError(
+            "negative edge weights are not supported by Dijkstra's algorithm"
+        )
     if status != 0:
         raise MemoryError("unable to allocate the priority queue")
 
