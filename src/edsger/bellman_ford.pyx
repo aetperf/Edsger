@@ -67,14 +67,16 @@ cpdef cnp.ndarray compute_bf_sssp(
     cdef:
         size_t tail_vert_idx, head_vert_idx, idx, v
         DTYPE_t tail_vert_val, new_dist
-        cnp.ndarray[DTYPE_t, ndim=1] dist = np.full(
-            vertex_count, DTYPE_INF, dtype=DTYPE_PY)
+        cnp.ndarray[DTYPE_t, ndim=1] dist
         size_t source = <size_t>source_vert_idx
         bint changed
 
     # bounds checking is disabled in this module
     check_graph_arguments(
         csr_indptr, csr_indices, csr_data.shape[0], source_vert_idx, vertex_count)
+
+    # the output array is allocated once the arguments have been checked
+    dist = np.full(vertex_count, DTYPE_INF, dtype=DTYPE_PY)
 
     # Initialize source distance
     dist[source] = 0.0
@@ -149,8 +151,7 @@ cpdef cnp.ndarray compute_bf_sssp_w_path(
     cdef:
         size_t tail_vert_idx, head_vert_idx, idx, v
         DTYPE_t tail_vert_val, new_dist
-        cnp.ndarray[DTYPE_t, ndim=1] dist = np.full(
-            vertex_count, DTYPE_INF, dtype=DTYPE_PY)
+        cnp.ndarray[DTYPE_t, ndim=1] dist
         size_t source = <size_t>source_vert_idx
         bint changed
 
@@ -162,6 +163,9 @@ cpdef cnp.ndarray compute_bf_sssp_w_path(
             f"the predecessor array has {predecessor.shape[0]} elements for "
             f"{vertex_count} vertices"
         )
+
+    # the output array is allocated once the arguments have been checked
+    dist = np.full(vertex_count, DTYPE_INF, dtype=DTYPE_PY)
 
     # Initialize source distance
     dist[source] = 0.0
@@ -232,14 +236,16 @@ cpdef cnp.ndarray compute_bf_stsp(
     cdef:
         size_t tail_vert_idx, head_vert_idx, idx, v
         DTYPE_t head_vert_val, new_dist
-        cnp.ndarray[DTYPE_t, ndim=1] dist = np.full(
-            vertex_count, DTYPE_INF, dtype=DTYPE_PY)
+        cnp.ndarray[DTYPE_t, ndim=1] dist
         size_t target = <size_t>target_vert_idx
         bint changed
 
     # bounds checking is disabled in this module
     check_graph_arguments(
         csc_indptr, csc_indices, csc_data.shape[0], target_vert_idx, vertex_count)
+
+    # the output array is allocated once the arguments have been checked
+    dist = np.full(vertex_count, DTYPE_INF, dtype=DTYPE_PY)
 
     # Initialize target distance
     dist[target] = 0.0
@@ -314,8 +320,7 @@ cpdef cnp.ndarray compute_bf_stsp_w_path(
     cdef:
         size_t tail_vert_idx, head_vert_idx, idx, v
         DTYPE_t head_vert_val, new_dist
-        cnp.ndarray[DTYPE_t, ndim=1] dist = np.full(
-            vertex_count, DTYPE_INF, dtype=DTYPE_PY)
+        cnp.ndarray[DTYPE_t, ndim=1] dist
         size_t target = <size_t>target_vert_idx
         bint changed
 
@@ -327,6 +332,9 @@ cpdef cnp.ndarray compute_bf_stsp_w_path(
             f"the successor array has {successor.shape[0]} elements for "
             f"{vertex_count} vertices"
         )
+
+    # the output array is allocated once the arguments have been checked
+    dist = np.full(vertex_count, DTYPE_INF, dtype=DTYPE_PY)
 
     # Initialize target distance
     dist[target] = 0.0

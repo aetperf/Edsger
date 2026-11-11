@@ -6,6 +6,8 @@ be called from Python check their arguments explicitly.
 py.test tests/test_input_validation.py
 """
 
+import tracemalloc
+
 import numpy as np
 import pytest
 
@@ -19,6 +21,7 @@ from edsger.bellman_ford import (
     detect_negative_cycle_csc,
 )
 from edsger.bfs import bfs_csc, bfs_csr, bfs_reorder_csr
+from edsger.commons import validate_graph  # type: ignore
 from edsger.path_tracking import compute_path
 from edsger.spiess_florian import compute_SF_in  # type: ignore
 
@@ -202,3 +205,72 @@ def test_compute_SF_in_inconsistent_arrays(name, value):
     args[name] = value
     with pytest.raises((ValueError, IndexError)):
         compute_SF_in(*args.values())
+
+
+@pytest.mark.parametrize("module", [dijkstra, dijkstra_nodec])
+@pytest.mark.parametrize("heap_length", [-1, -8])
+def test_dijkstra_negative_heap_length(module, heap_length):
+    indptr, indices, data = single_edge_graph()
+    with pytest.raises(ValueError):
+        module.compute_sssp(indptr, indices, data, 0, VERTEX_COUNT, heap_length)
+
+
+@pytest.mark.parametrize("run", ENTRY_POINTS)
+def test_wrong_vertex_count_is_rejected_before_allocating(run):
+    """A vertex count of 50 millions would need a 400 MB output array."""
+    tracemalloc.start()
+    try:
+        with pytest.raises(ValueError):
+            run(0, 50_000_000)
+        _, peak = tracemalloc.get_traced_memory()
+    finally:
+        tracemalloc.stop()
+    assert peak < 1_000_000
+
+
+# validate_graph: full check of a graph, to be run once before many calls
+
+
+def test_validate_graph_accepts_valid_graph():
+    indptr, indices, data = single_edge_graph()
+    validate_graph(indptr, indices)
+    validate_graph(indptr, indices, data)
+
+
+@pytest.mark.parametrize(
+    "indptr, indices",
+    [
+        pytest.param([0, 3, 1], [1], id="pointers-not-monotone"),
+        pytest.param([1, 1, 1], [1], id="first-pointer-not-zero"),
+        pytest.param([0, 1, 1], [1, 0], id="last-pointer-not-edge-count"),
+        pytest.param([0, 1, 1], [2], id="index-out-of-bounds"),
+        pytest.param([0], [], id="no-vertex"),
+    ],
+)
+def test_validate_graph_rejects_malformed_structure(indptr, indices):
+    with pytest.raises(ValueError):
+        validate_graph(
+            np.array(indptr, dtype=np.uint32), np.array(indices, dtype=np.uint32)
+        )
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        pytest.param([1.0, 2.0], id="data-length"),
+        pytest.param([-1.0], id="negative-weight"),
+        pytest.param([np.nan], id="nan-weight"),
+    ],
+)
+def test_validate_graph_rejects_invalid_weights(data):
+    indptr, indices, _ = single_edge_graph()
+    with pytest.raises(ValueError):
+        validate_graph(indptr, indices, np.array(data, dtype=np.float64))
+
+
+def test_validate_graph_can_allow_negative_weights():
+    """Negative weights are valid for the Bellman-Ford algorithm."""
+    indptr, indices, _ = single_edge_graph()
+    validate_graph(indptr, indices, np.array([-1.0]), nonnegative=False)
+    with pytest.raises(ValueError):
+        validate_graph(indptr, indices, np.array([np.nan]), nonnegative=False)

@@ -37,6 +37,40 @@ from edsger.star import (
 from edsger.bfs import bfs_csr, bfs_csc  # pylint: disable=no-name-in-module
 
 
+def _compute_path_with_permutation(path_links, permutation, vertex_idx):
+    """
+    Compute a path on a graph whose vertices have been re-indexed.
+
+    The path is followed on the contiguous vertex indices and returned with the original
+    vertex labels: neither the time nor the memory depends on the values of the labels,
+    which may be negative.
+
+    Parameters
+    ----------
+    path_links : numpy.ndarray
+        Predecessors or successors, for the re-indexed vertices.
+    permutation : pandas.DataFrame
+        Permutation of the vertices, sorted by new vertex index.
+    vertex_idx : int
+        Original label of the source or target vertex.
+
+    Returns
+    -------
+    path_vertices : numpy.ndarray
+        Original labels of the vertices of the path, of np.uint32 type unless some labels
+        are negative.
+    """
+    # the new indices are the ranks of the sorted labels
+    labels = permutation["vert_idx_old"].to_numpy()
+    position = int(np.searchsorted(labels, vertex_idx))
+    if position == len(labels) or labels[position] != vertex_idx:
+        raise ValueError(f"vertex {vertex_idx} not found in graph")
+    path_vertices = labels[compute_path(path_links, position)]
+    if labels[0] >= 0:
+        path_vertices = path_vertices.astype(np.uint32)
+    return path_vertices
+
+
 class Dijkstra:
     """
     Dijkstra's algorithm for finding the shortest paths between nodes in directed graphs with
@@ -99,8 +133,9 @@ class Dijkstra:
         self._edges = standardize_graph_dataframe(edges, tail, head, weight)
         self._n_edges = len(self._edges)
         # Dijkstra's algorithm is not valid with negative weights: they are
-        # rejected whatever the value of check_edges
-        if self._n_edges > 0 and np.asarray(self._edges[weight]).min() < 0.0:
+        # rejected whatever the value of check_edges, and so are NaN weights
+        # (the min is NaN if any weight is)
+        if self._n_edges > 0 and not np.asarray(self._edges[weight]).min() >= 0.0:
             raise ValueError(f"edges['{weight}'] should be nonnegative")
         self._verbose = verbose
 
@@ -151,8 +186,7 @@ class Dijkstra:
             self.__edge_weights = rs_data.astype(DTYPE_PY)
 
         self._path_links = None
-        self._path_links_by_position = False
-        self._path_links_by_label = None
+        self._path_links_permuted = None
 
     @property
     def edges(self) -> Any:
@@ -468,8 +502,6 @@ class Dijkstra:
         # compute path length
         if not path_tracking:
             self._path_links = None
-            self._path_links_by_position = False
-            self._path_links_by_label = None
             if termination_nodes_array is not None:
                 # use early termination algorithms
                 if self._orientation == "in":
@@ -514,8 +546,6 @@ class Dijkstra:
                     )
         else:
             self._path_links = np.arange(0, self._n_vertices, dtype=np.uint32)
-            self._path_links_by_position = False
-            self._path_links_by_label = None
             if termination_nodes_array is not None:
                 # use early termination algorithms with path tracking
                 if self._orientation == "in":
@@ -569,6 +599,7 @@ class Dijkstra:
 
             if self._permute and self._permutation is not None:
                 # permute back the path vertex indices
+                self._path_links_permuted = self._path_links
                 path_df = pd.DataFrame(
                     data={
                         "vertex_idx": np.arange(self._n_vertices),
@@ -599,9 +630,6 @@ class Dijkstra:
                     self._path_links = path_df.associated_idx.astype(
                         np.uint32
                     ).to_numpy()
-                    # one link per vertex, in the order of the permuted indices,
-                    # with the original labels as values
-                    self._path_links_by_position = True
                 else:
                     self._path_links = np.arange(
                         self.__n_vertices_init, dtype=np.uint32
@@ -711,16 +739,10 @@ class Dijkstra:
                 UserWarning,
             )
             return None
-        if self._path_links_by_position:
-            # compute_path needs the links to be indexed by vertex label
-            if self._path_links_by_label is None:
-                assert self._permutation is not None
-                path_links_by_label = np.arange(self.__n_vertices_init, dtype=np.uint32)
-                path_links_by_label[self._permutation.vert_idx_old.values] = (
-                    self._path_links
-                )
-                self._path_links_by_label = path_links_by_label
-            return compute_path(self._path_links_by_label, vertex_idx)
+        if self._permute and self._permutation is not None:
+            return _compute_path_with_permutation(
+                self._path_links_permuted, self._permutation, vertex_idx
+            )
         return compute_path(self._path_links, vertex_idx)
 
 
@@ -819,8 +841,7 @@ class BellmanFord:
         self._has_negative_weights = np.any(self.__edge_weights < 0)
 
         self._path_links = None
-        self._path_links_by_position = False
-        self._path_links_by_label = None
+        self._path_links_permuted = None
         self._has_negative_cycle = False
 
     @property
@@ -1072,8 +1093,6 @@ class BellmanFord:
         # compute path length
         if not path_tracking:
             self._path_links = None
-            self._path_links_by_position = False
-            self._path_links_by_label = None
             if self._orientation == "in":
                 path_length_values = compute_bf_stsp(
                     self.__indptr,
@@ -1092,8 +1111,6 @@ class BellmanFord:
                 )
         else:
             self._path_links = np.arange(0, self._n_vertices, dtype=np.uint32)
-            self._path_links_by_position = False
-            self._path_links_by_label = None
             if self._orientation == "in":
                 path_length_values = compute_bf_stsp_w_path(
                     self.__indptr,
@@ -1115,6 +1132,7 @@ class BellmanFord:
 
             if self._permute and self._permutation is not None:
                 # permute back the path vertex indices
+                self._path_links_permuted = self._path_links
                 path_df = pd.DataFrame(
                     data={
                         "vertex_idx": np.arange(self._n_vertices),
@@ -1145,9 +1163,6 @@ class BellmanFord:
                     self._path_links = path_df.associated_idx.astype(
                         np.uint32
                     ).to_numpy()
-                    # one link per vertex, in the order of the permuted indices,
-                    # with the original labels as values
-                    self._path_links_by_position = True
                 else:
                     self._path_links = np.arange(
                         self.__n_vertices_init, dtype=np.uint32
@@ -1263,16 +1278,10 @@ class BellmanFord:
                 UserWarning,
             )
             return None
-        if self._path_links_by_position:
-            # compute_path needs the links to be indexed by vertex label
-            if self._path_links_by_label is None:
-                assert self._permutation is not None
-                path_links_by_label = np.arange(self.__n_vertices_init, dtype=np.uint32)
-                path_links_by_label[self._permutation.vert_idx_old.values] = (
-                    self._path_links
-                )
-                self._path_links_by_label = path_links_by_label
-            return compute_path(self._path_links_by_label, vertex_idx)
+        if self._permute and self._permutation is not None:
+            return _compute_path_with_permutation(
+                self._path_links_permuted, self._permutation, vertex_idx
+            )
         return compute_path(self._path_links, vertex_idx)
 
     def has_negative_cycle(self):
@@ -1661,8 +1670,7 @@ class BFS:
             self.__indptr = rs_indptr.astype(np.uint32)
 
         self._path_links = None
-        self._path_links_by_position = False
-        self._path_links_by_label = None
+        self._path_links_permuted = None
 
     @property
     def UNREACHABLE(self) -> int:
@@ -1918,8 +1926,6 @@ class BFS:
             # Convert predecessors to path_links format (uint32)
             # Replace sentinel value with vertex's own index (like Dijkstra does)
             self._path_links = np.arange(self._n_vertices, dtype=np.uint32)
-            self._path_links_by_position = False
-            self._path_links_by_label = None
             reachable_mask = predecessors != self._sentinel
             self._path_links[reachable_mask] = predecessors[reachable_mask].astype(
                 np.uint32
@@ -1927,6 +1933,7 @@ class BFS:
 
             if self._permute and self._permutation is not None:
                 # permute back the path vertex indices (same approach as Dijkstra)
+                self._path_links_permuted = self._path_links
                 path_df = pd.DataFrame(
                     data={
                         "vertex_idx": np.arange(self._n_vertices),
@@ -1957,9 +1964,6 @@ class BFS:
                     self._path_links = path_df.associated_idx.astype(
                         np.uint32
                     ).to_numpy()
-                    # one link per vertex, in the order of the permuted indices,
-                    # with the original labels as values
-                    self._path_links_by_position = True
                 else:
                     self._path_links = np.arange(
                         self.__n_vertices_init, dtype=np.uint32
@@ -1969,8 +1973,6 @@ class BFS:
                     )
         else:
             self._path_links = None
-            self._path_links_by_position = False
-            self._path_links_by_label = None
 
         # reorder predecessors for permuted graphs
         if return_series:
@@ -2097,16 +2099,10 @@ class BFS:
                 UserWarning,
             )
             return None
-        if self._path_links_by_position:
-            # compute_path needs the links to be indexed by vertex label
-            if self._path_links_by_label is None:
-                assert self._permutation is not None
-                path_links_by_label = np.arange(self.__n_vertices_init, dtype=np.uint32)
-                path_links_by_label[self._permutation.vert_idx_old.values] = (
-                    self._path_links
-                )
-                self._path_links_by_label = path_links_by_label
-            return compute_path(self._path_links_by_label, vertex_idx)
+        if self._permute and self._permutation is not None:
+            return _compute_path_with_permutation(
+                self._path_links_permuted, self._permutation, vertex_idx
+            )
         return compute_path(self._path_links, vertex_idx)
 
 

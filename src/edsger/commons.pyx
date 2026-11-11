@@ -65,7 +65,8 @@ cdef int check_graph_arguments(
     * int : 0, or -1 with a ValueError (inconsistent graph arrays) or an
       IndexError (vertex index out of bounds) set
 
-    Note that the content of indices is not checked.
+    Note that the content of the arrays is not checked: this is the purpose
+    of validate_graph, which is not called here because of its linear cost.
     """
     if vertex_count < 1 or indptr.shape[0] != vertex_count + 1:
         raise ValueError(
@@ -87,6 +88,85 @@ cdef int check_graph_arguments(
             f"vertex index {vert_idx} is out of bounds for {vertex_count} vertices"
         )
     return 0
+
+
+def validate_graph(
+        cnp.uint32_t[::1] indptr,
+        cnp.uint32_t[::1] indices,
+        data=None,
+        bint nonnegative=True):
+    """
+    Check that a graph in CSR or CSC format is valid.
+
+    The graph algorithms of edsger read these arrays without bounds checking
+    and only check, in constant time, that their arguments are consistent.
+    This function checks the content of the arrays, in linear time. It is
+    meant to be called once per graph, when the arrays do not come from
+    edsger.path, before running the algorithms as many times as needed.
+
+    Parameters
+    ----------
+    indptr : cnp.uint32_t[::1]
+        Pointers in the CSR/CSC format: vertex_count + 1 elements.
+    indices : cnp.uint32_t[::1]
+        Indices in the CSR/CSC format: one element per edge.
+    data : array-like, optional
+        Edge weights in the CSR/CSC format: one element per edge.
+    nonnegative : bool, optional (default=True)
+        Whether the edge weights should be non-negative, which is required by
+        Dijkstra's algorithm but not by the Bellman-Ford algorithm.
+
+    Raises
+    ------
+    ValueError
+        If the pointers do not start from zero, are not non-decreasing or do
+        not end with the edge count, if an index is not smaller than the
+        vertex count, or if the weights have the wrong length, contain a NaN
+        or, when nonnegative is True, a negative value.
+    """
+    cdef:
+        Py_ssize_t vertex_count = indptr.shape[0] - 1
+        Py_ssize_t edge_count = indices.shape[0]
+        Py_ssize_t i
+        bint unordered = False, out_of_bounds = False
+
+    if vertex_count < 1:
+        raise ValueError("the pointer array should have at least 2 elements")
+    if indptr[0] != 0:
+        raise ValueError("the first pointer should be 0")
+    if indptr[vertex_count] != edge_count:
+        raise ValueError(
+            f"the last pointer should be the edge count {edge_count}, got "
+            f"{indptr[vertex_count]}"
+        )
+
+    with nogil:
+        for i in range(vertex_count):
+            unordered |= indptr[i] > indptr[i + 1]
+        for i in range(edge_count):
+            out_of_bounds |= indices[i] >= vertex_count
+
+    if unordered:
+        raise ValueError("the pointers should be non-decreasing")
+    if out_of_bounds:
+        raise ValueError(
+            f"the indices should be smaller than the vertex count {vertex_count}"
+        )
+
+    if data is not None:
+        weights = np.asarray(data)
+        if weights.shape != (edge_count,):
+            raise ValueError(
+                f"the edge weights should have one element per edge: {edge_count}"
+            )
+        if edge_count > 0:
+            # the min is NaN if any weight is; it is compared as a Python
+            # object, away from the fast-math flags of this module
+            weight_min = weights.min()
+            if weight_min != weight_min:
+                raise ValueError("the edge weights should not contain NaN values")
+            if nonnegative and weight_min < 0.0:
+                raise ValueError("the edge weights should be nonnegative")
 
 
 # author : Francois Pacull

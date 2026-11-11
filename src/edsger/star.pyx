@@ -329,7 +329,7 @@ cdef void _coo_to_csc_uint32(
         last = temp
 
 
-cpdef void _coo_to_csr_float64(
+cdef void _coo_to_csr_float64(
         cnp.uint32_t  [::1] Ai,
         cnp.uint32_t  [::1] Aj,
         cnp.float64_t [::1] Ax,
@@ -367,7 +367,7 @@ cpdef void _coo_to_csr_float64(
         last = temp
 
 
-cpdef void _coo_to_csc_float64(
+cdef void _coo_to_csc_float64(
         cnp.uint32_t  [::1] Ai,
         cnp.uint32_t  [::1] Aj,
         cnp.float64_t [::1] Ax,

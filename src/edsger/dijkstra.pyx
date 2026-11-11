@@ -224,11 +224,18 @@ cdef cnp.ndarray _run(
     path lengths: for each vertex, or for each termination node if any.
 
     `path` and `termination_nodes` may be None.
+
+    The arguments are checked for consistency, in constant time. The content
+    of the graph arrays is assumed to be valid: non-decreasing pointers,
+    indices smaller than the vertex count, non-negative weights. The graphs
+    built by edsger.path.Dijkstra are. For arrays coming from somewhere else,
+    edsger.commons.validate_graph checks them, in linear time: it is meant to
+    be called once per graph, not before each run.
     """
 
     cdef:
-        cnp.ndarray path_lengths = np.empty(vertex_count, dtype=DTYPE_PY)
-        DTYPE_t[::1] dist = path_lengths
+        cnp.ndarray path_lengths
+        DTYPE_t[::1] dist
         cnp.uint32_t* path_ptr = NULL
         cnp.uint32_t* termination_ptr = NULL
         size_t termination_count = 0
@@ -237,6 +244,8 @@ cdef cnp.ndarray _run(
     # bounds checking is disabled in this module
     check_graph_arguments(
         indptr, indices, data.shape[0], origin_vert_idx, vertex_count)
+    if heap_length < 0:
+        raise ValueError(f"the heap length should not be negative, got {heap_length}")
     if path is not None:
         if path.shape[0] < vertex_count:
             raise ValueError(
@@ -252,6 +261,10 @@ cdef cnp.ndarray _run(
             )
         termination_ptr = &termination_nodes[0]
         termination_count = termination_nodes.shape[0]
+
+    # the output array is allocated once the arguments have been checked
+    path_lengths = np.empty(vertex_count, dtype=DTYPE_PY)
+    dist = path_lengths
 
     with nogil:
         status = _dijkstra(

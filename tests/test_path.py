@@ -3,6 +3,8 @@
 py.test tests/test_path.py
 """
 
+import tracemalloc
+
 import numpy as np
 import pandas as pd
 import pytest  # type: ignore
@@ -1255,3 +1257,53 @@ def test_get_path_with_permutation(algo, return_series):
     sp.run(vertex_idx=0, path_tracking=True, return_series=return_series)
 
     np.testing.assert_array_equal(sp.get_path(2), [2, 3, 0])
+
+
+@pytest.mark.parametrize("lazy", [True, False])
+def test_dijkstra_rejects_nan_weights(lazy):
+    edges = pd.DataFrame(data={"tail": [0, 1], "head": [1, 2], "weight": [1.0, np.nan]})
+    with pytest.raises(ValueError, match=r"nonnegative"):
+        Dijkstra(edges, lazy=lazy)
+
+
+@pytest.mark.parametrize("algo", [Dijkstra, BellmanFord, BFS])
+def test_get_path_with_negative_labels(algo):
+    """Path 0 -> -10 -> 2, through a vertex with a negative label. Negative
+    labels are only supported with the Series output of run."""
+    edges = pd.DataFrame(
+        data={"tail": [0, -10], "head": [-10, 2], "weight": [1.0, 1.0]}
+    )
+    sp = algo(edges, orientation="out", permute=True)
+    sp.run(vertex_idx=0, path_tracking=True, return_series=True)
+
+    np.testing.assert_array_equal(sp.get_path(2), [2, -10, 0])
+
+
+@pytest.mark.parametrize("algo", [Dijkstra, BellmanFord, BFS])
+def test_get_path_memory_does_not_depend_on_labels(algo):
+    """3 vertices, the largest label being 200 millions."""
+    edges = pd.DataFrame(
+        data={"tail": [0, 3], "head": [3, 200_000_000], "weight": [1.0, 1.0]}
+    )
+    sp = algo(edges, orientation="out", permute=True)
+    sp.run(vertex_idx=0, path_tracking=True, return_series=True)
+
+    tracemalloc.start()
+    try:
+        path = sp.get_path(200_000_000)
+        _, peak = tracemalloc.get_traced_memory()
+    finally:
+        tracemalloc.stop()
+
+    np.testing.assert_array_equal(path, [200_000_000, 3, 0])
+    assert peak < 1_000_000
+
+
+@pytest.mark.parametrize("algo", [Dijkstra, BellmanFord, BFS])
+def test_get_path_unknown_vertex_with_permutation(algo):
+    edges = pd.DataFrame(data={"tail": [0, 10], "head": [10, 20], "weight": [1.0, 1.0]})
+    sp = algo(edges, orientation="out", permute=True)
+    sp.run(vertex_idx=0, path_tracking=True)
+
+    with pytest.raises(ValueError, match="not found"):
+        sp.get_path(5)
