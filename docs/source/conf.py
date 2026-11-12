@@ -1,10 +1,11 @@
 # Configuration file for the Sphinx documentation builder.
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-import os
-import sys
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as installed_version
 
-sys.path.insert(0, os.path.abspath("../../src/"))
+# The API reference is generated from the installed package (pip install .):
+# the source tree does not contain the compiled Cython modules.
 
 # -- Project information -----------------------------------------------------
 
@@ -13,10 +14,8 @@ author = "François Pacull"
 copyright = "2022-2026, Architecture & Performance"
 
 try:
-    from edsger._version import __version__
-
-    release = __version__
-except ImportError:
+    release = installed_version("edsger")
+except PackageNotFoundError:
     release = "0.2.0"
 # Short X.Y.Z version, without the local part of development versions
 version = ".".join(release.split(".")[:3])
