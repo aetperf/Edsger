@@ -13,8 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Prefetching of the adjacency data of the next vertices to be scanned (heap root and its children)
 - No per-vertex state array anymore: the path length array is the output array, written in place
 - `# cython:` compiler directives moved before the module docstring in all the Cython modules: they were ignored by Cython where they were, so bounds checking was still active. BFS and Bellman-Ford are about 18% faster (E and NY DIMACS networks)
+- The Linux wheels are now built with Clang instead of GCC: Dijkstra is about 8% faster on the USA DIMACS network (1.08s against 1.18s with GCC 14, i9-12900H, same flags)
 
 ### Bug Fixes
+- The Linux wheels crashed at import time with an illegal instruction on the CPUs without AVX-512: the wheels were built with `-march=native`, so for the CPU of the build machine. The wheels built with cibuildwheel (Linux, macOS) now only use the baseline instruction set of the architecture. Builds from source still use `-march=native`
 - Fixed a heap overflow (memory corruption) of the lazy Dijkstra on dense graphs, where the number of heap entries can exceed the vertex count: the heap now grows when needed
 - Negative vertex indices without `permute=True` now raise a `ValueError` when the graph is built, instead of silently producing wrong results
 - `compute_path` (and so `get_path`) now raises an `IndexError` for an out-of-bounds vertex index, instead of returning an empty path

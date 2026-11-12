@@ -27,6 +27,17 @@ def is_mingw():
     return False
 
 
+def is_portable_build():
+    """Check if the binaries are built to be distributed (cibuildwheel).
+
+    Such binaries must run on any CPU of the target architecture, so they must
+    not be tuned for the build machine with -march=native: the 0.1.7 Linux
+    wheels were built on an AVX-512 machine and crashed at import time
+    (illegal instruction) on the CPUs without AVX-512.
+    """
+    return os.environ.get("CIBUILDWHEEL", "0") == "1"
+
+
 def get_compiler_flags():
     """Get platform and compiler specific optimization flags."""
     # Check if we're building with coverage support
@@ -135,15 +146,22 @@ def get_compiler_flags():
             # Skip -march=native for universal binaries (incompatible with cross-compilation)
             compile_args = ["-Ofast", "-flto"]
         else:
-            print(f"Building with {compiler_name} optimizations on {system}")
             compile_args = [
                 "-Ofast",
                 "-flto",
-                "-march=native",
                 "-fno-plt",  # Avoid PLT indirection for faster calls
                 "-fno-semantic-interposition",  # Allow more aggressive inlining
                 "-funroll-loops",  # More aggressive loop unrolling
             ]
+            if is_portable_build():
+                print(
+                    f"Building with {compiler_name} optimizations on {system} "
+                    "(portable binary, baseline instruction set)"
+                )
+            else:
+                print(f"Building with {compiler_name} optimizations on {system}")
+                # Tune for the CPU of the build machine: local builds only
+                compile_args.append("-march=native")
 
         link_args = ["-flto"]
         return compile_args, link_args, []

@@ -527,10 +527,24 @@ def test_SF_network_run_01(spiess_florian_network):
     origin_edges = merged[merged["tail"] == 0]
     assert np.isclose(origin_edges["volume"].sum(), 1.0, rtol=1e-05)
 
+    # This network has two optimal strategies, with exactly the same travel times.
+    # From the alighting vertex 11, the flow either goes directly to the boarding
+    # vertices 8 and 10 (reference volumes), or through the stop vertex 7: the
+    # cost (alighting + boarding time = dwell time) and the frequencies are the
+    # same. Which one is found depends on the last bit of the floating point
+    # operations, so on the instruction set the library was compiled for (with or
+    # without fused multiply-add). Both are accepted.
+    volume_ref = merged.set_index(["tail", "head"])["volume_ref"]
+    volume_alt = volume_ref.copy()
+    for head in (8, 10):
+        volume_alt[(7, head)] += volume_ref[(11, head)]
+        volume_alt[(11, 7)] += volume_ref[(11, head)]
+        volume_alt[(11, head)] = 0.0
+
     # Compare volumes with tolerance for floating point artifacts
-    np.testing.assert_allclose(
-        merged["volume"].values, merged["volume_ref"].values, rtol=1e-05, atol=1e-06
-    )
+    volume = merged["volume"].values
+    if not np.allclose(volume, volume_alt.values, rtol=1e-05, atol=1e-06):
+        np.testing.assert_allclose(volume, volume_ref.values, rtol=1e-05, atol=1e-06)
 
     # Test vertex travel times (u_i_vec) from the paper
     # These are the expected travel times from each vertex to the destination (vertex 12)
