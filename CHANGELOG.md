@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## Version 0.2.0 (2026-11-13)
 
 ### Performance Improvements
 - **Dijkstra about 2x faster on road networks**: 2.45s to 1.24s on the USA DIMACS network (Linux, i9-12900H), both with and without decrease-key (`lazy=True`/`lazy=False`). Path lengths are bit-identical to the previous version.
