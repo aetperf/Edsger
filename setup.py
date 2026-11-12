@@ -161,6 +161,8 @@ extra_compile_args, extra_link_args, platform_macros = get_compiler_flags()
 # Large Pages / THP support is always enabled
 define_macros = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")] + platform_macros
 define_macros_with_thp = define_macros + [("USE_LARGE_PAGES", None)]
+# The Windows large pages allocator enables SeLockMemoryPrivilege (Advapi32)
+thp_libraries = ["advapi32"] if platform.system() == "Windows" else []
 
 extensions = [
     Extension(
@@ -176,6 +178,7 @@ extensions = [
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
         define_macros=define_macros_with_thp,
+        libraries=thp_libraries,
     ),
     Extension(
         "edsger.dijkstra",
@@ -183,6 +186,7 @@ extensions = [
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
         define_macros=define_macros_with_thp,
+        libraries=thp_libraries,
     ),
     Extension(
         "edsger.dijkstra_nodec",
@@ -190,6 +194,7 @@ extensions = [
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
         define_macros=define_macros_with_thp,
+        libraries=thp_libraries,
     ),
     Extension(
         "edsger.spiess_florian",
