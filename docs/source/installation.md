@@ -1,160 +1,51 @@
-# Installation Guide
+# Installation
 
-This guide will help you install the `edsger` package on your system.
-
-## Requirements
-
-Before you begin, ensure you have the following prerequisites:
-
-- Python 3.10 or higher
-- pip (Python package installer) or uv (recommended)
-- (Optional) git for installing from source
-
-### Optional Dependencies
-
-Edsger supports multiple DataFrame backends. Install the ones you need:
+Edsger requires Python 3.10 or later.
 
 ```bash
-# For pandas Arrow backend support (recommended for large graphs)
-pip install pyarrow
-
-# For Polars DataFrame support
-pip install polars
-```
-
-## Method 1: Using Python venv + pip
-
-Create a virtual environment and install with pip:
-
-```bash
-# Create a virtual environment
-python -m venv edsger-env
-
-# Activate the virtual environment
-source edsger-env/bin/activate  # On Windows: edsger-env\Scripts\activate
-
-# Install edsger
 pip install edsger
 ```
 
-## Method 2: Using uv (Recommended)
-
-[uv](https://github.com/astral-sh/uv) provides faster installation and better dependency resolution:
+NumPy and pandas are installed as dependencies. Two other packages are optional: [PyArrow](https://arrow.apache.org/docs/python/) for pandas dataframes with Arrow data types, and Polars for Polars dataframes.
 
 ```bash
-# Install uv if you haven't already
-pip install uv
-
-# Create a virtual environment with uv
-uv venv edsger-env
-
-# Activate the virtual environment
-source edsger-env/bin/activate  # On Windows: edsger-env\Scripts\activate
-
-# Install edsger
-uv pip install edsger
+pip install pyarrow polars
 ```
 
-## Installing from Source
+## Binary wheels
 
-If you prefer to install from source or contribute to development:
+Wheels are published on [PyPI](https://pypi.org/project/edsger/) for Python 3.10 to 3.14 on the following platforms.
 
-### 1. Clone the Repository
+| System | Architecture | Compiler |
+|---|---|---|
+| Linux (glibc and musl) | x86_64 | Clang |
+| Windows | x86_64, x86 | MSVC |
+| macOS | arm64 | Apple Clang |
+
+On the other platforms, pip builds the package from the source distribution, which requires a C compiler.
+
+The Linux and macOS wheels only use the baseline instruction set of the architecture. The Windows wheels are compiled with `/arch:AVX2` and require a CPU with AVX2.
+
+## From source
 
 ```bash
 git clone https://github.com/aetperf/Edsger.git
 cd Edsger
+pip install .
 ```
 
-### 2. Using Python venv + pip
+A build from source on Linux or macOS uses `-march=native`: the binary is tuned for the CPU of the build machine and may not run on another one. The compiler is the default one of the Python installation. Another compiler can be selected with the `CC` environment variable.
 
 ```bash
-# Create and activate virtual environment
-python -m venv edsger-env
-source edsger-env/bin/activate  # On Windows: edsger-env\Scripts\activate
-
-# Install in editable mode
-pip install -e .
+CC=clang pip install .
 ```
 
-### 3. Using uv (Recommended)
+On Linux, the Dijkstra code is about 10% faster when compiled with Clang than with GCC, see [Benchmarks](benchmarks.md).
 
-```bash
-# Create and activate virtual environment
-uv venv edsger-env
-source edsger-env/bin/activate  # On Windows: edsger-env\Scripts\activate
-
-# Install in editable mode
-uv pip install -e .
-```
-
-### 4. Verify the Installation
-
-Check that the installation was successful by importing the package in a Python shell:
+## Check
 
 ```python
-python
->>> import edsger
->>> edsger.__version__
+import edsger
+
+edsger.__version__
 ```
-
-You should see the version number of the `edsger` package.
-
-## Development Installation
-
-For contributors who need development dependencies:
-
-### Using Python venv + pip
-
-```bash
-# Create and activate virtual environment
-python -m venv edsger-env
-source edsger-env/bin/activate  # On Windows: edsger-env\Scripts\activate
-
-# Install development dependencies
-pip install -r requirements-dev.txt
-pip install -e .
-```
-
-### Using uv (Recommended)
-
-```bash
-# Create and activate virtual environment
-uv venv edsger-env
-source edsger-env/bin/activate  # On Windows: edsger-env\Scripts\activate
-
-# Install development dependencies
-uv pip install -r requirements-dev.txt
-uv pip install -e .
-```
-
-## Troubleshooting
-
-### Module Not Found Error
-
-If you encounter a `ModuleNotFoundError`, make sure that:
-1. The `edsger` package is installed correctly
-2. You're using the correct Python environment
-3. The `PYTHONPATH` is set appropriately (if needed)
-
-### Compilation Issues
-
-If you experience compilation issues, ensure you have:
-- A working C compiler
-- NumPy installed
-- Cython >= 3.0 installed
-
-## Uninstallation
-
-To uninstall the `edsger` package:
-
-```bash
-pip uninstall edsger
-```
-
-## Getting Help
-
-For further assistance:
-- Check the [documentation](index.md)
-- Open an issue on [GitHub](https://github.com/aetperf/Edsger)
-- Contact the maintainer at [francois.pacull@architecture-performance.fr](mailto:francois.pacull@architecture-performance.fr)

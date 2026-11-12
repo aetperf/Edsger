@@ -21,5 +21,6 @@ pandas-stubs
 
 # Documentation
 sphinx
-sphinx_design
 furo
+myst-parser
+sphinx-copybutton

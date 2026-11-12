@@ -1,95 +1,57 @@
----
-github_url: https://github.com/aetperf/Edsger
----
-
 # Edsger
 
-*Directed graph algorithms in Cython*
+*Graph algorithms in Cython*
 
-Welcome to the Edsger documentation! Edsger is a Python library for efficient graph algorithms implemented in Cython. The library focuses on shortest path and network assignment algorithms, featuring Dijkstra's algorithm for positive-weight directed graphs, Bellman-Ford algorithm for directed graphs with negative weights and cycle detection, BFS (Breadth-First Search) for unweighted directed graphs, and the Spiess-Florian hyperpath algorithm for transit network assignment.
+Edsger is a Python library of path algorithms for directed graphs, written in [Cython](https://cython.org/). A graph is given as a dataframe of edges, from [pandas](https://pandas.pydata.org/) or [Polars](https://pola.rs/), and the results come back as [NumPy](https://numpy.org/) arrays or pandas Series. The library is named after Edsger W. Dijkstra.
 
-## Why Use Edsger?
+| Algorithm | Class | Problem |
+|---|---|---|
+| Dijkstra | `Dijkstra` | Shortest paths with non-negative edge weights |
+| Bellman-Ford | `BellmanFord` | Shortest paths with negative edge weights, negative cycle detection |
+| Breadth-first search | `BFS` | Paths with the fewest edges |
+| Spiess-Florian | `HyperpathGenerating` | Optimal strategies in frequency-based transit networks |
 
-Edsger is designed to be **dataframe-friendly**, providing seamless integration with pandas workflows for directed graph algorithms. Also it is rather efficient on Linux. Our benchmarks on the USA road network (23.9M vertices, 57.7M edges) demonstrate nice performance:
-
-<img src="assets/dijkstra_benchmark_comparison.png" alt="Dijkstra Performance Comparison" width="700">
-
-Note that benchmarks are run on slightly different Intel processors between Linux and Windows.
-
-### Multiple DataFrame Backends Supported
+## Example
 
 ```python
 import pandas as pd
-import polars as pl
-from edsger.path import Dijkstra, BellmanFord, BFS, HyperpathGenerating
 
-# Works with pandas (NumPy backend)
-edges_pandas = pd.DataFrame({
-    'tail': [0, 0, 1, 2],
-    'head': [1, 2, 2, 3],
-    'weight': [1.0, 2.0, 1.5, 1.0]
-})
+from edsger.path import Dijkstra
 
-# Works with pandas (Arrow backend)
-edges_arrow = edges_pandas.astype({
-    'tail': pd.ArrowDtype(pa.int64()),
-    'head': pd.ArrowDtype(pa.int64()),
-    'weight': pd.ArrowDtype(pa.float64())
-})
+edges = pd.DataFrame(
+    {
+        "tail": [0, 0, 1, 2, 2, 3],
+        "head": [1, 2, 2, 3, 4, 4],
+        "weight": [1.0, 4.0, 2.0, 1.5, 3.0, 1.0],
+    }
+)
 
-# Works with Polars DataFrames
-edges_polars = pl.DataFrame({
-    'tail': [0, 0, 1, 2],
-    'head': [1, 2, 2, 3],
-    'weight': [1.0, 2.0, 1.5, 1.0]
-})
-
-# All work seamlessly with the same API!
-dijkstra = Dijkstra(edges_polars)  # or edges_pandas or edges_arrow
-distances = dijkstra.run(vertex_idx=0)
+dijkstra = Dijkstra(edges)
+dijkstra.run(vertex_idx=0)
 ```
 
-## Key Features
+    array([0. , 1. , 3. , 4.5, 5.5])
 
-- **Four graph algorithms** - Dijkstra, Bellman-Ford, BFS, and Spiess-Florian hyperpath
-- **Multiple DataFrame backends** - Native support for pandas (NumPy & Arrow backends) and Polars
-- **High performance** - Cython implementation with optimized memory layout
-- **Easy integration** - Works with your existing DataFrame workflows
-- **Production ready** - Comprehensive testing across Python 3.10-3.14
+The result is the length of the shortest path from vertex 0 to each vertex of the graph.
 
-## Quick Links
+## Performance
 
-- [Installation](installation.md) - How to install Edsger
-- [Quick Start](quickstart.md) - Get started quickly with basic examples
-- [API Reference](api.md) - Complete API reference
+Dijkstra's algorithm takes about one second on the USA road network of the [9th DIMACS implementation challenge](https://archive.dimacs.rutgers.edu/Workshops/Challenge9/), which has 23.9 million vertices and 57.7 million edges.
 
-## Table of Contents
+```{image} assets/dijkstra_benchmark_comparison.png
+:alt: Run time of Dijkstra's algorithm on the USA road network, for Edsger, NetworKit, graph-tool and SciPy
+:width: 700px
+```
+
+Single-source shortest paths from one vertex of the USA road network, best of 5 runs. The Linux and Windows timings come from two different machines, described in [Benchmarks](benchmarks.md).
 
 ```{toctree}
-:maxdepth: 2
-:caption: User Guide
+:hidden:
 
 installation
 quickstart
-```
-
-```{toctree}
-:maxdepth: 2
-:caption: API Reference
-
+benchmarks
 api
-```
-
-```{toctree}
-:maxdepth: 1
-:caption: Development
-
+changelog
 contributing
 ```
-
-## Indices
-
-- {ref}`genindex`
-- {ref}`modindex`
-- {ref}`search`
-

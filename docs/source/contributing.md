@@ -1,69 +1,45 @@
-# Contributing to Edsger
+# Contributing
 
-We welcome contributions to the Edsger library! This document provides guidelines for contributing to the project.
+Bug reports and pull requests are welcome on [GitHub](https://github.com/aetperf/Edsger/issues). A bug report is easier to handle with a small graph that reproduces the problem, the version of Edsger and the platform.
 
-## Getting Started
+## Development setup
 
-### Development Environment
+Building the package requires a C compiler.
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/aetperf/Edsger.git
-   cd Edsger
-   ```
+```bash
+git clone https://github.com/aetperf/Edsger.git
+cd Edsger
+pip install -r requirements-dev.txt
+pip install -e .
+```
 
-2. Create a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+The last command compiles the Cython modules. It has to be run again after a change in a `.pyx`, `.pxi` or `.pxd` file.
 
-3. Install development dependencies:
-   ```bash
-   pip install -r requirements-dev.txt
-   pip install -e .
-   ```
+## Tests
 
-## Development Guidelines
+```bash
+pytest tests
+```
 
-### Code Style
+The results of the shortest path algorithms are compared with those of SciPy, which is installed by `requirements-dev.txt`.
 
-- Follow PEP 8 for Python code
-- Use meaningful variable and function names
-- Add docstrings to all public functions and classes
-- Keep functions focused and concise
+## Code style
 
-### Testing
+Python code is formatted with [black](https://github.com/psf/black), Cython code is checked with [cython-lint](https://github.com/MarcoGorelli/cython-lint), and the type hints with [pyright](https://github.com/microsoft/pyright). The three tools run as [pre-commit](https://pre-commit.com/) hooks.
 
-- Write tests for all new features
-- Ensure all tests pass before submitting a pull request
-- Aim for high test coverage
+```bash
+pip install pre-commit
+pre-commit install
+```
 
-### Documentation
+## Documentation
 
-- Update documentation for any new features or changes
-- Use clear and concise language
-- Include examples where appropriate
+The documentation is built with [Sphinx](https://www.sphinx-doc.org/) from the Markdown files of `docs/source` and from the docstrings.
 
-## Submitting Changes
+```bash
+pip install -r docs/requirements.txt
+cd docs
+make html
+```
 
-1. Fork the repository on GitHub
-2. Create a new branch for your feature or bugfix
-3. Make your changes and commit them with clear commit messages
-4. Push your branch to your fork
-5. Submit a pull request with a clear description of your changes
-
-## Reporting Issues
-
-When reporting issues, please include:
-
-- A clear description of the problem
-- Steps to reproduce the issue
-- Expected vs actual behavior
-- System information (OS, Python version, etc.)
-
-## Questions?
-
-If you have questions about contributing, please open an issue on GitHub or contact the maintainers.
-
-Thank you for contributing to Edsger!
+The pages are written to `docs/build/html`. User-visible changes are listed in `CHANGELOG.md`.

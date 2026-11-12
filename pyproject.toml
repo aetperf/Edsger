@@ -50,8 +50,9 @@ test = [
 # Doc dependencies.
 doc = [
     "sphinx",
-    "sphinx_design",
-    "sphinx_rtd_theme"
+    "furo",
+    "myst-parser",
+    "sphinx-copybutton"
 ]
 
 [project.urls]

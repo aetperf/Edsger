@@ -1,75 +1,84 @@
 # Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-# -- Path setup --------------------------------------------------------------
-
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#
 import os
 import sys
 
 sys.path.insert(0, os.path.abspath("../../src/"))
 
 # -- Project information -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "Edsger"
-copyright = "2025, Architecture & Performance"
-author = "Francois Pacull"
+author = "François Pacull"
+copyright = "2022-2026, Architecture & Performance"
 
-# Get version from the package
 try:
     from edsger._version import __version__
 
     release = __version__
-    version = __version__
 except ImportError:
-    # Fallback if import fails
-    release = "0.1.7"
-    version = "0.1.7"
+    release = "0.2.0"
+# Short X.Y.Z version, without the local part of development versions
+version = ".".join(release.split(".")[:3])
 
 # -- General configuration ---------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-templates_path = ["_templates"]
-exclude_patterns = ["*.pyx"]
-
-# -- Options for HTML output -------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
-
-html_theme = "furo"
-html_static_path = ["_static"]
-
-# Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
-# ones.
 extensions = [
-    "sphinx.ext.duration",
-    "sphinx.ext.doctest",
     "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
-    "sphinx_design",
-    "myst_parser",  # Enable MyST parser for Markdown
+    "myst_parser",
     "sphinx_copybutton",
 ]
 
-# MyST parser configuration
-myst_enable_extensions = [
-    "deflist",
-    "tasklist",
-    "html_admonition",
-    "html_image",
-]
+source_suffix = {".md": "markdown"}
+exclude_patterns = []
 
-# Source suffix
-source_suffix = {
-    ".rst": "restructuredtext",
-    ".md": "markdown",
+myst_enable_extensions = ["colon_fence", "deflist"]
+myst_heading_anchors = 3
+
+# -- API reference -----------------------------------------------------------
+
+# Single backquotes in the docstrings are names of Python objects
+default_role = "py:obj"
+autodoc_member_order = "bysource"
+autodoc_typehints = "none"
+autodoc_class_signature = "mixed"
+napoleon_google_docstring = False
+napoleon_numpy_docstring = True
+napoleon_use_rtype = False
+maximum_signature_line_length = 80
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+    "pandas": ("https://pandas.pydata.org/docs", None),
 }
+
+# -- HTML output -------------------------------------------------------------
+
+html_theme = "furo"
+html_title = f"Edsger {version}"
+html_show_sphinx = False
+html_copy_source = False
+html_show_sourcelink = False
+
+html_theme_options = {
+    "source_repository": "https://github.com/aetperf/Edsger",
+    "source_branch": "release",
+    "source_directory": "docs/source/",
+    "navigation_with_keys": True,
+    "light_css_variables": {
+        "color-brand-primary": "#2f5d8a",
+        "color-brand-content": "#2f5d8a",
+    },
+    "dark_css_variables": {
+        "color-brand-primary": "#8fb8de",
+        "color-brand-content": "#8fb8de",
+    },
+}
+
+# Copy button: do not copy the prompts and the outputs of interactive sessions
+copybutton_prompt_text = r">>> |\.\.\. |\$ "
+copybutton_prompt_is_regexp = True
