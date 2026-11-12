@@ -3,14 +3,13 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Contributing to Edsger" href="contributing.html"><link rel="prev" title="Quick Start Guide" href="quickstart.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Changelog" href="changelog.html"><link rel="prev" title="Benchmarks" href="benchmarks.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>API Reference - Edsger 0.1.7 documentation</title>
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+        <title>API reference - Edsger 0.2.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     
     
@@ -20,18 +19,24 @@
   body {
     --color-code-background: #f2f2f2;
   --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #2f5d8a;
+  --color-brand-content: #2f5d8a;
   
   }
   @media not print {
     body[data-theme="dark"] {
       --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #8fb8de;
+  --color-brand-content: #8fb8de;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
         --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #8fb8de;
+  --color-brand-content: #8fb8de;
   
       }
     }
@@ -163,7 +168,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Edsger 0.1.7 documentation</div></a>
+      <a href="index.html"><div class="brand">Edsger 0.2.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -184,7 +189,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">Edsger 0.1.7 documentation</span>
+  <span class="sidebar-brand-text">Edsger 0.2.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -192,18 +197,13 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
-<ul class="current">
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">API Reference</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Development</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to Edsger</a></li>
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 </ul>
 
 </div>
@@ -224,12 +224,16 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="_sources/api.md.txt" title="View this page">
+  <a class="muted-link" href="https://github.com/aetperf/Edsger/blob/release/docs/source/api.md?plain=true" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
-</div>
-<div class="theme-toggle-container theme-toggle-content">
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/aetperf/Edsger/edit/release/docs/source/api.md" rel="edit" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
               <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
               <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
@@ -243,753 +247,786 @@
         </div>
         <article role="main" id="furo-main-content">
           <section id="api-reference">
-<h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading">¶</a></h1>
-<p>This section provides detailed documentation for all public classes and functions in Edsger.</p>
-<section id="edsger-path-module">
-<h2>edsger.path Module<a class="headerlink" href="#edsger-path-module" title="Link to this heading">¶</a></h2>
-<section id="dijkstra-class">
-<h3>Dijkstra Class<a class="headerlink" href="#dijkstra-class" title="Link to this heading">¶</a></h3>
-<p>The main class for performing Dijkstra’s shortest path algorithm on directed graphs.</p>
-<section id="constructor-parameters">
-<h4>Constructor Parameters<a class="headerlink" href="#constructor-parameters" title="Link to this heading">¶</a></h4>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">edges</span></code>: pandas.DataFrame containing the directed graph edges</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">tail</span></code>: Column name for edge source nodes (default: ‘tail’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">head</span></code>: Column name for edge destination nodes (default: ‘head’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">weight</span></code>: Column name for edge weights (default: ‘weight’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">orientation</span></code>: Either ‘out’ (single-source) or ‘in’ (single-target) (default: ‘out’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">check_edges</span></code>: Whether to validate edge data (default: False)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">permute</span></code>: Whether to optimize node indexing (default: False)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">verbose</span></code>: Whether to print messages about parallel edge removal (default: False)</p></li>
+<h1>API reference<a class="headerlink" href="#api-reference" title="Link to this heading">¶</a></h1>
+<p>The four algorithms are classes of the <code class="docutils literal notranslate"><span class="pre">edsger.path</span></code> module. This page is generated from the docstrings.</p>
+<section id="dijkstra">
+<h2>Dijkstra<a class="headerlink" href="#dijkstra" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edsger.path.Dijkstra">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">edsger.path.</span></span><span class="sig-name descname"><span class="pre">Dijkstra</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">tail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tail'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">head</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'head'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'weight'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'out'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">check_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">permute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">lazy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#Dijkstra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.Dijkstra" title="Link to this definition">¶</a></dt>
+<dd><p>Dijkstra’s algorithm, for the shortest paths in a directed graph with
+non-negative edge weights.</p>
+<p>The graph is built once from a dataframe of edges. The <a class="reference internal" href="#edsger.path.Dijkstra.run" title="edsger.path.Dijkstra.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> method can then
+be called any number of times, from or to different vertices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>edges</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><em>pandas.DataFrame</em></a><em> or </em><em>polars.DataFrame</em>) – The edges of the graph, one row per edge. pandas dataframes can use NumPy
+or Arrow data types.</p></li>
+<li><p><strong>tail</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='tail'</em><em>)</em>) – Name of the column with the tail (start) vertex of each edge. The vertex
+identifiers are integers, non-negative unless <a class="reference internal" href="#edsger.path.Dijkstra.permute" title="edsger.path.Dijkstra.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p></li>
+<li><p><strong>head</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='head'</em><em>)</em>) – Name of the column with the head (end) vertex of each edge.</p></li>
+<li><p><strong>weight</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='weight'</em><em>)</em>) – Name of the column with the edge weights. Negative and NaN weights are
+rejected with a ValueError, whatever the value of <code class="xref py py-obj docutils literal notranslate"><span class="pre">check_edges</span></code>.</p></li>
+<li><p><strong>orientation</strong> (<em>{'out'</em><em>, </em><em>'in'}</em><em>, </em><em>optional</em><em> (</em><em>default='out'</em><em>)</em>) – ‘out’ for the paths from one vertex to all the others (single source),
+‘in’ for the paths from all the vertices to one vertex (single target).</p></li>
+<li><p><strong>check_edges</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to check the edges before building the graph: column names,
+data types, missing and non-finite values.</p></li>
+<li><p><strong>permute</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to renumber the vertices internally, with contiguous indices
+starting from 0. Without it, the internal arrays have one element per
+integer between 0 and the largest vertex identifier. The arguments and
+the results of the methods use the original identifiers in both cases.
+Negative identifiers are only accepted with this option, and the results
+must then be returned as Series (<code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series=True</span></code>).</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to print the number of parallel edges that were removed.</p></li>
+<li><p><strong>lazy</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – Whether to use the variant of the algorithm without decrease-key
+operation, in which a vertex can be inserted several times in the
+priority queue. Both variants return the same path lengths.</p></li>
 </ul>
-</section>
-<section id="methods">
-<h4>Methods<a class="headerlink" href="#methods" title="Link to this heading">¶</a></h4>
-<section id="run">
-<h5>run<a class="headerlink" href="#run" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex_idx</span><span class="p">,</span> <span class="n">path_tracking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_inf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
-        <span class="n">return_series</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">heap_length_ratio</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>When several edges have the same tail and head vertices, only the one with
+the smallest weight is kept.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dijkstra</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"tail"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">"head"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">"weight"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">array([0., 1., 3.])</span>
 </pre></div>
 </div>
-<p>Runs the shortest path algorithm from/to the specified vertex.</p>
-<p><strong>Parameters:</strong></p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">vertex_idx</span></code>: Source/target vertex index</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">path_tracking</span></code>: Whether to track paths for reconstruction (default: False)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">return_inf</span></code>: Return infinity for unreachable vertices (default: True)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">return_series</span></code>: Return results as pandas Series (default: False)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">heap_length_ratio</span></code>: Heap size as fraction of vertices (default: 1.0)</p></li>
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.Dijkstra.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">vertex_idx</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">path_tracking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">return_inf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">return_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">heap_length_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">termination_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#Dijkstra.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.Dijkstra.run" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the shortest path lengths from or to a given vertex.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vertex_idx</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The source vertex if the orientation is ‘out’, the target vertex if it
+is ‘in’.</p></li>
+<li><p><strong>path_tracking</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to store the shortest path tree, so that the paths can be
+retrieved with <a class="reference internal" href="#edsger.path.Dijkstra.get_path" title="edsger.path.Dijkstra.get_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_path</span></code></a>.</p></li>
+<li><p><strong>return_inf</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – Whether to return <a class="reference external" href="https://numpy.org/doc/stable/reference/constants.html#numpy.inf" title="(in NumPy v2.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.inf</span></code></a> as the path length of the vertices that
+cannot be reached. If False, the largest float64 value is returned
+instead.</p></li>
+<li><p><strong>return_series</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to return a pandas Series indexed by vertex instead of a NumPy
+array.</p></li>
+<li><p><strong>heap_length_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em><em> (</em><em>default=1.0</em><em>)</em>) – Initial capacity of the priority queue, as a fraction of the number of
+vertices, in (0, 1]. The queue grows when it is full, so this only
+changes the size of the first memory allocation.</p></li>
+<li><p><strong>termination_nodes</strong> (<em>array-like</em><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Vertices at which to stop. The algorithm ends as soon as the path
+lengths of all these vertices are known, and only their path lengths
+are returned, in the given order.</p></li>
 </ul>
-<p><strong>Returns:</strong></p>
-<ul class="simple">
-<li><p>Array or Series of shortest path lengths</p></li>
-</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>numpy.ndarray or pandas.Series</em> – The path lengths, as float64. Without <code class="xref py py-obj docutils literal notranslate"><span class="pre">termination_nodes</span></code>, the array
+has one element per integer between 0 and the largest vertex
+identifier: element i is the length of the shortest path from the
+source to vertex i (‘out’), or from vertex i to the target (‘in’).
+With <code class="xref py py-obj docutils literal notranslate"><span class="pre">termination_nodes</span></code>, it has one element per termination node. If
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series</span></code> is True, the result is a Series named ‘path_length’
+with the vertex identifiers as index.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If <code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_idx</span></code> or a termination node is not a vertex of the graph, or
+    if the graph has negative vertex identifiers and <code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series</span></code> is
+    False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.Dijkstra.get_path">
+<span class="sig-name descname"><span class="pre">get_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#Dijkstra.get_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.Dijkstra.get_path" title="Link to this definition">¶</a></dt>
+<dd><p>Return the shortest path between a vertex and the vertex of the last run.</p>
+<p>The last call to <a class="reference internal" href="#edsger.path.Dijkstra.run" title="edsger.path.Dijkstra.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> must have been made with <code class="xref py py-obj docutils literal notranslate"><span class="pre">path_tracking=True</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vertex_idx</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The other end of the path: the target vertex if the orientation is
+‘out’, the source vertex if it is ‘in’.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>numpy.ndarray or None</em> – The vertices of the path, starting with <code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_idx</span></code> and ending with the
+vertex given to <a class="reference internal" href="#edsger.path.Dijkstra.run" title="edsger.path.Dijkstra.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>. With the ‘out’ orientation, this is the path in
+reverse order, from the target back to the source. With the ‘in’
+orientation, it is the path in travel order. If there is no path, the
+array only contains <code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_idx</span></code>. None is returned, with a warning, if
+no path was tracked.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.Dijkstra.get_vertices">
+<span class="sig-name descname"><span class="pre">get_vertices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#Dijkstra.get_vertices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.Dijkstra.get_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Return the vertices of the graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>numpy.ndarray</em> – The sorted identifiers of the vertices that are the tail or the head of
+at least one edge.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.Dijkstra.n_vertices">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_vertices</span></span><a class="headerlink" href="#edsger.path.Dijkstra.n_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Number of vertices. This is the largest vertex identifier plus one, or
+the number of distinct vertices if <a class="reference internal" href="#edsger.path.Dijkstra.permute" title="edsger.path.Dijkstra.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.Dijkstra.n_edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_edges</span></span><a class="headerlink" href="#edsger.path.Dijkstra.n_edges" title="Link to this definition">¶</a></dt>
+<dd><p>Number of edges of the graph, without the parallel edges.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.Dijkstra.edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">edges</span></span><a class="headerlink" href="#edsger.path.Dijkstra.edges" title="Link to this definition">¶</a></dt>
+<dd><p>The edges of the graph as they are stored, without the parallel edges,
+and with the internal vertex indices if <a class="reference internal" href="#edsger.path.Dijkstra.permute" title="edsger.path.Dijkstra.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.Dijkstra.orientation">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">orientation</span></span><a class="headerlink" href="#edsger.path.Dijkstra.orientation" title="Link to this definition">¶</a></dt>
+<dd><p>Orientation of the algorithm, either ‘out’ or ‘in’.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.Dijkstra.permute">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">permute</span></span><a class="headerlink" href="#edsger.path.Dijkstra.permute" title="Link to this definition">¶</a></dt>
+<dd><p>Whether the vertices are renumbered internally.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.Dijkstra.lazy">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">lazy</span></span><a class="headerlink" href="#edsger.path.Dijkstra.lazy" title="Link to this definition">¶</a></dt>
+<dd><p>Whether the variant without decrease-key operation is used.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.Dijkstra.path_links">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">path_links</span></span><a class="headerlink" href="#edsger.path.Dijkstra.path_links" title="Link to this definition">¶</a></dt>
+<dd><p>Path tree of the last run, or None if the paths were not tracked. This
+is the predecessor (‘out’) or the successor (‘in’) of each vertex. The
+vertex given to <a class="reference internal" href="#edsger.path.Dijkstra.run" title="edsger.path.Dijkstra.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> and the vertices that cannot be reached are linked
+to themselves.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="get-path">
-<h5>get_path<a class="headerlink" href="#get-path" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex_idx</span><span class="p">)</span>
+<section id="bellmanford">
+<h2>BellmanFord<a class="headerlink" href="#bellmanford" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edsger.path.BellmanFord">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">edsger.path.</span></span><span class="sig-name descname"><span class="pre">BellmanFord</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">tail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tail'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">head</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'head'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'weight'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'out'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">check_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">permute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BellmanFord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BellmanFord" title="Link to this definition">¶</a></dt>
+<dd><p>Bellman-Ford algorithm, for the shortest paths in a directed graph whose
+edge weights can be negative.</p>
+<p>The graph is built once from a dataframe of edges. The <a class="reference internal" href="#edsger.path.BellmanFord.run" title="edsger.path.BellmanFord.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> method can then
+be called any number of times, from or to different vertices. The shortest
+paths are not defined when the graph has a cycle of negative total weight:
+such a cycle is detected and reported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>edges</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><em>pandas.DataFrame</em></a><em> or </em><em>polars.DataFrame</em>) – The edges of the graph, one row per edge. pandas dataframes can use NumPy
+or Arrow data types.</p></li>
+<li><p><strong>tail</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='tail'</em><em>)</em>) – Name of the column with the tail (start) vertex of each edge. The vertex
+identifiers are integers, non-negative unless <a class="reference internal" href="#edsger.path.BellmanFord.permute" title="edsger.path.BellmanFord.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p></li>
+<li><p><strong>head</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='head'</em><em>)</em>) – Name of the column with the head (end) vertex of each edge.</p></li>
+<li><p><strong>weight</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='weight'</em><em>)</em>) – Name of the column with the edge weights, which can be negative.</p></li>
+<li><p><strong>orientation</strong> (<em>{'out'</em><em>, </em><em>'in'}</em><em>, </em><em>optional</em><em> (</em><em>default='out'</em><em>)</em>) – ‘out’ for the paths from one vertex to all the others (single source),
+‘in’ for the paths from all the vertices to one vertex (single target).</p></li>
+<li><p><strong>check_edges</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to check the edges before building the graph: column names,
+data types, missing and non-finite values.</p></li>
+<li><p><strong>permute</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to renumber the vertices internally, with contiguous indices
+starting from 0. Without it, the internal arrays have one element per
+integer between 0 and the largest vertex identifier. The arguments and
+the results of the methods use the original identifiers in both cases.
+Negative identifiers are only accepted with this option, and the results
+must then be returned as Series (<code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series=True</span></code>).</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to print the number of parallel edges that were removed.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>When several edges have the same tail and head vertices, only the one with
+the smallest weight is kept.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">BellmanFord</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"tail"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">"head"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">"weight"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">]}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">BellmanFord</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">array([ 0.,  1., -1.])</span>
 </pre></div>
 </div>
-<p>Reconstructs the shortest path to/from a vertex (requires <code class="docutils literal notranslate"><span class="pre">path_tracking=True</span></code>).</p>
-<p><strong>Parameters:</strong></p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">vertex_idx</span></code>: Destination/source vertex index</p></li>
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.BellmanFord.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">vertex_idx</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">path_tracking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">return_inf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">return_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">detect_negative_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BellmanFord.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BellmanFord.run" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the shortest path lengths from or to a given vertex.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vertex_idx</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The source vertex if the orientation is ‘out’, the target vertex if it
+is ‘in’.</p></li>
+<li><p><strong>path_tracking</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to store the shortest path tree, so that the paths can be
+retrieved with <a class="reference internal" href="#edsger.path.BellmanFord.get_path" title="edsger.path.BellmanFord.get_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_path</span></code></a>.</p></li>
+<li><p><strong>return_inf</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – Whether to return <a class="reference external" href="https://numpy.org/doc/stable/reference/constants.html#numpy.inf" title="(in NumPy v2.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.inf</span></code></a> as the path length of the vertices that
+cannot be reached. If False, the largest float64 value is returned
+instead.</p></li>
+<li><p><strong>return_series</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to return a pandas Series indexed by vertex instead of a NumPy
+array.</p></li>
+<li><p><strong>detect_negative_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – Whether to look for a negative cycle once the path lengths are computed,
+and raise a ValueError if there is one. The graph is only searched if
+it has at least one negative weight.</p></li>
 </ul>
-<p><strong>Returns:</strong></p>
-<ul class="simple">
-<li><p>Array of vertex indices forming the path</p></li>
-</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>numpy.ndarray or pandas.Series</em> – The path lengths, as float64. The array has one element per integer
+between 0 and the largest vertex identifier: element i is the length of
+the shortest path from the source to vertex i (‘out’), or from vertex i
+to the target (‘in’). If <code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series</span></code> is True, the result is a
+Series named ‘path_length’ with the vertex identifiers as index.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If <code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_idx</span></code> is not a vertex of the graph, if a negative cycle is
+    detected, or if the graph has negative vertex identifiers and
+    <code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series</span></code> is False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.BellmanFord.get_path">
+<span class="sig-name descname"><span class="pre">get_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BellmanFord.get_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BellmanFord.get_path" title="Link to this definition">¶</a></dt>
+<dd><p>Return the shortest path between a vertex and the vertex of the last run.</p>
+<p>The last call to <a class="reference internal" href="#edsger.path.BellmanFord.run" title="edsger.path.BellmanFord.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> must have been made with <code class="xref py py-obj docutils literal notranslate"><span class="pre">path_tracking=True</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vertex_idx</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The other end of the path: the target vertex if the orientation is
+‘out’, the source vertex if it is ‘in’.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>numpy.ndarray or None</em> – The vertices of the path, starting with <code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_idx</span></code> and ending with the
+vertex given to <a class="reference internal" href="#edsger.path.BellmanFord.run" title="edsger.path.BellmanFord.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>. With the ‘out’ orientation, this is the path in
+reverse order, from the target back to the source. With the ‘in’
+orientation, it is the path in travel order. If there is no path, the
+array only contains <code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_idx</span></code>. None is returned, with a warning, if
+no path was tracked.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.BellmanFord.get_vertices">
+<span class="sig-name descname"><span class="pre">get_vertices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BellmanFord.get_vertices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BellmanFord.get_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Return the vertices of the graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>numpy.ndarray</em> – The sorted identifiers of the vertices that are the tail or the head of
+at least one edge.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.BellmanFord.has_negative_cycle">
+<span class="sig-name descname"><span class="pre">has_negative_cycle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BellmanFord.has_negative_cycle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BellmanFord.has_negative_cycle" title="Link to this definition">¶</a></dt>
+<dd><p>Tell whether a negative cycle was found.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>bool</em> – The result of the last run made with <code class="xref py py-obj docutils literal notranslate"><span class="pre">detect_negative_cycles=True</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.BellmanFord.n_vertices">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_vertices</span></span><a class="headerlink" href="#edsger.path.BellmanFord.n_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Number of vertices. This is the largest vertex identifier plus one, or
+the number of distinct vertices if <a class="reference internal" href="#edsger.path.BellmanFord.permute" title="edsger.path.BellmanFord.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.BellmanFord.n_edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_edges</span></span><a class="headerlink" href="#edsger.path.BellmanFord.n_edges" title="Link to this definition">¶</a></dt>
+<dd><p>Number of edges of the graph, without the parallel edges.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.BellmanFord.edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">edges</span></span><a class="headerlink" href="#edsger.path.BellmanFord.edges" title="Link to this definition">¶</a></dt>
+<dd><p>The edges of the graph as they are stored, without the parallel edges,
+and with the internal vertex indices if <a class="reference internal" href="#edsger.path.BellmanFord.permute" title="edsger.path.BellmanFord.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.BellmanFord.orientation">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">orientation</span></span><a class="headerlink" href="#edsger.path.BellmanFord.orientation" title="Link to this definition">¶</a></dt>
+<dd><p>Orientation of the algorithm, either ‘out’ or ‘in’.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.BellmanFord.permute">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">permute</span></span><a class="headerlink" href="#edsger.path.BellmanFord.permute" title="Link to this definition">¶</a></dt>
+<dd><p>Whether the vertices are renumbered internally.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.BellmanFord.path_links">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">path_links</span></span><a class="headerlink" href="#edsger.path.BellmanFord.path_links" title="Link to this definition">¶</a></dt>
+<dd><p>Path tree of the last run, or None if the paths were not tracked. This
+is the predecessor (‘out’) or the successor (‘in’) of each vertex. The
+vertex given to <a class="reference internal" href="#edsger.path.BellmanFord.run" title="edsger.path.BellmanFord.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> and the vertices that cannot be reached are linked
+to themselves.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="get-vertices">
-<h5>get_vertices<a class="headerlink" href="#get-vertices" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_vertices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<section id="bfs">
+<h2>BFS<a class="headerlink" href="#bfs" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edsger.path.BFS">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">edsger.path.</span></span><span class="sig-name descname"><span class="pre">BFS</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">tail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tail'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">head</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'head'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'out'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">check_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">permute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">sentinel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-9999</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BFS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BFS" title="Link to this definition">¶</a></dt>
+<dd><p>Breadth-first search, for the paths with the fewest edges in a directed
+graph.</p>
+<p>The edge weights are not used: all the edges count for one. The graph is
+built once from a dataframe of edges. The <a class="reference internal" href="#edsger.path.BFS.run" title="edsger.path.BFS.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> method can then be called
+any number of times, from or to different vertices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>edges</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><em>pandas.DataFrame</em></a><em> or </em><em>polars.DataFrame</em>) – The edges of the graph, one row per edge. pandas dataframes can use NumPy
+or Arrow data types.
+A weight column, if there is one, is ignored.</p></li>
+<li><p><strong>tail</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='tail'</em><em>)</em>) – Name of the column with the tail (start) vertex of each edge. The vertex
+identifiers are integers, non-negative unless <a class="reference internal" href="#edsger.path.BFS.permute" title="edsger.path.BFS.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p></li>
+<li><p><strong>head</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='head'</em><em>)</em>) – Name of the column with the head (end) vertex of each edge.</p></li>
+<li><p><strong>orientation</strong> (<em>{'out'</em><em>, </em><em>'in'}</em><em>, </em><em>optional</em><em> (</em><em>default='out'</em><em>)</em>) – ‘out’ for the paths from one vertex to all the others (single source),
+‘in’ for the paths from all the vertices to one vertex (single target).</p></li>
+<li><p><strong>check_edges</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to check the edges before building the graph: column names,
+data types and missing values.</p></li>
+<li><p><strong>permute</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to renumber the vertices internally, with contiguous indices
+starting from 0. Without it, the internal arrays have one element per
+integer between 0 and the largest vertex identifier. The arguments and
+the results of the methods use the original identifiers in both cases.
+Negative identifiers are only accepted with this option, and the results
+must then be returned as Series (<code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series=True</span></code>).</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to print the number of parallel edges that were removed.</p></li>
+<li><p><strong>sentinel</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><em>optional</em><em> (</em><em>default=-9999</em><em>)</em>) – Value returned for the vertices without predecessor: the start vertex
+and the vertices that cannot be reached. It must be a negative int32,
+different from all the vertex identifiers.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>When several edges have the same tail and head vertices, only one is kept.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">BFS</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"tail"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">"head"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">BFS</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">array([-9999,     0,     0,     1], dtype=int32)</span>
 </pre></div>
 </div>
-<p>Returns all vertices in the graph.</p>
-<p><strong>Returns:</strong></p>
-<ul class="simple">
-<li><p>Array of vertex indices</p></li>
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.BFS.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_tracking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BFS.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BFS.run" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the breadth-first search tree from or to a given vertex.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vertex_idx</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The source vertex if the orientation is ‘out’, the target vertex if it
+is ‘in’.</p></li>
+<li><p><strong>path_tracking</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to store the search tree, so that the paths can be retrieved
+with <a class="reference internal" href="#edsger.path.BFS.get_path" title="edsger.path.BFS.get_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_path</span></code></a>.</p></li>
+<li><p><strong>return_series</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to return a pandas Series indexed by vertex instead of a NumPy
+array.</p></li>
 </ul>
-</section>
-</section>
-</section>
-<section id="examples">
-<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
-<section id="basic-usage">
-<h4>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">¶</a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dijkstra</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>numpy.ndarray or pandas.Series</em> – The predecessor (‘out’) or the successor (‘in’) of each vertex on a
+path with the fewest edges, as int32. The array has one element per
+integer between 0 and the largest vertex identifier. The start vertex
+and the vertices that cannot be reached have the sentinel value. If
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series</span></code> is True, the result is a Series named ‘predecessor’
+with the vertex identifiers as index.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If <code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_idx</span></code> is not a vertex of the graph, or if the graph has
+    negative vertex identifiers and <code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series</span></code> is False.</p>
+</dd>
+</dl>
+</dd></dl>
 
-<span class="c1"># Create a directed graph</span>
-<span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
-    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
-<span class="p">})</span>
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.BFS.get_path">
+<span class="sig-name descname"><span class="pre">get_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BFS.get_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BFS.get_path" title="Link to this definition">¶</a></dt>
+<dd><p>Return the shortest path between a vertex and the vertex of the last run.</p>
+<p>The last call to <a class="reference internal" href="#edsger.path.BFS.run" title="edsger.path.BFS.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> must have been made with <code class="xref py py-obj docutils literal notranslate"><span class="pre">path_tracking=True</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vertex_idx</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The other end of the path: the target vertex if the orientation is
+‘out’, the source vertex if it is ‘in’.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>numpy.ndarray or None</em> – The vertices of the path, starting with <code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_idx</span></code> and ending with the
+vertex given to <a class="reference internal" href="#edsger.path.BFS.run" title="edsger.path.BFS.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>. With the ‘out’ orientation, this is the path in
+reverse order, from the target back to the source. With the ‘in’
+orientation, it is the path in travel order. If there is no path, the
+array only contains <code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_idx</span></code>. None is returned, with a warning, if
+no path was tracked.</p>
+</dd>
+</dl>
+</dd></dl>
 
-<span class="c1"># Initialize Dijkstra</span>
-<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.BFS.get_vertices">
+<span class="sig-name descname"><span class="pre">get_vertices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BFS.get_vertices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BFS.get_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Return the vertices of the graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>numpy.ndarray</em> – The sorted identifiers of the vertices that are the tail or the head of
+at least one edge.</p>
+</dd>
+</dl>
+</dd></dl>
 
-<span class="c1"># Find shortest paths from vertex 0</span>
-<span class="n">paths</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.BFS.UNREACHABLE">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">UNREACHABLE</span></span><a class="headerlink" href="#edsger.path.BFS.UNREACHABLE" title="Link to this definition">¶</a></dt>
+<dd><p>The sentinel value, returned for the vertices without predecessor.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.BFS.n_vertices">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_vertices</span></span><a class="headerlink" href="#edsger.path.BFS.n_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Number of vertices. This is the largest vertex identifier plus one, or
+the number of distinct vertices if <a class="reference internal" href="#edsger.path.BFS.permute" title="edsger.path.BFS.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.BFS.n_edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_edges</span></span><a class="headerlink" href="#edsger.path.BFS.n_edges" title="Link to this definition">¶</a></dt>
+<dd><p>Number of edges of the graph, without the parallel edges.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.BFS.edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">edges</span></span><a class="headerlink" href="#edsger.path.BFS.edges" title="Link to this definition">¶</a></dt>
+<dd><p>The edges of the graph as they are stored, without the parallel edges,
+and with the internal vertex indices if <a class="reference internal" href="#edsger.path.BFS.permute" title="edsger.path.BFS.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.BFS.orientation">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">orientation</span></span><a class="headerlink" href="#edsger.path.BFS.orientation" title="Link to this definition">¶</a></dt>
+<dd><p>Orientation of the algorithm, either ‘out’ or ‘in’.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.BFS.permute">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">permute</span></span><a class="headerlink" href="#edsger.path.BFS.permute" title="Link to this definition">¶</a></dt>
+<dd><p>Whether the vertices are renumbered internally.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.BFS.path_links">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">path_links</span></span><a class="headerlink" href="#edsger.path.BFS.path_links" title="Link to this definition">¶</a></dt>
+<dd><p>Path tree of the last run, or None if the paths were not tracked. This
+is the predecessor (‘out’) or the successor (‘in’) of each vertex. The
+vertex given to <a class="reference internal" href="#edsger.path.BFS.run" title="edsger.path.BFS.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> and the vertices that cannot be reached are linked
+to themselves.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="hyperpathgenerating">
+<h2>HyperpathGenerating<a class="headerlink" href="#hyperpathgenerating" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edsger.path.HyperpathGenerating">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">edsger.path.</span></span><span class="sig-name descname"><span class="pre">HyperpathGenerating</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">tail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tail'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">head</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'head'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">trav_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'trav_time'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'freq'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">check_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'in'</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#HyperpathGenerating"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.HyperpathGenerating" title="Link to this definition">¶</a></dt>
+<dd><p>Spiess and Florian’s algorithm, for the optimal strategies (hyperpaths)
+in a frequency-based transit network.</p>
+<p>Each edge has a travel time and a frequency. At a vertex, a traveller
+boards the first vehicle to come among a set of attractive edges, so the
+demand is split between these edges in proportion to their frequencies, and
+the travel time includes an expected waiting time. The algorithm computes
+the strategy with the smallest expected travel time to a destination, and
+the resulting volume on each edge.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>edges</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><em>pandas.DataFrame</em></a><em> or </em><em>polars.DataFrame</em>) – The edges of the graph, one row per edge, without missing values.</p></li>
+<li><p><strong>tail</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='tail'</em><em>)</em>) – Name of the column with the tail (start) vertex of each edge. The vertex
+identifiers are non-negative integers.</p></li>
+<li><p><strong>head</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='head'</em><em>)</em>) – Name of the column with the head (end) vertex of each edge.</p></li>
+<li><p><strong>trav_time</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='trav_time'</em><em>)</em>) – Name of the column with the travel time of each edge.</p></li>
+<li><p><strong>freq</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='freq'</em><em>)</em>) – Name of the column with the frequency of each edge, in vehicles per
+unit of travel time. An infinite frequency means that there is no
+waiting time on the edge.</p></li>
+<li><p><strong>check_edges</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to check the edges before building the graph: column names,
+data types, missing and negative values.</p></li>
+<li><p><strong>orientation</strong> (<em>{'in'</em><em>, </em><em>'out'}</em><em>, </em><em>optional</em><em> (</em><em>default='in'</em><em>)</em>) – Only ‘in’ (many origins to one destination) is implemented.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="edsger.path.HyperpathGenerating.edge_count">
+<span class="sig-name descname"><span class="pre">edge_count</span></span><a class="headerlink" href="#edsger.path.HyperpathGenerating.edge_count" title="Link to this definition">¶</a></dt>
+<dd><p>Number of edges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="edsger.path.HyperpathGenerating.vertex_count">
+<span class="sig-name descname"><span class="pre">vertex_count</span></span><a class="headerlink" href="#edsger.path.HyperpathGenerating.vertex_count" title="Link to this definition">¶</a></dt>
+<dd><p>Number of vertices: the largest vertex identifier plus one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="edsger.path.HyperpathGenerating.u_i_vec">
+<span class="sig-name descname"><span class="pre">u_i_vec</span></span><a class="headerlink" href="#edsger.path.HyperpathGenerating.u_i_vec" title="Link to this definition">¶</a></dt>
+<dd><p>After a run, the expected travel time from each vertex to the
+destination.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)">numpy.ndarray</a> or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Notes</p>
+<p>The travel times are bounded below by 1e-12 and the frequencies are kept
+in the range [1e-20, 1e20].</p>
+<p class="rubric">References</p>
+<p>Spiess, H. and Florian, M. (1989). Optimal strategies: a new assignment
+model for transit networks. Transportation Research Part B 23(2), 83-102.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">HyperpathGenerating</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"tail"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"head"</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"trav_time"</span><span class="p">:</span> <span class="p">[</span><span class="mf">25.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"freq"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hp</span> <span class="o">=</span> <span class="n">HyperpathGenerating</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">100.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hp</span><span class="o">.</span><span class="n">u_i_vec</span>
+<span class="go">array([30., 16.,  0.])</span>
 </pre></div>
 </div>
-</section>
-<section id="with-path-tracking">
-<h4>With Path Tracking<a class="headerlink" href="#with-path-tracking" title="Link to this heading">¶</a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable path tracking</span>
-<span class="n">paths</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">path_tracking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.HyperpathGenerating.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">origin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_inf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#HyperpathGenerating.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.HyperpathGenerating.run" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the optimal strategy to a destination and assign the demand.</p>
+<p>The results are stored in the object: the expected travel times in
+<a class="reference internal" href="#edsger.path.HyperpathGenerating.u_i_vec" title="edsger.path.HyperpathGenerating.u_i_vec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">u_i_vec</span></code></a>, and the edge volumes in the ‘volume’ column of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">_edges</span></code>
+dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>origin</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The origin vertex, or the origin vertices, of the demand.</p></li>
+<li><p><strong>destination</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The destination vertex.</p></li>
+<li><p><strong>volume</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>) – The demand from each origin to the destination: non-negative numbers,
+as many as origins.</p></li>
+<li><p><strong>return_inf</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Not used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#NotImplementedError" title="(in Python v3.15)"><strong>NotImplementedError</strong></a> – If the orientation is ‘out’.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.15)"><strong>TypeError</strong></a> – If a vertex is not an integer or a volume is not a number.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If a vertex is not in the graph, if a volume is negative or NaN, or if
+    the origins and the volumes do not have the same length.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
-<span class="c1"># Get the actual path to vertex 2</span>
-<span class="n">path</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</dd></dl>
+
+</section>
+<section id="graph-validation">
+<h2>Graph validation<a class="headerlink" href="#graph-validation" title="Link to this heading">¶</a></h2>
+<p>The classes above build the graph arrays themselves. The Cython functions of the library can also be called directly on arrays in CSR or CSC format, in which case the arrays are read without bounds checking. <code class="docutils literal notranslate"><span class="pre">validate_graph</span></code> checks such arrays once, before any number of runs.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="edsger.commons.validate_graph">
+<span class="sig-prename descclassname"><span class="pre">edsger.commons.</span></span><span class="sig-name descname"><span class="pre">validate_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indptr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonnegative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edsger.commons.validate_graph" title="Link to this definition">¶</a></dt>
+<dd><p>Check that a graph in CSR or CSC format is valid.</p>
+<p>The graph algorithms of edsger read these arrays without bounds checking
+and only check, in constant time, that their arguments are consistent.
+This function checks the content of the arrays, in linear time. It is
+meant to be called once per graph, when the arrays do not come from
+edsger.path, before running the algorithms as many times as needed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indptr</strong> (<em>cnp.uint32_t</em><em>[</em><em>::1</em><em>]</em>) – Pointers in the CSR/CSC format: vertex_count + 1 elements.</p></li>
+<li><p><strong>indices</strong> (<em>cnp.uint32_t</em><em>[</em><em>::1</em><em>]</em>) – Indices in the CSR/CSC format: one element per edge.</p></li>
+<li><p><strong>data</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Edge weights in the CSR/CSC format: one element per edge.</p></li>
+<li><p><strong>nonnegative</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – Whether the edge weights should be non-negative, which is required by
+Dijkstra’s algorithm but not by the Bellman-Ford algorithm.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If the pointers do not start from zero, are not non-decreasing or do
+    not end with the edge count, if an index is not smaller than the
+    vertex count, or if the weights have the wrong length, contain a NaN
+    or, when nonnegative is True, a negative value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="test-networks">
+<h2>Test networks<a class="headerlink" href="#test-networks" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="edsger.networks.create_sf_network">
+<span class="sig-prename descclassname"><span class="pre">edsger.networks.</span></span><span class="sig-name descname"><span class="pre">create_sf_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dwell_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">board_alight_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/networks.html#create_sf_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.networks.create_sf_network" title="Link to this definition">¶</a></dt>
+<dd><p>Transit network of the example of Spiess and Florian (1989).</p>
+<p>The four stops and four lines of the paper are expanded into a graph with
+16 vertices and 24 edges: stop vertices, boarding and alighting vertices,
+and edges for boarding, alighting, riding, dwelling and transferring.
+Times are in seconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dwell_time</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em><em> (</em><em>default=1.0e-6</em><em>)</em>) – Time spent by a vehicle at a stop.</p></li>
+<li><p><strong>board_alight_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em><em> (</em><em>default=0.5</em><em>)</em>) – Boarding time and alighting time, each as a fraction of the dwell
+time.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>pandas.DataFrame</em> – The edges, with the columns ‘tail’, ‘head’, ‘trav_time’, ‘freq’ and
+‘volume_ref’. The last one is the edge volume given in the paper for
+a demand of 1 from vertex 0 to vertex 12.</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Spiess, H. and Florian, M. (1989). Optimal strategies: a new assignment
+model for transit networks. Transportation Research Part B 23(2), 83-102.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edsger.networks.SiouxFalls">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">edsger.networks.</span></span><span class="sig-name descname"><span class="pre">SiouxFalls</span></span><a class="reference internal" href="_modules/edsger/networks.html#SiouxFalls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.networks.SiouxFalls" title="Link to this definition">¶</a></dt>
+<dd><p>The Sioux Falls road network, a classical test network of the traffic
+assignment literature, with 24 vertices and 76 edges.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.networks</span><span class="w"> </span><span class="kn">import</span> <span class="n">SiouxFalls</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">SiouxFalls</span><span class="p">()</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">   tail  head  trav_time</span>
+<span class="go">0     0     1   6.000816</span>
+<span class="go">1     0     2   4.008691</span>
+<span class="go">2     1     0   6.000834</span>
 </pre></div>
 </div>
-</section>
-<section id="custom-parameters">
-<h4>Custom Parameters<a class="headerlink" href="#custom-parameters" title="Link to this heading">¶</a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create with custom settings</span>
-<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span>
-    <span class="n">edges</span><span class="p">,</span>
-    <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">,</span>
-    <span class="n">check_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">permute</span><span class="o">=</span><span class="kc">True</span>
-<span class="p">)</span>
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.networks.SiouxFalls.edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">edges</span></span><a class="headerlink" href="#edsger.networks.SiouxFalls.edges" title="Link to this definition">¶</a></dt>
+<dd><p>The edges of the network, as a pandas DataFrame with the columns ‘tail’,
+‘head’ and ‘trav_time’.</p>
+</dd></dl>
 
-<span class="c1"># Run with custom parameters</span>
-<span class="n">paths</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-    <span class="n">vertex_idx</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="n">return_series</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">heap_length_ratio</span><span class="o">=</span><span class="mf">0.5</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="bellmanford-class">
-<h3>BellmanFord Class<a class="headerlink" href="#bellmanford-class" title="Link to this heading">¶</a></h3>
-<p>The class for performing Bellman-Ford shortest path algorithm on directed graphs, which handles directed graphs with negative edge weights and detects negative cycles.</p>
-<section id="id1">
-<h4>Constructor Parameters<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h4>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">edges</span></code>: pandas.DataFrame containing the directed graph edges</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">tail</span></code>: Column name for edge source nodes (default: ‘tail’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">head</span></code>: Column name for edge destination nodes (default: ‘head’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">weight</span></code>: Column name for edge weights (default: ‘weight’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">orientation</span></code>: Either ‘out’ (single-source) or ‘in’ (single-target) (default: ‘out’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">check_edges</span></code>: Whether to validate edge data (default: False)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">permute</span></code>: Whether to optimize node indexing (default: False)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">verbose</span></code>: Whether to print messages about parallel edge removal (default: False)</p></li>
-</ul>
-</section>
-<section id="id2">
-<h4>Methods<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h4>
-<section id="id3">
-<h5>run<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex_idx</span><span class="p">,</span> <span class="n">path_tracking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_inf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
-        <span class="n">return_series</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">detect_negative_cycles</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Runs the Bellman-Ford algorithm from/to the specified vertex.</p>
-<p><strong>Parameters:</strong></p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">vertex_idx</span></code>: Source/target vertex index</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">path_tracking</span></code>: Whether to track paths for reconstruction (default: False)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">return_inf</span></code>: Return infinity for unreachable vertices (default: True)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">return_series</span></code>: Return results as pandas Series (default: False)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">detect_negative_cycles</span></code>: Whether to detect negative cycles (default: True)</p></li>
-</ul>
-<p><strong>Returns:</strong></p>
-<ul class="simple">
-<li><p>Array or Series of shortest path lengths</p></li>
-</ul>
-<p><strong>Raises:</strong></p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">ValueError</span></code>: If a negative cycle is detected and <code class="docutils literal notranslate"><span class="pre">detect_negative_cycles=True</span></code></p></li>
-</ul>
-</section>
-<section id="id4">
-<h5>get_path<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex_idx</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Reconstructs the shortest path to/from a vertex (requires <code class="docutils literal notranslate"><span class="pre">path_tracking=True</span></code>).</p>
-<p><strong>Parameters:</strong></p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">vertex_idx</span></code>: Destination/source vertex index</p></li>
-</ul>
-<p><strong>Returns:</strong></p>
-<ul class="simple">
-<li><p>Array of vertex indices forming the path</p></li>
-</ul>
-</section>
-<section id="id5">
-<h5>get_vertices<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_vertices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Returns all vertices in the graph.</p>
-<p><strong>Returns:</strong></p>
-<ul class="simple">
-<li><p>Array of vertex indices</p></li>
-</ul>
-</section>
-</section>
-<section id="id6">
-<h4>Examples<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h4>
-<section id="basic-usage-with-negative-weights">
-<h5>Basic Usage with Negative Weights<a class="headerlink" href="#basic-usage-with-negative-weights" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">BellmanFord</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+</dd></dl>
 
-<span class="c1"># Create a directed graph with negative weights</span>
-<span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
-    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>  <span class="c1"># Note the negative weight</span>
-<span class="p">})</span>
-
-<span class="c1"># Initialize Bellman-Ford</span>
-<span class="n">bf</span> <span class="o">=</span> <span class="n">BellmanFord</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
-
-<span class="c1"># Find shortest paths from vertex 0</span>
-<span class="n">paths</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>  <span class="c1"># [ 0.  1. -1.  0.  3.]</span>
-</pre></div>
-</div>
-</section>
-<section id="negative-cycle-detection">
-<h5>Negative Cycle Detection<a class="headerlink" href="#negative-cycle-detection" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a directed graph with a negative cycle</span>
-<span class="n">edges_cycle</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
-    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Cycle 0→1→2→0 has total weight -2</span>
-<span class="p">})</span>
-
-<span class="n">bf_cycle</span> <span class="o">=</span> <span class="n">BellmanFord</span><span class="p">(</span><span class="n">edges_cycle</span><span class="p">)</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">bf_cycle</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Error: Negative cycle detected in the graph</span>
-</pre></div>
-</div>
-</section>
-<section id="path-tracking-with-negative-weights">
-<h5>Path Tracking with Negative Weights<a class="headerlink" href="#path-tracking-with-negative-weights" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable path tracking</span>
-<span class="n">paths</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">path_tracking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="c1"># Get the actual path to vertex 2 (using negative weight path)</span>
-<span class="n">path</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>  <span class="c1"># Path using the negative weight edge</span>
-</pre></div>
-</div>
-</section>
-<section id="performance-disabling-cycle-detection">
-<h5>Performance: Disabling Cycle Detection<a class="headerlink" href="#performance-disabling-cycle-detection" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># For performance when you know there are no negative cycles</span>
-<span class="n">paths</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">detect_negative_cycles</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-</section>
-</section>
-<section id="bfs-class">
-<h3>BFS Class<a class="headerlink" href="#bfs-class" title="Link to this heading">¶</a></h3>
-<p>The class for performing Breadth-First Search on directed graphs, finding shortest paths based on minimum number of edges rather than weighted distances.</p>
-<section id="id7">
-<h4>Constructor Parameters<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h4>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">edges</span></code>: pandas.DataFrame containing the directed graph edges</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">tail</span></code>: Column name for edge source nodes (default: ‘tail’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">head</span></code>: Column name for edge destination nodes (default: ‘head’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">orientation</span></code>: Either ‘out’ (single-source) or ‘in’ (single-target) (default: ‘out’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">check_edges</span></code>: Whether to validate edge data (default: False)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">permute</span></code>: Whether to optimize node indexing (default: False)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">verbose</span></code>: Whether to print messages about parallel edge removal (default: False)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sentinel</span></code>: Sentinel value for unreachable nodes (default: -9999). Must be a negative integer that fits in int32 range.</p></li>
-</ul>
-<p><strong>Note</strong>: Weight column is not used by BFS. If present in the DataFrame, it will be ignored.</p>
-</section>
-<section id="id8">
-<h4>Methods<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h4>
-<section id="id9">
-<h5>run<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex_idx</span><span class="p">,</span> <span class="n">path_tracking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_series</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Runs BFS from/to the specified vertex.</p>
-<p><strong>Parameters:</strong></p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">vertex_idx</span></code>: Source/target vertex index</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">path_tracking</span></code>: Whether to track paths for reconstruction (default: False)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">return_series</span></code>: Return results as pandas Series (default: False)</p></li>
-</ul>
-<p><strong>Returns:</strong></p>
-<ul class="simple">
-<li><p>Array or Series of predecessor indices</p>
-<ul>
-<li><p>The sentinel value (default <code class="docutils literal notranslate"><span class="pre">-9999</span></code>) indicates unreachable vertex or start vertex</p></li>
-<li><p>Other values indicate the predecessor in the shortest path</p></li>
-</ul>
-</li>
-</ul>
-</section>
-<section id="id10">
-<h5>get_path<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex_idx</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Reconstructs the shortest path to/from a vertex (requires <code class="docutils literal notranslate"><span class="pre">path_tracking=True</span></code>).</p>
-<p><strong>Parameters:</strong></p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">vertex_idx</span></code>: Destination/source vertex index</p></li>
-</ul>
-<p><strong>Returns:</strong></p>
-<ul class="simple">
-<li><p>Array of vertex indices forming the path (from target to source)</p></li>
-</ul>
-</section>
-<section id="id11">
-<h5>get_vertices<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_vertices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Returns all vertices in the directed graph.</p>
-<p><strong>Returns:</strong></p>
-<ul class="simple">
-<li><p>Array of vertex indices</p></li>
-</ul>
-</section>
-</section>
-<section id="id12">
-<h4>Examples<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h4>
-<section id="basic-bfs">
-<h5>Basic BFS<a class="headerlink" href="#basic-bfs" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">BFS</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-
-<span class="c1"># Create a directed graph</span>
-<span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
-<span class="p">})</span>
-
-<span class="c1"># Initialize BFS</span>
-<span class="n">bfs</span> <span class="o">=</span> <span class="n">BFS</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
-
-<span class="c1"># Find shortest paths (by hop count) from vertex 0</span>
-<span class="n">predecessors</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">predecessors</span><span class="p">)</span>  <span class="c1"># [-9999     0     0     1     2]</span>
-</pre></div>
-</div>
-</section>
-<section id="custom-sentinel-value">
-<h5>Custom Sentinel Value<a class="headerlink" href="#custom-sentinel-value" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create BFS with custom sentinel for unreachable nodes</span>
-<span class="n">bfs</span> <span class="o">=</span> <span class="n">BFS</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">sentinel</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">predecessors</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-<span class="c1"># Check the sentinel value</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">bfs</span><span class="o">.</span><span class="n">UNREACHABLE</span><span class="p">)</span>  <span class="c1"># -1</span>
-<span class="c1"># Unreachable nodes will have value -1 instead of -9999</span>
-</pre></div>
-</div>
-</section>
-<section id="id13">
-<h5>With Path Tracking<a class="headerlink" href="#id13" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable path tracking</span>
-<span class="n">predecessors</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">path_tracking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="c1"># Get the actual path to vertex 4</span>
-<span class="n">path</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>  <span class="c1"># [4 2 0] - path from target to source</span>
-</pre></div>
-</div>
-</section>
-<section id="with-non-contiguous-vertex-ids">
-<h5>With Non-Contiguous Vertex IDs<a class="headerlink" href="#with-non-contiguous-vertex-ids" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Directed graph with non-contiguous vertex IDs</span>
-<span class="n">edges_sparse</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">]</span>
-<span class="p">})</span>
-
-<span class="c1"># Use permute=True for efficiency</span>
-<span class="n">bfs</span> <span class="o">=</span> <span class="n">BFS</span><span class="p">(</span><span class="n">edges_sparse</span><span class="p">,</span> <span class="n">permute</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">predecessors</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">path_tracking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">path</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>  <span class="c1"># [30 20  0]</span>
-</pre></div>
-</div>
-</section>
-<section id="backward-search-orientation-in">
-<h5>Backward Search (orientation=’in’)<a class="headerlink" href="#backward-search-orientation-in" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find vertices that can reach a target</span>
-<span class="n">bfs_in</span> <span class="o">=</span> <span class="n">BFS</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">)</span>
-<span class="n">predecessors</span> <span class="o">=</span> <span class="n">bfs_in</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-<span class="c1"># Shows successors in backward traversal</span>
-</pre></div>
-</div>
-</section>
-<section id="return-as-pandas-series">
-<h5>Return as Pandas Series<a class="headerlink" href="#return-as-pandas-series" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get results as labeled Series</span>
-<span class="n">predecessors</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_series</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">predecessors</span><span class="p">)</span>
-<span class="c1"># vertex_idx</span>
-<span class="c1"># 0       -9999</span>
-<span class="c1"># 1           0</span>
-<span class="c1"># 2           0</span>
-<span class="c1"># 3           1</span>
-<span class="c1"># 4           2</span>
-<span class="c1"># Name: predecessor, dtype: int32</span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="performance-characteristics">
-<h4>Performance Characteristics<a class="headerlink" href="#performance-characteristics" title="Link to this heading">¶</a></h4>
-<ul class="simple">
-<li><p><strong>Time Complexity</strong>: O(V + E) - linear in vertices and edges</p></li>
-<li><p><strong>Space Complexity</strong>: O(V) - queue and predecessor arrays</p></li>
-</ul>
-</section>
-</section>
-<section id="hyperpathgenerating-class">
-<h3>HyperpathGenerating Class<a class="headerlink" href="#hyperpathgenerating-class" title="Link to this heading">¶</a></h3>
-<p>The class for computing hyperpath-based routing using the Spiess-Florian algorithm, designed for transit network assignment and optimal strategy computation.</p>
-<p><strong>Reference</strong>: Spiess, H. and Florian, M. (1989). <em>Optimal strategies: A new assignment model for transit networks</em>. Transportation Research Part B 23(2), 83-102.</p>
-<section id="overview">
-<h4>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h4>
-<p>The Spiess-Florian algorithm computes optimal travel strategies in transit networks where passengers can choose between multiple routes with different frequencies and travel times. Unlike traditional shortest path algorithms, it models the probabilistic nature of transit where passengers may take the first arriving vehicle among a set of attractive lines.</p>
-<p>The algorithm outputs:</p>
-<ul class="simple">
-<li><p><strong>Edge volumes</strong>: How passenger demand is distributed across transit lines</p></li>
-<li><p><strong>Travel times (u_i_vec)</strong>: Expected travel time from each vertex to the destination, including waiting time</p></li>
-</ul>
-</section>
-<section id="id14">
-<h4>Constructor Parameters<a class="headerlink" href="#id14" title="Link to this heading">¶</a></h4>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">edges</span></code>: pandas.DataFrame containing transit network edges</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">tail</span></code>: Column name for edge source nodes (default: ‘tail’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">head</span></code>: Column name for edge destination nodes (default: ‘head’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">trav_time</span></code>: Column name for travel times (default: ‘trav_time’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">freq</span></code>: Column name for service frequencies (default: ‘freq’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">check_edges</span></code>: Whether to validate edge data (default: False)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">orientation</span></code>: Currently only ‘in’ is supported (default: ‘in’)</p></li>
-</ul>
-</section>
-<section id="attributes">
-<h4>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h4>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">edge_count</span></code>: Number of edges in the graph</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">vertex_count</span></code>: Number of vertices in the graph</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">u_i_vec</span></code>: Array of expected travel times from each vertex to the destination (available after <code class="docutils literal notranslate"><span class="pre">run()</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">_edges</span></code>: DataFrame containing edges with computed ‘volume’ column (available after <code class="docutils literal notranslate"><span class="pre">run()</span></code>)</p></li>
-</ul>
-</section>
-<section id="id15">
-<h4>Methods<a class="headerlink" href="#id15" title="Link to this heading">¶</a></h4>
-<section id="id16">
-<h5>run<a class="headerlink" href="#id16" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">return_inf</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Computes the hyperpath and distributes demand volume across edges.</p>
-<p><strong>Parameters:</strong></p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>: Origin vertex index (int) or list of origin indices</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">destination</span></code>: Destination vertex index (int)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">volume</span></code>: Demand volume (float) or list of volumes corresponding to each origin</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">return_inf</span></code>: Whether to keep infinity for unreachable vertices (default: False)</p></li>
-</ul>
-<p><strong>Returns:</strong></p>
-<ul class="simple">
-<li><p>None (results are stored in instance attributes <code class="docutils literal notranslate"><span class="pre">u_i_vec</span></code> and <code class="docutils literal notranslate"><span class="pre">_edges['volume']</span></code>)</p></li>
-</ul>
-</section>
-</section>
-<section id="id17">
-<h4>Examples<a class="headerlink" href="#id17" title="Link to this heading">¶</a></h4>
-<section id="basic-transit-network">
-<h5>Basic Transit Network<a class="headerlink" href="#basic-transit-network" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">HyperpathGenerating</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-
-<span class="c1"># Create a simple transit network</span>
-<span class="c1"># Two parallel lines from stop 0 to stop 2 via different intermediate stops</span>
-<span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
-    <span class="s1">&#39;trav_time&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">],</span>  <span class="c1"># Travel times in minutes</span>
-    <span class="s1">&#39;freq&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]</span>  <span class="c1"># Frequencies (vehicles per minute)</span>
-<span class="p">})</span>
-
-<span class="c1"># Initialize the algorithm</span>
-<span class="n">hp</span> <span class="o">=</span> <span class="n">HyperpathGenerating</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
-
-<span class="c1"># Compute hyperpath from origin 0 to destination 2 with 100 passengers</span>
-<span class="n">hp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">100.0</span><span class="p">)</span>
-
-<span class="c1"># Access expected travel times to destination</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Travel times to destination:&quot;</span><span class="p">,</span> <span class="n">hp</span><span class="o">.</span><span class="n">u_i_vec</span><span class="p">)</span>
-
-<span class="c1"># Access edge volumes (how passengers are distributed)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">hp</span><span class="o">.</span><span class="n">_edges</span><span class="p">[[</span><span class="s1">&#39;tail&#39;</span><span class="p">,</span> <span class="s1">&#39;head&#39;</span><span class="p">,</span> <span class="s1">&#39;volume&#39;</span><span class="p">]])</span>
-</pre></div>
-</div>
-</section>
-<section id="multiple-origins">
-<h5>Multiple Origins<a class="headerlink" href="#multiple-origins" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compute hyperpath from multiple origins to a single destination</span>
-<span class="n">hp</span> <span class="o">=</span> <span class="n">HyperpathGenerating</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
-<span class="n">hp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-    <span class="n">origin</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>           <span class="c1"># Two origins</span>
-    <span class="n">destination</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>           <span class="c1"># Single destination</span>
-    <span class="n">volume</span><span class="o">=</span><span class="p">[</span><span class="mf">80.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">]</span>      <span class="c1"># Different demand volumes</span>
-<span class="p">)</span>
-
-<span class="c1"># Total edge volumes reflect combined demand from all origins</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Edge volumes:&quot;</span><span class="p">,</span> <span class="n">hp</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="s1">&#39;volume&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="custom-column-names">
-<h5>Custom Column Names<a class="headerlink" href="#custom-column-names" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Transit data with custom column names</span>
-<span class="n">transit_edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;from_stop&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
-    <span class="s1">&#39;to_stop&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-    <span class="s1">&#39;travel_time&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
-    <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">]</span>
-<span class="p">})</span>
-
-<span class="n">hp</span> <span class="o">=</span> <span class="n">HyperpathGenerating</span><span class="p">(</span>
-    <span class="n">transit_edges</span><span class="p">,</span>
-    <span class="n">tail</span><span class="o">=</span><span class="s1">&#39;from_stop&#39;</span><span class="p">,</span>
-    <span class="n">head</span><span class="o">=</span><span class="s1">&#39;to_stop&#39;</span><span class="p">,</span>
-    <span class="n">trav_time</span><span class="o">=</span><span class="s1">&#39;travel_time&#39;</span><span class="p">,</span>
-    <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;frequency&#39;</span>
-<span class="p">)</span>
-<span class="n">hp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="with-edge-validation">
-<h5>With Edge Validation<a class="headerlink" href="#with-edge-validation" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable input validation</span>
-<span class="n">hp</span> <span class="o">=</span> <span class="n">HyperpathGenerating</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">check_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="c1"># This will raise an error if:</span>
-<span class="c1"># - Required columns are missing</span>
-<span class="c1"># - Data types are incorrect</span>
-<span class="c1"># - Travel times or frequencies are negative</span>
-<span class="c1"># - Missing values exist</span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="understanding-the-output">
-<h4>Understanding the Output<a class="headerlink" href="#understanding-the-output" title="Link to this heading">¶</a></h4>
-<p>After calling <code class="docutils literal notranslate"><span class="pre">run()</span></code>, two key outputs are available:</p>
-<ol class="arabic simple">
-<li><p><strong><code class="docutils literal notranslate"><span class="pre">u_i_vec</span></code></strong>: Expected travel time from each vertex to the destination</p>
-<ul class="simple">
-<li><p>Includes both in-vehicle travel time and expected waiting time</p></li>
-<li><p>Infinite values indicate unreachable vertices</p></li>
-</ul>
-</li>
-<li><p><strong><code class="docutils literal notranslate"><span class="pre">_edges['volume']</span></code></strong>: Passenger volumes on each edge</p>
-<ul class="simple">
-<li><p>Shows how total demand is distributed across the transit network</p></li>
-<li><p>Higher volumes indicate more heavily used transit lines</p></li>
-</ul>
-</li>
-</ol>
-</section>
-<section id="use-cases">
-<h4>Use Cases<a class="headerlink" href="#use-cases" title="Link to this heading">¶</a></h4>
-<ul class="simple">
-<li><p><strong>Transit assignment</strong>: Distribute passenger demand across a transit network</p></li>
-<li><p><strong>Line planning</strong>: Identify heavily used routes that may need more capacity</p></li>
-<li><p><strong>Service evaluation</strong>: Assess expected travel times for different origin-destination pairs</p></li>
-<li><p><strong>Network design</strong>: Evaluate the impact of adding or removing transit lines</p></li>
-</ul>
-</section>
-</section>
-</section>
-<section id="parallel-edges-handling">
-<h2>Parallel Edges Handling<a class="headerlink" href="#parallel-edges-handling" title="Link to this heading">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code>, <code class="docutils literal notranslate"><span class="pre">BellmanFord</span></code>, and <code class="docutils literal notranslate"><span class="pre">BFS</span></code> classes automatically handle parallel edges (multiple directed edges between the same pair of vertices) during initialization. When parallel edges are detected:</p>
-<ol class="arabic simple">
-<li><p><strong>Automatic Processing</strong>: The <code class="docutils literal notranslate"><span class="pre">_preprocess_edges()</span></code> method is called internally during initialization</p></li>
-<li><p><strong>Minimum Weight Selection</strong>: For each pair of vertices with multiple edges, only the edge with the minimum weight is kept</p></li>
-<li><p><strong>Verbose Output</strong>: If <code class="docutils literal notranslate"><span class="pre">verbose=True</span></code> is set in the constructor, a message will be printed indicating how many parallel edges were removed</p></li>
-</ol>
-<section id="example-with-parallel-edges">
-<h3>Example with Parallel Edges<a class="headerlink" href="#example-with-parallel-edges" title="Link to this heading">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dijkstra</span>
-
-<span class="c1"># Directed graph with parallel edges between vertices 0-&gt;1</span>
-<span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>     <span class="c1"># Two directed edges from 0-&gt;1</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>     <span class="c1"># with weights 5.0 and 3.0</span>
-    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]</span>
-<span class="p">})</span>
-
-<span class="c1"># Initialize with verbose=True to see parallel edge removal</span>
-<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="c1"># Output: &quot;Automatically removed 1 parallel edge(s). For each pair of vertices, kept the edge with minimum weight.&quot;</span>
-
-<span class="c1"># The directed graph now has only the edge 0-&gt;1 with weight 3.0 (minimum)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">dijkstra</span><span class="o">.</span><span class="n">n_edges</span><span class="p">)</span>  <span class="c1"># Will show 2 instead of 3</span>
-</pre></div>
-</div>
-<p>This automatic handling ensures:</p>
-<ul class="simple">
-<li><p>Consistent directed graph representation</p></li>
-<li><p>Optimal shortest paths (using minimum weight edges)</p></li>
-<li><p>No duplicate edges in the internal directed graph structure</p></li>
-</ul>
-</section>
-</section>
-<section id="edsger-graph-importer-module">
-<h2>edsger.graph_importer Module<a class="headerlink" href="#edsger-graph-importer-module" title="Link to this heading">¶</a></h2>
-<section id="graphimporter-architecture">
-<h3>GraphImporter Architecture<a class="headerlink" href="#graphimporter-architecture" title="Link to this heading">¶</a></h3>
-<p>The GraphImporter system provides automatic DataFrame backend detection and optimization for all graph algorithms in Edsger.</p>
-<section id="key-features">
-<h4>Key Features<a class="headerlink" href="#key-features" title="Link to this heading">¶</a></h4>
-<ul class="simple">
-<li><p><strong>Automatic Detection</strong>: Identifies DataFrame type (pandas NumPy, pandas Arrow, or Polars)</p></li>
-<li><p><strong>Memory Optimization</strong>: Automatically uses uint32 for vertex indices when possible</p></li>
-<li><p><strong>Contiguous Memory</strong>: Ensures C-contiguous arrays for optimal Cython performance</p></li>
-<li><p><strong>Factory Pattern</strong>: Simple interface with automatic backend selection</p></li>
-</ul>
-</section>
-</section>
-<section id="standardize-graph-dataframe-function">
-<h3>standardize_graph_dataframe Function<a class="headerlink" href="#standardize-graph-dataframe-function" title="Link to this heading">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.graph_importer</span><span class="w"> </span><span class="kn">import</span> <span class="n">standardize_graph_dataframe</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">standardize_graph_dataframe</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">tail</span><span class="o">=</span><span class="s1">&#39;tail&#39;</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s1">&#39;head&#39;</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;weight&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Standardizes any supported DataFrame format to NumPy-backed pandas DataFrame.</p>
-<p><strong>Parameters:</strong></p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">edges</span></code>: Input DataFrame (pandas, pandas with Arrow, or Polars)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">tail</span></code>: Column name for source vertices</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">head</span></code>: Column name for destination vertices</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">weight</span></code>: Column name for edge weights</p></li>
-</ul>
-<p><strong>Returns:</strong></p>
-<ul class="simple">
-<li><p>pandas DataFrame with NumPy arrays, optimized dtypes, and contiguous memory</p></li>
-</ul>
-<section id="example-usage">
-<h4>Example Usage<a class="headerlink" href="#example-usage" title="Link to this heading">¶</a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">edsger.graph_importer</span><span class="w"> </span><span class="kn">import</span> <span class="n">standardize_graph_dataframe</span>
-
-<span class="c1"># Works with any DataFrame type</span>
-<span class="n">edges_polars</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
-    <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-    <span class="s1">&#39;cost&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">]</span>
-<span class="p">})</span>
-
-<span class="c1"># Automatic conversion and optimization</span>
-<span class="n">edges_numpy</span> <span class="o">=</span> <span class="n">standardize_graph_dataframe</span><span class="p">(</span>
-    <span class="n">edges_polars</span><span class="p">,</span>
-    <span class="n">tail</span><span class="o">=</span><span class="s1">&#39;source&#39;</span><span class="p">,</span>
-    <span class="n">head</span><span class="o">=</span><span class="s1">&#39;target&#39;</span><span class="p">,</span>
-    <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;cost&#39;</span>
-<span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="n">edges_numpy</span><span class="o">.</span><span class="n">dtypes</span><span class="p">)</span>
-<span class="c1"># source    uint32  (optimized from int64)</span>
-<span class="c1"># target    uint32  (optimized from int64)</span>
-<span class="c1"># cost      float64</span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="graphimporter-classes">
-<h3>GraphImporter Classes<a class="headerlink" href="#graphimporter-classes" title="Link to this heading">¶</a></h3>
-<section id="graphimporter-base-class">
-<h4>GraphImporter (Base Class)<a class="headerlink" href="#graphimporter-base-class" title="Link to this heading">¶</a></h4>
-<p>Abstract base class providing the factory method for automatic DataFrame type detection.</p>
-<section id="class-method-from-dataframe">
-<h5>Class Method: from_dataframe<a class="headerlink" href="#class-method-from-dataframe" title="Link to this heading">¶</a></h5>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@staticmethod</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">from_dataframe</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">tail</span><span class="o">=</span><span class="s1">&#39;tail&#39;</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s1">&#39;head&#39;</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;weight&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Factory method that automatically selects the appropriate importer based on DataFrame type.</p>
-<p><strong>Detection Priority:</strong></p>
-<ol class="arabic simple">
-<li><p>Polars DataFrame</p></li>
-<li><p>pandas with Arrow backend</p></li>
-<li><p>pandas with NumPy backend (default)</p></li>
-</ol>
-</section>
-</section>
-<section id="pandasnumpyimporter">
-<h4>PandasNumpyImporter<a class="headerlink" href="#pandasnumpyimporter" title="Link to this heading">¶</a></h4>
-<p>Handles standard pandas DataFrames with NumPy backend.</p>
-<ul class="simple">
-<li><p>Minimal overhead for already NumPy-backed DataFrames</p></li>
-<li><p>Ensures contiguous memory layout</p></li>
-<li><p>Maintains existing dtypes</p></li>
-</ul>
-</section>
-<section id="pandasarrowimporter">
-<h4>PandasArrowImporter<a class="headerlink" href="#pandasarrowimporter" title="Link to this heading">¶</a></h4>
-<p>Handles pandas DataFrames with PyArrow backend.</p>
-<ul class="simple">
-<li><p>Converts Arrow columns to NumPy arrays</p></li>
-<li><p>Optimizes integer dtypes (uint32 when possible)</p></li>
-<li><p>Handles nullable types gracefully</p></li>
-</ul>
-</section>
-<section id="polarsimporter">
-<h4>PolarsImporter<a class="headerlink" href="#polarsimporter" title="Link to this heading">¶</a></h4>
-<p>Handles Polars DataFrames.</p>
-<ul class="simple">
-<li><p>Efficient conversion using Polars’ to_pandas() method</p></li>
-<li><p>Automatic dtype optimization</p></li>
-<li><p>Preserves performance benefits of columnar storage during conversion</p></li>
-</ul>
-</section>
-</section>
-<section id="performance-considerations">
-<h3>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Link to this heading">¶</a></h3>
-<p>The GraphImporter system optimizes for:</p>
-<ol class="arabic simple">
-<li><p><strong>Memory Efficiency</strong>: Uses smallest possible dtype for vertex indices</p></li>
-<li><p><strong>Cache Locality</strong>: Ensures C-contiguous memory layout</p></li>
-<li><p><strong>Conversion Speed</strong>: Single conversion at initialization</p></li>
-<li><p><strong>Zero-Copy When Possible</strong>: Minimizes data copying during conversion</p></li>
-</ol>
-</section>
-<section id="integration-with-algorithms">
-<h3>Integration with Algorithms<a class="headerlink" href="#integration-with-algorithms" title="Link to this heading">¶</a></h3>
-<p>All path algorithms (Dijkstra, BellmanFord, BFS, HyperpathGenerating) automatically use the GraphImporter system:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dijkstra</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
-
-<span class="c1"># GraphImporter is used internally</span>
-<span class="n">edges</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="o">...</span><span class="p">})</span>
-<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>  <span class="c1"># Automatic detection and conversion</span>
-</pre></div>
-</div>
-<p>No manual conversion is needed - the algorithms handle everything automatically!</p>
-</section>
 </section>
 </section>
 
@@ -998,23 +1035,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="contributing.html">
+          <a class="next-page" href="changelog.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Contributing to Edsger</div>
+                <div class="title">Changelog</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="quickstart.html">
+          <a class="prev-page" href="benchmarks.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Quick Start Guide</div>
+                <div class="title">Benchmarks</div>
                 
               </div>
             </a>
@@ -1022,10 +1059,9 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2025, Architecture &amp; Performance
+                Copyright &#169; 2022-2026, Architecture &amp; Performance
             </div>
-            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-            
+            Made with 
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             
           </div>
@@ -1048,107 +1084,75 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">API Reference</a><ul>
-<li><a class="reference internal" href="#edsger-path-module">edsger.path Module</a><ul>
-<li><a class="reference internal" href="#dijkstra-class">Dijkstra Class</a><ul>
-<li><a class="reference internal" href="#constructor-parameters">Constructor Parameters</a></li>
-<li><a class="reference internal" href="#methods">Methods</a><ul>
-<li><a class="reference internal" href="#run">run</a></li>
-<li><a class="reference internal" href="#get-path">get_path</a></li>
-<li><a class="reference internal" href="#get-vertices">get_vertices</a></li>
+<li><a class="reference internal" href="#">API reference</a><ul>
+<li><a class="reference internal" href="#dijkstra">Dijkstra</a><ul>
+<li><a class="reference internal" href="#edsger.path.Dijkstra"><code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code></a><ul>
+<li><a class="reference internal" href="#edsger.path.Dijkstra.run"><code class="docutils literal notranslate"><span class="pre">Dijkstra.run()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.Dijkstra.get_path"><code class="docutils literal notranslate"><span class="pre">Dijkstra.get_path()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.Dijkstra.get_vertices"><code class="docutils literal notranslate"><span class="pre">Dijkstra.get_vertices()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.Dijkstra.n_vertices"><code class="docutils literal notranslate"><span class="pre">Dijkstra.n_vertices</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.Dijkstra.n_edges"><code class="docutils literal notranslate"><span class="pre">Dijkstra.n_edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.Dijkstra.edges"><code class="docutils literal notranslate"><span class="pre">Dijkstra.edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.Dijkstra.orientation"><code class="docutils literal notranslate"><span class="pre">Dijkstra.orientation</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.Dijkstra.permute"><code class="docutils literal notranslate"><span class="pre">Dijkstra.permute</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.Dijkstra.lazy"><code class="docutils literal notranslate"><span class="pre">Dijkstra.lazy</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.Dijkstra.path_links"><code class="docutils literal notranslate"><span class="pre">Dijkstra.path_links</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#examples">Examples</a><ul>
-<li><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
-<li><a class="reference internal" href="#with-path-tracking">With Path Tracking</a></li>
-<li><a class="reference internal" href="#custom-parameters">Custom Parameters</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#bellmanford-class">BellmanFord Class</a><ul>
-<li><a class="reference internal" href="#id1">Constructor Parameters</a></li>
-<li><a class="reference internal" href="#id2">Methods</a><ul>
-<li><a class="reference internal" href="#id3">run</a></li>
-<li><a class="reference internal" href="#id4">get_path</a></li>
-<li><a class="reference internal" href="#id5">get_vertices</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id6">Examples</a><ul>
-<li><a class="reference internal" href="#basic-usage-with-negative-weights">Basic Usage with Negative Weights</a></li>
-<li><a class="reference internal" href="#negative-cycle-detection">Negative Cycle Detection</a></li>
-<li><a class="reference internal" href="#path-tracking-with-negative-weights">Path Tracking with Negative Weights</a></li>
-<li><a class="reference internal" href="#performance-disabling-cycle-detection">Performance: Disabling Cycle Detection</a></li>
+<li><a class="reference internal" href="#bellmanford">BellmanFord</a><ul>
+<li><a class="reference internal" href="#edsger.path.BellmanFord"><code class="docutils literal notranslate"><span class="pre">BellmanFord</span></code></a><ul>
+<li><a class="reference internal" href="#edsger.path.BellmanFord.run"><code class="docutils literal notranslate"><span class="pre">BellmanFord.run()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BellmanFord.get_path"><code class="docutils literal notranslate"><span class="pre">BellmanFord.get_path()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BellmanFord.get_vertices"><code class="docutils literal notranslate"><span class="pre">BellmanFord.get_vertices()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BellmanFord.has_negative_cycle"><code class="docutils literal notranslate"><span class="pre">BellmanFord.has_negative_cycle()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BellmanFord.n_vertices"><code class="docutils literal notranslate"><span class="pre">BellmanFord.n_vertices</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BellmanFord.n_edges"><code class="docutils literal notranslate"><span class="pre">BellmanFord.n_edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BellmanFord.edges"><code class="docutils literal notranslate"><span class="pre">BellmanFord.edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BellmanFord.orientation"><code class="docutils literal notranslate"><span class="pre">BellmanFord.orientation</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BellmanFord.permute"><code class="docutils literal notranslate"><span class="pre">BellmanFord.permute</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BellmanFord.path_links"><code class="docutils literal notranslate"><span class="pre">BellmanFord.path_links</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#bfs-class">BFS Class</a><ul>
-<li><a class="reference internal" href="#id7">Constructor Parameters</a></li>
-<li><a class="reference internal" href="#id8">Methods</a><ul>
-<li><a class="reference internal" href="#id9">run</a></li>
-<li><a class="reference internal" href="#id10">get_path</a></li>
-<li><a class="reference internal" href="#id11">get_vertices</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id12">Examples</a><ul>
-<li><a class="reference internal" href="#basic-bfs">Basic BFS</a></li>
-<li><a class="reference internal" href="#custom-sentinel-value">Custom Sentinel Value</a></li>
-<li><a class="reference internal" href="#id13">With Path Tracking</a></li>
-<li><a class="reference internal" href="#with-non-contiguous-vertex-ids">With Non-Contiguous Vertex IDs</a></li>
-<li><a class="reference internal" href="#backward-search-orientation-in">Backward Search (orientation=’in’)</a></li>
-<li><a class="reference internal" href="#return-as-pandas-series">Return as Pandas Series</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#performance-characteristics">Performance Characteristics</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#hyperpathgenerating-class">HyperpathGenerating Class</a><ul>
-<li><a class="reference internal" href="#overview">Overview</a></li>
-<li><a class="reference internal" href="#id14">Constructor Parameters</a></li>
-<li><a class="reference internal" href="#attributes">Attributes</a></li>
-<li><a class="reference internal" href="#id15">Methods</a><ul>
-<li><a class="reference internal" href="#id16">run</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id17">Examples</a><ul>
-<li><a class="reference internal" href="#basic-transit-network">Basic Transit Network</a></li>
-<li><a class="reference internal" href="#multiple-origins">Multiple Origins</a></li>
-<li><a class="reference internal" href="#custom-column-names">Custom Column Names</a></li>
-<li><a class="reference internal" href="#with-edge-validation">With Edge Validation</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#understanding-the-output">Understanding the Output</a></li>
-<li><a class="reference internal" href="#use-cases">Use Cases</a></li>
+<li><a class="reference internal" href="#bfs">BFS</a><ul>
+<li><a class="reference internal" href="#edsger.path.BFS"><code class="docutils literal notranslate"><span class="pre">BFS</span></code></a><ul>
+<li><a class="reference internal" href="#edsger.path.BFS.run"><code class="docutils literal notranslate"><span class="pre">BFS.run()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BFS.get_path"><code class="docutils literal notranslate"><span class="pre">BFS.get_path()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BFS.get_vertices"><code class="docutils literal notranslate"><span class="pre">BFS.get_vertices()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BFS.UNREACHABLE"><code class="docutils literal notranslate"><span class="pre">BFS.UNREACHABLE</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BFS.n_vertices"><code class="docutils literal notranslate"><span class="pre">BFS.n_vertices</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BFS.n_edges"><code class="docutils literal notranslate"><span class="pre">BFS.n_edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BFS.edges"><code class="docutils literal notranslate"><span class="pre">BFS.edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BFS.orientation"><code class="docutils literal notranslate"><span class="pre">BFS.orientation</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BFS.permute"><code class="docutils literal notranslate"><span class="pre">BFS.permute</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BFS.path_links"><code class="docutils literal notranslate"><span class="pre">BFS.path_links</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#parallel-edges-handling">Parallel Edges Handling</a><ul>
-<li><a class="reference internal" href="#example-with-parallel-edges">Example with Parallel Edges</a></li>
+<li><a class="reference internal" href="#hyperpathgenerating">HyperpathGenerating</a><ul>
+<li><a class="reference internal" href="#edsger.path.HyperpathGenerating"><code class="docutils literal notranslate"><span class="pre">HyperpathGenerating</span></code></a><ul>
+<li><a class="reference internal" href="#edsger.path.HyperpathGenerating.edge_count"><code class="docutils literal notranslate"><span class="pre">HyperpathGenerating.edge_count</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.HyperpathGenerating.vertex_count"><code class="docutils literal notranslate"><span class="pre">HyperpathGenerating.vertex_count</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.HyperpathGenerating.u_i_vec"><code class="docutils literal notranslate"><span class="pre">HyperpathGenerating.u_i_vec</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.HyperpathGenerating.run"><code class="docutils literal notranslate"><span class="pre">HyperpathGenerating.run()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#edsger-graph-importer-module">edsger.graph_importer Module</a><ul>
-<li><a class="reference internal" href="#graphimporter-architecture">GraphImporter Architecture</a><ul>
-<li><a class="reference internal" href="#key-features">Key Features</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#standardize-graph-dataframe-function">standardize_graph_dataframe Function</a><ul>
-<li><a class="reference internal" href="#example-usage">Example Usage</a></li>
+<li><a class="reference internal" href="#graph-validation">Graph validation</a><ul>
+<li><a class="reference internal" href="#edsger.commons.validate_graph"><code class="docutils literal notranslate"><span class="pre">validate_graph()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#graphimporter-classes">GraphImporter Classes</a><ul>
-<li><a class="reference internal" href="#graphimporter-base-class">GraphImporter (Base Class)</a><ul>
-<li><a class="reference internal" href="#class-method-from-dataframe">Class Method: from_dataframe</a></li>
+<li><a class="reference internal" href="#test-networks">Test networks</a><ul>
+<li><a class="reference internal" href="#edsger.networks.create_sf_network"><code class="docutils literal notranslate"><span class="pre">create_sf_network()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.networks.SiouxFalls"><code class="docutils literal notranslate"><span class="pre">SiouxFalls</span></code></a><ul>
+<li><a class="reference internal" href="#edsger.networks.SiouxFalls.edges"><code class="docutils literal notranslate"><span class="pre">SiouxFalls.edges</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#pandasnumpyimporter">PandasNumpyImporter</a></li>
-<li><a class="reference internal" href="#pandasarrowimporter">PandasArrowImporter</a></li>
-<li><a class="reference internal" href="#polarsimporter">PolarsImporter</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#performance-considerations">Performance Considerations</a></li>
-<li><a class="reference internal" href="#integration-with-algorithms">Integration with Algorithms</a></li>
 </ul>
 </li>
 </ul>
@@ -1162,12 +1166,11 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=ca7ad2ea"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+</div><script src="_static/documentation_options.js?v=f1f9ae6c"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="_static/copybutton.js?v=f281be69"></script>
-    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script src="_static/copybutton.js?v=fd10adb8"></script>
     </body>
 </html>

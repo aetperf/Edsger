@@ -3,14 +3,13 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="API Reference" href="api.html"><link rel="prev" title="Installation Guide" href="installation.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Benchmarks" href="benchmarks.html"><link rel="prev" title="Installation" href="installation.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>Quick Start Guide - Edsger 0.1.7 documentation</title>
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+        <title>Quick start - Edsger 0.2.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     
     
@@ -20,18 +19,24 @@
   body {
     --color-code-background: #f2f2f2;
   --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #2f5d8a;
+  --color-brand-content: #2f5d8a;
   
   }
   @media not print {
     body[data-theme="dark"] {
       --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #8fb8de;
+  --color-brand-content: #8fb8de;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
         --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #8fb8de;
+  --color-brand-content: #8fb8de;
   
       }
     }
@@ -163,7 +168,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Edsger 0.1.7 documentation</div></a>
+      <a href="index.html"><div class="brand">Edsger 0.2.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -184,7 +189,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">Edsger 0.1.7 documentation</span>
+  <span class="sidebar-brand-text">Edsger 0.2.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -192,18 +197,13 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Quick Start Guide</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Development</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to Edsger</a></li>
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 </ul>
 
 </div>
@@ -224,12 +224,16 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="_sources/quickstart.md.txt" title="View this page">
+  <a class="muted-link" href="https://github.com/aetperf/Edsger/blob/release/docs/source/quickstart.md?plain=true" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
-</div>
-<div class="theme-toggle-container theme-toggle-content">
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/aetperf/Edsger/edit/release/docs/source/quickstart.md" rel="edit" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
               <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
               <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
@@ -242,810 +246,306 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="quick-start-guide">
-<h1>Quick Start Guide<a class="headerlink" href="#quick-start-guide" title="Link to this heading">¶</a></h1>
-<p>Welcome to our Python library for <strong>graph</strong> algorithms. The library includes BFS, Dijkstra’s and Bellman-Ford’s algorithms, with plans to add more algorithms later. It is also open-source and easy to integrate with other Python libraries.</p>
-<section id="graph-data-format">
-<h2>Graph Data Format<a class="headerlink" href="#graph-data-format" title="Link to this heading">¶</a></h2>
-<p>Edsger accepts directed graph data in multiple DataFrame formats, all with the same basic structure:</p>
+          <section id="quick-start">
+<h1>Quick start<a class="headerlink" href="#quick-start" title="Link to this heading">¶</a></h1>
+<section id="graph-format">
+<h2>Graph format<a class="headerlink" href="#graph-format" title="Link to this heading">¶</a></h2>
+<p>A graph is a dataframe with one row per directed edge.</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Column</p></th>
 <th class="head"><p>Type</p></th>
-<th class="head"><p>Description</p></th>
+<th class="head"><p>Content</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>tail</p></td>
-<td><p>int</p></td>
-<td><p>Source vertex ID</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tail</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>Start vertex of the edge</p></td>
 </tr>
-<tr class="row-odd"><td><p>head</p></td>
-<td><p>int</p></td>
-<td><p>Destination vertex ID</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">head</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>End vertex of the edge</p></td>
 </tr>
-<tr class="row-even"><td><p>weight</p></td>
-<td><p>float</p></td>
-<td><p>Edge weight (non-negative for Dijkstra, can be negative for Bellman-Ford)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">weight</span></code></p></td>
+<td><p>integer or float</p></td>
+<td><p>Weight of the edge</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<section id="supported-dataframe-backends">
-<h3>Supported DataFrame Backends<a class="headerlink" href="#supported-dataframe-backends" title="Link to this heading">¶</a></h3>
-<section id="pandas-with-numpy-backend-default">
-<h4>pandas with NumPy backend (default)<a class="headerlink" href="#pandas-with-numpy-backend-default" title="Link to this heading">¶</a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-
-<span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
-<span class="p">})</span>
-</pre></div>
-</div>
-</section>
-<section id="pandas-with-arrow-backend">
-<h4>pandas with Arrow backend<a class="headerlink" href="#pandas-with-arrow-backend" title="Link to this heading">¶</a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
-
-<span class="c1"># Create with Arrow dtypes</span>
-<span class="n">edges_arrow</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">())),</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">())),</span>
-    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">float64</span><span class="p">()))</span>
-<span class="p">})</span>
-
-<span class="c1"># Or convert existing DataFrame</span>
-<span class="n">edges_arrow</span> <span class="o">=</span> <span class="n">edges</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">()),</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">()),</span>
-    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">float64</span><span class="p">())</span>
-<span class="p">})</span>
-</pre></div>
-</div>
-</section>
-<section id="polars-dataframe">
-<h4>Polars DataFrame<a class="headerlink" href="#polars-dataframe" title="Link to this heading">¶</a></h4>
+<p>These are the default column names. Other names can be given with the <code class="docutils literal notranslate"><span class="pre">tail</span></code>, <code class="docutils literal notranslate"><span class="pre">head</span></code> and <code class="docutils literal notranslate"><span class="pre">weight</span></code> arguments of the classes.</p>
+<p>The vertex identifiers are non-negative integers, and they are used as array indices: a result array has one element per integer between 0 and the largest identifier. When the identifiers are large, far apart or negative, see <a class="reference internal" href="#vertex-identifiers">Vertex identifiers</a>.</p>
+<p>The dataframe can be a pandas dataframe, with NumPy or Arrow data types, or a Polars dataframe. In all cases the columns are converted to NumPy arrays when the graph is built.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 
-<span class="n">edges_polars</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
-<span class="p">})</span>
-</pre></div>
-</div>
-<p>All these formats work seamlessly with Edsger’s algorithms - the library automatically detects and handles the DataFrame type.</p>
-<p>Note that it is also possible to use a graph with different column names for the tail, head and weight values, but we need then to specify the name mapping, as described in the following.</p>
-</section>
-</section>
-</section>
-<section id="dijkstra-s-algorithm">
-<h2>Dijkstra’s Algorithm<a class="headerlink" href="#dijkstra-s-algorithm" title="Link to this heading">¶</a></h2>
-<p>To use Dijkstra’s algorithm, you can import the <code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code> class from the <code class="docutils literal notranslate"><span class="pre">path</span></code> module. The function takes a directed graph and a source node as input, and returns the shortest path from the source node to all other nodes in the directed graph. If your directed graph contains parallel edges (multiple edges between the same pair of vertices), Dijkstra automatically keeps only the edge with minimum weight for each vertex pair.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dijkstra</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dijkstra</span>
 
-<span class="c1"># Create a DataFrame with the edges of the graph</span>
-<span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
-    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-<span class="p">})</span>
-<span class="n">edges</span>
+<span class="n">edges_pl</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">"tail"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">"head"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">"weight"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]}</span>
+<span class="p">)</span>
+<span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges_pl</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="table-wrapper colwidths-auto docutils container">
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head text-right"><p></p></th>
-<th class="head text-right"><p>tail</p></th>
-<th class="head text-right"><p>head</p></th>
-<th class="head text-right"><p>weight</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td class="text-right"><p>0</p></td>
-<td class="text-right"><p>0</p></td>
-<td class="text-right"><p>1</p></td>
-<td class="text-right"><p>1.0</p></td>
-</tr>
-<tr class="row-odd"><td class="text-right"><p>1</p></td>
-<td class="text-right"><p>0</p></td>
-<td class="text-right"><p>2</p></td>
-<td class="text-right"><p>4.0</p></td>
-</tr>
-<tr class="row-even"><td class="text-right"><p>2</p></td>
-<td class="text-right"><p>1</p></td>
-<td class="text-right"><p>2</p></td>
-<td class="text-right"><p>2.0</p></td>
-</tr>
-<tr class="row-odd"><td class="text-right"><p>3</p></td>
-<td class="text-right"><p>2</p></td>
-<td class="text-right"><p>3</p></td>
-<td class="text-right"><p>1.5</p></td>
-</tr>
-<tr class="row-even"><td class="text-right"><p>4</p></td>
-<td class="text-right"><p>2</p></td>
-<td class="text-right"><p>4</p></td>
-<td class="text-right"><p>3.0</p></td>
-</tr>
-<tr class="row-odd"><td class="text-right"><p>5</p></td>
-<td class="text-right"><p>3</p></td>
-<td class="text-right"><p>4</p></td>
-<td class="text-right"><p>1.0</p></td>
-</tr>
-</tbody>
-</table>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>array([0., 1., 3.])
+</pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize the Dijkstra object</span>
+</section>
+<section id="dijkstra">
+<h2>Dijkstra<a class="headerlink" href="#dijkstra" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code> class computes shortest paths in a graph with non-negative weights. The graph is built once, when the object is created.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dijkstra</span>
+
+<span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"tail"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+        <span class="s2">"head"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+        <span class="s2">"weight"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">)</span>
 <span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
-
-<span class="c1"># Run the algorithm from a source vertex</span>
-<span class="n">shortest_paths</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shortest paths:&quot;</span><span class="p">,</span> <span class="n">shortest_paths</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Shortest paths: [0.  1.  3.  4.5 5.5]
-</pre></div>
-</div>
-<p>We get the shortest paths from the source node 0 to all other nodes in the directed graph. The output is an array with the shortest path length to each node. A path length is the sum of the weights of the edges in the path.</p>
-<p>The column names can be specified using the <code class="docutils literal notranslate"><span class="pre">tail</span></code>, <code class="docutils literal notranslate"><span class="pre">head</span></code> and <code class="docutils literal notranslate"><span class="pre">weight</span></code> arguments:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">other_edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;from&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-    <span class="s1">&#39;to&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
-    <span class="s1">&#39;travel_time&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-<span class="p">})</span>
-<span class="n">other_dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">other_edges</span><span class="p">,</span> <span class="n">tail</span><span class="o">=</span><span class="s1">&#39;from&#39;</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s1">&#39;to&#39;</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;travel_time&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<section id="orientation">
-<h3>Orientation<a class="headerlink" href="#orientation" title="Link to this heading">¶</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">orientation</span></code> argument (a string with a default value of <code class="docutils literal notranslate"><span class="pre">'out'</span></code>) specifies the orientation of the algorithm. It can be either <code class="docutils literal notranslate"><span class="pre">'out'</span></code> for single source shortest paths or <code class="docutils literal notranslate"><span class="pre">'in'</span></code> for single target shortest path.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">)</span>
-
-<span class="c1"># Run the algorithm to a target vertex</span>
-<span class="n">shortest_paths</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shortest paths:&quot;</span><span class="p">,</span> <span class="n">shortest_paths</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Shortest paths: [ 0. inf inf inf inf]
-</pre></div>
-</div>
-</section>
-<section id="run-multiple-times">
-<h3>Run Multiple Times<a class="headerlink" href="#run-multiple-times" title="Link to this heading">¶</a></h3>
-<p>Once the Dijkstra is instantiated with a given graph and orientation, the <code class="docutils literal notranslate"><span class="pre">run</span></code> method can be called multiple times with different source vertices.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run the algorithm to another target vertex</span>
-<span class="n">shortest_paths</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shortest paths:&quot;</span><span class="p">,</span> <span class="n">shortest_paths</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Shortest paths: [5.5 4.5 2.5 1.  0. ]
-</pre></div>
-</div>
-</section>
-<section id="check-edges">
-<h3>Check Edges<a class="headerlink" href="#check-edges" title="Link to this heading">¶</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">check_edges</span></code> argument (a boolean with a default value of <code class="docutils literal notranslate"><span class="pre">False</span></code>) validates the given graph. When set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, it ensures the DataFrame is well-formed by:</p>
-<ul class="simple">
-<li><p>Checking for the presence of required columns for edge tail, head and weight values</p></li>
-<li><p>Verifying that the data types are correct (integer for tail and head, integer or float for weight)</p></li>
-<li><p>Ensuring there are no missing or invalid values (e.g. negative weights)</p></li>
-</ul>
-<p>If any of these checks fail, an appropriate error is raised.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">invalid_edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
-    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-<span class="p">})</span>
-<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">invalid_edges</span><span class="p">,</span> <span class="n">check_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ValueError: edges[&#39;weight&#39;] should be nonnegative
-</pre></div>
-</div>
-</section>
-<section id="permute">
-<h3>Permute<a class="headerlink" href="#permute" title="Link to this heading">¶</a></h3>
-<p>Finally, the <code class="docutils literal notranslate"><span class="pre">permute</span></code> argument (boolean with a default value of <code class="docutils literal notranslate"><span class="pre">False</span></code>) allows to permute the IDs of the nodes. If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, the node IDs will be reindexed to start from 0 and be contiguous for the inner computations, and the output will be reindexed to the original IDs, loading the same result as if the IDs were not permuted. The permutation may save memory and computation time for large graphs, for example if a significant ratio of the nodes are not actually used in the graph.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">SHIFT</span> <span class="o">=</span> <span class="mi">1000</span>
-
-<span class="n">shifted_edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
-    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-<span class="p">})</span>
-<span class="n">shifted_edges</span><span class="p">[</span><span class="s2">&quot;tail&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">SHIFT</span>
-<span class="n">shifted_edges</span><span class="p">[</span><span class="s2">&quot;head&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">SHIFT</span>
-<span class="n">shifted_edges</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="table-wrapper colwidths-auto docutils container">
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head text-right"><p></p></th>
-<th class="head text-right"><p>tail</p></th>
-<th class="head text-right"><p>head</p></th>
-<th class="head text-right"><p>weight</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td class="text-right"><p>0</p></td>
-<td class="text-right"><p>1000</p></td>
-<td class="text-right"><p>1001</p></td>
-<td class="text-right"><p>1.0</p></td>
-</tr>
-<tr class="row-odd"><td class="text-right"><p>1</p></td>
-<td class="text-right"><p>1000</p></td>
-<td class="text-right"><p>1002</p></td>
-<td class="text-right"><p>4.0</p></td>
-</tr>
-<tr class="row-even"><td class="text-right"><p>2</p></td>
-<td class="text-right"><p>1001</p></td>
-<td class="text-right"><p>1002</p></td>
-<td class="text-right"><p>2.0</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">shifted_edges</span><span class="p">,</span> <span class="n">permute</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">shortest_paths</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span> <span class="o">+</span> <span class="n">SHIFT</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shortest paths:&quot;</span><span class="p">,</span> <span class="n">shortest_paths</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Shortest paths: [inf inf inf ... 3.  4.5 5.5]
-</pre></div>
-</div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">shortest_paths</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">:]</span>
+<p>The <code class="docutils literal notranslate"><span class="pre">run</span></code> method returns the length of the shortest path from a source vertex to every vertex. It can be called any number of times with different sources.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>array([0. , 1. , 3. , 4.5, 5.5])
 </pre></div>
 </div>
-</section>
-<section id="early-termination">
-<h3>Early Termination<a class="headerlink" href="#early-termination" title="Link to this heading">¶</a></h3>
-<p>Early termination is a performance optimization feature that allows Dijkstra’s algorithm to stop computing once specific target nodes (termination nodes) have been reached. This can significantly reduce computation time when you only need shortest paths to a subset of vertices in the graph.</p>
-<p>When using early termination, the algorithm will:</p>
-<ol class="arabic simple">
-<li><p>Stop as soon as all specified termination nodes have been visited</p></li>
-<li><p>Return <strong>only</strong> the path lengths to the termination nodes (not all vertices)</p></li>
-<li><p>Return results in the same order as the termination nodes were specified</p></li>
-</ol>
-<section id="basic-early-termination-example">
-<h4>Basic Early Termination Example<a class="headerlink" href="#basic-early-termination-example" title="Link to this heading">¶</a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dijkstra</span>
-
-<span class="c1"># Create a sample graph</span>
-<span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s2">&quot;tail&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
-    <span class="s2">&quot;head&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
-    <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
-<span class="p">})</span>
+<section id="orientation">
+<h3>Orientation<a class="headerlink" href="#orientation" title="Link to this heading">¶</a></h3>
+<p>With <code class="docutils literal notranslate"><span class="pre">orientation=&quot;in&quot;</span></code>, the paths go from every vertex to a target vertex.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra_in</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">"in"</span><span class="p">)</span>
+<span class="n">dijkstra_in</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><strong>Without early termination</strong> (computes paths to all vertices):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">)</span>
-<span class="n">distances</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;All distances:&quot;</span><span class="p">,</span> <span class="n">distances</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>All distances: [0. 1. 2. 2. 3. 3.]
-</pre></div>
-</div>
-<p><strong>With early termination</strong> (computes paths only to specified nodes):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Only compute paths to nodes 3 and 5</span>
-<span class="n">termination_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
-<span class="n">distances</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">termination_nodes</span><span class="o">=</span><span class="n">termination_nodes</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Distances to termination nodes:&quot;</span><span class="p">,</span> <span class="n">distances</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shape of result:&quot;</span><span class="p">,</span> <span class="n">distances</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Distances to termination nodes: [2. 3.]
-Shape of result: (2,)
-</pre></div>
-</div>
-<p>Notice that:</p>
-<ul class="simple">
-<li><p>The result array has length 2 (same as number of termination nodes)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">distances[0]</span> <span class="pre">=</span> <span class="pre">2.0</span></code> is the shortest path length from vertex 0 to vertex 3</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">distances[1]</span> <span class="pre">=</span> <span class="pre">3.0</span></code> is the shortest path length from vertex 0 to vertex 5</p></li>
-</ul>
-</section>
-<section id="early-termination-with-path-tracking">
-<h4>Early Termination with Path Tracking<a class="headerlink" href="#early-termination-with-path-tracking" title="Link to this heading">¶</a></h4>
-<p>Early termination also works with path tracking enabled:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">)</span>
-<span class="n">distances</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">termination_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">path_tracking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Distances:&quot;</span><span class="p">,</span> <span class="n">distances</span><span class="p">)</span>
-
-<span class="c1"># Get paths to termination nodes</span>
-<span class="n">path_to_3</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">path_to_5</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Path to vertex 3:&quot;</span><span class="p">,</span> <span class="n">path_to_3</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Path to vertex 5:&quot;</span><span class="p">,</span> <span class="n">path_to_5</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Distances: [2. 3.]
-Path to vertex 3: [3 2 1 0]
-Path to vertex 5: [5 3 2 1 0]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>array([5.5, 4.5, 2.5, 1. , 0. ])
 </pre></div>
 </div>
 </section>
-<section id="important-notes">
-<h4>Important Notes<a class="headerlink" href="#important-notes" title="Link to this heading">¶</a></h4>
-<ol class="arabic">
-<li><p><strong>Return Array Size</strong>: With early termination, the returned array size equals the number of termination nodes, not the total number of vertices in the graph.</p></li>
-<li><p><strong>Order Preservation</strong>: Results are returned in the same order as the termination nodes are specified:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Termination nodes [3, 5] → results [distance_to_3, distance_to_5]</span>
-<span class="c1"># Termination nodes [5, 3] → results [distance_to_5, distance_to_3]</span>
-</pre></div>
-</div>
-</li>
-<li><p><strong>Orientation Support</strong>: Early termination works with both orientations:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Single-source shortest paths (from source to termination nodes)</span>
-<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">)</span>
-<span class="n">distances</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">termination_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
-
-<span class="c1"># Single-target shortest paths (from termination nodes to target)</span>
-<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">)</span> 
-<span class="n">distances</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">termination_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-</pre></div>
-</div>
-</li>
-<li><p><strong>Unreachable Nodes</strong>: If a termination node is unreachable, its distance will be infinity:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># If node 10 is unreachable from node 0</span>
-<span class="n">distances</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">termination_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
-<span class="c1"># Result: [2.0, inf]</span>
-</pre></div>
-</div>
-</li>
-</ol>
-</section>
-</section>
-<section id="run-method-options">
-<h3>Run Method Options<a class="headerlink" href="#run-method-options" title="Link to this heading">¶</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">run</span></code> method can take the following arguments besides the source/target vertex index:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">termination_nodes</span></code> : list or array-like, optional (default=None)</p></li>
-</ul>
-<p>A list or array of vertex indices where the algorithm should stop early. When specified, the algorithm will terminate as soon as all termination nodes have been reached, and will return only the path lengths to these nodes in the same order they were specified. This can provide significant performance improvements when you only need paths to a subset of vertices.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
-<span class="c1"># Get distances only to nodes 2 and 4</span>
-<span class="n">distances</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">termination_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Distances to nodes 2 and 4:&quot;</span><span class="p">,</span> <span class="n">distances</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Distances to nodes 2 and 4: [1.5 3.5]
-</pre></div>
-</div>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">path_tracking</span></code> : bool, optional (default=False)</p></li>
-</ul>
-<p>Whether to track the shortest path(s) from/to the source/target vertex to all other vertices in the graph.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
-<span class="n">shortest_paths</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">path_tracking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<section id="paths">
+<h3>Paths<a class="headerlink" href="#paths" title="Link to this heading">¶</a></h3>
+<p>With <code class="docutils literal notranslate"><span class="pre">path_tracking=True</span></code>, the shortest path tree is stored and <code class="docutils literal notranslate"><span class="pre">get_path</span></code> returns the vertices of a path. The array starts with the vertex given to <code class="docutils literal notranslate"><span class="pre">get_path</span></code> and ends with the vertex given to <code class="docutils literal notranslate"><span class="pre">run</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">path_tracking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">dijkstra</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>array([4, 3, 2, 1, 0], dtype=uint32)
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<p>So with the default orientation the path is in reverse order, from the target back to the source. With <code class="docutils literal notranslate"><span class="pre">orientation=&quot;in&quot;</span></code> it is in travel order.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra_in</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">path_tracking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">dijkstra_in</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>array([0], dtype=uint32)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>array([0, 1, 2, 3, 4], dtype=uint32)
 </pre></div>
 </div>
-<p>The path is returned as an array of vertex indices. This is an ordered list of vertices from the source to the target vertex if <code class="docutils literal notranslate"><span class="pre">orientation</span></code> is <code class="docutils literal notranslate"><span class="pre">'in'</span></code>, and from the target to the source vertex if <code class="docutils literal notranslate"><span class="pre">orientation</span></code> is <code class="docutils literal notranslate"><span class="pre">'out'</span></code>. Both the source and target vertices are included in the path.</p>
-<p><strong>Note</strong>: When using <code class="docutils literal notranslate"><span class="pre">termination_nodes</span></code> with <code class="docutils literal notranslate"><span class="pre">path_tracking=True</span></code>, you can still retrieve paths to any vertex that was reached during the computation using <code class="docutils literal notranslate"><span class="pre">get_path()</span></code>, even if it wasn’t in the termination nodes list.</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">return_inf</span></code> : bool, optional (default=True)</p></li>
-</ul>
-<p>Whether to return path lengths as infinity (np.inf) when no path exists.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">)</span>
-<span class="n">shortest_paths</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_inf</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">shortest_paths</span>
+</section>
+<section id="early-termination">
+<h3>Early termination<a class="headerlink" href="#early-termination" title="Link to this heading">¶</a></h3>
+<p>When only a few path lengths are needed, <code class="docutils literal notranslate"><span class="pre">termination_nodes</span></code> stops the algorithm as soon as these vertices are settled. The result then has one element per termination node, in the given order.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">termination_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>array([0.00000000e+000, 1.79769313e+308, 1.79769313e+308, 1.79769313e+308,
-   1.79769313e+308])
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>array([5.5, 3. ])
 </pre></div>
 </div>
-<p>The value 1.79769313e+308 actually used in the code is the largest number that can be represented in the floating point format (<code class="docutils literal notranslate"><span class="pre">np.float64</span></code>).</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">return_series</span></code> : bool, optional (default=False)</p></li>
-</ul>
-<p>Instead of returning a NumPy array, the <code class="docutils literal notranslate"><span class="pre">run</span></code> method may return a Pandas Series object with the path lengths as values and the vertex indices as the index.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">shortest_paths</span> <span class="o">=</span> <span class="n">dijkstra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">return_series</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">shortest_paths</span>
+</section>
+<section id="vertex-identifiers">
+<h3>Vertex identifiers<a class="headerlink" href="#vertex-identifiers" title="Link to this heading">¶</a></h3>
+<p>Without any option, a graph whose largest vertex identifier is 1004 is handled as a graph with 1005 vertices, even if only 5 of them have edges. With <code class="docutils literal notranslate"><span class="pre">permute=True</span></code>, the vertices are renumbered internally with contiguous indices, which saves memory and time when the identifiers are sparse. The arguments and the results keep the original identifiers.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">shifted</span> <span class="o">=</span> <span class="n">edges</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">tail</span><span class="o">=</span><span class="n">edges</span><span class="p">[</span><span class="s2">"tail"</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="n">edges</span><span class="p">[</span><span class="s2">"head"</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1000</span><span class="p">)</span>
+
+<span class="n">dijkstra_p</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">shifted</span><span class="p">,</span> <span class="n">permute</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">dijkstra_p</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">return_series</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="table-wrapper colwidths-auto docutils container">
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head text-right"><p>vertex_idx</p></th>
-<th class="head text-right"><p>path_length</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td class="text-right"><p>0</p></td>
-<td class="text-right"><p>5.5</p></td>
-</tr>
-<tr class="row-odd"><td class="text-right"><p>1</p></td>
-<td class="text-right"><p>4.5</p></td>
-</tr>
-<tr class="row-even"><td class="text-right"><p>2</p></td>
-<td class="text-right"><p>2.5</p></td>
-</tr>
-<tr class="row-odd"><td class="text-right"><p>3</p></td>
-<td class="text-right"><p>1.0</p></td>
-</tr>
-<tr class="row-even"><td class="text-right"><p>4</p></td>
-<td class="text-right"><p>0.0</p></td>
-</tr>
-</tbody>
-</table>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>vertex_idx
+1000    0.0
+1001    1.0
+1002    3.0
+1003    4.5
+1004    5.5
+Name: path_length, dtype: float64
+</pre></div>
 </div>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">heap_length_ratio</span></code> : float, optional (default=1.0)</p></li>
-</ul>
-<p>This is an experimental parameter that controls the size of the heap used in the algorithm. The heap is a static array that is used to store the vertices that may be visited next. A value of 1.0 means that the heap is the same size as the number of vertices, so there is no risk of overflow. Be aware that there is no guarantee that the algorithm will work with a heap length ratio smaller that 1. The lowest ratio that works for a given graph depends on the graph structure and the source vertex. For a rather sparse graph, a small ratio may work, but for a dense graph, a ratio of 1.0 is required.</p>
+<p><code class="docutils literal notranslate"><span class="pre">return_series=True</span></code> returns a pandas Series indexed by vertex, here with the 5 vertices of the graph only. The default NumPy array would still have 1005 elements.</p>
+<p>Negative identifiers are also accepted with <code class="docutils literal notranslate"><span class="pre">permute=True</span></code>. An array indexed by vertex cannot hold them, so <code class="docutils literal notranslate"><span class="pre">return_series=True</span></code> is then required.</p>
+</section>
+<section id="unreachable-vertices">
+<h3>Unreachable vertices<a class="headerlink" href="#unreachable-vertices" title="Link to this heading">¶</a></h3>
+<p>The path length of a vertex that cannot be reached is <code class="docutils literal notranslate"><span class="pre">inf</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dijkstra_in</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>array([ 0., inf, inf, inf, inf])
+</pre></div>
+</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">return_inf=False</span></code>, the largest <code class="docutils literal notranslate"><span class="pre">float64</span></code> value (about 1.8e308) is returned instead.</p>
+</section>
+<section id="input-checks">
+<h3>Input checks<a class="headerlink" href="#input-checks" title="Link to this heading">¶</a></h3>
+<p>Negative and NaN weights always raise an error when the graph is built, because Dijkstra’s algorithm is not valid with negative weights.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">weight</span><span class="o">=-</span><span class="n">edges</span><span class="p">[</span><span class="s2">"weight"</span><span class="p">]))</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ValueError: edges['weight'] should be nonnegative
+</pre></div>
+</div>
+<p>The other checks are optional. With <code class="docutils literal notranslate"><span class="pre">check_edges=True</span></code>, the column names, the data types and the absence of missing values are verified before the graph is built.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">"tail"</span><span class="p">:</span> <span class="nb">float</span><span class="p">}),</span> <span class="n">check_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>TypeError: edges['tail'] should be of integer type
+</pre></div>
+</div>
+</section>
+<section id="parallel-edges">
+<h3>Parallel edges<a class="headerlink" href="#parallel-edges" title="Link to this heading">¶</a></h3>
+<p>When several edges have the same tail and head, only the one with the smallest weight is kept.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parallel</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">"tail"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">"head"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">"weight"</span><span class="p">:</span> <span class="p">[</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]}</span>
+<span class="p">)</span>
+<span class="n">dijkstra_m</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">parallel</span><span class="p">)</span>
+<span class="n">dijkstra_m</span><span class="o">.</span><span class="n">n_edges</span><span class="p">,</span> <span class="n">dijkstra_m</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(2, array([0., 3., 5.]))
+</pre></div>
+</div>
 </section>
 </section>
-<section id="bellman-ford-algorithm">
-<h2>Bellman-Ford Algorithm<a class="headerlink" href="#bellman-ford-algorithm" title="Link to this heading">¶</a></h2>
-<p>The Bellman-Ford algorithm is designed for directed graphs that may contain negative edge weights and can detect negative cycles. Unlike Dijkstra’s algorithm, Bellman-Ford can handle a broader class of problems but with a higher computational cost.</p>
-<section id="basic-usage">
-<h3>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">¶</a></h3>
+<section id="bellman-ford">
+<h2>Bellman-Ford<a class="headerlink" href="#bellman-ford" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">BellmanFord</span></code> class has the same interface as <code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code> and accepts negative weights. Its run time grows with the product of the number of vertices and the number of edges, so <code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code> is the better choice when all the weights are non-negative.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">BellmanFord</span>
 
-<span class="c1"># Create a graph with negative weights</span>
-<span class="n">edges_negative</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
-    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>  <span class="c1"># Note the negative weight</span>
-<span class="p">})</span>
-
-<span class="c1"># Initialize the Bellman-Ford object</span>
-<span class="n">bf</span> <span class="o">=</span> <span class="n">BellmanFord</span><span class="p">(</span><span class="n">edges_negative</span><span class="p">)</span>
-
-<span class="c1"># Run the algorithm from a source vertex</span>
-<span class="n">shortest_paths</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shortest paths:&quot;</span><span class="p">,</span> <span class="n">shortest_paths</span><span class="p">)</span>
+<span class="n">edges_neg</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"tail"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+        <span class="s2">"head"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+        <span class="s2">"weight"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<span class="n">bellman_ford</span> <span class="o">=</span> <span class="n">BellmanFord</span><span class="p">(</span><span class="n">edges_neg</span><span class="p">)</span>
+<span class="n">bellman_ford</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Shortest paths: [ 0.  1. -1.  0.  3.]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>array([ 0.,  1., -1.,  0.,  3.])
 </pre></div>
 </div>
-</section>
-<section id="negative-weights-and-optimal-paths">
-<h3>Negative Weights and Optimal Paths<a class="headerlink" href="#negative-weights-and-optimal-paths" title="Link to this heading">¶</a></h3>
-<p>The power of Bellman-Ford becomes evident when dealing with negative weights. In the example above, the shortest path from vertex 0 to vertex 2 has length -1 (going 0→1→2 with weights 1 + (-2) = -1), which is shorter than the direct path 0→2 with weight 4.</p>
-</section>
-<section id="negative-cycle-detection">
-<h3>Negative Cycle Detection<a class="headerlink" href="#negative-cycle-detection" title="Link to this heading">¶</a></h3>
-<p>One of Bellman-Ford’s key features is detecting negative cycles, which make shortest path problems ill-defined:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a graph with a negative cycle</span>
-<span class="n">edges_cycle</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
-    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Cycle 0→1→2→0 has total weight -2</span>
-<span class="p">})</span>
-
-<span class="n">bf_cycle</span> <span class="o">=</span> <span class="n">BellmanFord</span><span class="p">(</span><span class="n">edges_cycle</span><span class="p">)</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">shortest_paths</span> <span class="o">=</span> <span class="n">bf_cycle</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+<p>Shortest paths are not defined when the graph has a cycle of negative total weight. Such a cycle raises an error.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cycle</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">"tail"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">"head"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s2">"weight"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">]}</span>
+<span class="p">)</span>
+<span class="n">BellmanFord</span><span class="p">(</span><span class="n">cycle</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Error: Negative cycle detected in the graph
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ValueError: Negative cycle detected in the graph
 </pre></div>
 </div>
+<p>The detection can be skipped with <code class="docutils literal notranslate"><span class="pre">detect_negative_cycles=False</span></code>. The returned path lengths are then meaningless if there is a negative cycle.</p>
 </section>
-<section id="disabling-negative-cycle-detection">
-<h3>Disabling Negative Cycle Detection<a class="headerlink" href="#disabling-negative-cycle-detection" title="Link to this heading">¶</a></h3>
-<p>For performance reasons, you can disable negative cycle detection if you’re confident your graph doesn’t contain negative cycles:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bf</span> <span class="o">=</span> <span class="n">BellmanFord</span><span class="p">(</span><span class="n">edges_negative</span><span class="p">)</span>
-<span class="c1"># Skip negative cycle detection for better performance</span>
-<span class="n">shortest_paths</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">detect_negative_cycles</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="id1">
-<h3>Orientation<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
-<p>Like Dijkstra, Bellman-Ford supports both orientations:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Single-source shortest paths (from source to all vertices)</span>
-<span class="n">bf_out</span> <span class="o">=</span> <span class="n">BellmanFord</span><span class="p">(</span><span class="n">edges_negative</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;out&#39;</span><span class="p">)</span>
-<span class="n">distances_out</span> <span class="o">=</span> <span class="n">bf_out</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-<span class="c1"># Single-target shortest paths (from all vertices to target)</span>
-<span class="n">bf_in</span> <span class="o">=</span> <span class="n">BellmanFord</span><span class="p">(</span><span class="n">edges_negative</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">)</span>
-<span class="n">distances_in</span> <span class="o">=</span> <span class="n">bf_in</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="path-tracking">
-<h3>Path Tracking<a class="headerlink" href="#path-tracking" title="Link to this heading">¶</a></h3>
-<p>Bellman-Ford also supports path reconstruction:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bf</span> <span class="o">=</span> <span class="n">BellmanFord</span><span class="p">(</span><span class="n">edges_negative</span><span class="p">)</span>
-<span class="n">shortest_paths</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">path_tracking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="c1"># Get the actual path to vertex 3</span>
-<span class="n">path</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Path to vertex 3:&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Path to vertex 3: [3 2 1 0]
-</pre></div>
-</div>
-</section>
-<section id="when-to-use-bellman-ford-vs-dijkstra">
-<h3>When to Use Bellman-Ford vs Dijkstra<a class="headerlink" href="#when-to-use-bellman-ford-vs-dijkstra" title="Link to this heading">¶</a></h3>
-<p><strong>Use Bellman-Ford when:</strong></p>
-<ul class="simple">
-<li><p>Your directed graph contains negative edge weights</p></li>
-<li><p>You need to detect negative cycles in directed graphs</p></li>
-<li><p>Working with financial networks, arbitrage detection, or differential constraints</p></li>
-<li><p>Performance is less critical than correctness</p></li>
-</ul>
-<p><strong>Use Dijkstra when:</strong></p>
-<ul class="simple">
-<li><p>All edge weights are non-negative (e.g., distances, travel times, costs)</p></li>
-<li><p>You need the fastest possible performance (O((V+E)logV) vs O(VE))</p></li>
-<li><p>Working with directed road networks, shortest distance problems in directed graphs</p></li>
-</ul>
-</section>
-<section id="performance-considerations">
-<h3>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Link to this heading">¶</a></h3>
-<p>Bellman-Ford has O(VE) time complexity compared to Dijkstra’s O((V+E)logV). For large directed graphs with only positive weights, Dijkstra is significantly faster. However, the performance difference may be acceptable for smaller directed graphs or when negative weights are essential to your problem.</p>
-</section>
-</section>
-<section id="breadth-first-search-unweighted-directed-graphs">
-<h2>Breadth-First Search: Unweighted Directed Graphs<a class="headerlink" href="#breadth-first-search-unweighted-directed-graphs" title="Link to this heading">¶</a></h2>
-<p>BFS (Breadth-First Search) finds shortest paths in directed graphs where edge weights are ignored (or treated as equal). It’s optimal for finding minimum-hop paths in directed graphs.</p>
-<section id="id2">
-<h3>Basic Usage<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<section id="breadth-first-search">
+<h2>Breadth-first search<a class="headerlink" href="#breadth-first-search" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">BFS</span></code> class ignores the weights and finds the paths with the fewest edges. Its <code class="docutils literal notranslate"><span class="pre">run</span></code> method does not return path lengths but the predecessor of each vertex on such a path.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">BFS</span>
 
-<span class="c1"># Create a directed graph (weights will be ignored if present)</span>
-<span class="n">edges_bfs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
-<span class="p">})</span>
-
-<span class="c1"># Initialize BFS</span>
-<span class="n">bfs</span> <span class="o">=</span> <span class="n">BFS</span><span class="p">(</span><span class="n">edges_bfs</span><span class="p">)</span>
-
-<span class="c1"># Run BFS from vertex 0</span>
-<span class="n">predecessors</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Predecessors:&quot;</span><span class="p">,</span> <span class="n">predecessors</span><span class="p">)</span>
+<span class="n">bfs</span> <span class="o">=</span> <span class="n">BFS</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+<span class="n">bfs</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Predecessors: [-9999     0     0     1     2]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>array([-9999,     0,     0,     2,     2], dtype=int32)
 </pre></div>
 </div>
-</section>
-<section id="understanding-bfs-output">
-<h3>Understanding BFS Output<a class="headerlink" href="#understanding-bfs-output" title="Link to this heading">¶</a></h3>
-<p>Unlike Dijkstra and Bellman-Ford which return distances, BFS returns <strong>predecessors</strong>:</p>
-<ul class="simple">
-<li><p>Value <code class="docutils literal notranslate"><span class="pre">-9999</span></code> (default sentinel): Unreachable vertex or start vertex</p></li>
-<li><p>Other values: The predecessor vertex in the shortest path</p></li>
-</ul>
-<p>You can customize the sentinel value if needed:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use a different sentinel value for unreachable nodes</span>
-<span class="n">bfs</span> <span class="o">=</span> <span class="n">BFS</span><span class="p">(</span><span class="n">edges_bfs</span><span class="p">,</span> <span class="n">sentinel</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">predecessors</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="c1"># Unreachable nodes will now be marked with -1 instead of -9999</span>
+<p>The source vertex and the vertices that cannot be reached have the value -9999, which can be changed with the <code class="docutils literal notranslate"><span class="pre">sentinel</span></code> argument. Paths are retrieved as with the other classes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bfs</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">path_tracking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">bfs</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>array([4, 2, 0], dtype=uint32)
 </pre></div>
 </div>
 </section>
-<section id="id3">
-<h3>Path Tracking<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
-<p>BFS supports path reconstruction just like Dijkstra:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run with path tracking enabled</span>
-<span class="n">predecessors</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">path_tracking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="c1"># Get the actual path to vertex 4</span>
-<span class="n">path</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Path from 0 to 4:&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Path from 0 to 4: [4 2 0]
-</pre></div>
-</div>
-<p>The path is returned as an array from target to source.</p>
-</section>
-<section id="id4">
-<h3>Orientation<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
-<p>BFS supports both orientations like other algorithms:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Single-source (forward search from source)</span>
-<span class="n">bfs_out</span> <span class="o">=</span> <span class="n">BFS</span><span class="p">(</span><span class="n">edges_bfs</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;out&#39;</span><span class="p">)</span>
-<span class="n">pred_out</span> <span class="o">=</span> <span class="n">bfs_out</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-<span class="c1"># Single-target (backward search to target)</span>
-<span class="n">bfs_in</span> <span class="o">=</span> <span class="n">BFS</span><span class="p">(</span><span class="n">edges_bfs</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">)</span>
-<span class="n">pred_in</span> <span class="o">=</span> <span class="n">bfs_in</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="when-to-use-bfs">
-<h3>When to Use BFS<a class="headerlink" href="#when-to-use-bfs" title="Link to this heading">¶</a></h3>
-<p><strong>Use BFS when:</strong></p>
-<ul class="simple">
-<li><p>All edges should be treated equally (unweighted directed graphs)</p></li>
-<li><p>Finding minimum number of hops/edges in directed paths</p></li>
-<li><p>Maximum performance for unweighted directed graphs (O(V+E) time)</p></li>
-<li><p>Social network analysis (degrees of separation in directed networks)</p></li>
-<li><p>Network routing with hop counts in directed topologies</p></li>
-</ul>
-<p><strong>Use Dijkstra/Bellman-Ford when:</strong></p>
-<ul class="simple">
-<li><p>Edge weights matter (distances, costs, times)</p></li>
-<li><p>You need weighted shortest paths in directed graphs</p></li>
-</ul>
-</section>
-</section>
-<section id="spiess-florian-hyperpath-algorithm">
-<h2>Spiess-Florian Hyperpath Algorithm<a class="headerlink" href="#spiess-florian-hyperpath-algorithm" title="Link to this heading">¶</a></h2>
-<p>The Spiess-Florian algorithm (also known as HyperpathGenerating) is designed for transit network assignment. Unlike traditional shortest path algorithms, it models how passengers distribute across multiple transit lines based on service frequencies and travel times.</p>
-<section id="transit-network-data-format">
-<h3>Transit Network Data Format<a class="headerlink" href="#transit-network-data-format" title="Link to this heading">¶</a></h3>
-<p>For hyperpath computation, edges require <strong>travel time</strong> and <strong>frequency</strong> columns instead of a single weight:</p>
+<section id="hyperpaths">
+<h2>Hyperpaths<a class="headerlink" href="#hyperpaths" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">HyperpathGenerating</span></code> class implements the algorithm of <a class="reference external" href="https://doi.org/10.1016/0191-2615(89)90034-9">Spiess and Florian (1989)</a> for frequency-based transit networks. Each edge has a travel time and a frequency. At a stop, a traveller boards the first vehicle to come among a set of attractive lines, so the travel time includes an expected waiting time, and the demand is split between the lines in proportion to their frequencies.</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Column</p></th>
 <th class="head"><p>Type</p></th>
-<th class="head"><p>Description</p></th>
+<th class="head"><p>Content</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>tail</p></td>
-<td><p>int</p></td>
-<td><p>Source stop/vertex ID</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tail</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>Start vertex of the edge</p></td>
 </tr>
-<tr class="row-odd"><td><p>head</p></td>
-<td><p>int</p></td>
-<td><p>Destination stop/vertex ID</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">head</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>End vertex of the edge</p></td>
 </tr>
-<tr class="row-even"><td><p>trav_time</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">trav_time</span></code></p></td>
 <td><p>float</p></td>
-<td><p>Travel time on this edge (e.g., minutes)</p></td>
+<td><p>Travel time on the edge</p></td>
 </tr>
-<tr class="row-odd"><td><p>freq</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">freq</span></code></p></td>
 <td><p>float</p></td>
-<td><p>Service frequency (e.g., vehicles per minute)</p></td>
+<td><p>Frequency of the edge, in vehicles per unit of travel time</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-</section>
-<section id="id5">
-<h3>Basic Usage<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<p>In the following network, times are in minutes. A direct line goes from vertex 0 to vertex 2 in 25 minutes, every 12 minutes. Another line goes from 0 to 1 in 7 minutes, every 12 minutes, and a third one from 1 to 2 in 10 minutes, every 6 minutes.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">HyperpathGenerating</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="c1"># Create a transit network</span>
-<span class="c1"># Multiple lines connecting stops with different frequencies</span>
-<span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
-    <span class="s1">&#39;trav_time&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>  <span class="c1"># Travel times</span>
-    <span class="s1">&#39;freq&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]</span>      <span class="c1"># Frequencies</span>
-<span class="p">})</span>
-
-<span class="c1"># Initialize the algorithm</span>
-<span class="n">hp</span> <span class="o">=</span> <span class="n">HyperpathGenerating</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
-
-<span class="c1"># Run from origin 0 to destination 4 with 100 passengers</span>
-<span class="n">hp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">100.0</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="understanding-the-results">
-<h3>Understanding the Results<a class="headerlink" href="#understanding-the-results" title="Link to this heading">¶</a></h3>
-<p>After running the algorithm, you can access:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Expected travel times from each vertex to destination</span>
-<span class="c1"># Includes waiting time based on line frequencies</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Travel times to destination:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">hp</span><span class="o">.</span><span class="n">u_i_vec</span><span class="p">)</span>
-
-<span class="c1"># Edge volumes showing passenger distribution</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Passenger volumes on each edge:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">hp</span><span class="o">.</span><span class="n">_edges</span><span class="p">[[</span><span class="s1">&#39;tail&#39;</span><span class="p">,</span> <span class="s1">&#39;head&#39;</span><span class="p">,</span> <span class="s1">&#39;trav_time&#39;</span><span class="p">,</span> <span class="s1">&#39;freq&#39;</span><span class="p">,</span> <span class="s1">&#39;volume&#39;</span><span class="p">]])</span>
-</pre></div>
-</div>
-<p>The <strong>volume</strong> column shows how passengers are distributed across the network. Higher frequencies attract more passengers, as they reduce expected waiting time.</p>
-</section>
-<section id="multiple-origins">
-<h3>Multiple Origins<a class="headerlink" href="#multiple-origins" title="Link to this heading">¶</a></h3>
-<p>You can compute demand from multiple origins simultaneously:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">hp</span> <span class="o">=</span> <span class="n">HyperpathGenerating</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
-<span class="n">hp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-    <span class="n">origin</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>        <span class="c1"># Multiple origins</span>
-    <span class="n">destination</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>            <span class="c1"># Single destination</span>
-    <span class="n">volume</span><span class="o">=</span><span class="p">[</span><span class="mf">50.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">]</span> <span class="c1"># Demand from each origin</span>
+<span class="n">transit</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"tail"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="s2">"head"</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+        <span class="s2">"trav_time"</span><span class="p">:</span> <span class="p">[</span><span class="mf">25.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">],</span>
+        <span class="s2">"freq"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">],</span>
+    <span class="p">}</span>
 <span class="p">)</span>
+<span class="n">hp</span> <span class="o">=</span> <span class="n">HyperpathGenerating</span><span class="p">(</span><span class="n">transit</span><span class="p">)</span>
+<span class="n">hp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">100.0</span><span class="p">)</span>
 </pre></div>
 </div>
-</section>
-<section id="when-to-use-spiess-florian">
-<h3>When to Use Spiess-Florian<a class="headerlink" href="#when-to-use-spiess-florian" title="Link to this heading">¶</a></h3>
-<p><strong>Use HyperpathGenerating when:</strong></p>
-<ul class="simple">
-<li><p>Modeling public transit networks with multiple competing lines</p></li>
-<li><p>Computing transit assignment (distributing passenger demand)</p></li>
-<li><p>Evaluating expected travel times including waiting</p></li>
-<li><p>Analyzing line utilization and capacity requirements</p></li>
-</ul>
-<p><strong>Use Dijkstra/Bellman-Ford when:</strong></p>
-<ul class="simple">
-<li><p>Finding deterministic shortest paths</p></li>
-<li><p>Working with networks where “frequency” doesn’t apply (roads, etc.)</p></li>
-<li><p>You only need path distances, not demand distribution</p></li>
-</ul>
-</section>
-</section>
-<section id="dataframe-backend-selection">
-<h2>DataFrame Backend Selection<a class="headerlink" href="#dataframe-backend-selection" title="Link to this heading">¶</a></h2>
-<p>Edsger automatically detects and optimizes for your DataFrame backend. Here’s when to use each:</p>
-<section id="pandas-with-numpy-backend">
-<h3>pandas with NumPy backend<a class="headerlink" href="#pandas-with-numpy-backend" title="Link to this heading">¶</a></h3>
-<ul class="simple">
-<li><p><strong>Best for</strong>: Small to medium graphs, existing pandas workflows</p></li>
-<li><p><strong>Memory</strong>: Standard NumPy arrays</p></li>
-<li><p><strong>Example</strong>:</p></li>
-</ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="o">...</span><span class="p">})</span>  <span class="c1"># Default pandas</span>
-<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+<p>The <code class="docutils literal notranslate"><span class="pre">run</span></code> method returns nothing. The expected travel time from each vertex to the destination is stored in <code class="docutils literal notranslate"><span class="pre">u_i_vec</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">hp</span><span class="o">.</span><span class="n">u_i_vec</span>
 </pre></div>
 </div>
-</section>
-<section id="id6">
-<h3>pandas with Arrow backend<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
-<ul class="simple">
-<li><p><strong>Best for</strong>: Large graphs, memory-constrained environments</p></li>
-<li><p><strong>Memory</strong>: Columnar format, often more efficient</p></li>
-<li><p><strong>Automatic optimization</strong>: Integer columns use uint32 when possible</p></li>
-<li><p><strong>Example</strong>:</p></li>
-</ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="o">...</span><span class="p">})</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span>
-    <span class="s1">&#39;tail&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">()),</span>
-    <span class="s1">&#39;head&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">()),</span>
-    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">ArrowDtype</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">float64</span><span class="p">())</span>
-<span class="p">})</span>
-<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>array([30., 16.,  0.])
 </pre></div>
 </div>
-</section>
-<section id="id7">
-<h3>Polars DataFrame<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
-<ul class="simple">
-<li><p><strong>Best for</strong>: High-performance workflows, large-scale data processing</p></li>
-<li><p><strong>Memory</strong>: Efficient columnar storage</p></li>
-<li><p><strong>Automatic optimization</strong>: Integer columns use uint32 when possible</p></li>
-<li><p><strong>Example</strong>:</p></li>
-</ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">edges</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="o">...</span><span class="p">})</span>
-<span class="n">dijkstra</span> <span class="o">=</span> <span class="n">Dijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+<p>From vertex 1, the expected waiting time is 6 minutes and the ride takes 10 minutes. From vertex 0, both lines are attractive: the first vehicle comes after 6 minutes on average, and half of the travellers end up on each line, with 25 and 23 minutes left to the destination. The edge volumes are stored in the <code class="docutils literal notranslate"><span class="pre">volume</span></code> column of the <code class="docutils literal notranslate"><span class="pre">_edges</span></code> dataframe.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">hp</span><span class="o">.</span><span class="n">_edges</span><span class="p">[[</span><span class="s2">"tail"</span><span class="p">,</span> <span class="s2">"head"</span><span class="p">,</span> <span class="s2">"volume"</span><span class="p">]]</span>
 </pre></div>
 </div>
-<p>All backends are automatically converted to optimal NumPy arrays internally for maximum Cython performance, while preserving the convenience of your preferred DataFrame library.</p>
-</section>
-</section>
-<section id="next-steps">
-<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h2>
-<ul class="simple">
-<li><p>Explore the <a class="reference internal" href="api.html"><span class="std std-doc">API Reference</span></a> for more detailed information</p></li>
-<li><p>Learn about <a class="reference internal" href="contributing.html"><span class="std std-doc">Contributing</span></a> to Edsger</p></li>
-</ul>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>   tail  head  volume
+0     0     2    50.0
+1     0     1    50.0
+2     1     2    50.0
+</pre></div>
+</div>
+<p>Several origins can be assigned in one run, with one volume per origin.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">hp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">destination</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">])</span>
+<span class="n">hp</span><span class="o">.</span><span class="n">_edges</span><span class="p">[[</span><span class="s2">"tail"</span><span class="p">,</span> <span class="s2">"head"</span><span class="p">,</span> <span class="s2">"volume"</span><span class="p">]]</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>   tail  head  volume
+0     0     2    50.0
+1     0     1    50.0
+2     1     2   100.0
+</pre></div>
+</div>
 </section>
 </section>
 
@@ -1054,12 +554,12 @@ Path to vertex 5: [5 3 2 1 0]
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="api.html">
+          <a class="next-page" href="benchmarks.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">API Reference</div>
+                <div class="title">Benchmarks</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -1070,7 +570,7 @@ Path to vertex 5: [5 3 2 1 0]
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Installation Guide</div>
+                <div class="title">Installation</div>
                 
               </div>
             </a>
@@ -1078,10 +578,9 @@ Path to vertex 5: [5 3 2 1 0]
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2025, Architecture &amp; Performance
+                Copyright &#169; 2022-2026, Architecture &amp; Performance
             </div>
-            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-            
+            Made with 
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             
           </div>
@@ -1104,64 +603,21 @@ Path to vertex 5: [5 3 2 1 0]
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Quick Start Guide</a><ul>
-<li><a class="reference internal" href="#graph-data-format">Graph Data Format</a><ul>
-<li><a class="reference internal" href="#supported-dataframe-backends">Supported DataFrame Backends</a><ul>
-<li><a class="reference internal" href="#pandas-with-numpy-backend-default">pandas with NumPy backend (default)</a></li>
-<li><a class="reference internal" href="#pandas-with-arrow-backend">pandas with Arrow backend</a></li>
-<li><a class="reference internal" href="#polars-dataframe">Polars DataFrame</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#dijkstra-s-algorithm">Dijkstra’s Algorithm</a><ul>
+<li><a class="reference internal" href="#">Quick start</a><ul>
+<li><a class="reference internal" href="#graph-format">Graph format</a></li>
+<li><a class="reference internal" href="#dijkstra">Dijkstra</a><ul>
 <li><a class="reference internal" href="#orientation">Orientation</a></li>
-<li><a class="reference internal" href="#run-multiple-times">Run Multiple Times</a></li>
-<li><a class="reference internal" href="#check-edges">Check Edges</a></li>
-<li><a class="reference internal" href="#permute">Permute</a></li>
-<li><a class="reference internal" href="#early-termination">Early Termination</a><ul>
-<li><a class="reference internal" href="#basic-early-termination-example">Basic Early Termination Example</a></li>
-<li><a class="reference internal" href="#early-termination-with-path-tracking">Early Termination with Path Tracking</a></li>
-<li><a class="reference internal" href="#important-notes">Important Notes</a></li>
+<li><a class="reference internal" href="#paths">Paths</a></li>
+<li><a class="reference internal" href="#early-termination">Early termination</a></li>
+<li><a class="reference internal" href="#vertex-identifiers">Vertex identifiers</a></li>
+<li><a class="reference internal" href="#unreachable-vertices">Unreachable vertices</a></li>
+<li><a class="reference internal" href="#input-checks">Input checks</a></li>
+<li><a class="reference internal" href="#parallel-edges">Parallel edges</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#run-method-options">Run Method Options</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#bellman-ford-algorithm">Bellman-Ford Algorithm</a><ul>
-<li><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
-<li><a class="reference internal" href="#negative-weights-and-optimal-paths">Negative Weights and Optimal Paths</a></li>
-<li><a class="reference internal" href="#negative-cycle-detection">Negative Cycle Detection</a></li>
-<li><a class="reference internal" href="#disabling-negative-cycle-detection">Disabling Negative Cycle Detection</a></li>
-<li><a class="reference internal" href="#id1">Orientation</a></li>
-<li><a class="reference internal" href="#path-tracking">Path Tracking</a></li>
-<li><a class="reference internal" href="#when-to-use-bellman-ford-vs-dijkstra">When to Use Bellman-Ford vs Dijkstra</a></li>
-<li><a class="reference internal" href="#performance-considerations">Performance Considerations</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#breadth-first-search-unweighted-directed-graphs">Breadth-First Search: Unweighted Directed Graphs</a><ul>
-<li><a class="reference internal" href="#id2">Basic Usage</a></li>
-<li><a class="reference internal" href="#understanding-bfs-output">Understanding BFS Output</a></li>
-<li><a class="reference internal" href="#id3">Path Tracking</a></li>
-<li><a class="reference internal" href="#id4">Orientation</a></li>
-<li><a class="reference internal" href="#when-to-use-bfs">When to Use BFS</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#spiess-florian-hyperpath-algorithm">Spiess-Florian Hyperpath Algorithm</a><ul>
-<li><a class="reference internal" href="#transit-network-data-format">Transit Network Data Format</a></li>
-<li><a class="reference internal" href="#id5">Basic Usage</a></li>
-<li><a class="reference internal" href="#understanding-the-results">Understanding the Results</a></li>
-<li><a class="reference internal" href="#multiple-origins">Multiple Origins</a></li>
-<li><a class="reference internal" href="#when-to-use-spiess-florian">When to Use Spiess-Florian</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#dataframe-backend-selection">DataFrame Backend Selection</a><ul>
-<li><a class="reference internal" href="#pandas-with-numpy-backend">pandas with NumPy backend</a></li>
-<li><a class="reference internal" href="#id6">pandas with Arrow backend</a></li>
-<li><a class="reference internal" href="#id7">Polars DataFrame</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#next-steps">Next Steps</a></li>
+<li><a class="reference internal" href="#bellman-ford">Bellman-Ford</a></li>
+<li><a class="reference internal" href="#breadth-first-search">Breadth-first search</a></li>
+<li><a class="reference internal" href="#hyperpaths">Hyperpaths</a></li>
 </ul>
 </li>
 </ul>
@@ -1173,12 +629,11 @@ Path to vertex 5: [5 3 2 1 0]
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=ca7ad2ea"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+</div><script src="_static/documentation_options.js?v=f1f9ae6c"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="_static/copybutton.js?v=f281be69"></script>
-    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script src="_static/copybutton.js?v=fd10adb8"></script>
     </body>
 </html>

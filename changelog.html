@@ -1,0 +1,595 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Contributing" href="contributing.html"><link rel="prev" title="API reference" href="api.html">
+
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+        <title>Changelog - Edsger 0.2.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #2f5d8a;
+  --color-brand-content: #2f5d8a;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #8fb8de;
+  --color-brand-content: #8fb8de;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #8fb8de;
+  --color-brand-content: #8fb8de;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Edsger 0.2.0</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <span class="sidebar-brand-text">Edsger 0.2.0</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="https://github.com/aetperf/Edsger/blob/release/docs/source/changelog.md?plain=true" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/aetperf/Edsger/edit/release/docs/source/changelog.md" rel="edit" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">¶</a></h1>
+<p>All notable changes to this project will be documented in this file.</p>
+<p>The format is based on <a class="reference external" href="https://keepachangelog.com/">Keep a Changelog</a>,
+and this project adheres to <a class="reference external" href="https://semver.org/">Semantic Versioning</a>.</p>
+<section id="version-0-2-0-2026-11-13">
+<span id="version-020-2026-11-13"></span><h2>Version 0.2.0 (2026-11-13)<a class="headerlink" href="#version-0-2-0-2026-11-13" title="Link to this heading">¶</a></h2>
+<section id="performance-improvements">
+<h3>Performance Improvements<a class="headerlink" href="#performance-improvements" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Dijkstra about 2x faster on road networks</strong>: 2.45s to 1.24s on the USA DIMACS network (Linux, i9-12900H), both with and without decrease-key (<code class="docutils literal notranslate"><span class="pre">lazy=True</span></code>/<code class="docutils literal notranslate"><span class="pre">lazy=False</span></code>). Path lengths are bit-identical to the previous version.</p></li>
+<li><p>New inline 4-ary heap (<code class="docutils literal notranslate"><span class="pre">pq_4ary_inline.pxd</span></code>) used by <code class="docutils literal notranslate"><span class="pre">dijkstra.pyx</span></code> and <code class="docutils literal notranslate"><span class="pre">dijkstra_nodec.pyx</span></code>: keys stored in the heap nodes, branch-free selection of the smallest child, sentinel keys, hole-based sifts, heap operations inlined into the main loop</p></li>
+<li><p>Prefetching of the adjacency data of the next vertices to be scanned (heap root and its children)</p></li>
+<li><p>No per-vertex state array anymore: the path length array is the output array, written in place</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">cython:</span></code> compiler directives moved before the module docstring in all the Cython modules: they were ignored by Cython where they were, so bounds checking was still active. BFS and Bellman-Ford are about 18% faster (E and NY DIMACS networks)</p></li>
+<li><p>The Linux wheels are now built with Clang instead of GCC: Dijkstra is about 8% faster on the USA DIMACS network (1.08s against 1.18s with GCC 14, i9-12900H, same flags)</p></li>
+</ul>
+</section>
+<section id="bug-fixes">
+<h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>The Linux wheels crashed at import time with an illegal instruction on the CPUs without AVX-512: the wheels were built with <code class="docutils literal notranslate"><span class="pre">-march=native</span></code>, so for the CPU of the build machine. The wheels built with cibuildwheel (Linux, macOS) now only use the baseline instruction set of the architecture. Builds from source still use <code class="docutils literal notranslate"><span class="pre">-march=native</span></code></p></li>
+<li><p>Fixed a heap overflow (memory corruption) of the lazy Dijkstra on dense graphs, where the number of heap entries can exceed the vertex count: the heap now grows when needed</p></li>
+<li><p>Negative vertex indices without <code class="docutils literal notranslate"><span class="pre">permute=True</span></code> now raise a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> when the graph is built, instead of silently producing wrong results</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_path</span></code> (and so <code class="docutils literal notranslate"><span class="pre">get_path</span></code>) now raises an <code class="docutils literal notranslate"><span class="pre">IndexError</span></code> for an out-of-bounds vertex index, instead of returning an empty path</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_path</span></code> on a graph built with <code class="docutils literal notranslate"><span class="pre">permute=True</span></code> (<code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code>, <code class="docutils literal notranslate"><span class="pre">BellmanFord</span></code>, <code class="docutils literal notranslate"><span class="pre">BFS</span></code>): it now returns the right path after <code class="docutils literal notranslate"><span class="pre">run(...,</span> <span class="pre">return_series=True)</span></code>, supports negative vertex labels, uses a memory that does not depend on the largest label, and raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> for a vertex that is not in the graph</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_vertices</span></code> (<code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code>, <code class="docutils literal notranslate"><span class="pre">BFS</span></code>) raised a <code class="docutils literal notranslate"><span class="pre">KeyError</span></code> when the graph was built with custom column names. <code class="docutils literal notranslate"><span class="pre">BellmanFord</span></code> now has this method too</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">check_edges=True</span></code> now accepts Polars dataframes, in the four classes: it used to raise a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> asking for a pandas dataframe</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dijkstra.run</span></code> with <code class="docutils literal notranslate"><span class="pre">termination_nodes</span></code> and <code class="docutils literal notranslate"><span class="pre">return_series=True</span></code>: the Series is now indexed by the termination nodes, instead of 0, 1, 2… when <code class="docutils literal notranslate"><span class="pre">permute</span></code> is False</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HyperpathGenerating</span></code>: <code class="docutils literal notranslate"><span class="pre">run</span></code> accepts integer volumes and NumPy integers as vertices. Invalid arguments (unknown vertex, negative volume, origins and volumes of different lengths, unknown orientation) now raise a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> or a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> with a message, instead of a bare <code class="docutils literal notranslate"><span class="pre">AssertionError</span></code></p></li>
+<li><p>Typo in the error message for an invalid <code class="docutils literal notranslate"><span class="pre">orientation</span></code> (“‘in’ on ‘out’”)</p></li>
+<li><p>Negative vertex labels (<code class="docutils literal notranslate"><span class="pre">permute=True</span></code>) with Arrow and Polars dataframes were converted to unsigned integers and silently became labels around 4.29 billion. They are now kept, as with NumPy-backed pandas dataframes</p></li>
+<li><p>Negative vertex labels (<code class="docutils literal notranslate"><span class="pre">permute=True</span></code>): <code class="docutils literal notranslate"><span class="pre">run</span></code> can now start from a vertex with a negative label, and <code class="docutils literal notranslate"><span class="pre">termination_nodes</span></code> can contain negative labels. <code class="docutils literal notranslate"><span class="pre">run</span></code> raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> asking for <code class="docutils literal notranslate"><span class="pre">return_series=True</span></code> instead of returning an array in which the negative labels wrapped around</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dijkstra.run</span></code>: a negative termination node without <code class="docutils literal notranslate"><span class="pre">permute</span></code> raises the documented <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> instead of an <code class="docutils literal notranslate"><span class="pre">OverflowError</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BFS</span></code> raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> when the sentinel value is also a vertex label</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HyperpathGenerating.run</span></code> now works with pandas 3: the edge volumes were written in place in a dataframe column, which is read-only with copy-on-write</p></li>
+<li><p>No more deprecation warnings with pandas 3: the <code class="docutils literal notranslate"><span class="pre">inplace=True</span></code> keyword of the dataframe methods is not used anymore</p></li>
+</ul>
+</section>
+<section id="input-validation">
+<h3>Input Validation<a class="headerlink" href="#input-validation" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code> now always rejects negative and NaN edge weights with a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> when the graph is built, whatever the value of <code class="docutils literal notranslate"><span class="pre">check_edges</span></code>. The algorithm is not valid with negative weights; use <code class="docutils literal notranslate"><span class="pre">BellmanFord</span></code> instead</p></li>
+<li><p>The Cython functions that can be called from Python (<code class="docutils literal notranslate"><span class="pre">dijkstra</span></code>, <code class="docutils literal notranslate"><span class="pre">dijkstra_nodec</span></code>, <code class="docutils literal notranslate"><span class="pre">bellman_ford</span></code>, <code class="docutils literal notranslate"><span class="pre">bfs</span></code>, <code class="docutils literal notranslate"><span class="pre">spiess_florian</span></code>, <code class="docutils literal notranslate"><span class="pre">path_tracking</span></code>) now check their arguments explicitly, since bounds checking is disabled: <code class="docutils literal notranslate"><span class="pre">IndexError</span></code> for a vertex index out of bounds, <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> for inconsistent array lengths</p></li>
+<li><p>The lazy Dijkstra routines stop with a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> when called directly on a graph with negative weights on which they would not terminate</p></li>
+<li><p>New <code class="docutils literal notranslate"><span class="pre">edsger.commons.validate_graph(indptr,</span> <span class="pre">indices,</span> <span class="pre">data=None,</span> <span class="pre">nonnegative=True)</span></code>: optional full check of a graph in CSR/CSC format (pointers, indices, weights), in linear time (35 ms on the USA network). The algorithms do not call it: it is meant to be run once on arrays that do not come from <code class="docutils literal notranslate"><span class="pre">edsger.path</span></code>, before any number of runs</p></li>
+</ul>
+</section>
+<section id="internal">
+<h3>Internal<a class="headerlink" href="#internal" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Benchmark plot (<code class="docutils literal notranslate"><span class="pre">scripts/plot_benchmark_comparison.py</span></code>): the whiskers go from the best run to the slowest one (they used to extend below the best run), the date is the one of the benchmark runs, the library versions are shown, and the processor model is recorded in the results by <code class="docutils literal notranslate"><span class="pre">benchmark_comparison_os.py</span></code> instead of being hard-coded in the plot script</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dijkstra.pyx</span></code> and <code class="docutils literal notranslate"><span class="pre">dijkstra_nodec.pyx</span></code> now share their code: both include <code class="docutils literal notranslate"><span class="pre">dijkstra_core.pxi</span></code> (algorithm, public functions, embedded tests), compiled with a constant <code class="docutils literal notranslate"><span class="pre">LAZY</span></code> set to 0 or 1. The heap has a single pair of sift functions, with or without decrease-key. No change in speed or results</p></li>
+<li><p>Removed the <code class="docutils literal notranslate"><span class="pre">pq_4ary_nodec_0b</span></code> module, which was not used anymore</p></li>
+<li><p>cython-lint also runs on <code class="docutils literal notranslate"><span class="pre">.pxi</span></code> files (pre-commit, CI)</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-1-7-2026-01-05">
+<span id="version-017-2026-01-05"></span><h2>Version 0.1.7 (2026-01-05)<a class="headerlink" href="#version-0-1-7-2026-01-05" title="Link to this heading">¶</a></h2>
+<section id="id1">
+<span id="performance-improvements-1"></span><h3>Performance Improvements<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Major Windows optimization</strong>: Dijkstra performance on Windows improved by 2.2x (6.0s to 2.75s on USA DIMACS network)</p></li>
+<li><p><strong>Windows/Linux gap reduced</strong>: From 2.4x to just 1.07x (7% difference)</p></li>
+<li><p>Added memory prefetching to heap operations (<code class="docutils literal notranslate"><span class="pre">_min_heapify</span></code>, <code class="docutils literal notranslate"><span class="pre">_decrease_key_from_node_index</span></code>)</p></li>
+<li><p>Extended <code class="docutils literal notranslate"><span class="pre">prefetch_compat.h</span></code> with branch prediction macros and additional prefetch hints (T1, T2, NTA)</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">/Qspectre-</span></code> flag to MSVC compiler for benchmark builds</p></li>
+</ul>
+</section>
+<section id="python-version-support">
+<h3>Python Version Support<a class="headerlink" href="#python-version-support" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Added</strong>: Python 3.14 support</p></li>
+<li><p><strong>Removed</strong>: Python 3.9 support</p></li>
+<li><p>Supported versions: 3.10, 3.11, 3.12, 3.13, 3.14</p></li>
+</ul>
+</section>
+<section id="id2">
+<span id="bug-fixes-1"></span><h3>Bug Fixes<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Fixed graph-tool API compatibility (explicit <code class="docutils literal notranslate"><span class="pre">topology</span></code> submodule import)</p></li>
+</ul>
+</section>
+<section id="type-checking">
+<h3>Type Checking<a class="headerlink" href="#type-checking" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">.pyi</span></code> stub files for all Cython modules to support static type checkers (pyright, ty)</p></li>
+</ul>
+</section>
+<section id="build-ci">
+<span id="build--ci"></span><h3>Build &amp; CI<a class="headerlink" href="#build-ci" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Updated cibuildwheel to &gt;=3.0.0</p></li>
+<li><p>Updated GitHub Actions to setup-python&#64;v5</p></li>
+<li><p>Pinned benchmark script dependencies</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-1-6-2025-10-12">
+<span id="version-016-2025-10-12"></span><h2>Version 0.1.6 (2025-10-12)<a class="headerlink" href="#version-0-1-6-2025-10-12" title="Link to this heading">¶</a></h2>
+<section id="new-features">
+<h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Added Breadth-First Search (BFS) algorithm</p></li>
+<li><p>BFS class with configurable sentinel value for unreachable vertices</p></li>
+<li><p>Full test coverage against SciPy implementation</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-1-5-2025-08-22">
+<span id="version-015-2025-08-22"></span><h2>Version 0.1.5 (2025-08-22)<a class="headerlink" href="#version-0-1-5-2025-08-22" title="Link to this heading">¶</a></h2>
+<section id="id3">
+<span id="new-features-1"></span><h3>New Features<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Added Bellman-Ford algorithm with negative cycle detection</p></li>
+<li><p>Support for both CSR and CSC graph formats</p></li>
+</ul>
+</section>
+<section id="technical-improvements">
+<h3>Technical Improvements<a class="headerlink" href="#technical-improvements" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Parallel edge handling with automatic minimum weight selection</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-1-4-2025-08-05">
+<span id="version-014-2025-08-05"></span><h2>Version 0.1.4 (2025-08-05)<a class="headerlink" href="#version-0-1-4-2025-08-05" title="Link to this heading">¶</a></h2>
+<section id="id4">
+<span id="build--ci-1"></span><h3>Build &amp; CI<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Windows Server 2019 runner retired, updated CI configuration</p></li>
+<li><p>Test coverage and documentation action setup</p></li>
+<li><p>Actions now run on release creation</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-1-3-2025-06-27">
+<span id="version-013-2025-06-27"></span><h2>Version 0.1.3 (2025-06-27)<a class="headerlink" href="#version-0-1-3-2025-06-27" title="Link to this heading">¶</a></h2>
+<section id="id5">
+<span id="new-features-2"></span><h3>New Features<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Early termination support for Dijkstra (stop when target nodes are reached)</p></li>
+<li><p>Returns path length only for termination nodes in early termination case</p></li>
+</ul>
+</section>
+<section id="id6">
+<span id="performance-improvements-2"></span><h3>Performance Improvements<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Added prefetching for single-source shortest path</p></li>
+</ul>
+</section>
+<section id="documentation">
+<h3>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Added early termination section to documentation</p></li>
+<li><p>Improved small example in README</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-1-2-2025-06-22">
+<span id="version-012-2025-06-22"></span><h2>Version 0.1.2 (2025-06-22)<a class="headerlink" href="#version-0-1-2-2025-06-22" title="Link to this heading">¶</a></h2>
+<section id="id7">
+<span id="performance-improvements-3"></span><h3>Performance Improvements<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Cross-platform prefetching compatibility header using SSE intrinsics on x86/x64, ARM intrinsics on ARM64</p></li>
+<li><p>Applied prefetching to Dijkstra algorithm</p></li>
+</ul>
+</section>
+<section id="id8">
+<span id="build--ci-2"></span><h3>Build &amp; CI<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Fixed PyPI wheel publishing artifact naming</p></li>
+<li><p>Added Codecov coverage reporting and badge</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-1-1-2025-06-22">
+<span id="version-011-2025-06-22"></span><h2>Version 0.1.1 (2025-06-22)<a class="headerlink" href="#version-0-1-1-2025-06-22" title="Link to this heading">¶</a></h2>
+<section id="id9">
+<span id="performance-improvements-4"></span><h3>Performance Improvements<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Added memory prefetching headers and functions</p></li>
+<li><p>Prefetch hints in edge iteration loops for <code class="docutils literal notranslate"><span class="pre">compute_sssp</span></code> and <code class="docutils literal notranslate"><span class="pre">compute_sssp_w_path</span></code></p></li>
+<li><p>Added LTO flags (Link Time Optimization)</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">noexcept</span></code> declarations to priority queue function signatures</p></li>
+</ul>
+</section>
+<section id="id10">
+<span id="build--ci-3"></span><h3>Build &amp; CI<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Added support for Python 3.9-3.13</p></li>
+<li><p>Skip i686 architecture builds</p></li>
+<li><p>Fixed cython-lint command for Windows compatibility</p></li>
+</ul>
+</section>
+<section id="code-quality">
+<h3>Code Quality<a class="headerlink" href="#code-quality" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Added black code formatter</p></li>
+<li><p>Added cython-lint for Cython code quality enforcement</p></li>
+<li><p>Fixed all cython-lint violations</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-1-0-2025-06-18">
+<span id="version-010-2025-06-18"></span><h2>Version 0.1.0 (2025-06-18)<a class="headerlink" href="#version-0-1-0-2025-06-18" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Major version bump</p></li>
+<li><p>Documentation moved to ReadTheDocs</p></li>
+<li><p>Updated GitHub Actions</p></li>
+</ul>
+</section>
+<section id="version-0-0-x-2022-11-26-to-2025-02-03">
+<span id="version-00x-2022-11-26-to-2025-02-03"></span><h2>Version 0.0.x (2022-11-26 to 2025-02-03)<a class="headerlink" href="#version-0-0-x-2022-11-26-to-2025-02-03" title="Link to this heading">¶</a></h2>
+<p>Initial development releases including:</p>
+<ul class="simple">
+<li><p>Core Dijkstra’s algorithm implementation in Cython</p></li>
+<li><p>CSR (Compressed Sparse Row) graph representation</p></li>
+<li><p>Path tracking support</p></li>
+<li><p>Basic test suite</p></li>
+<li><p>PyPI package setup</p></li>
+</ul>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="contributing.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Contributing</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="api.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">API reference</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022-2026, Architecture &amp; Performance
+            </div>
+            Made with 
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Changelog</a><ul>
+<li><a class="reference internal" href="#version-0-2-0-2026-11-13">Version 0.2.0 (2026-11-13)</a><ul>
+<li><a class="reference internal" href="#performance-improvements">Performance Improvements</a></li>
+<li><a class="reference internal" href="#bug-fixes">Bug Fixes</a></li>
+<li><a class="reference internal" href="#input-validation">Input Validation</a></li>
+<li><a class="reference internal" href="#internal">Internal</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#version-0-1-7-2026-01-05">Version 0.1.7 (2026-01-05)</a><ul>
+<li><a class="reference internal" href="#id1">Performance Improvements</a></li>
+<li><a class="reference internal" href="#python-version-support">Python Version Support</a></li>
+<li><a class="reference internal" href="#id2">Bug Fixes</a></li>
+<li><a class="reference internal" href="#type-checking">Type Checking</a></li>
+<li><a class="reference internal" href="#build-ci">Build &amp; CI</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#version-0-1-6-2025-10-12">Version 0.1.6 (2025-10-12)</a><ul>
+<li><a class="reference internal" href="#new-features">New Features</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#version-0-1-5-2025-08-22">Version 0.1.5 (2025-08-22)</a><ul>
+<li><a class="reference internal" href="#id3">New Features</a></li>
+<li><a class="reference internal" href="#technical-improvements">Technical Improvements</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#version-0-1-4-2025-08-05">Version 0.1.4 (2025-08-05)</a><ul>
+<li><a class="reference internal" href="#id4">Build &amp; CI</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#version-0-1-3-2025-06-27">Version 0.1.3 (2025-06-27)</a><ul>
+<li><a class="reference internal" href="#id5">New Features</a></li>
+<li><a class="reference internal" href="#id6">Performance Improvements</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#version-0-1-2-2025-06-22">Version 0.1.2 (2025-06-22)</a><ul>
+<li><a class="reference internal" href="#id7">Performance Improvements</a></li>
+<li><a class="reference internal" href="#id8">Build &amp; CI</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#version-0-1-1-2025-06-22">Version 0.1.1 (2025-06-22)</a><ul>
+<li><a class="reference internal" href="#id9">Performance Improvements</a></li>
+<li><a class="reference internal" href="#id10">Build &amp; CI</a></li>
+<li><a class="reference internal" href="#code-quality">Code Quality</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#version-0-1-0-2025-06-18">Version 0.1.0 (2025-06-18)</a></li>
+<li><a class="reference internal" href="#version-0-0-x-2022-11-26-to-2025-02-03">Version 0.0.x (2022-11-26 to 2025-02-03)</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=f1f9ae6c"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=fd10adb8"></script>
+    </body>
+</html>
