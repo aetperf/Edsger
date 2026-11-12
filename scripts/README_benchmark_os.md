@@ -68,5 +68,6 @@ This will create:
 - **Graph-tool**: Not available on Windows and will be automatically skipped
 - **SciPy benchmarking**: Runs `dijkstra_dimacs.py` with Edsger + comparison (`-c` flag) multiple times to collect SciPy timing statistics, since SciPy only runs once per call in comparison mode
 - **Package detection**: Scripts detect available packages before running benchmarks
-- **Metadata**: Results include system information, Python version, and package versions
+- **Metadata**: Results include system information (with the processor model, shown in the plot legend), Python version, and package versions
+- **Plot**: Each bar is the best run and its whisker goes up to the slowest run. The date on the plot is the date of the benchmark runs, read from the JSON files
 - **Statistical reliability**: Benchmarks run 5 iterations by default for each library

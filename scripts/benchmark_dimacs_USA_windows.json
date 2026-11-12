@@ -6,6 +6,7 @@
     "python_version": "3.14.10",
     "platform": "Windows-11-10.0.26300-SP0",
     "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "cpu_model": "Intel(R) Core(TM) i7-14700K",
     "os_name": "Windows",
     "conda_version": "conda 25.5.1",
     "edsger_version": "0.1.7.post1.dev21+g524d2ac56.d20261112",

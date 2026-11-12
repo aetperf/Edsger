@@ -17,6 +17,41 @@ import json
 from argparse import ArgumentParser
 
 
+def get_cpu_model():
+    """Return the model name of the processor, e.g. for the plot legend.
+
+    platform.processor() often only gives the architecture ("x86_64") or a
+    family number, so the model name is read from the operating system.
+    Returns an empty string if it cannot be found.
+    """
+    system = platform.system()
+    try:
+        if system == "Linux":
+            with open("/proc/cpuinfo", encoding="utf-8") as f:
+                for line in f:
+                    if line.startswith("model name"):
+                        return line.split(":", 1)[1].strip()
+        elif system == "Windows":
+            import winreg
+
+            key = winreg.OpenKey(
+                winreg.HKEY_LOCAL_MACHINE,
+                r"HARDWARE\DESCRIPTION\System\CentralProcessor\0",
+            )
+            return winreg.QueryValueEx(key, "ProcessorNameString")[0].strip()
+        elif system == "Darwin":
+            result = subprocess.run(
+                ["sysctl", "-n", "machdep.cpu.brand_string"],
+                capture_output=True,
+                text=True,
+            )
+            if result.returncode == 0:
+                return result.stdout.strip()
+    except (OSError, ImportError):
+        pass
+    return ""
+
+
 def get_system_info():
     """Collect system and package version information."""
     info = {}
@@ -27,6 +62,7 @@ def get_system_info():
     # Platform info
     info["platform"] = platform.platform()
     info["processor"] = platform.processor()
+    info["cpu_model"] = get_cpu_model()
     info["os_name"] = platform.system()  # Linux, Windows, Darwin
 
     # Anaconda/Conda version

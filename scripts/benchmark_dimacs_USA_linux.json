@@ -6,6 +6,7 @@
     "python_version": "3.14.2",
     "platform": "Linux-5.15.0-203-generic-x86_64-with-glibc2.35",
     "processor": "x86_64",
+    "cpu_model": "12th Gen Intel(R) Core(TM) i9-12900H",
     "os_name": "Linux",
     "conda_version": "conda 26.1.1",
     "edsger_version": "0.1.7.post1.dev22+g00f6618d5.d20261112",

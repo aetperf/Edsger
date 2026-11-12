@@ -6,12 +6,14 @@ Reads benchmark_dimacs_USA_*.json files and creates comparison plots showing
 performance across different libraries and operating systems.
 """
 
-import os
+import glob
 import json
+import os
+import re
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
-from datetime import datetime
-import glob
 
 
 def clean_version(version_str):
@@ -30,38 +32,38 @@ def clean_version(version_str):
     return version_str
 
 
-def extract_processor_model(processor_str, os_name):
-    """Extract a clean processor model name from the system info."""
-    import re
+def extract_processor_model(system_info):
+    """Short processor name for the legend, from the benchmark results.
 
-    if not processor_str:
-        return None
+    The model is the one recorded by benchmark_comparison_os.py when the
+    benchmark was run ("cpu_model"). Returns None if it is not known.
+    """
+    cpu_model = system_info.get("cpu_model") or system_info.get("processor") or ""
 
-    # Try to extract Intel Core model (e.g., i7-14700K, i9-12900H)
-    match = re.search(r"i[3579]-\d{4,5}[A-Z]*", processor_str)
+    # Intel Core model (e.g. i7-14700K, i9-12900H)
+    match = re.search(r"i[3579]-\d{4,5}[A-Z]*", cpu_model)
     if match:
         return match.group(0)
 
-    # For Windows, the processor string is like "Intel64 Family 6 Model 183..."
-    # Map known model numbers to processor names
-    model_mapping = {
-        "Model 183": "i7-14700K",  # Raptor Lake Refresh
-        "Model 154": "i9-12900H",  # Alder Lake
-    }
-    for model_id, name in model_mapping.items():
-        if model_id in processor_str:
-            return name
+    # platform.processor() often only gives the architecture or a family number
+    if not system_info.get("cpu_model"):
+        return None
 
-    # Fallback for known OS/processor combinations where platform.processor()
-    # only returns architecture (e.g., "x86_64" on Linux)
-    os_processor_fallback = {
-        "linux": "i9-12900H",  # Alder Lake
-        "windows": "i7-14700K",  # Raptor Lake Refresh
-    }
-    if processor_str in ("x86_64", "AMD64"):
-        return os_processor_fallback.get(os_name)
+    # Other models: remove the trademark signs, the frequency and the core count
+    name = re.sub(r"\((R|TM|r|tm)\)", "", cpu_model)
+    name = re.sub(r"\s*@.*$", "", name)
+    name = re.sub(r"\b(CPU|Processor|\d+-Core)\b", "", name)
+    return " ".join(name.split()) or None
 
-    return None
+
+def benchmark_date(results):
+    """Date of the benchmark run (YYYY-MM-DD), from the results file."""
+    return results.get("timestamp", "")[:10] or "unknown date"
+
+
+def slowest_run(bench_result):
+    """Largest run time of a benchmark result (the bar shows the smallest)."""
+    return max(bench_result.get("times", [bench_result["min_time"]]))
 
 
 def load_benchmark_results():
@@ -127,6 +129,8 @@ def create_comparison_plot(
                         "min_time": bench_result["min_time"],
                         "avg_time": bench_result["avg_time"],
                         "std_time": bench_result["std_time"],
+                        "max_time": slowest_run(bench_result),
+                        "n_runs": len(bench_result.get("times", [])),
                         "version": results["system_info"].get(
                             f"{library_names[lib].lower()}_version", "?"
                         ),
@@ -155,8 +159,7 @@ def create_comparison_plot(
     # Build legend labels with processor info
     os_legend_labels = {}
     for os_name, results in all_results.items():
-        processor_str = results["system_info"].get("processor", "")
-        processor_model = extract_processor_model(processor_str, os_name)
+        processor_model = extract_processor_model(results["system_info"])
         if processor_model:
             os_legend_labels[os_name] = f"{os_name.capitalize()} ({processor_model})"
         else:
@@ -166,21 +169,17 @@ def create_comparison_plot(
     for i, os_name in enumerate(os_list):
         positions = x + (i - len(os_list) / 2 + 0.5) * width
         min_times = []
-        std_times = []
-        labels = []
+        max_times = []
 
         for lib in libraries_to_plot:
             if os_name in plot_data[lib]:
                 min_times.append(plot_data[lib][os_name]["min_time"])
-                std_times.append(plot_data[lib][os_name]["std_time"])
-                version = clean_version(plot_data[lib][os_name]["version"])
-                labels.append(f"{library_names[lib]} {version}")
+                max_times.append(plot_data[lib][os_name]["max_time"])
             else:
                 min_times.append(0)  # Library not available on this OS
-                std_times.append(0)
-                labels.append(f"{library_names[lib]} N/A")
+                max_times.append(0)
 
-        # Plot bars
+        # Plot bars: best run
         bars = ax.bar(
             positions,
             min_times,
@@ -192,11 +191,13 @@ def create_comparison_plot(
             linewidth=2,
         )
 
-        # Add error bars
+        # Whiskers: from the best run up to the slowest one. They cannot go
+        # below the bar, since the bar is the smallest measured time.
+        spread = np.array(max_times) - np.array(min_times)
         ax.errorbar(
             positions,
             min_times,
-            yerr=std_times,
+            yerr=[np.zeros(len(spread)), spread],
             fmt="none",
             ecolor="black",
             capsize=5,
@@ -210,12 +211,22 @@ def create_comparison_plot(
             if height > 0:  # Only label if library was benchmarked
                 ax.text(
                     bar.get_x() + bar.get_width() / 2.0,
-                    height + std_times[j] + 0.05,
+                    max_times[j] + 0.05,
                     f"{height:.2f}",
                     ha="center",
                     va="bottom",
                     fontweight="bold",
                     fontsize=10,
+                )
+            else:
+                ax.text(
+                    bar.get_x() + bar.get_width() / 2.0,
+                    0.05,
+                    "n/a",
+                    ha="center",
+                    va="bottom",
+                    fontsize=10,
+                    alpha=0.7,
                 )
 
     # Styling
@@ -235,8 +246,23 @@ def create_comparison_plot(
         pad=20,
     )
 
+    # Library names with the versions that were measured: one version if it
+    # is the same on all the systems, one line per system otherwise
+    tick_labels = []
+    for lib in libraries_to_plot:
+        versions = {
+            os_name: clean_version(plot_data[lib][os_name]["version"])
+            for os_name in os_list
+            if os_name in plot_data[lib]
+        }
+        if len(set(versions.values())) == 1:
+            lines = list(set(versions.values()))
+        else:
+            lines = [f"{v} ({o.capitalize()})" for o, v in versions.items()]
+        tick_labels.append("\n".join([library_names[lib]] + lines))
+
     ax.set_xticks(x)
-    ax.set_xticklabels([library_names[lib] for lib in libraries_to_plot], fontsize=12)
+    ax.set_xticklabels(tick_labels, fontsize=12)
     ax.tick_params(axis="y", labelsize=11)
 
     # Add grid
@@ -248,10 +274,7 @@ def create_comparison_plot(
 
     # Improve layout
     y_max = max(
-        max(
-            plot_data[lib][os]["min_time"] + plot_data[lib][os]["std_time"]
-            for os in plot_data[lib]
-        )
+        max(plot_data[lib][os]["max_time"] for os in plot_data[lib])
         for lib in plot_data
         if plot_data[lib]
     )
@@ -261,8 +284,21 @@ def create_comparison_plot(
     ax.spines["left"].set_linewidth(1.5)
     ax.spines["bottom"].set_linewidth(1.5)
 
-    # Add date info
-    info_text = datetime.now().strftime("%Y-%m-%d")
+    # Add the dates of the benchmark runs (not the date of the plot) and
+    # what the bars and whiskers are
+    dates = {os_name: benchmark_date(all_results[os_name]) for os_name in os_list}
+    if len(set(dates.values())) == 1:
+        info_text = f"Measured on {dates[os_list[0]]}"
+    else:
+        info_text = "\n".join(
+            f"{os_name.capitalize()}: measured on {date}"
+            for os_name, date in dates.items()
+        )
+    n_runs = {
+        plot_data[lib][os]["n_runs"] for lib in plot_data for os in plot_data[lib]
+    }
+    runs_text = f"{n_runs.pop()} runs" if len(n_runs) == 1 else "the runs"
+    info_text += f"\nBar: best of {runs_text}, whisker: slowest run"
     ax.text(
         0.02,
         0.98,
@@ -313,7 +349,7 @@ def create_single_os_plot(results, os_name, output_file=None):
     # Prepare data
     libraries = [r["library"] for r in benchmark_results]
     min_times = [r["min_time"] for r in benchmark_results]
-    std_times = [r["std_time"] for r in benchmark_results]
+    max_times = [slowest_run(r) for r in benchmark_results]
 
     # Create figure
     plt.style.use("default")
@@ -345,11 +381,12 @@ def create_single_os_plot(results, os_name, output_file=None):
         width=0.6,
     )
 
-    # Add error bars
+    # Whiskers: from the best run up to the slowest one
+    spread = np.array(max_times) - np.array(min_times)
     ax.errorbar(
         x_pos,
         min_times,
-        yerr=std_times,
+        yerr=[np.zeros(len(spread)), spread],
         fmt="none",
         ecolor="black",
         capsize=8,
@@ -380,7 +417,7 @@ def create_single_os_plot(results, os_name, output_file=None):
         height = bar.get_height()
         ax.text(
             bar.get_x() + bar.get_width() / 2.0,
-            height + std_times[i] + 0.1,
+            max_times[i] + 0.1,
             f"{height:.2f}s",
             ha="center",
             va="bottom",
@@ -389,14 +426,14 @@ def create_single_os_plot(results, os_name, output_file=None):
         )
 
     # Improve layout
-    ax.set_ylim(0, max(min_times) * 1.3)
+    ax.set_ylim(0, max(max_times) * 1.3)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_linewidth(1.5)
     ax.spines["bottom"].set_linewidth(1.5)
 
     # Add system info
-    info_text = f"Python {system_info['python_version']} • {system_info['platform']} • {datetime.now().strftime('%Y-%m-%d')}"
+    info_text = f"Python {system_info['python_version']} • {system_info['platform']} • {benchmark_date(results)}"
     ax.text(
         0.02,
         0.98,
@@ -447,6 +484,4 @@ def main():
 
 
 if __name__ == "__main__":
-    import sys
-
     main()
