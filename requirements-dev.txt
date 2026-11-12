@@ -12,7 +12,8 @@ pyarrow
 
 # Linting/Tooling
 cython-lint
-black
+# Same version as the pre-commit hook (.pre-commit-config.yaml)
+black==24.10.0
 pyright
 
 # Type stubs

@@ -39,7 +39,7 @@ dependencies = [
 [project.optional-dependencies]
 # Dev dependencies.
 dev = [
-    "black"
+    "black==24.10.0"
 ]
 # Test dependencies. 
 # pip install .'[test]' on Linux
