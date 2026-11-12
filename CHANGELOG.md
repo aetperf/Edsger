@@ -21,6 +21,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Negative vertex indices without `permute=True` now raise a `ValueError` when the graph is built, instead of silently producing wrong results
 - `compute_path` (and so `get_path`) now raises an `IndexError` for an out-of-bounds vertex index, instead of returning an empty path
 - `get_path` on a graph built with `permute=True` (`Dijkstra`, `BellmanFord`, `BFS`): it now returns the right path after `run(..., return_series=True)`, supports negative vertex labels, uses a memory that does not depend on the largest label, and raises a `ValueError` for a vertex that is not in the graph
+- `get_vertices` (`Dijkstra`, `BFS`) raised a `KeyError` when the graph was built with custom column names. `BellmanFord` now has this method too
+- `check_edges=True` now accepts Polars dataframes, in the four classes: it used to raise a `TypeError` asking for a pandas dataframe
+- `Dijkstra.run` with `termination_nodes` and `return_series=True`: the Series is now indexed by the termination nodes, instead of 0, 1, 2... when `permute` is False
+- `HyperpathGenerating`: `run` accepts integer volumes and NumPy integers as vertices. Invalid arguments (unknown vertex, negative volume, origins and volumes of different lengths, unknown orientation) now raise a `TypeError` or a `ValueError` with a message, instead of a bare `AssertionError`
+- Typo in the error message for an invalid `orientation` ("'in' on 'out'")
+- Negative vertex labels (`permute=True`) with Arrow and Polars dataframes were converted to unsigned integers and silently became labels around 4.29 billion. They are now kept, as with NumPy-backed pandas dataframes
+- Negative vertex labels (`permute=True`): `run` can now start from a vertex with a negative label, and `termination_nodes` can contain negative labels. `run` raises a `ValueError` asking for `return_series=True` instead of returning an array in which the negative labels wrapped around
+- `Dijkstra.run`: a negative termination node without `permute` raises the documented `ValueError` instead of an `OverflowError`
+- `BFS` raises a `ValueError` when the sentinel value is also a vertex label
 - `HyperpathGenerating.run` now works with pandas 3: the edge volumes were written in place in a dataframe column, which is read-only with copy-on-write
 - No more deprecation warnings with pandas 3: the `inplace=True` keyword of the dataframe methods is not used anymore
 
@@ -31,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - New `edsger.commons.validate_graph(indptr, indices, data=None, nonnegative=True)`: optional full check of a graph in CSR/CSC format (pointers, indices, weights), in linear time (35 ms on the USA network). The algorithms do not call it: it is meant to be run once on arrays that do not come from `edsger.path`, before any number of runs
 
 ### Internal
+- Benchmark plot (`scripts/plot_benchmark_comparison.py`): the whiskers go from the best run to the slowest one (they used to extend below the best run), the date is the one of the benchmark runs, the library versions are shown, and the processor model is recorded in the results by `benchmark_comparison_os.py` instead of being hard-coded in the plot script
 - `dijkstra.pyx` and `dijkstra_nodec.pyx` now share their code: both include `dijkstra_core.pxi` (algorithm, public functions, embedded tests), compiled with a constant `LAZY` set to 0 or 1. The heap has a single pair of sift functions, with or without decrease-key. No change in speed or results
 - Removed the `pq_4ary_nodec_0b` module, which was not used anymore
 - cython-lint also runs on `.pxi` files (pre-commit, CI)

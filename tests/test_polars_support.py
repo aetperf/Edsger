@@ -11,7 +11,7 @@ try:
 except ImportError:
     POLARS_AVAILABLE = False
 
-from edsger.path import Dijkstra, BellmanFord
+from edsger.path import BFS, BellmanFord, Dijkstra, HyperpathGenerating
 
 
 @pytest.mark.skipif(not POLARS_AVAILABLE, reason="Polars not available")
@@ -324,6 +324,46 @@ class TestPolarsErrorHandling:
         # Should raise error during conversion or validation
         with pytest.raises((ValueError, TypeError)):
             Dijkstra(df, check_edges=True)
+
+    def test_polars_check_edges(self):
+        """check_edges=True accepts a valid Polars DataFrame."""
+        df = pl.DataFrame(
+            {"tail": [0, 0, 1], "head": [1, 2, 2], "weight": [1.0, 4.0, 2.0]}
+        )
+        for algo in (Dijkstra, BellmanFord):
+            path_lengths = algo(df, check_edges=True).run(vertex_idx=0)
+            np.testing.assert_array_equal(path_lengths, [0.0, 1.0, 3.0])
+        predecessors = BFS(df, check_edges=True).run(vertex_idx=0)
+        np.testing.assert_array_equal(predecessors, [-9999, 0, 0])
+
+        transit = pl.DataFrame(
+            {
+                "tail": [0, 0, 1],
+                "head": [2, 1, 2],
+                "trav_time": [25.0, 7.0, 10.0],
+                "freq": [1 / 12, 1 / 12, 1 / 6],
+            }
+        )
+        hp = HyperpathGenerating(transit, check_edges=True)
+        hp.run(origin=0, destination=2, volume=1.0)
+        np.testing.assert_allclose(hp.u_i_vec, [30.0, 16.0, 0.0])
+
+    @pytest.mark.parametrize("algo", [Dijkstra, BellmanFord, BFS])
+    def test_polars_check_edges_errors(self, algo):
+        """check_edges=True reports the same errors as with pandas."""
+        df = pl.DataFrame(
+            {"tail": [0, 0, 1], "head": [1, 2, 2], "weight": [1.0, 4.0, 2.0]}
+        )
+        with pytest.raises(KeyError, match="not found in graph edges dataframe"):
+            algo(df, tail="source", check_edges=True)
+        with pytest.raises(ValueError, match="missing value"):
+            algo(df.with_columns(head=pl.Series([1, None, 2])), check_edges=True)
+        with pytest.raises(TypeError, match="integer type"):
+            algo(df.with_columns(tail=pl.Series(["a", "b", "c"])), check_edges=True)
+
+    def test_check_edges_rejects_other_types(self):
+        with pytest.raises(TypeError, match="pandas DataFrame"):
+            Dijkstra({"tail": [0], "head": [1], "weight": [1.0]}, check_edges=True)
 
 
 if __name__ == "__main__":

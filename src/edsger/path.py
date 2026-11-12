@@ -2,6 +2,7 @@
 Path-related methods.
 """
 
+import numbers
 from typing import Optional, Union, List, Any, cast
 import warnings
 
@@ -71,43 +72,75 @@ def _compute_path_with_permutation(path_links, permutation, vertex_idx):
     return path_vertices
 
 
-class Dijkstra:
+def _edges_as_pandas(edges, columns):
+    """Return the edges as a pandas DataFrame, for the checks of the input data.
+
+    A Polars DataFrame is converted, for the columns to check that it has.
+    The other types are rejected.
     """
-    Dijkstra's algorithm for finding the shortest paths between nodes in directed graphs with
-    positive edge weights.
+    if isinstance(edges, pd.DataFrame):
+        return edges
+    if type(edges).__module__.startswith("polars") and hasattr(edges, "to_pandas"):
+        return edges.select(
+            [col for col in columns if col in edges.columns]
+        ).to_pandas()
+    raise TypeError("edges should be a pandas DataFrame or a Polars DataFrame")
 
-    Note: If parallel edges exist between the same pair of vertices, only the edge with the minimum
-    weight will be kept automatically during initialization.
 
-    Parameters:
-    -----------
-    edges: pandas.DataFrame
-        DataFrame containing the edges of the graph. It should have three columns: 'tail', 'head',
-        and 'weight'. The 'tail' column should contain the IDs of the starting nodes, the 'head'
-        column should contain the IDs of the ending nodes, and the 'weight' column should contain
-        the (positive) weights of the edges.
-    tail: str, optional (default='tail')
-        The name of the column in the DataFrame that contains the IDs of the edge starting nodes.
-    head: str, optional (default='head')
-        The name of the column in the DataFrame that contains the IDs of the edge ending nodes.
-    weight: str, optional (default='weight')
-        The name of the column in the DataFrame that contains the (positive) weights of the edges.
-    orientation: str, optional (default='out')
-        The orientation of Dijkstra's algorithm. It can be either 'out' for single source shortest
-        paths or 'in' for single target shortest path.
-    check_edges: bool, optional (default=False)
-        Whether to check if the edges DataFrame is well-formed. If set to True, the edges DataFrame
-        will be checked for missing values and invalid data types.
-    permute: bool, optional (default=False)
-        Whether to permute the IDs of the nodes. If set to True, the node IDs will be reindexed to
-        start from 0 and be contiguous.
-    verbose: bool, optional (default=False)
-        Whether to print messages about parallel edge removal.
-    lazy: bool, optional (default=True)
-        Whether to use the lazy Dijkstra implementation (without decrease-key operation).
-        The lazy version inserts duplicate entries instead of decreasing keys, which is
-        slightly faster (~5%) on large graphs due to simpler priority queue operations.
-        Set to False to use the classic decrease-key implementation.
+class Dijkstra:
+    """Dijkstra's algorithm, for the shortest paths in a directed graph with
+    non-negative edge weights.
+
+    The graph is built once from a dataframe of edges. The `run` method can then
+    be called any number of times, from or to different vertices.
+
+    Parameters
+    ----------
+    edges : pandas.DataFrame or polars.DataFrame
+        The edges of the graph, one row per edge. pandas dataframes can use NumPy
+        or Arrow data types.
+    tail : str, optional (default='tail')
+        Name of the column with the tail (start) vertex of each edge. The vertex
+        identifiers are integers, non-negative unless `permute` is True.
+    head : str, optional (default='head')
+        Name of the column with the head (end) vertex of each edge.
+    weight : str, optional (default='weight')
+        Name of the column with the edge weights. Negative and NaN weights are
+        rejected with a ValueError, whatever the value of `check_edges`.
+    orientation : {'out', 'in'}, optional (default='out')
+        'out' for the paths from one vertex to all the others (single source),
+        'in' for the paths from all the vertices to one vertex (single target).
+    check_edges : bool, optional (default=False)
+        Whether to check the edges before building the graph: column names,
+        data types, missing and non-finite values.
+    permute : bool, optional (default=False)
+        Whether to renumber the vertices internally, with contiguous indices
+        starting from 0. Without it, the internal arrays have one element per
+        integer between 0 and the largest vertex identifier. The arguments and
+        the results of the methods use the original identifiers in both cases.
+        Negative identifiers are only accepted with this option, and the results
+        must then be returned as Series (`return_series=True`).
+    verbose : bool, optional (default=False)
+        Whether to print the number of parallel edges that were removed.
+    lazy : bool, optional (default=True)
+        Whether to use the variant of the algorithm without decrease-key
+        operation, in which a vertex can be inserted several times in the
+        priority queue. Both variants return the same path lengths.
+
+    Notes
+    -----
+    When several edges have the same tail and head vertices, only the one with
+    the smallest weight is kept.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from edsger.path import Dijkstra
+    >>> edges = pd.DataFrame(
+    ...     {"tail": [0, 0, 1], "head": [1, 2, 2], "weight": [1.0, 4.0, 2.0]}
+    ... )
+    >>> Dijkstra(edges).run(vertex_idx=0)
+    array([0., 1., 3.])
     """
 
     def __init__(
@@ -131,6 +164,8 @@ class Dijkstra:
             self._check_edges(edges, tail, head, weight)
         # Convert to standardized NumPy-backed pandas DataFrame
         self._edges = standardize_graph_dataframe(edges, tail, head, weight)
+        self._tail_name = tail
+        self._head_name = head
         self._n_edges = len(self._edges)
         # Dijkstra's algorithm is not valid with negative weights: they are
         # rejected whatever the value of check_edges, and so are NaN weights
@@ -144,12 +179,17 @@ class Dijkstra:
 
         # reindex the vertices
         self._permute = permute
+        # negative vertex labels are only possible with permute=True
+        self._negative_labels = False
         if len(self._edges) == 0:
             # Handle empty graphs
             self._permutation = None
             self._n_vertices = 0
             self.__n_vertices_init = 0
         elif self._permute:
+            self._negative_labels = bool(
+                self._edges[[tail, head]].min(axis=0).min() < 0
+            )
             self.__n_vertices_init = self._edges[[tail, head]].max(axis=0).max() + 1
             self._permutation = self._permute_graph(tail, head)
             self._n_vertices = len(self._permutation)
@@ -190,85 +230,44 @@ class Dijkstra:
 
     @property
     def edges(self) -> Any:
-        """
-        Getter for the graph edge dataframe.
-
-        Returns
-        -------
-        edges: pandas.DataFrame
-            DataFrame containing the edges of the graph.
+        """The edges of the graph as they are stored, without the parallel edges,
+        and with the internal vertex indices if `permute` is True.
         """
         return self._edges
 
     @property
     def n_edges(self) -> int:
-        """
-        Getter for the number of graph edges.
-
-        Returns
-        -------
-        n_edges: int
-            The number of edges in the graph.
-        """
+        """Number of edges of the graph, without the parallel edges."""
         return self._n_edges
 
     @property
     def n_vertices(self) -> int:
-        """
-        Getter for the number of graph vertices.
-
-        Returns
-        -------
-        n_vertices: int
-            The number of nodes in the graph (after permutation, if _permute is True).
+        """Number of vertices. This is the largest vertex identifier plus one, or
+        the number of distinct vertices if `permute` is True.
         """
         return self._n_vertices
 
     @property
     def orientation(self) -> str:
-        """
-        Getter of Dijkstra's algorithm orientation ("in" or "out").
-
-        Returns
-        -------
-        orientation : str
-            The orientation of Dijkstra's algorithm.
-        """
+        """Orientation of the algorithm, either 'out' or 'in'."""
         return self._orientation
 
     @property
     def permute(self) -> bool:
-        """
-        Getter for the graph permutation/reindexing option.
-
-        Returns
-        -------
-        permute : bool
-            Whether to permute the IDs of the nodes.
-        """
+        """Whether the vertices are renumbered internally."""
         return self._permute
 
     @property
     def lazy(self) -> bool:
-        """
-        Getter for the lazy Dijkstra option.
-
-        Returns
-        -------
-        lazy : bool
-            Whether the lazy Dijkstra implementation (without decrease-key) is being used.
-        """
+        """Whether the variant without decrease-key operation is used."""
         return self._lazy
 
     @property
     def path_links(self) -> Optional[np.ndarray]:
-        """
-        Getter for the graph permutation/reindexing option.
-
-        Returns
-        -------
-        path_links: numpy.ndarray
-            predecessors or successors node index if the path tracking is activated.
+        """Path tree of the last run, or None if the paths were not tracked. This
+        is the predecessor ('out') or the successor ('in') of each vertex. The
+        vertex given to `run` and the vertices that cannot be reached are linked
+        to themselves.
         """
         return self._path_links
 
@@ -302,8 +301,7 @@ class Dijkstra:
 
     def _check_edges(self, edges, tail, head, weight):
         """Checks if the edges DataFrame is well-formed. If not, raises an appropriate error."""
-        if not isinstance(edges, pd.DataFrame):
-            raise TypeError("edges should be a pandas DataFrame")
+        edges = _edges_as_pandas(edges, [tail, head, weight])
 
         if tail not in edges:
             raise KeyError(
@@ -389,7 +387,7 @@ class Dijkstra:
     def _check_orientation(self, orientation):
         """Checks the orientation attribute."""
         if orientation not in ["in", "out"]:
-            raise ValueError("orientation should be either 'in' on 'out'")
+            raise ValueError("orientation should be either 'in' or 'out'")
 
     def run(
         self,
@@ -400,41 +398,56 @@ class Dijkstra:
         heap_length_ratio: float = 1.0,
         termination_nodes: Optional[List[int]] = None,
     ) -> Union[np.ndarray, pd.Series]:
-        """
-        Runs shortest path algorithm between a given vertex and all other vertices in the graph.
+        """Compute the shortest path lengths from or to a given vertex.
 
         Parameters
         ----------
         vertex_idx : int
-            The index of the source/target vertex.
+            The source vertex if the orientation is 'out', the target vertex if it
+            is 'in'.
         path_tracking : bool, optional (default=False)
-            Whether to track the shortest path(s) from the source vertex to all other vertices in
-            the graph.
+            Whether to store the shortest path tree, so that the paths can be
+            retrieved with `get_path`.
         return_inf : bool, optional (default=True)
-            Whether to return path length(s) as infinity (np.inf) when no path exists.
+            Whether to return `numpy.inf` as the path length of the vertices that
+            cannot be reached. If False, the largest float64 value is returned
+            instead.
         return_series : bool, optional (default=False)
-            Whether to return a Pandas Series object indexed by vertex indices with path length(s)
-            as values.
+            Whether to return a pandas Series indexed by vertex instead of a NumPy
+            array.
         heap_length_ratio : float, optional (default=1.0)
-            The heap length as a fraction of the number of vertices. Must be in the range (0, 1].
-        termination_nodes : array-like, optional (default=None)
-            List or array of vertex indices for early termination. For SSSP (orientation='out'),
-            these are target nodes to reach. For STSP (orientation='in'), these are source nodes
-            to find paths from. When provided, the algorithm stops once all specified nodes have
-            been processed, potentially improving performance. If None, runs to completion.
+            Initial capacity of the priority queue, as a fraction of the number of
+            vertices, in (0, 1]. The queue grows when it is full, so this only
+            changes the size of the first memory allocation.
+        termination_nodes : array-like of int, optional (default=None)
+            Vertices at which to stop. The algorithm ends as soon as the path
+            lengths of all these vertices are known, and only their path lengths
+            are returned, in the given order.
 
         Returns
         -------
-        path_length_values or path_lengths_series : array_like or Pandas Series
-            If `return_series=False`, a 1D Numpy array of shape (n_vertices,) with the shortest
-            path length from the source vertex to each vertex in the graph (`orientation="out"`), or
-            from each vertex to the target vertex (`orientation="in"`). If `return_series=True`, a
-            Pandas Series object with the same data and the vertex indices as index.
+        numpy.ndarray or pandas.Series
+            The path lengths, as float64. Without `termination_nodes`, the array
+            has one element per integer between 0 and the largest vertex
+            identifier: element i is the length of the shortest path from the
+            source to vertex i ('out'), or from vertex i to the target ('in').
+            With `termination_nodes`, it has one element per termination node. If
+            `return_series` is True, the result is a Series named 'path_length'
+            with the vertex identifiers as index.
 
+        Raises
+        ------
+        ValueError
+            If `vertex_idx` or a termination node is not a vertex of the graph, or
+            if the graph has negative vertex identifiers and `return_series` is
+            False.
         """
         # validate the input arguments - type checking handled by static typing
-        if vertex_idx < 0:
-            raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be positive")
+        if self._negative_labels and not return_series:
+            raise ValueError(
+                "the graph has negative vertex labels: the result cannot be an "
+                "array indexed by vertex, use return_series=True"
+            )
         if self._permute and self._permutation is not None:
             if vertex_idx not in self._permutation.vert_idx_old.values:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
@@ -442,6 +455,8 @@ class Dijkstra:
                 self._permutation.vert_idx_old == vertex_idx, "vert_idx_new"
             ].iloc[0]
         else:
+            if vertex_idx < 0:
+                raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be positive")
             if vertex_idx >= self._n_vertices:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
             vertex_new = vertex_idx
@@ -462,8 +477,8 @@ class Dijkstra:
         termination_nodes_array = None
         if termination_nodes is not None:
             try:
-                termination_nodes_array = np.array(termination_nodes, dtype=np.uint32)
-            except (ValueError, TypeError) as exc:
+                termination_nodes_array = np.array(termination_nodes, dtype=np.int64)
+            except (ValueError, TypeError, OverflowError) as exc:
                 raise TypeError(
                     "argument 'termination_nodes' must be array-like of integers"
                 ) from exc
@@ -498,6 +513,7 @@ class Dijkstra:
                     raise ValueError(
                         "termination_nodes contains invalid vertex indices"
                     )
+                termination_nodes_array = termination_nodes_array.astype(np.uint32)
 
         # compute path length
         if not path_tracking:
@@ -661,17 +677,14 @@ class Dijkstra:
                 path_lengths_series = path_lengths_df.path_length
             else:
                 path_lengths_series = pd.Series(path_length_values)
+                if termination_nodes is not None:
+                    # early termination: one path length per termination node,
+                    # in the given order
+                    path_lengths_series = path_lengths_series.set_axis(
+                        np.asarray(termination_nodes)
+                    )
                 path_lengths_series.index.name = "vertex_idx"
                 path_lengths_series.name = "path_length"
-                if (
-                    self._permute
-                    and termination_nodes_array is not None
-                    and termination_nodes is not None
-                ):
-                    # For early termination with permutation, use original termination node indices
-                    path_lengths_series = path_lengths_series.set_axis(
-                        termination_nodes
-                    )
 
             return path_lengths_series
 
@@ -693,43 +706,41 @@ class Dijkstra:
         return path_length_values
 
     def get_vertices(self) -> Any:
-        """
-        Get the unique vertices from the graph.
-
-        If the graph has been permuted, this method returns the vertices based on the original
-        indexing. Otherwise, it returns the union of tail and head vertices from the edges.
+        """Return the vertices of the graph.
 
         Returns
         -------
-        vertices : ndarray
-            A 1-D array containing the unique vertices.
+        numpy.ndarray
+            The sorted identifiers of the vertices that are the tail or the head of
+            at least one edge.
         """
         if self._permute and self._permutation is not None:
             return np.asarray(self._permutation.vert_idx_old)
         return np.union1d(
-            np.asarray(self._edges["tail"]), np.asarray(self._edges["head"])
+            np.asarray(self._edges[self._tail_name]),
+            np.asarray(self._edges[self._head_name]),
         )
 
     def get_path(self, vertex_idx: int) -> Optional[np.ndarray]:
-        """Compute path from predecessors or successors.
+        """Return the shortest path between a vertex and the vertex of the last run.
 
-        Parameters:
-        -----------
+        The last call to `run` must have been made with `path_tracking=True`.
 
+        Parameters
+        ----------
         vertex_idx : int
-            source or target vertex index.
+            The other end of the path: the target vertex if the orientation is
+            'out', the source vertex if it is 'in'.
 
         Returns
         -------
-
-        path_vertices : numpy.ndarray
-            Array of np.uint32 type storing the path from or to the given vertex index. If we are
-            dealing with the sssp algorithm, the input vertex is the target vertex and the path to
-            the source is given backward from the target to the source using the predecessors. If
-            we are dealing with the stsp algorithm, the input vertex is the source vertex and the
-            path to the target is given backward from the target to the source using the
-            successors.
-
+        numpy.ndarray or None
+            The vertices of the path, starting with `vertex_idx` and ending with the
+            vertex given to `run`. With the 'out' orientation, this is the path in
+            reverse order, from the target back to the source. With the 'in'
+            orientation, it is the path in travel order. If there is no path, the
+            array only contains `vertex_idx`. None is returned, with a warning, if
+            no path was tracked.
         """
         if self._path_links is None:
             warnings.warn(
@@ -747,38 +758,56 @@ class Dijkstra:
 
 
 class BellmanFord:
-    """
-    Bellman-Ford algorithm for finding the shortest paths between nodes in directed graphs.
-    Supports negative edge weights and detects negative cycles.
+    """Bellman-Ford algorithm, for the shortest paths in a directed graph whose
+    edge weights can be negative.
 
-    Note: If parallel edges exist between the same pair of vertices, only the edge with the minimum
-    weight will be kept automatically during initialization.
+    The graph is built once from a dataframe of edges. The `run` method can then
+    be called any number of times, from or to different vertices. The shortest
+    paths are not defined when the graph has a cycle of negative total weight:
+    such a cycle is detected and reported.
 
-    Parameters:
-    -----------
-    edges: pandas.DataFrame
-        DataFrame containing the edges of the graph. It should have three columns: 'tail', 'head',
-        and 'weight'. The 'tail' column should contain the IDs of the starting nodes, the 'head'
-        column should contain the IDs of the ending nodes, and the 'weight' column should contain
-        the weights of the edges (can be negative).
-    tail: str, optional (default='tail')
-        The name of the column in the DataFrame that contains the IDs of the edge starting nodes.
-    head: str, optional (default='head')
-        The name of the column in the DataFrame that contains the IDs of the edge ending nodes.
-    weight: str, optional (default='weight')
-        The name of the column in the DataFrame that contains the weights of the edges.
-    orientation: str, optional (default='out')
-        The orientation of Bellman-Ford's algorithm. It can be either 'out' for single source
-        shortest paths or 'in' for single target shortest path.
-    check_edges: bool, optional (default=False)
-        Whether to check if the edges DataFrame is well-formed. If set to True, the edges
-        DataFrame will be checked for missing values and invalid data types. Note: negative
-        weights are allowed.
-    permute: bool, optional (default=False)
-        Whether to permute the IDs of the nodes. If set to True, the node IDs will be reindexed to
-        start from 0 and be contiguous.
-    verbose: bool, optional (default=False)
-        Whether to print messages about parallel edge removal.
+    Parameters
+    ----------
+    edges : pandas.DataFrame or polars.DataFrame
+        The edges of the graph, one row per edge. pandas dataframes can use NumPy
+        or Arrow data types.
+    tail : str, optional (default='tail')
+        Name of the column with the tail (start) vertex of each edge. The vertex
+        identifiers are integers, non-negative unless `permute` is True.
+    head : str, optional (default='head')
+        Name of the column with the head (end) vertex of each edge.
+    weight : str, optional (default='weight')
+        Name of the column with the edge weights, which can be negative.
+    orientation : {'out', 'in'}, optional (default='out')
+        'out' for the paths from one vertex to all the others (single source),
+        'in' for the paths from all the vertices to one vertex (single target).
+    check_edges : bool, optional (default=False)
+        Whether to check the edges before building the graph: column names,
+        data types, missing and non-finite values.
+    permute : bool, optional (default=False)
+        Whether to renumber the vertices internally, with contiguous indices
+        starting from 0. Without it, the internal arrays have one element per
+        integer between 0 and the largest vertex identifier. The arguments and
+        the results of the methods use the original identifiers in both cases.
+        Negative identifiers are only accepted with this option, and the results
+        must then be returned as Series (`return_series=True`).
+    verbose : bool, optional (default=False)
+        Whether to print the number of parallel edges that were removed.
+
+    Notes
+    -----
+    When several edges have the same tail and head vertices, only the one with
+    the smallest weight is kept.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from edsger.path import BellmanFord
+    >>> edges = pd.DataFrame(
+    ...     {"tail": [0, 0, 1], "head": [1, 2, 2], "weight": [1.0, 4.0, -2.0]}
+    ... )
+    >>> BellmanFord(edges).run(vertex_idx=0)
+    array([ 0.,  1., -1.])
     """
 
     def __init__(
@@ -797,6 +826,8 @@ class BellmanFord:
             self._check_edges(edges, tail, head, weight)
         # Convert to standardized NumPy-backed pandas DataFrame
         self._edges = standardize_graph_dataframe(edges, tail, head, weight)
+        self._tail_name = tail
+        self._head_name = head
         self._n_edges = len(self._edges)
         self._verbose = verbose
 
@@ -805,12 +836,17 @@ class BellmanFord:
 
         # reindex the vertices
         self._permute = permute
+        # negative vertex labels are only possible with permute=True
+        self._negative_labels = False
         if len(self._edges) == 0:
             # Handle empty graphs
             self._permutation = None
             self._n_vertices = 0
             self.__n_vertices_init = 0
         elif self._permute:
+            self._negative_labels = bool(
+                self._edges[[tail, head]].min(axis=0).min() < 0
+            )
             self.__n_vertices_init = self._edges[[tail, head]].max(axis=0).max() + 1
             self._permutation = self._permute_graph(tail, head)
             self._n_vertices = len(self._permutation)
@@ -846,73 +882,39 @@ class BellmanFord:
 
     @property
     def edges(self) -> Any:
-        """
-        Getter for the graph edge dataframe.
-
-        Returns
-        -------
-        edges: pandas.DataFrame
-            DataFrame containing the edges of the graph.
+        """The edges of the graph as they are stored, without the parallel edges,
+        and with the internal vertex indices if `permute` is True.
         """
         return self._edges
 
     @property
     def n_edges(self) -> int:
-        """
-        Getter for the number of graph edges.
-
-        Returns
-        -------
-        n_edges: int
-            The number of edges in the graph.
-        """
+        """Number of edges of the graph, without the parallel edges."""
         return self._n_edges
 
     @property
     def n_vertices(self) -> int:
-        """
-        Getter for the number of graph vertices.
-
-        Returns
-        -------
-        n_vertices: int
-            The number of nodes in the graph (after permutation, if _permute is True).
+        """Number of vertices. This is the largest vertex identifier plus one, or
+        the number of distinct vertices if `permute` is True.
         """
         return self._n_vertices
 
     @property
     def orientation(self) -> str:
-        """
-        Getter of Bellman-Ford's algorithm orientation ("in" or "out").
-
-        Returns
-        -------
-        orientation : str
-            The orientation of Bellman-Ford's algorithm.
-        """
+        """Orientation of the algorithm, either 'out' or 'in'."""
         return self._orientation
 
     @property
     def permute(self) -> bool:
-        """
-        Getter for the graph permutation/reindexing option.
-
-        Returns
-        -------
-        permute : bool
-            Whether to permute the IDs of the nodes.
-        """
+        """Whether the vertices are renumbered internally."""
         return self._permute
 
     @property
     def path_links(self) -> Optional[np.ndarray]:
-        """
-        Getter for the path links (predecessors or successors).
-
-        Returns
-        -------
-        path_links: numpy.ndarray
-            predecessors or successors node index if the path tracking is activated.
+        """Path tree of the last run, or None if the paths were not tracked. This
+        is the predecessor ('out') or the successor ('in') of each vertex. The
+        vertex given to `run` and the vertices that cannot be reached are linked
+        to themselves.
         """
         return self._path_links
 
@@ -946,8 +948,7 @@ class BellmanFord:
 
     def _check_edges(self, edges, tail, head, weight):
         """Checks if the edges DataFrame is well-formed. If not, raises an appropriate error."""
-        if not isinstance(edges, pd.DataFrame):
-            raise TypeError("edges should be a pandas DataFrame")
+        edges = _edges_as_pandas(edges, [tail, head, weight])
 
         if tail not in edges:
             raise KeyError(
@@ -1031,7 +1032,7 @@ class BellmanFord:
     def _check_orientation(self, orientation):
         """Checks the orientation attribute."""
         if orientation not in ["in", "out"]:
-            raise ValueError("orientation should be either 'in' on 'out'")
+            raise ValueError("orientation should be either 'in' or 'out'")
 
     def run(
         self,
@@ -1041,43 +1042,50 @@ class BellmanFord:
         return_series: bool = False,
         detect_negative_cycles: bool = True,
     ) -> Union[np.ndarray, pd.Series]:
-        """
-        Runs Bellman-Ford shortest path algorithm between a given vertex and all other vertices
-        in the graph.
+        """Compute the shortest path lengths from or to a given vertex.
 
         Parameters
         ----------
         vertex_idx : int
-            The index of the source/target vertex.
+            The source vertex if the orientation is 'out', the target vertex if it
+            is 'in'.
         path_tracking : bool, optional (default=False)
-            Whether to track the shortest path(s) from the source vertex to all other vertices in
-            the graph.
+            Whether to store the shortest path tree, so that the paths can be
+            retrieved with `get_path`.
         return_inf : bool, optional (default=True)
-            Whether to return path length(s) as infinity (np.inf) when no path exists.
+            Whether to return `numpy.inf` as the path length of the vertices that
+            cannot be reached. If False, the largest float64 value is returned
+            instead.
         return_series : bool, optional (default=False)
-            Whether to return a Pandas Series object indexed by vertex indices with path length(s)
-            as values.
+            Whether to return a pandas Series indexed by vertex instead of a NumPy
+            array.
         detect_negative_cycles : bool, optional (default=True)
-            Whether to detect negative cycles in the graph. If True and a negative cycle is
-            detected,
-            raises a ValueError.
+            Whether to look for a negative cycle once the path lengths are computed,
+            and raise a ValueError if there is one. The graph is only searched if
+            it has at least one negative weight.
 
         Returns
         -------
-        path_length_values or path_lengths_series : array_like or Pandas Series
-            If `return_series=False`, a 1D Numpy array of shape (n_vertices,) with the shortest
-            path length from the source vertex to each vertex in the graph (`orientation="out"`), or
-            from each vertex to the target vertex (`orientation="in"`). If `return_series=True`, a
-            Pandas Series object with the same data and the vertex indices as index.
+        numpy.ndarray or pandas.Series
+            The path lengths, as float64. The array has one element per integer
+            between 0 and the largest vertex identifier: element i is the length of
+            the shortest path from the source to vertex i ('out'), or from vertex i
+            to the target ('in'). If `return_series` is True, the result is a
+            Series named 'path_length' with the vertex identifiers as index.
 
         Raises
         ------
         ValueError
-            If detect_negative_cycles is True and a negative cycle is detected in the graph.
+            If `vertex_idx` is not a vertex of the graph, if a negative cycle is
+            detected, or if the graph has negative vertex identifiers and
+            `return_series` is False.
         """
         # validate the input arguments - type checking handled by static typing
-        if vertex_idx < 0:
-            raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be positive")
+        if self._negative_labels and not return_series:
+            raise ValueError(
+                "the graph has negative vertex labels: the result cannot be an "
+                "array indexed by vertex, use return_series=True"
+            )
         if self._permute and self._permutation is not None:
             if vertex_idx not in self._permutation.vert_idx_old.values:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
@@ -1085,6 +1093,8 @@ class BellmanFord:
                 self._permutation.vert_idx_old == vertex_idx, "vert_idx_new"
             ].iloc[0]
         else:
+            if vertex_idx < 0:
+                raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be positive")
             if vertex_idx >= self._n_vertices:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
             vertex_new = vertex_idx
@@ -1249,26 +1259,42 @@ class BellmanFord:
                 )
         return path_length_values
 
-    def get_path(self, vertex_idx: int) -> Optional[np.ndarray]:
-        """Compute path from predecessors or successors.
-
-        Parameters:
-        -----------
-
-        vertex_idx : int
-            source or target vertex index.
+    def get_vertices(self) -> Any:
+        """Return the vertices of the graph.
 
         Returns
         -------
+        numpy.ndarray
+            The sorted identifiers of the vertices that are the tail or the head of
+            at least one edge.
+        """
+        if self._permute and self._permutation is not None:
+            return np.asarray(self._permutation.vert_idx_old)
+        return np.union1d(
+            np.asarray(self._edges[self._tail_name]),
+            np.asarray(self._edges[self._head_name]),
+        )
 
-        path_vertices : numpy.ndarray
-            Array of np.uint32 type storing the path from or to the given vertex index. If we are
-            dealing with the sssp algorithm, the input vertex is the target vertex and the path to
-            the source is given backward from the target to the source using the predecessors. If
-            we are dealing with the stsp algorithm, the input vertex is the source vertex and the
-            path to the target is given backward from the target to the source using the
-            successors.
+    def get_path(self, vertex_idx: int) -> Optional[np.ndarray]:
+        """Return the shortest path between a vertex and the vertex of the last run.
 
+        The last call to `run` must have been made with `path_tracking=True`.
+
+        Parameters
+        ----------
+        vertex_idx : int
+            The other end of the path: the target vertex if the orientation is
+            'out', the source vertex if it is 'in'.
+
+        Returns
+        -------
+        numpy.ndarray or None
+            The vertices of the path, starting with `vertex_idx` and ending with the
+            vertex given to `run`. With the 'out' orientation, this is the path in
+            reverse order, from the target back to the source. With the 'in'
+            orientation, it is the path in travel order. If there is no path, the
+            array only contains `vertex_idx`. None is returned, with a warning, if
+            no path was tracked.
         """
         if self._path_links is None:
             warnings.warn(
@@ -1285,76 +1311,84 @@ class BellmanFord:
         return compute_path(self._path_links, vertex_idx)
 
     def has_negative_cycle(self):
-        """
-        Check if the last run detected a negative cycle.
+        """Tell whether a negative cycle was found.
 
         Returns
         -------
-        has_negative_cycle : bool
-            True if a negative cycle was detected in the last run, False otherwise.
+        bool
+            The result of the last run made with `detect_negative_cycles=True`.
         """
         return self._has_negative_cycle
 
 
 class HyperpathGenerating:
-    """
-    A class for constructing and managing hyperpath-based routing and analysis in transportation
-    or graph-based systems.
+    """Spiess and Florian's algorithm, for the optimal strategies (hyperpaths)
+    in a frequency-based transit network.
+
+    Each edge has a travel time and a frequency. At a vertex, a traveller
+    boards the first vehicle to come among a set of attractive edges, so the
+    demand is split between these edges in proportion to their frequencies, and
+    the travel time includes an expected waiting time. The algorithm computes
+    the strategy with the smallest expected travel time to a destination, and
+    the resulting volume on each edge.
 
     Parameters
     ----------
-    edges : pandas.DataFrame
-        A DataFrame containing graph edge information with columns specified by `tail`, `head`,
-        `trav_time`, and `freq`. Must not contain missing values.
-    tail : str, optional
-        Name of the column in `edges` representing the tail nodes (source nodes), by default "tail".
-    head : str, optional
-        Name of the column in `edges` representing the head nodes (target nodes), by default "head".
-    trav_time : str, optional
-        Name of the column in `edges` representing travel times for edges, by default "trav_time".
-    freq : str, optional
-        Name of the column in `edges` representing frequencies of edges, by default "freq".
-    check_edges : bool, optional
-        Whether to validate the structure and data types of `edges`, by default False.
-    orientation : {"in", "out"}, optional
-        Determines the orientation of the graph structure for traversal.
-        - "in": Graph traversal is from destination to origin.
-        - "out": Graph traversal is from origin to destination.
-        By default "in".
+    edges : pandas.DataFrame or polars.DataFrame
+        The edges of the graph, one row per edge, without missing values.
+    tail : str, optional (default='tail')
+        Name of the column with the tail (start) vertex of each edge. The vertex
+        identifiers are non-negative integers.
+    head : str, optional (default='head')
+        Name of the column with the head (end) vertex of each edge.
+    trav_time : str, optional (default='trav_time')
+        Name of the column with the travel time of each edge.
+    freq : str, optional (default='freq')
+        Name of the column with the frequency of each edge, in vehicles per
+        unit of travel time. An infinite frequency means that there is no
+        waiting time on the edge.
+    check_edges : bool, optional (default=False)
+        Whether to check the edges before building the graph: column names,
+        data types, missing and negative values.
+    orientation : {'in', 'out'}, optional (default='in')
+        Only 'in' (many origins to one destination) is implemented.
 
     Attributes
     ----------
     edge_count : int
-        The number of edges in the graph.
+        Number of edges.
     vertex_count : int
-        The total number of vertices in the graph.
-    u_i_vec : numpy.ndarray
-        An array storing the least travel time for each vertex after running the algorithm.
-    _edges : pandas.DataFrame
-        Internal DataFrame containing the edges with additional metadata.
-    _trav_time : numpy.ndarray
-        Array of travel times for edges.
-    _freq : numpy.ndarray
-        Array of frequencies for edges.
-    _tail : numpy.ndarray
-        Array of tail nodes (source nodes) for edges.
-    _head : numpy.ndarray
-        Array of head nodes (target nodes) for edges.
-    __indptr : numpy.ndarray
-        Array for compressed row (or column) pointers in the CSR/CSC representation.
-    _edge_idx : numpy.ndarray
-        Array of edge indices in the CSR/CSC representation.
+        Number of vertices: the largest vertex identifier plus one.
+    u_i_vec : numpy.ndarray or None
+        After a run, the expected travel time from each vertex to the
+        destination.
 
-    Methods
-    -------
-    run(origin, destination, volume, return_inf=False)
-        Computes the hyperpath and updates edge volumes based on the input demand and configuration.
-    _check_vertex_idx(idx)
-        Validates a vertex index to ensure it is within the graph's bounds.
-    _check_volume(v)
-        Validates a volume value to ensure it is a non-negative float.
-    _check_edges(edges, tail, head, trav_time, freq)
-        Validates the structure and data types of the input edges DataFrame.
+    Notes
+    -----
+    The travel times are bounded below by 1e-12 and the frequencies are kept
+    in the range [1e-20, 1e20].
+
+    References
+    ----------
+    Spiess, H. and Florian, M. (1989). Optimal strategies: a new assignment
+    model for transit networks. Transportation Research Part B 23(2), 83-102.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from edsger.path import HyperpathGenerating
+    >>> edges = pd.DataFrame(
+    ...     {
+    ...         "tail": [0, 0, 1],
+    ...         "head": [2, 1, 2],
+    ...         "trav_time": [25.0, 7.0, 10.0],
+    ...         "freq": [1 / 12, 1 / 12, 1 / 6],
+    ...     }
+    ... )
+    >>> hp = HyperpathGenerating(edges)
+    >>> hp.run(origin=0, destination=2, volume=100.0)
+    >>> hp.u_i_vec
+    array([30., 16.,  0.])
     """
 
     def __init__(
@@ -1399,7 +1433,8 @@ class HyperpathGenerating:
 
         # convert to CSR/CSC format
         self.vertex_count = self._edges[[tail, head]].max().max() + 1
-        assert orientation in ["out", "in"]
+        if orientation not in ["in", "out"]:
+            raise ValueError("orientation should be either 'in' or 'out'")
         self._orientation = orientation
         if self._orientation == "out":
             fs_indptr, _, fs_data = convert_graph_to_csr_uint32(
@@ -1430,42 +1465,33 @@ class HyperpathGenerating:
         volume: Union[float, List[float]],
         return_inf: bool = False,
     ) -> None:
-        """
-        Computes the hyperpath and updates edge volumes based on the input demand and configuration.
+        """Compute the optimal strategy to a destination and assign the demand.
+
+        The results are stored in the object: the expected travel times in
+        `u_i_vec`, and the edge volumes in the 'volume' column of the `_edges`
+        dataframe.
 
         Parameters
         ----------
         origin : int or list of int
-            The starting vertex or vertices of the demand. If `self._orientation` is "in",
-            this can be a list of origins corresponding to the demand volumes.
-        destination : int or list of int
-            The target vertex or vertices of the demand. If `self._orientation` is "out",
-            this can be a list of destinations corresponding to the demand volumes.
+            The origin vertex, or the origin vertices, of the demand.
+        destination : int
+            The destination vertex.
         volume : float or list of float
-            The demand volume associated with each origin or destination. Must be non-negative.
-            If a single float is provided, it is applied to a single origin-destination pair.
-        return_inf : bool, optional
-            If True, returns additional information from the computation (not yet implemented).
-            Default is False.
+            The demand from each origin to the destination: non-negative numbers,
+            as many as origins.
+        return_inf : bool, optional (default=False)
+            Not used.
 
         Raises
         ------
         NotImplementedError
-            If `self._orientation` is "out", as the one-to-many algorithm is not yet implemented.
-        AssertionError
-            If the lengths of `origin` or `destination` and `volume` do not match.
-            If any vertex index or volume is invalid.
+            If the orientation is 'out'.
         TypeError
-            If `volume` is not a float or list of floats.
+            If a vertex is not an integer or a volume is not a number.
         ValueError
-            If any volume value is negative.
-
-        Notes
-        -----
-        - The method modifies the `self._edges` DataFrame by adding a "volume" column representing
-        edge volumes based on the computed hyperpath.
-        - The `self.u_i_vec` array is updated to store the least travel time for each vertex.
-        - Only "in" orientation is currently supported.
+            If a vertex is not in the graph, if a volume is negative or NaN, or if
+            the origins and the volumes do not have the same length.
         """
         # column storing the resulting edge volumes
         self._edges["volume"] = 0.0
@@ -1486,14 +1512,19 @@ class HyperpathGenerating:
         # Only "in" orientation is supported currently
         if not isinstance(origin, list):
             origin = [origin]
-        assert len(origin) == len(volume)
+        if len(origin) != len(volume):
+            raise ValueError(
+                f"origin and volume should have the same length, "
+                f"got {len(origin)} and {len(volume)}"
+            )
         for i, item in enumerate(origin):
             self._check_vertex_idx(item)
             self._check_volume(volume[i])
         self._check_vertex_idx(destination)
         demand_indices = np.array(origin, dtype=np.uint32)
 
-        assert isinstance(return_inf, bool)
+        if not isinstance(return_inf, bool):
+            raise TypeError("argument 'return_inf' should be a bool")
 
         demand_values = np.array(volume, dtype=DTYPE_PY)
 
@@ -1520,17 +1551,21 @@ class HyperpathGenerating:
         self.u_i_vec = u_i_vec
 
     def _check_vertex_idx(self, idx):
-        assert isinstance(idx, int)
-        assert idx >= 0
-        assert idx < self.vertex_count
+        if isinstance(idx, bool) or not isinstance(idx, numbers.Integral):
+            raise TypeError(
+                f"vertex index should be an integer, got {type(idx).__name__}"
+            )
+        if idx < 0 or idx >= self.vertex_count:
+            raise ValueError(f"vertex {idx} not found in graph")
 
     def _check_volume(self, v):
-        assert isinstance(v, float)
-        assert v >= 0.0
+        if isinstance(v, bool) or not isinstance(v, numbers.Real):
+            raise TypeError(f"volume should be a number, got {type(v).__name__}")
+        if not v >= 0.0:
+            raise ValueError(f"volume should be non-negative, got {v}")
 
     def _check_edges(self, edges, tail, head, trav_time, freq):
-        if not isinstance(edges, pd.DataFrame):
-            raise TypeError("edges should be a pandas DataFrame")
+        edges = _edges_as_pandas(edges, [tail, head, trav_time, freq])
 
         for col in [tail, head, trav_time, freq]:
             if col not in edges:
@@ -1561,42 +1596,55 @@ class HyperpathGenerating:
 
 
 class BFS:
-    """
-    Breadth-First Search algorithm for finding shortest paths in directed graphs.
+    """Breadth-first search, for the paths with the fewest edges in a directed
+    graph.
 
-    BFS ignores edge weights (treats all edges as having equal weight) and finds the shortest
-    path in terms of the minimum number of edges/hops between vertices. This implementation
-    works on directed graphs using CSR format for forward traversal and CSC format for
-    backward traversal.
+    The edge weights are not used: all the edges count for one. The graph is
+    built once from a dataframe of edges. The `run` method can then be called
+    any number of times, from or to different vertices.
 
-    Note: If parallel edges exist between the same pair of vertices, only one edge will be
-    kept automatically during initialization.
+    Parameters
+    ----------
+    edges : pandas.DataFrame or polars.DataFrame
+        The edges of the graph, one row per edge. pandas dataframes can use NumPy
+        or Arrow data types.
+        A weight column, if there is one, is ignored.
+    tail : str, optional (default='tail')
+        Name of the column with the tail (start) vertex of each edge. The vertex
+        identifiers are integers, non-negative unless `permute` is True.
+    head : str, optional (default='head')
+        Name of the column with the head (end) vertex of each edge.
+    orientation : {'out', 'in'}, optional (default='out')
+        'out' for the paths from one vertex to all the others (single source),
+        'in' for the paths from all the vertices to one vertex (single target).
+    check_edges : bool, optional (default=False)
+        Whether to check the edges before building the graph: column names,
+        data types and missing values.
+    permute : bool, optional (default=False)
+        Whether to renumber the vertices internally, with contiguous indices
+        starting from 0. Without it, the internal arrays have one element per
+        integer between 0 and the largest vertex identifier. The arguments and
+        the results of the methods use the original identifiers in both cases.
+        Negative identifiers are only accepted with this option, and the results
+        must then be returned as Series (`return_series=True`).
+    verbose : bool, optional (default=False)
+        Whether to print the number of parallel edges that were removed.
+    sentinel : int, optional (default=-9999)
+        Value returned for the vertices without predecessor: the start vertex
+        and the vertices that cannot be reached. It must be a negative int32,
+        different from all the vertex identifiers.
 
-    Parameters:
-    -----------
-    edges: pandas.DataFrame
-        DataFrame containing the edges of the graph. It should have two columns: 'tail' and 'head'.
-        The 'tail' column should contain the IDs of the starting nodes, and the 'head' column
-        should contain the IDs of the ending nodes. If a 'weight' column is present, it will be
-        ignored.
-    tail: str, optional (default='tail')
-        The name of the column in the DataFrame that contains the IDs of the edge starting nodes.
-    head: str, optional (default='head')
-        The name of the column in the DataFrame that contains the IDs of the edge ending nodes.
-    orientation: str, optional (default='out')
-        The orientation of BFS algorithm. It can be either 'out' for single source shortest
-        paths or 'in' for single target shortest path.
-    check_edges: bool, optional (default=False)
-        Whether to check if the edges DataFrame is well-formed. If set to True, the edges
-        DataFrame will be checked for missing values and invalid data types.
-    permute: bool, optional (default=False)
-        Whether to permute the IDs of the nodes. If set to True, the node IDs will be reindexed
-        to start from 0 and be contiguous.
-    verbose: bool, optional (default=False)
-        Whether to print messages about parallel edge removal.
-    sentinel: int, optional (default=-9999)
-        Sentinel value for unreachable nodes and the start vertex in the predecessor array.
-        Must be a negative integer that fits in int32 range.
+    Notes
+    -----
+    When several edges have the same tail and head vertices, only one is kept.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from edsger.path import BFS
+    >>> edges = pd.DataFrame({"tail": [0, 0, 1], "head": [1, 2, 3]})
+    >>> BFS(edges).run(vertex_idx=0)
+    array([-9999,     0,     0,     1], dtype=int32)
     """
 
     def __init__(
@@ -1632,6 +1680,8 @@ class BFS:
         # Convert to standardized NumPy-backed pandas DataFrame
         # Note: BFS doesn't need weights, but standardize_graph_dataframe handles that
         self._edges = standardize_graph_dataframe(edges, tail, head)
+        self._tail_name = tail
+        self._head_name = head
         self._n_edges = len(self._edges)
         self._verbose = verbose
 
@@ -1640,14 +1690,27 @@ class BFS:
 
         # reindex the vertices
         self._permute = permute
+        # negative vertex labels are only possible with permute=True
+        self._negative_labels = False
         if len(self._edges) == 0:
             # Handle empty graphs
             self._permutation = None
             self._n_vertices = 0
             self.__n_vertices_init = 0
         elif self._permute:
+            self._negative_labels = bool(
+                self._edges[[tail, head]].min(axis=0).min() < 0
+            )
             self.__n_vertices_init = self._edges[[tail, head]].max(axis=0).max() + 1
             self._permutation = self._permute_graph(tail, head)
+            if (
+                self._negative_labels
+                and (self._permutation.vert_idx_old == self._sentinel).any()
+            ):
+                raise ValueError(
+                    f"sentinel {self._sentinel} is also a vertex label: "
+                    "use another sentinel value"
+                )
             self._n_vertices = len(self._permutation)
         else:
             self._permutation = None
@@ -1680,85 +1743,44 @@ class BFS:
 
     @property
     def UNREACHABLE(self) -> int:
-        """
-        Getter for the sentinel value used for unreachable nodes.
-
-        Returns
-        -------
-        sentinel : int
-            The sentinel value for unreachable nodes and the start vertex.
-        """
+        """The sentinel value, returned for the vertices without predecessor."""
         return self._sentinel
 
     @property
     def edges(self) -> Any:
-        """
-        Getter for the graph edge dataframe.
-
-        Returns
-        -------
-        edges: pandas.DataFrame
-            DataFrame containing the edges of the graph.
+        """The edges of the graph as they are stored, without the parallel edges,
+        and with the internal vertex indices if `permute` is True.
         """
         return self._edges
 
     @property
     def n_edges(self) -> int:
-        """
-        Getter for the number of graph edges.
-
-        Returns
-        -------
-        n_edges: int
-            The number of edges in the graph.
-        """
+        """Number of edges of the graph, without the parallel edges."""
         return self._n_edges
 
     @property
     def n_vertices(self) -> int:
-        """
-        Getter for the number of graph vertices.
-
-        Returns
-        -------
-        n_vertices: int
-            The number of nodes in the graph (after permutation, if _permute is True).
+        """Number of vertices. This is the largest vertex identifier plus one, or
+        the number of distinct vertices if `permute` is True.
         """
         return self._n_vertices
 
     @property
     def orientation(self) -> str:
-        """
-        Getter of BFS algorithm orientation ("in" or "out").
-
-        Returns
-        -------
-        orientation : str
-            The orientation of BFS algorithm.
-        """
+        """Orientation of the algorithm, either 'out' or 'in'."""
         return self._orientation
 
     @property
     def permute(self) -> bool:
-        """
-        Getter for the graph permutation/reindexing option.
-
-        Returns
-        -------
-        permute : bool
-            Whether to permute the IDs of the nodes.
-        """
+        """Whether the vertices are renumbered internally."""
         return self._permute
 
     @property
     def path_links(self) -> Optional[np.ndarray]:
-        """
-        Getter for the path links (predecessors or successors).
-
-        Returns
-        -------
-        path_links: numpy.ndarray
-            predecessors or successors node index if the path tracking is activated.
+        """Path tree of the last run, or None if the paths were not tracked. This
+        is the predecessor ('out') or the successor ('in') of each vertex. The
+        vertex given to `run` and the vertices that cannot be reached are linked
+        to themselves.
         """
         return self._path_links
 
@@ -1790,8 +1812,7 @@ class BFS:
 
     def _check_edges(self, edges, tail, head):
         """Checks if the edges DataFrame is well-formed. If not, raises an appropriate error."""
-        if not isinstance(edges, pd.DataFrame):
-            raise TypeError("edges should be a pandas DataFrame")
+        edges = _edges_as_pandas(edges, [tail, head])
 
         if tail not in edges:
             raise KeyError(
@@ -1863,7 +1884,7 @@ class BFS:
     def _check_orientation(self, orientation):
         """Checks the orientation attribute."""
         if orientation not in ["in", "out"]:
-            raise ValueError("orientation should be either 'in' on 'out'")
+            raise ValueError("orientation should be either 'in' or 'out'")
 
     def run(
         self,
@@ -1871,33 +1892,42 @@ class BFS:
         path_tracking: bool = False,
         return_series: bool = False,
     ) -> Union[np.ndarray, pd.Series]:
-        """
-        Runs BFS algorithm between a given vertex and all other vertices in the graph.
+        """Compute the breadth-first search tree from or to a given vertex.
 
         Parameters
         ----------
         vertex_idx : int
-            The index of the source/target vertex.
+            The source vertex if the orientation is 'out', the target vertex if it
+            is 'in'.
         path_tracking : bool, optional (default=False)
-            Whether to track the shortest path(s) from the source vertex to all other vertices
-            in the graph. When True, predecessors are stored and can be retrieved with get_path().
+            Whether to store the search tree, so that the paths can be retrieved
+            with `get_path`.
         return_series : bool, optional (default=False)
-            Whether to return a Pandas Series object indexed by vertex indices with predecessors
-            as values.
+            Whether to return a pandas Series indexed by vertex instead of a NumPy
+            array.
 
         Returns
         -------
-        predecessors : np.ndarray or pd.Series
-            If `return_series=False`, a 1D Numpy array of shape (n_vertices,) with the
-            predecessor of each vertex in the BFS tree (`orientation="out"`), or
-            the successor of each vertex (`orientation="in"`).
-            Unreachable vertices and the start vertex have the sentinel value (default: -9999).
-            If `return_series=True`, a Pandas Series object with the same data and the
-            vertex indices as index.
+        numpy.ndarray or pandas.Series
+            The predecessor ('out') or the successor ('in') of each vertex on a
+            path with the fewest edges, as int32. The array has one element per
+            integer between 0 and the largest vertex identifier. The start vertex
+            and the vertices that cannot be reached have the sentinel value. If
+            `return_series` is True, the result is a Series named 'predecessor'
+            with the vertex identifiers as index.
+
+        Raises
+        ------
+        ValueError
+            If `vertex_idx` is not a vertex of the graph, or if the graph has
+            negative vertex identifiers and `return_series` is False.
         """
         # validate the input arguments
-        if vertex_idx < 0:
-            raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be non-negative")
+        if self._negative_labels and not return_series:
+            raise ValueError(
+                "the graph has negative vertex labels: the result cannot be an "
+                "array indexed by vertex, use return_series=True"
+            )
         if self._permute and self._permutation is not None:
             if vertex_idx not in self._permutation.vert_idx_old.values:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
@@ -1905,6 +1935,10 @@ class BFS:
                 self._permutation.vert_idx_old == vertex_idx, "vert_idx_new"
             ].iloc[0]
         else:
+            if vertex_idx < 0:
+                raise ValueError(
+                    f"argument 'vertex_idx={vertex_idx}' must be non-negative"
+                )
             if vertex_idx >= self._n_vertices:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
             vertex_new = vertex_idx
@@ -2059,43 +2093,41 @@ class BFS:
         return predecessors
 
     def get_vertices(self) -> Any:
-        """
-        Get the unique vertices from the graph.
-
-        If the graph has been permuted, this method returns the vertices based on the original
-        indexing. Otherwise, it returns the union of tail and head vertices from the edges.
+        """Return the vertices of the graph.
 
         Returns
         -------
-        vertices : ndarray
-            A 1-D array containing the unique vertices.
+        numpy.ndarray
+            The sorted identifiers of the vertices that are the tail or the head of
+            at least one edge.
         """
         if self._permute and self._permutation is not None:
             return np.asarray(self._permutation.vert_idx_old)
         return np.union1d(
-            np.asarray(self._edges["tail"]), np.asarray(self._edges["head"])
+            np.asarray(self._edges[self._tail_name]),
+            np.asarray(self._edges[self._head_name]),
         )
 
     def get_path(self, vertex_idx: int) -> Optional[np.ndarray]:
-        """Compute path from predecessors or successors.
+        """Return the shortest path between a vertex and the vertex of the last run.
 
-        Parameters:
-        -----------
+        The last call to `run` must have been made with `path_tracking=True`.
 
+        Parameters
+        ----------
         vertex_idx : int
-            source or target vertex index.
+            The other end of the path: the target vertex if the orientation is
+            'out', the source vertex if it is 'in'.
 
         Returns
         -------
-
-        path_vertices : numpy.ndarray
-            Array of np.int32 type storing the path from or to the given vertex index. If we are
-            dealing with BFS from a source (orientation="out"), the input vertex is the target
-            vertex and the path to the source is given backward from the target to the source
-            using the predecessors. If we are dealing with BFS to a target (orientation="in"),
-            the input vertex is the source vertex and the path to the target is given backward
-            from the target to the source using the successors.
-
+        numpy.ndarray or None
+            The vertices of the path, starting with `vertex_idx` and ending with the
+            vertex given to `run`. With the 'out' orientation, this is the path in
+            reverse order, from the target back to the source. With the 'in'
+            orientation, it is the path in travel order. If there is no path, the
+            array only contains `vertex_idx`. None is returned, with a warning, if
+            no path was tracked.
         """
         if self._path_links is None:
             warnings.warn(

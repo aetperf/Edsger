@@ -181,9 +181,12 @@ class PandasArrowImporter(GraphImporter):
 
             # Determine target dtype based on column values
             if col in columns[:2]:  # Assume first two are vertex indices (tail, head)
-                # Try to use uint32 for vertex indices if possible
+                # Try to use uint32 for vertex indices if possible. Negative
+                # labels (valid with permute=True) must keep a signed type.
                 max_val = series.max()
-                if max_val < np.iinfo(np.uint32).max:
+                if series.min() < 0:
+                    target_dtype = np.int64
+                elif max_val < np.iinfo(np.uint32).max:
                     target_dtype = np.uint32
                 else:
                     target_dtype = np.uint64
@@ -244,9 +247,14 @@ class PolarsImporter(GraphImporter):
                 if i < 2:  # Vertex indices
                     # Check if column contains numeric data
                     if np.issubdtype(result_df[col].dtype, np.integer):
-                        # Try to use uint32 for efficiency
+                        # Try to use uint32 for efficiency. Negative labels
+                        # (valid with permute=True) keep their signed type.
                         max_val = result_df[col].max()
-                        if not pd.isna(max_val) and max_val < np.iinfo(np.uint32).max:
+                        if (
+                            not pd.isna(max_val)
+                            and max_val < np.iinfo(np.uint32).max
+                            and result_df[col].min() >= 0
+                        ):
                             result_df[col] = result_df[col].astype(np.uint32)
                     # If not numeric (e.g., strings), leave as is
                 else:
@@ -270,7 +278,10 @@ class PolarsImporter(GraphImporter):
                 # Check if the series contains numeric data
                 if hasattr(series, "dtype") and series.dtype.is_integer():
                     max_val = series.max()
-                    if max_val is not None and max_val < np.iinfo(np.uint32).max:
+                    min_val = series.min()
+                    if min_val is not None and min_val < 0:
+                        target_dtype = np.int64
+                    elif max_val is not None and max_val < np.iinfo(np.uint32).max:
                         target_dtype = np.uint32
                     else:
                         target_dtype = np.uint64

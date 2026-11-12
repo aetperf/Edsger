@@ -1321,3 +1321,176 @@ def test_get_path_unknown_vertex_with_permutation(algo):
 
     with pytest.raises(ValueError, match="not found"):
         sp.get_path(5)
+
+
+@pytest.mark.parametrize("algo", [Dijkstra, BellmanFord, BFS])
+@pytest.mark.parametrize("permute", [False, True])
+def test_get_vertices_with_custom_column_names(algo, permute):
+    edges = pd.DataFrame(data={"from": [0, 10], "to": [10, 20], "cost": [1.0, 1.0]})
+    kwargs = {} if algo is BFS else {"weight": "cost"}
+    sp = algo(edges, tail="from", head="to", permute=permute, **kwargs)
+
+    np.testing.assert_array_equal(sp.get_vertices(), [0, 10, 20])
+
+
+@pytest.mark.parametrize("permute", [False, True])
+@pytest.mark.parametrize("orientation", ["out", "in"])
+def test_dijkstra_early_termination_return_series_index(braess, permute, orientation):
+    """The Series is indexed by the termination nodes, in the given order."""
+    sp = Dijkstra(braess, orientation=orientation, permute=permute)
+    path_lengths_ref = sp.run(vertex_idx=0)
+
+    path_lengths = sp.run(vertex_idx=0, termination_nodes=[3, 1], return_series=True)
+
+    assert path_lengths.index.tolist() == [3, 1]
+    assert path_lengths.index.name == "vertex_idx"
+    assert path_lengths.name == "path_length"
+    np.testing.assert_array_equal(path_lengths.to_numpy(), path_lengths_ref[[3, 1]])
+
+
+def test_SF_run_volume_types():
+    """The volumes can be given as integers or NumPy scalars."""
+    edges = pd.DataFrame(
+        data={
+            "tail": [0, 0, 1],
+            "head": [2, 1, 2],
+            "trav_time": [25.0, 7.0, 10.0],
+            "freq": [1 / 12, 1 / 12, 1 / 6],
+        }
+    )
+    hp = HyperpathGenerating(edges)
+
+    hp.run(origin=0, destination=2, volume=100)
+    np.testing.assert_allclose(hp._edges["volume"].values, [50.0, 50.0, 50.0])
+
+    hp.run(origin=[0, 1], destination=2, volume=[np.int64(100), np.float64(50.0)])
+    np.testing.assert_allclose(hp._edges["volume"].values, [50.0, 50.0, 100.0])
+
+    with pytest.raises(TypeError, match="volume"):
+        hp.run(origin=0, destination=2, volume="100")  # type: ignore
+    with pytest.raises(ValueError, match="volume"):
+        hp.run(origin=0, destination=2, volume=-1.0)
+    with pytest.raises(ValueError, match="volume"):
+        hp.run(origin=0, destination=2, volume=float("nan"))
+
+
+def test_SF_run_argument_errors():
+    """Invalid arguments raise a TypeError or a ValueError with a message."""
+    edges = pd.DataFrame(
+        data={
+            "tail": [0, 0, 1],
+            "head": [2, 1, 2],
+            "trav_time": [25.0, 7.0, 10.0],
+            "freq": [1 / 12, 1 / 12, 1 / 6],
+        }
+    )
+    hp = HyperpathGenerating(edges)
+
+    with pytest.raises(ValueError, match="vertex 5 not found in graph"):
+        hp.run(origin=5, destination=2, volume=1.0)
+    with pytest.raises(ValueError, match="vertex -1 not found in graph"):
+        hp.run(origin=0, destination=-1, volume=1.0)
+    with pytest.raises(TypeError, match="integer"):
+        hp.run(origin=0.0, destination=2, volume=1.0)  # type: ignore
+    with pytest.raises(ValueError, match="same length"):
+        hp.run(origin=[0, 1], destination=2, volume=[1.0])
+    with pytest.raises(TypeError, match="return_inf"):
+        hp.run(origin=0, destination=2, volume=1.0, return_inf=1)  # type: ignore
+    with pytest.raises(ValueError, match="orientation"):
+        HyperpathGenerating(edges, orientation="both")
+
+    # NumPy integers are valid vertex indices
+    hp.run(origin=np.int64(0), destination=np.int64(2), volume=1.0)
+    np.testing.assert_allclose(hp.u_i_vec, [30.0, 16.0, 0.0])
+
+
+def _negative_label_edges():
+    """-5 -> 7 -> 9 and -5 -> 9: the shortest path from -5 to 9 goes through 7."""
+    return pd.DataFrame(
+        data={"tail": [-5, -5, 7], "head": [7, 9, 9], "weight": [1.0, 4.0, 2.0]}
+    )
+
+
+@pytest.mark.parametrize("algo", [Dijkstra, BellmanFord])
+def test_negative_labels_run_from_negative_vertex(algo):
+    sp = algo(_negative_label_edges(), permute=True)
+    path_lengths = sp.run(vertex_idx=-5, path_tracking=True, return_series=True)
+
+    assert path_lengths.to_dict() == {-5: 0.0, 7: 1.0, 9: 3.0}
+    np.testing.assert_array_equal(sp.get_path(9), [9, 7, -5])
+
+
+def test_negative_labels_bfs_from_negative_vertex():
+    bfs = BFS(_negative_label_edges(), permute=True)
+    predecessors = bfs.run(vertex_idx=-5, path_tracking=True, return_series=True)
+
+    assert predecessors.to_dict() == {-5: -9999, 7: -5, 9: -5}
+    np.testing.assert_array_equal(bfs.get_path(9), [9, -5])
+
+
+@pytest.mark.parametrize("algo", [Dijkstra, BellmanFord, BFS])
+def test_negative_labels_require_series_output(algo):
+    """An array indexed by vertex label cannot hold negative labels."""
+    sp = algo(_negative_label_edges(), permute=True)
+
+    with pytest.raises(ValueError, match="return_series=True"):
+        sp.run(vertex_idx=7)
+
+
+@pytest.mark.parametrize("algo", [Dijkstra, BellmanFord, BFS])
+def test_negative_labels_without_permute(algo):
+    with pytest.raises(ValueError, match="non-negative"):
+        algo(_negative_label_edges()).run(vertex_idx=7)
+
+
+def test_dijkstra_termination_nodes_with_negative_labels():
+    sp = Dijkstra(_negative_label_edges(), permute=True)
+    path_lengths = sp.run(vertex_idx=-5, termination_nodes=[9, -5], return_series=True)
+
+    assert path_lengths.to_dict() == {9: 3.0, -5: 0.0}
+
+    with pytest.raises(ValueError, match="termination node -1 not found"):
+        sp.run(vertex_idx=-5, termination_nodes=[-1], return_series=True)
+
+
+def test_dijkstra_termination_nodes_negative_without_permute(braess):
+    sp = Dijkstra(braess)
+    with pytest.raises(ValueError, match="invalid vertex indices"):
+        sp.run(vertex_idx=0, termination_nodes=[-1])
+
+
+@pytest.mark.parametrize("backend", ["arrow", "polars"])
+@pytest.mark.parametrize("algo", [Dijkstra, BellmanFord, BFS])
+def test_negative_labels_are_kept_by_the_backends(algo, backend):
+    """Negative labels used to wrap around to 4294967291 with Arrow and Polars."""
+    edges = _negative_label_edges()
+    if backend == "arrow":
+        if not PYARROW_AVAILABLE:
+            pytest.skip("PyArrow not available")
+        edges = edges.astype(
+            {
+                "tail": pd.ArrowDtype(pa.int64()),
+                "head": pd.ArrowDtype(pa.int64()),
+                "weight": pd.ArrowDtype(pa.float64()),
+            }
+        )
+    else:
+        if not POLARS_AVAILABLE:
+            pytest.skip("Polars not available")
+        edges = pl.from_pandas(edges)
+
+    sp = algo(edges, permute=True)
+    np.testing.assert_array_equal(sp.get_vertices(), [-5, 7, 9])
+    assert sp.run(vertex_idx=7, return_series=True).index.tolist() == [-5, 7, 9]
+
+    with pytest.raises(ValueError, match="non-negative"):
+        algo(edges).run(vertex_idx=7)
+
+
+def test_bfs_sentinel_must_not_be_a_vertex_label():
+    edges = pd.DataFrame(data={"tail": [-9999, 0], "head": [0, 1]})
+    with pytest.raises(ValueError, match="sentinel"):
+        BFS(edges, permute=True)
+
+    predecessors = BFS(edges, permute=True, sentinel=-1).run(0, return_series=True)
+    assert predecessors.to_dict() == {-9999: -1, 0: -1, 1: 0}

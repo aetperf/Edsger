@@ -8,41 +8,23 @@ import pandas as pd
 
 class SiouxFalls:
     """
-    A class representing the Sioux Falls network.
-
-    Attributes
-    ----------
-    graph_edges : pandas.DataFrame
-        A DataFrame containing the edges of the Sioux Falls network. The DataFrame has three
-        columns: 'tail' (int32), 'head' (int32), and 'trav_time' (float64). Each row represents
-        an edge from the tail node to the head node with a corresponding travel time.
+    The Sioux Falls road network, a classical test network of the traffic
+    assignment literature, with 24 vertices and 76 edges.
 
     Examples
     --------
-    >>> siouxfalls = SiouxFalls()
-    >>> print(siouxfalls.edges.head())
+    >>> from edsger.networks import SiouxFalls
+    >>> SiouxFalls().edges.head(3)
        tail  head  trav_time
     0     0     1   6.000816
     1     0     2   4.008691
     2     1     0   6.000834
-    3     1     5   6.573598
-    4     2     0   4.008587
-
     """
 
     @property
     def edges(self) -> pd.DataFrame:
-        """
-        A DataFrame containing the edges of the Sioux Falls network.
-
-        Returns
-        -------
-        graph_edges : pandas.DataFrame
-            A DataFrame containing the edges of the Sioux Falls network. The DataFrame has three
-            columns: 'tail' (int32), 'head' (int32), and 'trav_time' (float64). Each row represents
-            an edge from the tail node to the head node with a corresponding travel time.
-
-        """
+        """The edges of the network, as a pandas DataFrame with the columns 'tail',
+        'head' and 'trav_time'."""
         siouxfalls_graph_edges_csv = StringIO(
             """tail,head,trav_time
             0,1,6.00081623735432
@@ -134,11 +116,32 @@ def create_sf_network(
     dwell_time: float = 1.0e-6, board_alight_ratio: float = 0.5
 ) -> pd.DataFrame:
     """
-    Example network from Spiess, H. and Florian, M. (1989).
-    Optimal strategies: A new assignment model for transit networks.
-    Transportation Research Part B 23(2), 83-102.
+    Transit network of the example of Spiess and Florian (1989).
 
-    This network has 13 vertices and 24 edges.
+    The four stops and four lines of the paper are expanded into a graph with
+    16 vertices and 24 edges: stop vertices, boarding and alighting vertices,
+    and edges for boarding, alighting, riding, dwelling and transferring.
+    Times are in seconds.
+
+    Parameters
+    ----------
+    dwell_time : float, optional (default=1.0e-6)
+        Time spent by a vehicle at a stop.
+    board_alight_ratio : float, optional (default=0.5)
+        Boarding time and alighting time, each as a fraction of the dwell
+        time.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The edges, with the columns 'tail', 'head', 'trav_time', 'freq' and
+        'volume_ref'. The last one is the edge volume given in the paper for
+        a demand of 1 from vertex 0 to vertex 12.
+
+    References
+    ----------
+    Spiess, H. and Florian, M. (1989). Optimal strategies: a new assignment
+    model for transit networks. Transportation Research Part B 23(2), 83-102.
     """
 
     boarding_time = board_alight_ratio * dwell_time
