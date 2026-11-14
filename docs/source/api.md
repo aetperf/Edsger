@@ -1,6 +1,6 @@
 # API reference
 
-The four algorithms are classes of the `edsger.path` module. This page is generated from the docstrings.
+The four path algorithms are classes of the `edsger.path` module. The minimum spanning tree and the centrality measures are in the `edsger.spanning_tree` and `edsger.centrality` modules. This page is generated from the docstrings.
 
 ## Dijkstra
 
@@ -60,6 +60,38 @@ The four algorithms are classes of the `edsger.path` module. This page is genera
 .. autoclass:: edsger.path.HyperpathGenerating
 
    .. automethod:: run
+```
+
+## MinimumSpanningTree
+
+```{eval-rst}
+.. autoclass:: edsger.spanning_tree.MinimumSpanningTree
+
+   .. automethod:: run
+   .. autoproperty:: total_weight
+   .. autoproperty:: n_trees
+   .. automethod:: get_vertices
+   .. autoproperty:: n_vertices
+   .. autoproperty:: n_edges
+   .. autoproperty:: edges
+   .. autoproperty:: permute
+```
+
+## Centrality
+
+```{eval-rst}
+.. autoclass:: edsger.centrality.Centrality
+
+   .. automethod:: pagerank
+   .. automethod:: hits
+   .. automethod:: katz
+   .. automethod:: get_vertices
+   .. autoproperty:: n_vertices
+   .. autoproperty:: n_edges
+   .. autoproperty:: edges
+   .. autoproperty:: permute
+
+.. autoclass:: edsger.centrality.ConvergenceError
 ```
 
 ## Graph validation
