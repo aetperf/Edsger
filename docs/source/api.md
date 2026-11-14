@@ -1,6 +1,6 @@
 # API reference
 
-The algorithms are classes of the `edsger.path` module, except `ConnectedComponents`, which is in `edsger.components`. This page is generated from the docstrings.
+The algorithms are classes of the `edsger.path` module, except `ConnectedComponents` (`edsger.components`), `MinimumSpanningTree` (`edsger.spanning_tree`) and `Centrality` (`edsger.centrality`). This page is generated from the docstrings.
 
 ## Dijkstra
 
@@ -92,6 +92,38 @@ The algorithms are classes of the `edsger.path` module, except `ConnectedCompone
 .. autoclass:: edsger.path.HyperpathGenerating
 
    .. automethod:: run
+```
+
+## MinimumSpanningTree
+
+```{eval-rst}
+.. autoclass:: edsger.spanning_tree.MinimumSpanningTree
+
+   .. automethod:: run
+   .. autoproperty:: total_weight
+   .. autoproperty:: n_trees
+   .. automethod:: get_vertices
+   .. autoproperty:: n_vertices
+   .. autoproperty:: n_edges
+   .. autoproperty:: edges
+   .. autoproperty:: permute
+```
+
+## Centrality
+
+```{eval-rst}
+.. autoclass:: edsger.centrality.Centrality
+
+   .. automethod:: pagerank
+   .. automethod:: hits
+   .. automethod:: katz
+   .. automethod:: get_vertices
+   .. autoproperty:: n_vertices
+   .. autoproperty:: n_edges
+   .. autoproperty:: edges
+   .. autoproperty:: permute
+
+.. autoclass:: edsger.centrality.ConvergenceError
 ```
 
 ## Graph validation
