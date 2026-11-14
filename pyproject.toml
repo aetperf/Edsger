@@ -83,7 +83,7 @@ markers = [
 [tool.ruff]
 target-version = "py310"
 line-length = 88
-extend-exclude = ["old", "notebooks", "edsger-env", "build"]
+extend-exclude = ["old", "notebooks", "edsger-env", "build", ".claude"]
 
 [tool.ruff.lint]
 # pyflakes, the error subset of pycodestyle, bugbear, pyupgrade, isort

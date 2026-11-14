@@ -43,3 +43,11 @@ make html
 ```
 
 The pages are written to `docs/build/html`. User-visible changes are listed in `CHANGELOG.md`.
+
+The outputs shown after the code examples of the quick start, the user guide, the examples and the NetworkX/SciPy page are generated: each code block followed by a `% output` (or `% error`) comment line is executed, and its output is written up to the `% /output` line. After a change that affects them, regenerate them from the repository root:
+
+```bash
+python docs/update_outputs.py docs/source/quickstart.md docs/source/guide/*.md docs/source/examples/*.md docs/source/coming_from.md
+```
+
+The script fails if a code block raises an unexpected exception, so it also checks that the examples still run.

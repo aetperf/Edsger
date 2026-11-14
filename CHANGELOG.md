@@ -17,6 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `AStar`: A* shortest path between two vertices, `run(source, target, heuristic=None, path_tracking=False)`. Heuristic given as a NumPy array or a pandas Series, or computed on the fly from vertex coordinates (`set_coordinates`, Euclidean or haversine, factor derived from the edges so the heuristic is consistent)
 - `BidirectionalDijkstra`: bidirectional Dijkstra between two vertices, `run(source, target, path_tracking=False)`. Both classes reuse their per-vertex arrays between runs: a run costs in proportion to the explored part of the graph, not to the vertex count
 
+- All the classes can be imported from the package: `from edsger import Dijkstra, ConnectedComponents, ...`
+- The package is typed (PEP 561): `py.typed` and the `.pyi` stubs of the Cython modules are now installed, so type checkers and IDEs see the type hints
+- Readable representations: `Dijkstra(n_vertices=23_947_347, n_edges=57_708_624, permute=False, orientation='out', lazy=True)`
+- `HyperpathGenerating.edges`: the edges with their assigned `volume`, which were only available as the private `_edges`
+
+### Documentation
+- Shorter quick start, and a user guide with one page per family of algorithms: shortest paths, traversal and components, spanning trees and centrality, transit assignment
+- Examples: routing on a road network, origin-destination matrix, transit assignment (Spiess and Florian's network), ranking the vertices of a network
+- "Coming from NetworkX or SciPy": their functions and the Edsger equivalents
+
 ### Changes
 - `BellmanFord.run(..., return_series=True)`: the Series is now named `path_length` and its index `vertex_idx`, as for `Dijkstra`
 - `Dijkstra`, `BellmanFord` and `BFS` now share their graph building and their handling of the vertex labels. The vertex renumbering of `permute=True` is done with NumPy instead of pandas merges: building a permuted graph is about 35% faster (2M edges)

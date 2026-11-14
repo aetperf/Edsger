@@ -14,14 +14,14 @@
 
 *Graph algorithms in Cython*
 
-Edsger is a Python library of path algorithms for directed graphs, written in [Cython](https://cython.org/). A graph is given as a dataframe of edges, from [pandas](https://pandas.pydata.org/) or [Polars](https://pola.rs/), and the results come back as [NumPy](https://numpy.org/) arrays, pandas Series or Polars DataFrames.
+Edsger is a Python library of graph algorithms for directed graphs, written in [Cython](https://cython.org/). A graph is given as a dataframe of edges, from [pandas](https://pandas.pydata.org/) or [Polars](https://pola.rs/), and the results come back as [NumPy](https://numpy.org/) arrays, pandas Series or Polars DataFrames.
 
-| Algorithm | Class | Problem |
-|---|---|---|
-| Dijkstra | `Dijkstra` | Shortest paths with non-negative edge weights |
-| Bellman-Ford | `BellmanFord` | Shortest paths with negative edge weights, negative cycle detection |
-| Breadth-first search | `BFS` | Paths with the fewest edges |
-| Spiess-Florian | `HyperpathGenerating` | Optimal strategies in frequency-based transit networks |
+| Family | Classes |
+|---|---|
+| Shortest paths | `Dijkstra`, `BellmanFord`, `AStar`, `BidirectionalDijkstra` |
+| Traversal and components | `BFS`, `DFS`, `ConnectedComponents` |
+| Spanning trees and centrality | `MinimumSpanningTree`, `Centrality` (PageRank, HITS, Katz) |
+| Transit assignment | `HyperpathGenerating` (Spiess and Florian's optimal strategies) |
 
 Documentation: [https://edsger.readthedocs.io/en/latest/](https://edsger.readthedocs.io/en/latest/)
 
@@ -38,7 +38,7 @@ Edsger requires Python 3.10 or later. Wheels are published for Linux (x86_64), W
 ```python
 import pandas as pd
 
-from edsger.path import Dijkstra
+from edsger import Dijkstra
 
 edges = pd.DataFrame(
     {

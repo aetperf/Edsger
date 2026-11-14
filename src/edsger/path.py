@@ -1185,6 +1185,12 @@ class HyperpathGenerating:
         # node attribute
         self.u_i_vec = None
 
+    @property
+    def edges(self) -> pd.DataFrame:
+        """The edges of the graph, with an 'edge_idx' column and, after a run,
+        the resulting 'volume' of each edge."""
+        return self._edges
+
     def __repr__(self) -> str:
         return (
             f"HyperpathGenerating(vertex_count={int(self.vertex_count):_}, "
@@ -1201,8 +1207,7 @@ class HyperpathGenerating:
         """Compute the optimal strategy to a destination and assign the demand.
 
         The results are stored in the object: the expected travel times in
-        `u_i_vec`, and the edge volumes in the 'volume' column of the `_edges`
-        dataframe.
+        `u_i_vec`, and the edge volumes in the 'volume' column of `edges`.
 
         Parameters
         ----------

@@ -2,21 +2,21 @@
 
 *Graph algorithms in Cython*
 
-Edsger is a Python library of path algorithms for directed graphs, written in [Cython](https://cython.org/). A graph is given as a dataframe of edges, from [pandas](https://pandas.pydata.org/) or [Polars](https://pola.rs/), and the results come back as [NumPy](https://numpy.org/) arrays, pandas Series or Polars DataFrames. The library is named after Edsger W. Dijkstra.
+Edsger is a Python library of graph algorithms for directed graphs, written in [Cython](https://cython.org/). A graph is given as a dataframe of edges, from [pandas](https://pandas.pydata.org/) or [Polars](https://pola.rs/), and the results come back as [NumPy](https://numpy.org/) arrays, pandas Series or Polars DataFrames. The library is named after Edsger W. Dijkstra.
 
-| Algorithm | Class | Problem |
-|---|---|---|
-| Dijkstra | `Dijkstra` | Shortest paths with non-negative edge weights |
-| Bellman-Ford | `BellmanFord` | Shortest paths with negative edge weights, negative cycle detection |
-| Breadth-first search | `BFS` | Paths with the fewest edges |
-| Spiess-Florian | `HyperpathGenerating` | Optimal strategies in frequency-based transit networks |
+| Family | Classes |
+|---|---|
+| Shortest paths | `Dijkstra`, `BellmanFord`, `AStar`, `BidirectionalDijkstra` |
+| Traversal and components | `BFS`, `DFS`, `ConnectedComponents` |
+| Spanning trees and centrality | `MinimumSpanningTree`, `Centrality` (PageRank, HITS, Katz) |
+| Transit assignment | `HyperpathGenerating` (Spiess and Florian's optimal strategies) |
 
 ## Example
 
 ```python
 import pandas as pd
 
-from edsger.path import Dijkstra
+from edsger import Dijkstra
 
 edges = pd.DataFrame(
     {
@@ -47,11 +47,39 @@ Single-source shortest paths from one vertex of the USA road network, best of 5 
 
 ```{toctree}
 :hidden:
+:caption: Getting started
 
 installation
 quickstart
-benchmarks
+coming_from
+```
+
+```{toctree}
+:hidden:
+:caption: User guide
+
+guide/shortest_paths
+guide/traversal
+guide/network_analysis
+guide/transit
+```
+
+```{toctree}
+:hidden:
+:caption: Examples
+
+examples/road_routing
+examples/od_matrix
+examples/transit_assignment
+examples/ranking
+```
+
+```{toctree}
+:hidden:
+:caption: Reference
+
 api
+benchmarks
 changelog
 contributing
 ```

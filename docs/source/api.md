@@ -1,6 +1,6 @@
 # API reference
 
-The algorithms are classes of the `edsger.path` module, except `ConnectedComponents` (`edsger.components`), `MinimumSpanningTree` (`edsger.spanning_tree`) and `Centrality` (`edsger.centrality`). This page is generated from the docstrings.
+All the classes can be imported from the package, as in `from edsger import Dijkstra`. They are defined in the `edsger.path` module, except `ConnectedComponents` (`edsger.components`), `MinimumSpanningTree` (`edsger.spanning_tree`) and `Centrality` (`edsger.centrality`). This page is generated from the docstrings.
 
 ## Dijkstra
 
@@ -121,6 +121,7 @@ The algorithms are classes of the `edsger.path` module, except `ConnectedCompone
 .. autoclass:: edsger.path.HyperpathGenerating
 
    .. automethod:: run
+   .. autoproperty:: edges
 ```
 
 ## MinimumSpanningTree
