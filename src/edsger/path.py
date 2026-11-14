@@ -3,8 +3,10 @@ Path-related methods.
 """
 
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 import numbers
 import os
+import threading
 from typing import TYPE_CHECKING, Optional, Union, List, Any, cast
 import warnings
 
@@ -39,6 +41,10 @@ from edsger.star import (
 )
 from edsger.bfs import bfs_csr, bfs_csc  # pylint: disable=no-name-in-module
 from edsger.dfs import dfs_csr, dfs_csc  # pylint: disable=no-name-in-module
+from edsger import astar as astar_core  # pylint: disable=no-name-in-module
+from edsger import (
+    bidirectional_dijkstra as bidir_core,
+)  # pylint: disable=no-name-in-module
 
 if TYPE_CHECKING:
     import polars
@@ -1692,6 +1698,628 @@ class DFS(_VertexGraph):
         if self._labels[0] >= 0:
             vertices = vertices.astype(np.uint32)
         return vertices
+
+
+# Initial capacity of the priority queues of the single pair algorithms: they
+# grow when needed
+_PAIR_HEAP_LENGTH = 1024
+
+# Relative margin taken on the factor of the coordinate heuristic, computed
+# from the edges, so that the rounding errors cannot make it overestimate
+_HEURISTIC_FACTOR_MARGIN = 1.0e-9
+
+# The heuristic values are clipped to this value: an infinite value (the target
+# cannot be reached from the vertex) or one close to the largest float64 would
+# make the keys overflow. Lowering a heuristic keeps it admissible and
+# consistent.
+_HEURISTIC_MAX = 1.0e300
+
+
+def _distances(x0, y0, x1, y1, metric):
+    """Distances between points, with the same formulas as the A* routine: the
+    Euclidean distance, or the great-circle distance in meters (coordinates in
+    radians)."""
+    if metric == "euclidean":
+        return np.hypot(x1 - x0, y1 - y0)
+    sin_dx = np.sin(0.5 * (x1 - x0))
+    sin_dy = np.sin(0.5 * (y1 - y0))
+    a = sin_dy * sin_dy + np.cos(y1) * np.cos(y0) * sin_dx * sin_dx
+    return 2.0 * astar_core.EARTH_RADIUS * np.arcsin(np.sqrt(np.minimum(a, 1.0)))
+
+
+class _PairGraph(_VertexGraph):
+    """Common part of the shortest path algorithms between two vertices:
+    `AStar` and `BidirectionalDijkstra`.
+
+    The graph is built in CSR format (orientation 'out'). The per-vertex arrays
+    of the Cython routine are kept in a workspace that is reused by the
+    successive runs, so that a run costs time in proportion to the part of the
+    graph it explores, not to the vertex count. A run that finds the workspace
+    in use by another thread gets a temporary one.
+    """
+
+    _algorithm_name = "shortest path algorithm"
+    _weight_name: str
+    _path: Optional[np.ndarray]
+    _path_tracked: bool
+    _workspace: Any
+    _workspace_lock: Any
+    _layout: Optional[tuple]
+
+    def _init_pair(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+        self, edges, tail, head, weight, check_edges, permute, verbose
+    ) -> None:
+        """Check the edges and build the graph."""
+        if check_edges:
+            self._check_edges(edges, tail, head, weight, nonnegative=True)
+        edges = standardize_graph_dataframe(edges, tail, head, weight)
+        # negative and NaN weights are rejected whatever the value of
+        # check_edges (the min is NaN if any weight is)
+        if len(edges) > 0 and not np.asarray(edges[weight]).min() >= 0.0:
+            raise ValueError(f"edges['{weight}'] should be nonnegative")
+        self._weight_name = weight
+        self._build_graph(edges, tail, head, weight, "out", permute, verbose)
+        self._path = None
+        self._path_tracked = False
+        self._workspace = None
+        self._workspace_lock = threading.Lock()
+        self._layout = None
+
+    def _new_workspace(self) -> Any:
+        """Return a new workspace for the Cython routine."""
+        raise NotImplementedError
+
+    @contextmanager
+    def _borrowed_workspace(self):
+        """The workspace of the instance, or a temporary one if it is in use."""
+        if self._workspace_lock.acquire(blocking=False):
+            try:
+                if self._workspace is None:
+                    self._workspace = self._new_workspace()
+                yield self._workspace
+            finally:
+                self._workspace_lock.release()
+        else:
+            yield self._new_workspace()
+
+    def _pair_vertices(self, source: int, target: int):
+        """Internal indices of the source and the target vertices."""
+        return self._internal_vertex(source), self._internal_vertex(target)
+
+    def _vertex_layout(self):
+        """The vertex labels (`get_vertices`), and, if some internal indices are
+        not vertices (`permute=False` and gaps between the labels), a boolean
+        mask of these indices, None otherwise. Computed once."""
+        if self._layout is None:
+            vertices = self.get_vertices()
+            non_vertices = None
+            if self._labels is None and len(vertices) < self._n_vertices:
+                non_vertices = np.ones(self._n_vertices, dtype=bool)
+                non_vertices[vertices] = False
+            self._layout = (vertices, non_vertices)
+        return self._layout
+
+    def _scatter(self, values: np.ndarray) -> np.ndarray:
+        """Return values given in the order of `get_vertices`, for each internal
+        index: the indices that are not vertices get a zero."""
+        vertices, non_vertices = self._vertex_layout()
+        if non_vertices is None:
+            # the internal indices are the positions in get_vertices
+            return np.ascontiguousarray(values)
+        result = np.zeros((self._n_vertices,) + values.shape[1:], dtype=values.dtype)
+        result[vertices] = values
+        return result
+
+    def _set_pair_path(self, path: Optional[np.ndarray], tracked: bool) -> None:
+        """Store the path of the last run, given with the internal indices."""
+        self._path_tracked = tracked
+        if path is None:
+            self._path = None
+            return
+        labels = self._labels_of(path)
+        if self._labels is not None and not self._negative_labels:
+            labels = labels.astype(np.uint32)
+        self._path = labels
+
+    @staticmethod
+    def _pair_length(length: float, return_inf: bool) -> float:
+        """Path length returned by `run`."""
+        if return_inf and length == DTYPE_INF_PY:
+            return float(np.inf)
+        return float(length)
+
+    def get_path(  # type: ignore[override]  # pylint: disable=arguments-differ
+        self,
+    ) -> Optional[np.ndarray]:  # pyright: ignore[reportIncompatibleMethodOverride]
+        """Return the shortest path found by the last run.
+
+        The last call to `run` must have been made with `path_tracking=True`.
+
+        Returns
+        -------
+        numpy.ndarray or None
+            The vertices of the path, in travel order: from the source to the
+            target, both included. None if the target cannot be reached from the
+            source, and None with a warning if no path was tracked.
+        """
+        if not self._path_tracked:
+            warnings.warn(
+                f"Current {type(self).__name__} instance has no path attribute: "
+                "make sure path_tracking is set to True, and run the "
+                f"{self._algorithm_name}",
+                UserWarning,
+            )
+            return None
+        return None if self._path is None else self._path.copy()
+
+
+class AStar(_PairGraph):
+    """A* algorithm, for the shortest path between two vertices of a directed
+    graph with non-negative edge weights.
+
+    A* is Dijkstra's algorithm guided by a heuristic: a lower bound of the path
+    length from each vertex to the target. The vertices are scanned in the
+    order of their path length from the source plus their heuristic, and the
+    search stops as soon as the target is reached. The closer the heuristic is
+    to the actual path lengths, the fewer vertices are scanned. The heuristic
+    is given to `run`, or computed from vertex coordinates (see
+    `set_coordinates`).
+
+    Parameters
+    ----------
+    edges : pandas.DataFrame or polars.DataFrame
+        The edges of the graph, one row per edge. pandas dataframes can use NumPy
+        or Arrow data types.
+    tail : str, optional (default='tail')
+        Name of the column with the tail (start) vertex of each edge. The vertex
+        identifiers are integers, non-negative unless `permute` is True.
+    head : str, optional (default='head')
+        Name of the column with the head (end) vertex of each edge.
+    weight : str, optional (default='weight')
+        Name of the column with the edge weights. Negative and NaN weights are
+        rejected with a ValueError, whatever the value of `check_edges`.
+    check_edges : bool, optional (default=False)
+        Whether to check the edges before building the graph: column names,
+        data types, missing and non-finite values.
+    permute : bool, optional (default=False)
+        Whether to renumber the vertices internally, with contiguous indices
+        starting from 0. The arguments and the results of the methods use the
+        original identifiers in both cases. Negative identifiers are only
+        accepted with this option, and the heuristic must then be given as a
+        pandas Series.
+    verbose : bool, optional (default=False)
+        Whether to print the number of parallel edges that were removed.
+
+    Notes
+    -----
+    Let d(v) be the length of the shortest path from vertex v to the target,
+    and h(v) the heuristic.
+
+    - The heuristic is *admissible* if h(v) <= d(v) for every vertex v. The
+      path length returned by `run` is then the shortest one.
+    - It is *consistent* if h(u) <= w(u, v) + h(v) for every edge (u, v) of
+      weight w(u, v), and h(target) = 0. A consistent heuristic is admissible,
+      and each vertex is then scanned at most once.
+    - An admissible but inconsistent heuristic still gives the shortest path,
+      but some vertices may be scanned several times, which can be slow.
+    - With a heuristic that is not admissible, the result is the length of a
+      path from the source to the target, which may not be the shortest one.
+      This cannot be detected, and no error is raised.
+
+    The zero heuristic is consistent: A* is then Dijkstra's algorithm stopped
+    at the target. When several edges have the same tail and head vertices,
+    only the one with the smallest weight is kept.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import pandas as pd
+    >>> from edsger.path import AStar
+    >>> edges = pd.DataFrame(
+    ...     {"tail": [0, 0, 1], "head": [1, 2, 2], "weight": [1.0, 4.0, 2.0]}
+    ... )
+    >>> astar = AStar(edges)
+    >>> astar.run(source=0, target=2, heuristic=np.array([2.5, 2.0, 0.0]))
+    3.0
+    """
+
+    _coordinates: Optional[tuple]
+
+    def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+        self,
+        edges: pd.DataFrame,
+        tail: str = "tail",
+        head: str = "head",
+        weight: str = "weight",
+        check_edges: bool = False,
+        permute: bool = False,
+        verbose: bool = False,
+    ) -> None:
+        self._init_pair(edges, tail, head, weight, check_edges, permute, verbose)
+        self._coordinates = None
+
+    def _new_workspace(self) -> Any:
+        return astar_core.Workspace(max(self._n_vertices, 1))
+
+    def set_coordinates(  # pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
+        self,
+        coordinates: pd.DataFrame,
+        x: str = "x",
+        y: str = "y",
+        metric: str = "euclidean",
+        factor: Optional[float] = None,
+    ) -> float:
+        """Set the vertex coordinates, from which the heuristic is computed when
+        `run` is called without one.
+
+        The heuristic of a vertex is then `factor` times its distance to the
+        target. It is only computed for the vertices reached by the search, so
+        that a run does not cost time in proportion to the vertex count.
+
+        Parameters
+        ----------
+        coordinates : pandas.DataFrame
+            The coordinates of the vertices, indexed by vertex identifier. Every
+            vertex of the graph must have finite coordinates, the other rows are
+            ignored.
+        x : str, optional (default='x')
+            Name of the column with the first coordinate: the longitude in
+            degrees for the 'haversine' metric.
+        y : str, optional (default='y')
+            Name of the column with the second coordinate: the latitude in
+            degrees for the 'haversine' metric.
+        metric : {'euclidean', 'haversine'}, optional (default='euclidean')
+            The distance between the vertices: Euclidean distance, or
+            great-circle distance in meters on a spherical Earth.
+        factor : float, optional (default=None)
+            The distance is multiplied by this factor, to be compared with the
+            edge weights: for example the inverse of the largest speed if the
+            weights are travel times. If None, the largest factor such that
+            factor * distance(u, v) <= w(u, v) for every edge (u, v) is computed
+            from the edges, minus a small margin for the rounding errors. This
+            makes the heuristic consistent (the distance satisfies the triangle
+            inequality), so the paths found are the shortest ones. A factor
+            given here is used as is: if it is too large, the paths may not be
+            the shortest ones.
+
+        Returns
+        -------
+        float
+            The factor used.
+
+        Raises
+        ------
+        ValueError
+            If a vertex has no coordinates or non-finite ones, if a latitude is
+            not in [-90, 90] with the 'haversine' metric, or if the factor is not
+            finite and non-negative.
+        """
+        if not isinstance(coordinates, pd.DataFrame):
+            raise TypeError("coordinates should be a pandas DataFrame")
+        if metric not in astar_core.METRICS:
+            raise ValueError(
+                f"metric should be one of {astar_core.METRICS}, got {metric!r}"
+            )
+        for col in (x, y):
+            if col not in coordinates:
+                raise KeyError(f"coordinate column '{col}' not found in coordinates")
+        if not coordinates.index.is_unique:
+            raise ValueError("the index of the coordinates should be unique")
+
+        vertices, _ = self._vertex_layout()
+        xy = coordinates[[x, y]].reindex(vertices).to_numpy(dtype=DTYPE_PY)
+        if not np.isfinite(xy).all():
+            raise ValueError("every vertex of the graph should have finite coordinates")
+        if metric == "haversine":
+            if np.abs(xy[:, 1]).max(initial=0.0) > 90.0:
+                raise ValueError("the latitudes should be in [-90, 90] degrees")
+            xy = np.radians(xy)
+        xy = self._scatter(xy)
+        x_int = np.ascontiguousarray(xy[:, 0])
+        y_int = np.ascontiguousarray(xy[:, 1])
+
+        if factor is None:
+            factor = 0.0
+            tails = np.asarray(self._edges[self._tail_name])
+            heads = np.asarray(self._edges[self._head_name])
+            weights = np.asarray(self._edges[self._weight_name], dtype=DTYPE_PY)
+            ratio_min = np.inf
+            # by chunks of edges, to bound the memory
+            chunk = 1 << 22
+            for start in range(0, len(tails), chunk):
+                t = tails[start : start + chunk]
+                h = heads[start : start + chunk]
+                dist = _distances(x_int[t], y_int[t], x_int[h], y_int[h], metric)
+                positive = dist > 0.0
+                if positive.any():
+                    w = weights[start : start + chunk]
+                    ratio_min = min(ratio_min, (w[positive] / dist[positive]).min())
+            if np.isfinite(ratio_min):
+                factor = float(ratio_min) * (1.0 - _HEURISTIC_FACTOR_MARGIN)
+        else:
+            if not (np.isfinite(factor) and factor >= 0.0):
+                raise ValueError(
+                    f"the factor should be finite and non-negative, got {factor}"
+                )
+            factor = float(factor)
+
+        self._coordinates = (x_int, y_int, metric, factor)
+        return factor
+
+    def _internal_heuristic(self, heuristic) -> np.ndarray:
+        """Check the heuristic and return it for the internal vertex indices."""
+        if isinstance(heuristic, pd.Series):
+            if not heuristic.index.is_unique:
+                raise ValueError("the index of the heuristic should be unique")
+            vertices, _ = self._vertex_layout()
+            values = heuristic.reindex(vertices).to_numpy(dtype=DTYPE_PY)
+            if np.isnan(values).any():
+                raise ValueError(
+                    "the heuristic should have a value, not NaN, for every vertex"
+                )
+            values = self._scatter(values)
+        else:
+            values = np.asarray(heuristic)
+            if not np.issubdtype(values.dtype, np.number):
+                raise TypeError("the heuristic should be a numeric array")
+            if values.ndim != 1 or len(values) != self._n_vertices_init:
+                raise ValueError(
+                    "the heuristic array should have one element per integer "
+                    "between 0 and the largest vertex identifier: "
+                    f"{self._n_vertices_init}, got shape {values.shape}"
+                )
+            if self._negative_labels:
+                raise ValueError(
+                    "the graph has negative vertex labels: the heuristic should be "
+                    "a pandas Series indexed by vertex"
+                )
+            values = values.astype(DTYPE_PY, copy=False)
+            if self._labels is not None:
+                values = values[self._labels]
+            else:
+                _, non_vertices = self._vertex_layout()
+                if non_vertices is not None:
+                    # the integers that are not vertices are ignored
+                    values = np.where(non_vertices, 0.0, values)
+            values = np.ascontiguousarray(values)
+        # NaN values make the min NaN: compared as Python floats
+        value_min = float(values.min())
+        if not value_min >= 0.0:
+            if value_min != value_min:
+                raise ValueError("the heuristic should not contain NaN values")
+            raise ValueError("the heuristic should be non-negative")
+        if float(values.max()) > _HEURISTIC_MAX:
+            values = np.minimum(values, _HEURISTIC_MAX)
+        return values
+
+    def run(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+        self,
+        source: int,
+        target: int,
+        heuristic: Union[np.ndarray, pd.Series, None] = None,
+        path_tracking: bool = False,
+        return_inf: bool = True,
+    ) -> float:
+        """Compute the shortest path length from a source to a target vertex.
+
+        Parameters
+        ----------
+        source : int
+            The source vertex.
+        target : int
+            The target vertex.
+        heuristic : numpy.ndarray or pandas.Series, optional (default=None)
+            A lower bound of the path length from each vertex to the target,
+            non-negative (see the Notes of the class), infinite if the target
+            cannot be reached from the vertex. A NumPy array
+            has one element per integer between 0 and the largest vertex
+            identifier, like the NumPy results of `Dijkstra.run`: the elements
+            that are not vertices are ignored. A pandas Series is indexed by
+            vertex identifier and must have a value for every vertex; it is
+            required if the graph has negative vertex identifiers. If None, the
+            heuristic is computed from the coordinates given to
+            `set_coordinates`, or is zero if there are none. The heuristic
+            depends on the target: it must be given again for another target.
+        path_tracking : bool, optional (default=False)
+            Whether to store the shortest path, so that it can be retrieved with
+            `get_path`.
+        return_inf : bool, optional (default=True)
+            Whether to return `numpy.inf` if the target cannot be reached. If
+            False, the largest float64 value is returned instead.
+
+        Returns
+        -------
+        float
+            The length of the shortest path from the source to the target.
+
+        Raises
+        ------
+        ValueError
+            If the source or the target is not a vertex of the graph, or if the
+            heuristic does not have the right length, has missing, NaN or
+            negative values.
+        """
+        source_new, target_new = self._pair_vertices(source, target)
+        values = None if heuristic is None else self._internal_heuristic(heuristic)
+        assert self._edge_weights is not None
+        graph = (self._indptr, self._indices, self._edge_weights)
+        path = None
+        with self._borrowed_workspace() as workspace:
+            if values is not None or self._coordinates is None:
+                length = astar_core.compute_astar(
+                    *graph,
+                    source_new,
+                    target_new,
+                    self._n_vertices,
+                    values,
+                    path_tracking,
+                    workspace,
+                    _PAIR_HEAP_LENGTH,
+                )
+            else:
+                x, y, metric, factor = self._coordinates
+                length = astar_core.compute_astar_coordinates(
+                    *graph,
+                    source_new,
+                    target_new,
+                    self._n_vertices,
+                    x,
+                    y,
+                    metric,
+                    factor,
+                    path_tracking,
+                    workspace,
+                    _PAIR_HEAP_LENGTH,
+                )
+            if path_tracking and length != DTYPE_INF_PY:
+                # from the target back to the source
+                path = compute_path(workspace.get_predecessor(), target_new)[::-1]
+        self._set_pair_path(path, path_tracking)
+        return self._pair_length(length, return_inf)
+
+
+class BidirectionalDijkstra(_PairGraph):
+    """Bidirectional Dijkstra's algorithm, for the shortest path between two
+    vertices of a directed graph with non-negative edge weights.
+
+    Two searches are run alternately: from the source on the outgoing edges,
+    and from the target on the incoming edges. They stop as soon as no path
+    through the vertices that are left to scan can be shorter than the best
+    path found where the two searches meet.
+
+    The graph is stored in both CSR and CSC formats, which takes about twice
+    the memory of a `Dijkstra` instance.
+
+    Parameters
+    ----------
+    edges : pandas.DataFrame or polars.DataFrame
+        The edges of the graph, one row per edge. pandas dataframes can use NumPy
+        or Arrow data types.
+    tail : str, optional (default='tail')
+        Name of the column with the tail (start) vertex of each edge. The vertex
+        identifiers are integers, non-negative unless `permute` is True.
+    head : str, optional (default='head')
+        Name of the column with the head (end) vertex of each edge.
+    weight : str, optional (default='weight')
+        Name of the column with the edge weights. Negative and NaN weights are
+        rejected with a ValueError, whatever the value of `check_edges`.
+    check_edges : bool, optional (default=False)
+        Whether to check the edges before building the graph: column names,
+        data types, missing and non-finite values.
+    permute : bool, optional (default=False)
+        Whether to renumber the vertices internally, with contiguous indices
+        starting from 0. The arguments and the results of the methods use the
+        original identifiers in both cases. Negative identifiers are only
+        accepted with this option.
+    verbose : bool, optional (default=False)
+        Whether to print the number of parallel edges that were removed.
+
+    Notes
+    -----
+    The path length is the sum of the lengths of the two half paths, from the
+    source to the meeting vertex and from the meeting vertex to the target. It
+    is not summed in the same order as by `Dijkstra.run`, so the two may differ
+    in the last bits with non-integer weights. When several edges have the
+    same tail and head vertices, only the one with the smallest weight is kept.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from edsger.path import BidirectionalDijkstra
+    >>> edges = pd.DataFrame(
+    ...     {"tail": [0, 0, 1], "head": [1, 2, 2], "weight": [1.0, 4.0, 2.0]}
+    ... )
+    >>> bd = BidirectionalDijkstra(edges)
+    >>> bd.run(source=0, target=2, path_tracking=True)
+    3.0
+    >>> bd.get_path()
+    array([0, 1, 2], dtype=uint32)
+    """
+
+    _csc_indptr: np.ndarray
+    _csc_indices: np.ndarray
+    _csc_weights: np.ndarray
+
+    def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+        self,
+        edges: pd.DataFrame,
+        tail: str = "tail",
+        head: str = "head",
+        weight: str = "weight",
+        check_edges: bool = False,
+        permute: bool = False,
+        verbose: bool = False,
+    ) -> None:
+        self._init_pair(edges, tail, head, weight, check_edges, permute, verbose)
+        # incoming edges, for the backward search
+        indptr, indices, data = convert_graph_to_csc_float64(
+            self._edges, tail, head, weight, self._n_vertices
+        )
+        self._csc_indptr = indptr.astype(np.uint32)
+        self._csc_indices = indices.astype(np.uint32)
+        self._csc_weights = data.astype(DTYPE_PY)
+
+    def _new_workspace(self) -> Any:
+        return bidir_core.Workspace(max(self._n_vertices, 1))
+
+    def run(
+        self,
+        source: int,
+        target: int,
+        path_tracking: bool = False,
+        return_inf: bool = True,
+    ) -> float:
+        """Compute the shortest path length from a source to a target vertex.
+
+        Parameters
+        ----------
+        source : int
+            The source vertex.
+        target : int
+            The target vertex.
+        path_tracking : bool, optional (default=False)
+            Whether to store the shortest path, so that it can be retrieved with
+            `get_path`.
+        return_inf : bool, optional (default=True)
+            Whether to return `numpy.inf` if the target cannot be reached. If
+            False, the largest float64 value is returned instead.
+
+        Returns
+        -------
+        float
+            The length of the shortest path from the source to the target.
+
+        Raises
+        ------
+        ValueError
+            If the source or the target is not a vertex of the graph.
+        """
+        source_new, target_new = self._pair_vertices(source, target)
+        assert self._edge_weights is not None
+        path = None
+        with self._borrowed_workspace() as workspace:
+            length, meet = bidir_core.compute_bidirectional(
+                self._indptr,
+                self._indices,
+                self._edge_weights,
+                self._csc_indptr,
+                self._csc_indices,
+                self._csc_weights,
+                source_new,
+                target_new,
+                self._n_vertices,
+                path_tracking,
+                workspace,
+                _PAIR_HEAP_LENGTH,
+            )
+            if path_tracking and meet >= 0:
+                predecessor, successor = workspace.get_path_links()
+                # source -> meeting vertex, then meeting vertex -> target
+                forward = compute_path(predecessor, meet)[::-1]
+                backward = compute_path(successor, meet)
+                path = np.concatenate((forward, backward[1:]))
+        self._set_pair_path(path, path_tracking)
+        return self._pair_length(length, return_inf)
 
 
 # author : Francois Pacull

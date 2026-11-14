@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `ConnectedComponents` (`edsger.components`): weakly (union-find) or strongly (Pearce's algorithm, iterative) connected components, `run(connection="weak" | "strong", output=...)` returns a `component` label per vertex, numbered in order of the smallest vertex of each component, and sets `n_components`
 - `MinimumSpanningTree` (`edsger.spanning_tree`): minimum spanning forest of the graph seen as undirected (Kruskal, union-find). `run(output="pandas")` returns the forest edges (pandas, Polars, or a tuple of NumPy arrays); `total_weight` and `n_trees` attributes
 - `Centrality` (`edsger.centrality`): `pagerank`, `hits` and `katz` methods, power iterations on the graph built once, weighted or not, with the NetworkX normalizations (but the PageRank tolerance is not multiplied by the number of vertices, so that the accuracy does not degrade on large graphs). `ConvergenceError` when the iterations do not converge
+- `AStar`: A* shortest path between two vertices, `run(source, target, heuristic=None, path_tracking=False)`. Heuristic given as a NumPy array or a pandas Series, or computed on the fly from vertex coordinates (`set_coordinates`, Euclidean or haversine, factor derived from the edges so the heuristic is consistent)
+- `BidirectionalDijkstra`: bidirectional Dijkstra between two vertices, `run(source, target, path_tracking=False)`. Both classes reuse their per-vertex arrays between runs: a run costs in proportion to the explored part of the graph, not to the vertex count
 
 ### Changes
 - `BellmanFord.run(..., return_series=True)`: the Series is now named `path_length` and its index `vertex_idx`, as for `Dijkstra`
