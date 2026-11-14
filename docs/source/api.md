@@ -8,6 +8,7 @@ The four algorithms are classes of the `edsger.path` module. This page is genera
 .. autoclass:: edsger.path.Dijkstra
 
    .. automethod:: run
+   .. automethod:: run_many
    .. automethod:: get_path
    .. automethod:: get_vertices
    .. autoproperty:: n_vertices

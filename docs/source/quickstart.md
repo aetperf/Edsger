@@ -97,6 +97,21 @@ dijkstra.run(vertex_idx=0, termination_nodes=[4, 2])
 
     array([5.5, 3. ])
 
+### Several sources
+
+`run_many` runs the algorithm from several vertices, in parallel threads. With `termination_nodes`, this gives an origin-destination matrix:
+
+```python
+dijkstra.run_many([0, 1], termination_nodes=[3, 4], output="pandas")
+```
+
+    destination    3    4
+    origin
+    0            4.5  5.5
+    1            3.5  4.5
+
+The default output is a 2D NumPy array, with one row per source. `n_jobs` sets the number of threads, all the CPUs by default.
+
 ### Vertex identifiers
 
 Without any option, a graph whose largest vertex identifier is 1004 is handled as a graph with 1005 vertices, even if only 5 of them have edges. With `permute=True`, the vertices are renumbered internally with contiguous indices, which saves memory and time when the identifiers are sparse. The arguments and the results keep the original identifiers.

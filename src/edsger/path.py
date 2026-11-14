@@ -2,7 +2,9 @@
 Path-related methods.
 """
 
+from concurrent.futures import ThreadPoolExecutor
 import numbers
+import os
 from typing import TYPE_CHECKING, Optional, Union, List, Any, cast
 import warnings
 
@@ -339,7 +341,9 @@ class _VertexGraph:
             raise ValueError(f"vertex {vertex_idx} not found in graph")
         return int(vertex_idx)
 
-    def _internal_vertices(self, vertices: np.ndarray, what: str) -> np.ndarray:
+    def _internal_vertices(
+        self, vertices: np.ndarray, what: str, what_plural: str
+    ) -> np.ndarray:
         """Return the internal indices of an array of vertex labels, as uint32."""
         if self._labels is not None:
             positions = np.searchsorted(self._labels, vertices)
@@ -349,7 +353,7 @@ class _VertexGraph:
                 raise ValueError(f"{what} {vertices[~found][0]} not found in graph")
             return positions.astype(np.uint32)
         if np.any(vertices >= self._n_vertices) or np.any(vertices < 0):
-            raise ValueError(f"{what}s contain invalid vertex indices")
+            raise ValueError(f"{what_plural} contain invalid vertex indices")
         return vertices.astype(np.uint32)
 
     def _vertex_result(
@@ -575,7 +579,7 @@ class Dijkstra(_VertexGraph):
             raise ValueError("argument 'termination_nodes' must be 1-dimensional")
         if len(nodes) == 0:
             raise ValueError("argument 'termination_nodes' must not be empty")
-        return self._internal_vertices(nodes, "termination node")
+        return self._internal_vertices(nodes, "termination node", "termination nodes")
 
     def _compute(
         self,
@@ -679,6 +683,144 @@ class Dijkstra(_VertexGraph):
 
         fill = np.inf if return_inf else DTYPE_INF_PY
         return self._vertex_result(path_lengths, "path_length", fill, output)
+
+    def run_many(  # pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
+        self,
+        vertices: List[int],
+        termination_nodes: Optional[List[int]] = None,
+        return_inf: bool = True,
+        output: Optional[str] = None,
+        n_jobs: Optional[int] = None,
+        heap_length_ratio: float = 1.0,
+    ) -> Union[np.ndarray, pd.DataFrame, "polars.DataFrame"]:
+        """Compute the shortest path lengths from or to several vertices, in parallel.
+
+        Each vertex is a separate run of the algorithm. The runs are distributed
+        over a pool of threads: the Cython routine does not hold the GIL.
+
+        Parameters
+        ----------
+        vertices : array-like of int
+            The source vertices if the orientation is 'out', the target vertices
+            if it is 'in'.
+        termination_nodes : array-like of int, optional (default=None)
+            The other ends of the paths: if given, each run stops as soon as the
+            path lengths of these vertices are known, and only these path lengths
+            are returned. With the 'out' orientation, this gives an
+            origin-destination matrix of the path lengths from `vertices` to
+            `termination_nodes`.
+        return_inf : bool, optional (default=True)
+            Whether to return `numpy.inf` as the path length of the vertices that
+            cannot be reached. If False, the largest float64 value is returned
+            instead.
+        output : {'numpy', 'pandas', 'polars'}, optional (default='numpy')
+            Type of the result, see below.
+        n_jobs : int, optional (default=None)
+            Number of threads. None uses all the CPUs (`os.cpu_count()`).
+        heap_length_ratio : float, optional (default=1.0)
+            Initial capacity of the priority queue, as in `run`.
+
+        Returns
+        -------
+        numpy.ndarray, pandas.DataFrame or polars.DataFrame
+            The path lengths, as float64. The NumPy array has one row per vertex
+            of `vertices`, and one column per integer between 0 and the largest
+            vertex identifier, or one column per termination node. The pandas
+            DataFrame has the same rows, labelled by `vertices`, and one column
+            per vertex of the graph or per termination node. The Polars DataFrame
+            has one row per pair of vertices, with the columns 'origin',
+            'destination' and 'path_length'. The pandas index and columns are
+            named 'origin' and 'destination' as well. With the 'in' orientation,
+            `vertices` are the destinations.
+
+        Raises
+        ------
+        ValueError
+            If a vertex or a termination node is not a vertex of the graph, or if
+            the graph has negative vertex identifiers and the output is 'numpy'.
+
+        Notes
+        -----
+        Without termination nodes, the result holds one path length per pair of
+        vertices: 8 bytes times the number of runs times the number of vertices.
+        """
+        output = _resolve_output(output, False)
+        self._check_output(output)
+        try:
+            vertex_labels = np.array(vertices, dtype=np.int64)
+        except (ValueError, TypeError, OverflowError) as exc:
+            raise TypeError(
+                "argument 'vertices' must be array-like of integers"
+            ) from exc
+        if vertex_labels.ndim != 1:
+            raise ValueError("argument 'vertices' must be 1-dimensional")
+        sources = self._internal_vertices(vertex_labels, "vertex", "vertices")
+        heap_length = self._heap_length(heap_length_ratio)
+        termination = self._termination_nodes(termination_nodes)
+        if n_jobs is None:
+            n_jobs = os.cpu_count() or 1
+        if isinstance(n_jobs, bool) or not isinstance(n_jobs, numbers.Integral):
+            raise TypeError(f"argument 'n_jobs' must be an integer, got {n_jobs!r}")
+        if n_jobs < 1:
+            raise ValueError(f"argument 'n_jobs' must be positive, got {n_jobs}")
+
+        n_columns = self._n_vertices if termination is None else len(termination)
+        path_lengths = np.empty((len(sources), n_columns), dtype=DTYPE_PY)
+
+        def compute_row(i):
+            path_lengths[i] = self._compute(
+                int(sources[i]), None, termination, heap_length
+            )
+
+        n_jobs = min(int(n_jobs), len(sources))
+        if n_jobs <= 1:
+            for i in range(len(sources)):
+                compute_row(i)
+        else:
+            with ThreadPoolExecutor(max_workers=n_jobs) as executor:
+                # list() re-raises the exceptions of the threads
+                list(executor.map(compute_row, range(len(sources))))
+
+        if return_inf:
+            path_lengths[path_lengths == DTYPE_INF_PY] = np.inf
+
+        # column labels
+        if termination is not None:
+            columns = np.asarray(termination_nodes)
+        elif self._labels is not None:
+            columns = self._labels
+            if output == "numpy":
+                # one column per integer between 0 and the largest label
+                dense = np.full(
+                    (len(sources), self._n_vertices_init),
+                    np.inf if return_inf else DTYPE_INF_PY,
+                )
+                dense[:, self._labels] = path_lengths
+                path_lengths = dense
+        else:
+            columns = np.arange(self._n_vertices)
+        if output == "numpy":
+            return path_lengths
+
+        if self._orientation == "out":
+            row_name, column_name = "origin", "destination"
+        else:
+            row_name, column_name = "destination", "origin"
+        if output == "pandas":
+            return pd.DataFrame(
+                path_lengths,
+                index=pd.Index(vertex_labels, name=row_name),
+                columns=pd.Index(columns, name=column_name),
+            )
+        pl = _import_polars()
+        long = pl.DataFrame(
+            {
+                row_name: np.repeat(vertex_labels, len(columns)),
+                column_name: np.tile(columns, len(vertex_labels)),
+                "path_length": path_lengths.reshape(-1),
+            }
+        )
+        return long.select(["origin", "destination", "path_length"])
 
 
 class BellmanFord(_VertexGraph):
