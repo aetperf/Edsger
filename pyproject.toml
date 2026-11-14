@@ -106,6 +106,9 @@ skip = "*_i686"
 # imported (missing symbols, illegal instructions). The full test suite is not
 # run: one test depends on the FMA instructions of native builds.
 test-command = "python {project}/scripts/wheel_smoke_test.py"
+# NumPy and pandas have no 32-bit Windows wheels: pip would build them from
+# source in the test environment, and fails
+test-skip = "*-win32"
 
 [tool.cibuildwheel.linux]
 # The Linux wheels are built with Clang: its code for the Dijkstra kernel is
