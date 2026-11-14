@@ -249,6 +249,13 @@ extensions = [
         extra_link_args=extra_link_args,
         define_macros=define_macros,
     ),
+    Extension(
+        "edsger.dfs",
+        ["src/edsger/dfs.pyx"],
+        extra_compile_args=extra_compile_args,
+        extra_link_args=extra_link_args,
+        define_macros=define_macros,
+    ),
 ]
 
 

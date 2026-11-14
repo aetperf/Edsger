@@ -38,6 +38,7 @@ from edsger.star import (
     convert_graph_to_csr_uint32,
 )
 from edsger.bfs import bfs_csr, bfs_csc  # pylint: disable=no-name-in-module
+from edsger.dfs import dfs_csr, dfs_csc  # pylint: disable=no-name-in-module
 
 if TYPE_CHECKING:
     import polars
@@ -1450,6 +1451,237 @@ class BFS(_VertexGraph):
                 np.int32
             )
         return self._vertex_result(predecessors, "predecessor", self._sentinel, output)
+
+
+def _check_sentinel(sentinel) -> None:
+    """Checks the sentinel value of the algorithms returning predecessors."""
+    if not isinstance(sentinel, int):  # pyright: ignore[reportUnnecessaryIsInstance]
+        raise TypeError(f"sentinel must be an integer, got {type(sentinel).__name__}")
+    if sentinel >= 0:
+        raise ValueError(f"sentinel must be negative, got {sentinel}")
+    if sentinel < np.iinfo(np.int32).min or sentinel > np.iinfo(np.int32).max:
+        raise ValueError(
+            f"sentinel must fit in int32 range [{np.iinfo(np.int32).min}, "
+            f"{np.iinfo(np.int32).max}], got {sentinel}"
+        )
+
+
+class DFS(_VertexGraph):
+    """Depth-first search in a directed graph.
+
+    The search is iterative, so it is not limited by the depth of the call
+    stack. The edge weights are not used. The graph is built once from a
+    dataframe of edges. The `run` method can then be called any number of times,
+    from or to different vertices.
+
+    Parameters
+    ----------
+    edges : pandas.DataFrame or polars.DataFrame
+        The edges of the graph, one row per edge. pandas dataframes can use NumPy
+        or Arrow data types.
+        A weight column, if there is one, is ignored.
+    tail : str, optional (default='tail')
+        Name of the column with the tail (start) vertex of each edge. The vertex
+        identifiers are integers, non-negative unless `permute` is True.
+    head : str, optional (default='head')
+        Name of the column with the head (end) vertex of each edge.
+    orientation : {'out', 'in'}, optional (default='out')
+        'out' to follow the edges from one vertex (the search tree gives a path
+        from this vertex to each reachable vertex), 'in' to follow them backward
+        to one vertex (a path from each vertex that can reach it).
+    check_edges : bool, optional (default=False)
+        Whether to check the edges before building the graph: column names,
+        data types and missing values.
+    permute : bool, optional (default=False)
+        Whether to renumber the vertices internally, with contiguous indices
+        starting from 0. Without it, the internal arrays have one element per
+        integer between 0 and the largest vertex identifier. The arguments and
+        the results of the methods use the original identifiers in both cases.
+        Negative identifiers are only accepted with this option, and the results
+        must then be labelled by vertex (`output='pandas'` or `'polars'`).
+    verbose : bool, optional (default=False)
+        Whether to print the number of parallel edges that were removed.
+    sentinel : int, optional (default=-9999)
+        Value returned for the vertices without predecessor: the start vertex
+        and the vertices that cannot be reached. It must be a negative int32,
+        different from all the vertex identifiers.
+
+    Notes
+    -----
+    When several edges have the same tail and head vertices, only one is kept.
+
+    The visiting order is the one of the recursive depth-first search: from the
+    current vertex, the search goes to its first neighbour that is not
+    discovered yet, and backtracks when there is none. The neighbours of a
+    vertex are taken in increasing order of their identifiers: the heads of its
+    outgoing edges with the 'out' orientation, the tails of its incoming edges
+    with 'in'. This is also the order of `scipy.sparse.csgraph.depth_first_order`
+    on a matrix with sorted indices.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from edsger.path import DFS
+    >>> edges = pd.DataFrame({"tail": [0, 0, 1], "head": [1, 2, 3]})
+    >>> dfs = DFS(edges)
+    >>> dfs.run(vertex_idx=0)
+    array([-9999,     0,     0,     1], dtype=int32)
+    >>> dfs.get_order()
+    array([0, 1, 3, 2], dtype=uint32)
+    """
+
+    _algorithm_name = "DFS algorithm"
+
+    def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+        self,
+        edges: pd.DataFrame,
+        tail: str = "tail",
+        head: str = "head",
+        orientation: str = "out",
+        check_edges: bool = False,
+        permute: bool = False,
+        verbose: bool = False,
+        sentinel: int = -9999,
+    ) -> None:
+        _check_sentinel(sentinel)
+        self._sentinel = sentinel
+        self._order: Optional[np.ndarray] = None
+
+        if check_edges:
+            self._check_edges(edges, tail, head)
+        # Convert to standardized NumPy-backed pandas DataFrame, without weights
+        edges = standardize_graph_dataframe(edges, tail, head)
+        self._build_graph(edges, tail, head, None, orientation, permute, verbose)
+
+        if self._labels is not None and np.any(self._labels == self._sentinel):
+            raise ValueError(
+                f"sentinel {self._sentinel} is also a vertex label: "
+                "use another sentinel value"
+            )
+
+    @property
+    def UNREACHABLE(self) -> int:  # pylint: disable=invalid-name
+        """The sentinel value, returned for the vertices without predecessor."""
+        return self._sentinel
+
+    def run(
+        self,
+        vertex_idx: int,
+        path_tracking: bool = False,
+        return_series: bool = False,
+        output: Optional[str] = None,
+    ) -> VertexResult:
+        """Compute the depth-first search tree from or to a given vertex.
+
+        The discovery order of the vertices is kept, see `get_order`.
+
+        Parameters
+        ----------
+        vertex_idx : int
+            The start vertex: the source vertex if the orientation is 'out', the
+            target vertex if it is 'in'.
+        path_tracking : bool, optional (default=False)
+            Whether to store the search tree, so that the paths can be retrieved
+            with `get_path`.
+        return_series : bool, optional (default=False)
+            Same as `output='pandas'`.
+        output : {'numpy', 'pandas', 'polars'}, optional (default='numpy')
+            Type of the result. 'pandas' returns a Series named 'predecessor'
+            indexed by vertex ('vertex_idx'), 'polars' a DataFrame with the
+            columns 'vertex_idx' and 'predecessor'.
+
+        Returns
+        -------
+        numpy.ndarray, pandas.Series or polars.DataFrame
+            The predecessor ('out') or the successor ('in') of each vertex in the
+            depth-first search tree, as int32. The array has one element per
+            integer between 0 and the largest vertex identifier. The start vertex
+            and the vertices that cannot be reached have the sentinel value. The
+            Series and the DataFrame have one row per vertex.
+
+        Raises
+        ------
+        ValueError
+            If `vertex_idx` is not a vertex of the graph, or if the graph has
+            negative vertex identifiers and the output is 'numpy'.
+        """
+        output = _resolve_output(output, return_series)
+        self._check_output(output)
+        vertex_new = self._internal_vertex(vertex_idx)
+
+        dfs = dfs_csr if self._orientation == "out" else dfs_csc
+        predecessors, order = dfs(
+            self._indptr,
+            self._indices,
+            vertex_new,
+            self._n_vertices,
+            self._sentinel,
+        )
+        self._order = order
+        reachable = predecessors != self._sentinel
+
+        if path_tracking:
+            # the vertices without predecessor are linked to themselves
+            path_links = np.arange(self._n_vertices, dtype=np.uint32)
+            path_links[reachable] = predecessors[reachable].astype(np.uint32)
+        else:
+            path_links = None
+        self._set_path_links(path_links, output)
+
+        if self._labels is not None:
+            # predecessors with their original labels
+            predecessors[reachable] = self._labels[predecessors[reachable]].astype(
+                np.int32
+            )
+        return self._vertex_result(predecessors, "predecessor", self._sentinel, output)
+
+    def get_path(self, vertex_idx: int) -> Optional[np.ndarray]:
+        """Return the path between a vertex and the vertex of the last run in the
+        depth-first search tree.
+
+        The last call to `run` must have been made with `path_tracking=True`. This
+        path is generally not a shortest one.
+
+        Parameters
+        ----------
+        vertex_idx : int
+            The other end of the path: the target vertex if the orientation is
+            'out', the source vertex if it is 'in'.
+
+        Returns
+        -------
+        numpy.ndarray or None
+            The vertices of the path, starting with `vertex_idx` and ending with the
+            vertex given to `run`: in reverse order with the 'out' orientation, in
+            travel order with 'in'. If there is no path, the array only contains
+            `vertex_idx`. None is returned, with a warning, if no path was tracked.
+        """
+        return super().get_path(vertex_idx)
+
+    def get_order(self) -> Optional[np.ndarray]:
+        """Return the vertices reached by the last run, in discovery order.
+
+        Returns
+        -------
+        numpy.ndarray or None
+            The vertices reached from ('out') or reaching ('in') the vertex given
+            to `run`, in the order in which the search discovered them (preorder),
+            starting with this vertex. None is returned, with a warning, if `run`
+            was not called.
+        """
+        if self._order is None:
+            warnings.warn(
+                f"Current {type(self).__name__} instance has no discovery order: "
+                f"run the {self._algorithm_name} first",
+                UserWarning,
+            )
+            return None
+        if self._labels is None:
+            return self._order.copy()
+        vertices = self._labels[self._order]
+        if self._labels[0] >= 0:
+            vertices = vertices.astype(np.uint32)
+        return vertices
 
 
 # author : Francois Pacull
