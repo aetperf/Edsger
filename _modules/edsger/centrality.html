@@ -1,0 +1,798 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
+
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+        <title>edsger.centrality - Edsger 0.3.0</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #2f5d8a;
+  --color-brand-content: #2f5d8a;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #8fb8de;
+  --color-brand-content: #8fb8de;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #8fb8de;
+  --color-brand-content: #8fb8de;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">Edsger 0.3.0</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  <span class="sidebar-brand-text">Edsger 0.3.0</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../coming_from.html">Coming from NetworkX or SciPy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/shortest_paths.html">Shortest paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/traversal.html">Traversal and components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/network_analysis.html">Spanning trees and centrality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/transit.html">Transit assignment</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/road_routing.html">Routing on a road network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/od_matrix.html">Origin-destination matrix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/transit_assignment.html">Transit assignment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/ranking.html">Ranking the vertices of a network</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for edsger.centrality</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">Centrality measures of the vertices of a directed graph.</span>
+
+<span class="sd">classes:</span>
+
+<span class="sd">- Centrality</span>
+<span class="sd">    PageRank, HITS hubs and authorities, Katz centrality, by power iteration.</span>
+<span class="sd">- ConvergenceError</span>
+<span class="sd">    Raised when the power iterations do not converge.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numbers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">edsger.graph_importer</span><span class="w"> </span><span class="kn">import</span> <span class="n">standardize_graph_dataframe</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">VertexResult</span><span class="p">,</span> <span class="n">_Graph</span><span class="p">,</span> <span class="n">_resolve_output</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">edsger.power_iteration</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># pylint: disable=no-name-in-module</span>
+    <span class="n">hits_csr_csc</span><span class="p">,</span>
+    <span class="n">katz_csc</span><span class="p">,</span>
+    <span class="n">pagerank_csc</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="ConvergenceError">
+<a class="viewcode-back" href="../../api.html#edsger.centrality.ConvergenceError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConvergenceError</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The power iterations did not converge within `max_iter` iterations."""</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_iteration_arguments</span><span class="p">(</span><span class="n">tol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">max_iter</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">max_iter</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Integral</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"max_iter should be an integer, got </span><span class="si">{</span><span class="n">max_iter</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">max_iter</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"max_iter should be at least 1, got </span><span class="si">{</span><span class="n">max_iter</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tol</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Real</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">tol</span><span class="p">)</span> <span class="ow">or</span> <span class="n">tol</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"tol should be a positive number, got </span><span class="si">{</span><span class="n">tol</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_real</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Real</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> should be a real number, got </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> should be finite, got </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Centrality">
+<a class="viewcode-back" href="../../api.html#edsger.centrality.Centrality">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Centrality</span><span class="p">(</span><span class="n">_Graph</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Centrality measures of the vertices of a directed graph: PageRank, HITS</span>
+<span class="sd">    hubs and authorities, and Katz centrality.</span>
+
+<span class="sd">    The graph is built once from a dataframe of edges, then each measure is</span>
+<span class="sd">    computed by power iteration, with the methods `pagerank`, `hits` and</span>
+<span class="sd">    `katz`. The results follow the conventions of NetworkX (see the Notes).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    edges : pandas.DataFrame or polars.DataFrame</span>
+<span class="sd">        The edges of the graph, one row per edge. pandas dataframes can use NumPy</span>
+<span class="sd">        or Arrow data types.</span>
+<span class="sd">    tail : str, optional (default='tail')</span>
+<span class="sd">        Name of the column with the tail (start) vertex of each edge. The vertex</span>
+<span class="sd">        identifiers are integers, non-negative unless `permute` is True.</span>
+<span class="sd">    head : str, optional (default='head')</span>
+<span class="sd">        Name of the column with the head (end) vertex of each edge.</span>
+<span class="sd">    weight : str or None, optional (default=None)</span>
+<span class="sd">        Name of the column with the edge weights, which must be non-negative</span>
+<span class="sd">        and finite. With None, the graph is unweighted: all the edges have a</span>
+<span class="sd">        weight of 1.</span>
+<span class="sd">    check_edges : bool, optional (default=False)</span>
+<span class="sd">        Whether to check the edges before building the graph: column names,</span>
+<span class="sd">        data types and missing values.</span>
+<span class="sd">    permute : bool, optional (default=False)</span>
+<span class="sd">        Whether to renumber the vertices internally, with contiguous indices</span>
+<span class="sd">        starting from 0. Negative identifiers are only accepted with this</span>
+<span class="sd">        option, and the results must then be labelled by vertex</span>
+<span class="sd">        (`output='pandas'` or `'polars'`).</span>
+<span class="sd">    verbose : bool, optional (default=False)</span>
+<span class="sd">        Whether to print the number of parallel edges that were removed.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    When several edges have the same tail and head vertices, only one is kept,</span>
+<span class="sd">    with the minimum weight (as for the other algorithms of edsger, whereas a</span>
+<span class="sd">    NetworkX MultiDiGraph would add up their weights).</span>
+
+<span class="sd">    The vertices are the tails and heads of the edges. With `permute=False`,</span>
+<span class="sd">    the integers between 0 and the largest identifier that are not used by any</span>
+<span class="sd">    edge are not vertices: they do not take part in the computations, and get</span>
+<span class="sd">    a value of 0 in the results.</span>
+
+<span class="sd">    Each method raises `ConvergenceError` if the power iterations do not</span>
+<span class="sd">    converge within `max_iter` iterations, or diverge.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">    &gt;&gt;&gt; from edsger.centrality import Centrality</span>
+<span class="sd">    &gt;&gt;&gt; edges = pd.DataFrame({"tail": [0, 1, 2, 2], "head": [1, 2, 0, 1]})</span>
+<span class="sd">    &gt;&gt;&gt; c = Centrality(edges)</span>
+<span class="sd">    &gt;&gt;&gt; c.pagerank().round(3)</span>
+<span class="sd">    array([0.215, 0.397, 0.388])</span>
+<span class="sd">    """</span>
+
+    <span class="n">_algorithm_name</span> <span class="o">=</span> <span class="s2">"centrality algorithm"</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments,too-many-positional-arguments</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">edges</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">tail</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"tail"</span><span class="p">,</span>
+        <span class="n">head</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"head"</span><span class="p">,</span>
+        <span class="n">weight</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">check_edges</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">permute</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">check_edges</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_edges</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">tail</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">nonnegative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">standardize_graph_dataframe</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">tail</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">weight</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">edges</span><span class="p">[</span><span class="n">weight</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="c1"># rejects the NaN weights too</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"edges['</span><span class="si">{</span><span class="n">weight</span><span class="si">}</span><span class="s2">'] should be nonnegative"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">weights</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"edges['</span><span class="si">{</span><span class="n">weight</span><span class="si">}</span><span class="s2">'] should be finite"</span><span class="p">)</span>
+        <span class="c1"># CSC format: the iterations pull the values of the predecessors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_graph</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">tail</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="s2">"in"</span><span class="p">,</span> <span class="n">permute</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_weighted</span> <span class="o">=</span> <span class="n">weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_vertices</span>
+        <span class="c1"># predecessor (tail) of each edge, in CSC order</span>
+        <span class="n">preds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_vertex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_vertex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_indptr</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_vertex</span><span class="p">[</span><span class="n">preds</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n_actual</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_vertex</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_edge_weights</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edge_weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">out_weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span>
+            <span class="n">preds</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_edge_weights</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weighted</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">minlength</span><span class="o">=</span><span class="n">n</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inv_out_weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">positive</span> <span class="o">=</span> <span class="n">out_weight</span> <span class="o">&gt;</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inv_out_weight</span><span class="p">[</span><span class="n">positive</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">out_weight</span><span class="p">[</span><span class="n">positive</span><span class="p">]</span>
+        <span class="c1"># CSR format, for HITS only: built on first use</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_csr</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># ------------------------------------------------------------ helpers</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_repr_items</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_repr_items</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"weighted=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_weighted</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_uniform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Uniform distribution over the vertices."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_vertex</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_actual</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_vertex_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Dense vector over the internal vertices from a mapping vertex -&gt;</span>
+<span class="sd">        value (dict or pandas Series). Missing vertices get 0."""</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> should be a dict or a pandas Series mapping vertices to "</span>
+                <span class="sa">f</span><span class="s2">"values, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+        <span class="n">vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_vertices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">vector</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">keys</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"the vertices of </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> should be integers"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">vals</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span>
+            <span class="n">vals</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">complexfloating</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"the values of </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> should be real numbers"</span><span class="p">)</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="n">vals</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">or</span> <span class="p">(</span><span class="n">vals</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"the values of </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> should be nonnegative and finite"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">keys</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"the vertices of </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> should be unique"</span><span class="p">)</span>
+        <span class="n">internal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_internal_vertices</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> vertex"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> vertices"</span><span class="p">)</span>
+        <span class="n">vector</span><span class="p">[</span><span class="n">internal</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
+        <span class="k">return</span> <span class="n">vector</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_csr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""The graph in CSR format, from the CSC format."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_csr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_vertices</span>
+            <span class="n">heads</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_indptr</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_indices</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"stable"</span><span class="p">)</span>
+            <span class="n">indptr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_indices</span><span class="p">,</span> <span class="n">minlength</span><span class="o">=</span><span class="n">n</span><span class="p">),</span> <span class="n">out</span><span class="o">=</span><span class="n">indptr</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">order</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weighted</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_csr</span> <span class="o">=</span> <span class="p">(</span><span class="n">indptr</span><span class="p">,</span> <span class="n">heads</span><span class="p">[</span><span class="n">order</span><span class="p">],</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_csr</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_result</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">return_series</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VertexResult</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">_resolve_output</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">return_series</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_output</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertex_result</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_iter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">n_iter</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ConvergenceError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------ measures</span>
+
+<div class="viewcode-block" id="Centrality.pagerank">
+<a class="viewcode-back" href="../../api.html#edsger.centrality.Centrality.pagerank">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pagerank</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments,too-many-positional-arguments</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">damping</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.85</span><span class="p">,</span>
+        <span class="n">personalization</span><span class="p">:</span> <span class="n">Mapping</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0e-6</span><span class="p">,</span>
+        <span class="n">max_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">return_series</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VertexResult</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""PageRank of the vertices.</span>
+
+<span class="sd">        The PageRank is the stationary distribution of a random walk that</span>
+<span class="sd">        follows an outgoing edge with probability `damping`, chosen in</span>
+<span class="sd">        proportion to the edge weights, and otherwise jumps to a vertex drawn</span>
+<span class="sd">        from the personalization distribution (uniform by default). From a</span>
+<span class="sd">        dangling vertex, without outgoing edge (or with zero out-weight), the</span>
+<span class="sd">        walk always jumps to a vertex drawn from the personalization</span>
+<span class="sd">        distribution.</span>
+
+<span class="sd">        This is `networkx.pagerank` with `alpha=damping` and `dangling=None`,</span>
+<span class="sd">        except for the stopping criterion: NetworkX compares the change of the</span>
+<span class="sd">        vector with `n * tol`, a threshold that grows with the graph while the</span>
+<span class="sd">        vector sums to 1. Here `tol` does not depend on the number of vertices,</span>
+<span class="sd">        so that the accuracy of the result does not either.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        damping : float, optional (default=0.85)</span>
+<span class="sd">            Damping factor, in [0, 1] (`alpha` in NetworkX).</span>
+<span class="sd">        personalization : dict or pandas.Series, optional (default=None)</span>
+<span class="sd">            Teleportation weights of the vertices, as a mapping from vertex to a</span>
+<span class="sd">            non-negative weight, normalized to sum 1. The vertices that are</span>
+<span class="sd">            not given get 0. Uniform over the vertices if None.</span>
+<span class="sd">        tol : float, optional (default=1e-6)</span>
+<span class="sd">            The iterations stop when the L1 norm of the change of the PageRank</span>
+<span class="sd">            vector is smaller than `tol`. Since the error decreases by a factor</span>
+<span class="sd">            `damping` at each iteration, about 90 iterations are needed with the</span>
+<span class="sd">            default values.</span>
+<span class="sd">        max_iter : int, optional (default=1000)</span>
+<span class="sd">            Maximum number of iterations.</span>
+<span class="sd">        output : {'numpy', 'pandas', 'polars'}, optional (default='numpy')</span>
+<span class="sd">            Type of the result. 'pandas' returns a Series named 'pagerank'</span>
+<span class="sd">            indexed by vertex ('vertex_idx'), 'polars' a DataFrame with the</span>
+<span class="sd">            columns 'vertex_idx' and 'pagerank'.</span>
+<span class="sd">        return_series : bool, optional (default=False)</span>
+<span class="sd">            Same as `output='pandas'`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy.ndarray, pandas.Series or polars.DataFrame</span>
+<span class="sd">            The PageRank of each vertex, summing to 1. The array is indexed by</span>
+<span class="sd">            vertex identifier.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ConvergenceError</span>
+<span class="sd">            If the iterations do not converge within `max_iter` iterations.</span>
+<span class="sd">        """</span>
+        <span class="n">damping</span> <span class="o">=</span> <span class="n">_check_real</span><span class="p">(</span><span class="n">damping</span><span class="p">,</span> <span class="s2">"damping"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">damping</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"damping should be in [0, 1], got </span><span class="si">{</span><span class="n">damping</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">_check_iteration_arguments</span><span class="p">(</span><span class="n">tol</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_vertices</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="s2">"pagerank"</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">return_series</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">personalization</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">teleport</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uniform</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">teleport</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertex_vector</span><span class="p">(</span><span class="n">personalization</span><span class="p">,</span> <span class="s2">"personalization"</span><span class="p">)</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="n">teleport</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"the personalization values should not all be 0"</span><span class="p">)</span>
+            <span class="n">teleport</span> <span class="o">/=</span> <span class="n">total</span>
+
+        <span class="n">values</span><span class="p">,</span> <span class="n">n_iter</span> <span class="o">=</span> <span class="n">pagerank_csc</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_indptr</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_weighted</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_inv_out_weight</span><span class="p">,</span>
+            <span class="n">teleport</span><span class="p">,</span>
+            <span class="n">teleport</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_uniform</span><span class="p">(),</span>
+            <span class="n">damping</span><span class="p">,</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">tol</span><span class="p">),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">max_iter</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_result</span><span class="p">(</span>
+            <span class="n">values</span><span class="p">,</span>
+            <span class="n">n_iter</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"PageRank did not converge within </span><span class="si">{</span><span class="n">max_iter</span><span class="si">}</span><span class="s2"> iterations (tol=</span><span class="si">{</span><span class="n">tol</span><span class="si">}</span><span class="s2">): "</span>
+            <span class="s2">"increase max_iter or tol"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"pagerank"</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">return_series</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Centrality.hits">
+<a class="viewcode-back" href="../../api.html#edsger.centrality.Centrality.hits">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hits</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0e-8</span><span class="p">,</span>
+        <span class="n">max_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">return_series</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">VertexResult</span><span class="p">,</span> <span class="n">VertexResult</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""HITS hub and authority scores of the vertices.</span>
+
+<span class="sd">        The authority of a vertex is the weighted sum of the hub scores of its</span>
+<span class="sd">        predecessors, the hub score of a vertex is the weighted sum of the</span>
+<span class="sd">        authorities of its successors: these are the principal left and right</span>
+<span class="sd">        singular vectors of the adjacency matrix. They are computed by power</span>
+<span class="sd">        iteration, starting from uniform hub scores.</span>
+
+<span class="sd">        This is `networkx.hits` with `normalized=True`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tol : float, optional (default=1e-8)</span>
+<span class="sd">            The iterations stop when the L1 norm of the change of the hub</span>
+<span class="sd">            vector, scaled so that its largest element is 1, is smaller than</span>
+<span class="sd">            `tol`.</span>
+<span class="sd">        max_iter : int, optional (default=100)</span>
+<span class="sd">            Maximum number of iterations.</span>
+<span class="sd">        output : {'numpy', 'pandas', 'polars'}, optional (default='numpy')</span>
+<span class="sd">            Type of the results. 'pandas' returns Series named 'hub' and</span>
+<span class="sd">            'authority' indexed by vertex ('vertex_idx'), 'polars' DataFrames</span>
+<span class="sd">            with the columns 'vertex_idx' and 'hub' or 'authority'.</span>
+<span class="sd">        return_series : bool, optional (default=False)</span>
+<span class="sd">            Same as `output='pandas'`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            The hub scores and the authority scores, each summing to 1. The</span>
+<span class="sd">            arrays are indexed by vertex identifier.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ConvergenceError</span>
+<span class="sd">            If the iterations do not converge within `max_iter` iterations.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        If the largest singular value of the adjacency matrix is not simple,</span>
+<span class="sd">        for example with several connected components having the same one,</span>
+<span class="sd">        the result depends on the starting vector.</span>
+<span class="sd">        """</span>
+        <span class="n">_check_iteration_arguments</span><span class="p">(</span><span class="n">tol</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_vertices</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">empty</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">(</span><span class="n">empty</span><span class="p">,</span> <span class="s2">"hub"</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">return_series</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">(</span><span class="n">empty</span><span class="p">,</span> <span class="s2">"authority"</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">return_series</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weighted</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"HITS is not defined when all the edge weights are 0"</span><span class="p">)</span>
+
+        <span class="n">csr_indptr</span><span class="p">,</span> <span class="n">csr_indices</span><span class="p">,</span> <span class="n">csr_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_csr</span><span class="p">()</span>
+        <span class="n">hubs</span><span class="p">,</span> <span class="n">authorities</span><span class="p">,</span> <span class="n">n_iter</span> <span class="o">=</span> <span class="n">hits_csr_csc</span><span class="p">(</span>
+            <span class="n">csr_indptr</span><span class="p">,</span>
+            <span class="n">csr_indices</span><span class="p">,</span>
+            <span class="n">csr_data</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_indptr</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_weighted</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_uniform</span><span class="p">(),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">tol</span><span class="p">),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">max_iter</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_result</span><span class="p">(</span>
+            <span class="n">hubs</span><span class="p">,</span>
+            <span class="n">n_iter</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"HITS did not converge within </span><span class="si">{</span><span class="n">max_iter</span><span class="si">}</span><span class="s2"> iterations (tol=</span><span class="si">{</span><span class="n">tol</span><span class="si">}</span><span class="s2">): "</span>
+            <span class="s2">"increase max_iter or tol"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">hubs</span> <span class="o">/=</span> <span class="n">hubs</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">authorities</span> <span class="o">/=</span> <span class="n">authorities</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">(</span><span class="n">hubs</span><span class="p">,</span> <span class="s2">"hub"</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">return_series</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">(</span><span class="n">authorities</span><span class="p">,</span> <span class="s2">"authority"</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">return_series</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Centrality.katz">
+<a class="viewcode-back" href="../../api.html#edsger.centrality.Centrality.katz">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">katz</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments,too-many-positional-arguments</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0e-6</span><span class="p">,</span>
+        <span class="n">max_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">normalized</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">return_series</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VertexResult</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Katz centrality of the vertices.</span>
+
+<span class="sd">        The Katz centrality x is the solution of x = alpha A^T x + beta, where</span>
+<span class="sd">        A is the (weighted) adjacency matrix: the centrality of a vertex is</span>
+<span class="sd">        beta plus alpha times the weighted sum of the centralities of its</span>
+<span class="sd">        predecessors. It is computed by power iteration starting from 0, which</span>
+<span class="sd">        converges if alpha is smaller than the inverse of the spectral radius</span>
+<span class="sd">        of A. Checking this is left to the user: a too large alpha is detected</span>
+<span class="sd">        as non-convergence.</span>
+
+<span class="sd">        This is `networkx.katz_centrality` with a scalar beta.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        alpha : float, optional (default=0.1)</span>
+<span class="sd">            Attenuation factor.</span>
+<span class="sd">        beta : float, optional (default=1.0)</span>
+<span class="sd">            Constant term, the same for all the vertices.</span>
+<span class="sd">        tol : float, optional (default=1e-6)</span>
+<span class="sd">            The iterations stop when the L1 norm of the change of the</span>
+<span class="sd">            centrality vector is smaller than `n * tol`, n being the number of</span>
+<span class="sd">            vertices.</span>
+<span class="sd">        max_iter : int, optional (default=1000)</span>
+<span class="sd">            Maximum number of iterations.</span>
+<span class="sd">        normalized : bool, optional (default=True)</span>
+<span class="sd">            Whether to divide the result by its Euclidean norm, as NetworkX.</span>
+<span class="sd">        output : {'numpy', 'pandas', 'polars'}, optional (default='numpy')</span>
+<span class="sd">            Type of the result. 'pandas' returns a Series named 'katz' indexed</span>
+<span class="sd">            by vertex ('vertex_idx'), 'polars' a DataFrame with the columns</span>
+<span class="sd">            'vertex_idx' and 'katz'.</span>
+<span class="sd">        return_series : bool, optional (default=False)</span>
+<span class="sd">            Same as `output='pandas'`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy.ndarray, pandas.Series or polars.DataFrame</span>
+<span class="sd">            The Katz centrality of each vertex. The array is indexed by vertex</span>
+<span class="sd">            identifier.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ConvergenceError</span>
+<span class="sd">            If the iterations do not converge within `max_iter` iterations, for</span>
+<span class="sd">            example because alpha is too large.</span>
+<span class="sd">        """</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">_check_real</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="s2">"alpha"</span><span class="p">)</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="n">_check_real</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="s2">"beta"</span><span class="p">)</span>
+        <span class="n">_check_iteration_arguments</span><span class="p">(</span><span class="n">tol</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_vertices</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="s2">"katz"</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">return_series</span><span class="p">)</span>
+
+        <span class="n">values</span><span class="p">,</span> <span class="n">n_iter</span> <span class="o">=</span> <span class="n">katz_csc</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_indptr</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_weighted</span><span class="p">,</span>
+            <span class="n">beta</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_vertex</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+            <span class="n">alpha</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_n_actual</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">tol</span><span class="p">),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">max_iter</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_result</span><span class="p">(</span>
+            <span class="n">values</span><span class="p">,</span>
+            <span class="n">n_iter</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"Katz centrality did not converge within </span><span class="si">{</span><span class="n">max_iter</span><span class="si">}</span><span class="s2"> iterations "</span>
+            <span class="sa">f</span><span class="s2">"(tol=</span><span class="si">{</span><span class="n">tol</span><span class="si">}</span><span class="s2">): alpha=</span><span class="si">{</span><span class="n">alpha</span><span class="si">}</span><span class="s2"> may be larger than the inverse of the "</span>
+            <span class="s2">"spectral radius of the adjacency matrix, otherwise increase max_iter "</span>
+            <span class="s2">"or tol"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">normalized</span><span class="p">:</span>
+            <span class="n">norm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">values</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="n">norm</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">values</span> <span class="o">/=</span> <span class="n">norm</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s2">"katz"</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">return_series</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022-2026, Architecture &amp; Performance
+            </div>
+            Made with 
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=802ce435"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=fd10adb8"></script>
+    </body>
+</html>

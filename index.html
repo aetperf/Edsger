@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Installation" href="installation.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>Edsger 0.2.0</title>
+        <title>Edsger 0.3.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -168,7 +168,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">Edsger 0.2.0</div></a>
+      <a href="#"><div class="brand">Edsger 0.3.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -189,7 +189,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
   
-  <span class="sidebar-brand-text">Edsger 0.2.0</span>
+  <span class="sidebar-brand-text">Edsger 0.3.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -197,11 +197,30 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
+  <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coming_from.html">Coming from NetworkX or SciPy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="guide/shortest_paths.html">Shortest paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guide/traversal.html">Traversal and components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guide/network_analysis.html">Spanning trees and centrality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guide/transit.html">Transit assignment</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/road_routing.html">Routing on a road network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/od_matrix.html">Origin-destination matrix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/transit_assignment.html">Transit assignment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/ranking.html">Ranking the vertices of a network</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 </ul>
@@ -249,31 +268,26 @@
           <section id="edsger">
 <h1>Edsger<a class="headerlink" href="#edsger" title="Link to this heading">¶</a></h1>
 <p><em>Graph algorithms in Cython</em></p>
-<p>Edsger is a Python library of path algorithms for directed graphs, written in <a class="reference external" href="https://cython.org/">Cython</a>. A graph is given as a dataframe of edges, from <a class="reference external" href="https://pandas.pydata.org/">pandas</a> or <a class="reference external" href="https://pola.rs/">Polars</a>, and the results come back as <a class="reference external" href="https://numpy.org/">NumPy</a> arrays or pandas Series. The library is named after Edsger W. Dijkstra.</p>
+<p>Edsger is a Python library of graph algorithms for directed graphs, written in <a class="reference external" href="https://cython.org/">Cython</a>. A graph is given as a dataframe of edges, from <a class="reference external" href="https://pandas.pydata.org/">pandas</a> or <a class="reference external" href="https://pola.rs/">Polars</a>, and the results come back as <a class="reference external" href="https://numpy.org/">NumPy</a> arrays, pandas Series or Polars DataFrames. The library is named after Edsger W. Dijkstra.</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>Algorithm</p></th>
-<th class="head"><p>Class</p></th>
-<th class="head"><p>Problem</p></th>
+<tr class="row-odd"><th class="head"><p>Family</p></th>
+<th class="head"><p>Classes</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>Dijkstra</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code></p></td>
-<td><p>Shortest paths with non-negative edge weights</p></td>
+<tr class="row-even"><td><p>Shortest paths</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code>, <code class="docutils literal notranslate"><span class="pre">BellmanFord</span></code>, <code class="docutils literal notranslate"><span class="pre">AStar</span></code>, <code class="docutils literal notranslate"><span class="pre">BidirectionalDijkstra</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>Bellman-Ford</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">BellmanFord</span></code></p></td>
-<td><p>Shortest paths with negative edge weights, negative cycle detection</p></td>
+<tr class="row-odd"><td><p>Traversal and components</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BFS</span></code>, <code class="docutils literal notranslate"><span class="pre">DFS</span></code>, <code class="docutils literal notranslate"><span class="pre">ConnectedComponents</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>Breadth-first search</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">BFS</span></code></p></td>
-<td><p>Paths with the fewest edges</p></td>
+<tr class="row-even"><td><p>Spanning trees and centrality</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MinimumSpanningTree</span></code>, <code class="docutils literal notranslate"><span class="pre">Centrality</span></code> (PageRank, HITS, Katz)</p></td>
 </tr>
-<tr class="row-odd"><td><p>Spiess-Florian</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">HyperpathGenerating</span></code></p></td>
-<td><p>Optimal strategies in frequency-based transit networks</p></td>
+<tr class="row-odd"><td><p>Transit assignment</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HyperpathGenerating</span></code> (Spiess and Florian’s optimal strategies)</p></td>
 </tr>
 </tbody>
 </table>
@@ -282,7 +296,7 @@
 <h2>Example<a class="headerlink" href="#example" title="Link to this heading">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dijkstra</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">edsger</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dijkstra</span>
 
 <span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
     <span class="p">{</span>
@@ -307,6 +321,12 @@
 <a class="reference internal image-reference" href="_images/dijkstra_benchmark_comparison.png"><img alt="Run time of Dijkstra's algorithm on the USA road network, for Edsger, NetworKit, graph-tool and SciPy" src="_images/dijkstra_benchmark_comparison.png" style="width: 700px;" />
 </a>
 <p>Single-source shortest paths from one vertex of the USA road network, best of 5 runs. The Linux and Windows timings come from two different machines, described in <a class="reference internal" href="benchmarks.html"><span class="std std-doc">Benchmarks</span></a>.</p>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
 <div class="toctree-wrapper compound">
 </div>
 </section>
@@ -358,7 +378,9 @@
             <ul>
 <li><a class="reference internal" href="#">Edsger</a><ul>
 <li><a class="reference internal" href="#example">Example</a></li>
-<li><a class="reference internal" href="#performance">Performance</a></li>
+<li><a class="reference internal" href="#performance">Performance</a><ul>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -370,7 +392,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=f1f9ae6c"></script>
+</div><script src="_static/documentation_options.js?v=802ce435"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

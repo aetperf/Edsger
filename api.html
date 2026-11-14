@@ -3,10 +3,10 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Changelog" href="changelog.html"><link rel="prev" title="Benchmarks" href="benchmarks.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Benchmarks" href="benchmarks.html"><link rel="prev" title="Ranking the vertices of a network" href="examples/ranking.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>API reference - Edsger 0.2.0</title>
+        <title>API reference - Edsger 0.3.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -168,7 +168,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Edsger 0.2.0</div></a>
+      <a href="index.html"><div class="brand">Edsger 0.3.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -189,7 +189,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">Edsger 0.2.0</span>
+  <span class="sidebar-brand-text">Edsger 0.3.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -197,11 +197,30 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
+  <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coming_from.html">Coming from NetworkX or SciPy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="guide/shortest_paths.html">Shortest paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guide/traversal.html">Traversal and components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guide/network_analysis.html">Spanning trees and centrality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guide/transit.html">Transit assignment</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/road_routing.html">Routing on a road network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/od_matrix.html">Origin-destination matrix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/transit_assignment.html">Transit assignment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/ranking.html">Ranking the vertices of a network</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 </ul>
@@ -248,7 +267,7 @@
         <article role="main" id="furo-main-content">
           <section id="api-reference">
 <h1>API reference<a class="headerlink" href="#api-reference" title="Link to this heading">¶</a></h1>
-<p>The four algorithms are classes of the <code class="docutils literal notranslate"><span class="pre">edsger.path</span></code> module. This page is generated from the docstrings.</p>
+<p>All the classes can be imported from the package, as in <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">edsger</span> <span class="pre">import</span> <span class="pre">Dijkstra</span></code>. They are defined in the <code class="docutils literal notranslate"><span class="pre">edsger.path</span></code> module, except <code class="docutils literal notranslate"><span class="pre">ConnectedComponents</span></code> (<code class="docutils literal notranslate"><span class="pre">edsger.components</span></code>), <code class="docutils literal notranslate"><span class="pre">MinimumSpanningTree</span></code> (<code class="docutils literal notranslate"><span class="pre">edsger.spanning_tree</span></code>) and <code class="docutils literal notranslate"><span class="pre">Centrality</span></code> (<code class="docutils literal notranslate"><span class="pre">edsger.centrality</span></code>). This page is generated from the docstrings.</p>
 <section id="dijkstra">
 <h2>Dijkstra<a class="headerlink" href="#dijkstra" title="Link to this heading">¶</a></h2>
 <dl class="py class">
@@ -291,7 +310,7 @@ starting from 0. Without it, the internal arrays have one element per
 integer between 0 and the largest vertex identifier. The arguments and
 the results of the methods use the original identifiers in both cases.
 Negative identifiers are only accepted with this option, and the results
-must then be returned as Series (<code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series=True</span></code>).</p></li>
+must then be labelled by vertex (<code class="xref py py-obj docutils literal notranslate"><span class="pre">output='pandas'</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">'polars'</span></code>).</p></li>
 <li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to print the number of parallel edges that were removed.</p></li>
 <li><p><strong>lazy</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – Whether to use the variant of the algorithm without decrease-key
 operation, in which a vertex can be inserted several times in the
@@ -323,6 +342,7 @@ the smallest weight is kept.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">return_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">heap_length_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">termination_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#Dijkstra.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.Dijkstra.run" title="Link to this definition">¶</a></dt>
@@ -337,36 +357,93 @@ retrieved with <a class="reference internal" href="#edsger.path.Dijkstra.get_pat
 <li><p><strong>return_inf</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – Whether to return <a class="reference external" href="https://numpy.org/doc/stable/reference/constants.html#numpy.inf" title="(in NumPy v2.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.inf</span></code></a> as the path length of the vertices that
 cannot be reached. If False, the largest float64 value is returned
 instead.</p></li>
-<li><p><strong>return_series</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to return a pandas Series indexed by vertex instead of a NumPy
-array.</p></li>
+<li><p><strong>return_series</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Same as <code class="xref py py-obj docutils literal notranslate"><span class="pre">output='pandas'</span></code>.</p></li>
 <li><p><strong>heap_length_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em><em> (</em><em>default=1.0</em><em>)</em>) – Initial capacity of the priority queue, as a fraction of the number of
 vertices, in (0, 1]. The queue grows when it is full, so this only
 changes the size of the first memory allocation.</p></li>
 <li><p><strong>termination_nodes</strong> (<em>array-like</em><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Vertices at which to stop. The algorithm ends as soon as the path
 lengths of all these vertices are known, and only their path lengths
 are returned, in the given order.</p></li>
+<li><p><strong>output</strong> (<em>{'numpy'</em><em>, </em><em>'pandas'</em><em>, </em><em>'polars'}</em><em>, </em><em>optional</em><em> (</em><em>default='numpy'</em><em>)</em>) – Type of the result. ‘pandas’ returns a Series named ‘path_length’
+indexed by vertex (‘vertex_idx’), ‘polars’ a DataFrame with the
+columns ‘vertex_idx’ and ‘path_length’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>numpy.ndarray or pandas.Series</em> – The path lengths, as float64. Without <code class="xref py py-obj docutils literal notranslate"><span class="pre">termination_nodes</span></code>, the array
+<dd class="field-even"><p><em>numpy.ndarray, pandas.Series or polars.DataFrame</em> – The path lengths, as float64. Without <code class="xref py py-obj docutils literal notranslate"><span class="pre">termination_nodes</span></code>, the array
 has one element per integer between 0 and the largest vertex
 identifier: element i is the length of the shortest path from the
 source to vertex i (‘out’), or from vertex i to the target (‘in’).
-With <code class="xref py py-obj docutils literal notranslate"><span class="pre">termination_nodes</span></code>, it has one element per termination node. If
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series</span></code> is True, the result is a Series named ‘path_length’
-with the vertex identifiers as index.</p>
+The Series and the DataFrame have one row per vertex. With
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">termination_nodes</span></code>, there is one element per termination node.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If <code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_idx</span></code> or a termination node is not a vertex of the graph, or
-    if the graph has negative vertex identifiers and <code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series</span></code> is
-    False.</p>
+    if the graph has negative vertex identifiers and the output is
+    ‘numpy’.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.Dijkstra.run_many">
+<span class="sig-name descname"><span class="pre">run_many</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">vertices</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">termination_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">return_inf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">heap_length_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#Dijkstra.run_many"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.Dijkstra.run_many" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the shortest path lengths from or to several vertices, in parallel.</p>
+<p>Each vertex is a separate run of the algorithm. The runs are distributed
+over a pool of threads: the Cython routine does not hold the GIL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vertices</strong> (<em>array-like</em><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The source vertices if the orientation is ‘out’, the target vertices
+if it is ‘in’.</p></li>
+<li><p><strong>termination_nodes</strong> (<em>array-like</em><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – The other ends of the paths: if given, each run stops as soon as the
+path lengths of these vertices are known, and only these path lengths
+are returned. With the ‘out’ orientation, this gives an
+origin-destination matrix of the path lengths from <code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices</span></code> to
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">termination_nodes</span></code>.</p></li>
+<li><p><strong>return_inf</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – Whether to return <a class="reference external" href="https://numpy.org/doc/stable/reference/constants.html#numpy.inf" title="(in NumPy v2.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.inf</span></code></a> as the path length of the vertices that
+cannot be reached. If False, the largest float64 value is returned
+instead.</p></li>
+<li><p><strong>output</strong> (<em>{'numpy'</em><em>, </em><em>'pandas'</em><em>, </em><em>'polars'}</em><em>, </em><em>optional</em><em> (</em><em>default='numpy'</em><em>)</em>) – Type of the result, see below.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Number of threads. None uses all the CPUs (<code class="xref py py-obj docutils literal notranslate"><span class="pre">os.cpu_count()</span></code>).</p></li>
+<li><p><strong>heap_length_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em><em> (</em><em>default=1.0</em><em>)</em>) – Initial capacity of the priority queue, as in <a class="reference internal" href="#edsger.path.Dijkstra.run" title="edsger.path.Dijkstra.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>numpy.ndarray, pandas.DataFrame or polars.DataFrame</em> – The path lengths, as float64. The NumPy array has one row per vertex
+of <code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices</span></code>, and one column per integer between 0 and the largest
+vertex identifier, or one column per termination node. The pandas
+DataFrame has the same rows, labelled by <code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices</span></code>, and one column
+per vertex of the graph or per termination node. The Polars DataFrame
+has one row per pair of vertices, with the columns ‘origin’,
+‘destination’ and ‘path_length’. The pandas index and columns are
+named ‘origin’ and ‘destination’ as well. With the ‘in’ orientation,
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices</span></code> are the destinations.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If a vertex or a termination node is not a vertex of the graph, or if
+    the graph has negative vertex identifiers and the output is ‘numpy’.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Without termination nodes, the result holds one path length per pair of
+vertices: 8 bytes times the number of runs times the number of vertices.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="edsger.path.Dijkstra.get_path">
-<span class="sig-name descname"><span class="pre">get_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#Dijkstra.get_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.Dijkstra.get_path" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edsger.path.Dijkstra.get_path" title="Link to this definition">¶</a></dt>
 <dd><p>Return the shortest path between a vertex and the vertex of the last run.</p>
 <p>The last call to <a class="reference internal" href="#edsger.path.Dijkstra.run" title="edsger.path.Dijkstra.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> must have been made with <code class="xref py py-obj docutils literal notranslate"><span class="pre">path_tracking=True</span></code>.</p>
 <dl class="field-list simple">
@@ -387,7 +464,7 @@ no path was tracked.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="edsger.path.Dijkstra.get_vertices">
-<span class="sig-name descname"><span class="pre">get_vertices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#Dijkstra.get_vertices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.Dijkstra.get_vertices" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_vertices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#edsger.path.Dijkstra.get_vertices" title="Link to this definition">¶</a></dt>
 <dd><p>Return the vertices of the graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -489,7 +566,7 @@ starting from 0. Without it, the internal arrays have one element per
 integer between 0 and the largest vertex identifier. The arguments and
 the results of the methods use the original identifiers in both cases.
 Negative identifiers are only accepted with this option, and the results
-must then be returned as Series (<code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series=True</span></code>).</p></li>
+must then be labelled by vertex (<code class="xref py py-obj docutils literal notranslate"><span class="pre">output='pandas'</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">'polars'</span></code>).</p></li>
 <li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to print the number of parallel edges that were removed.</p></li>
 </ul>
 </dd>
@@ -517,6 +594,7 @@ the smallest weight is kept.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">return_inf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">return_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">detect_negative_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BellmanFord.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BellmanFord.run" title="Link to this definition">¶</a></dt>
@@ -531,31 +609,33 @@ retrieved with <a class="reference internal" href="#edsger.path.BellmanFord.get_
 <li><p><strong>return_inf</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – Whether to return <a class="reference external" href="https://numpy.org/doc/stable/reference/constants.html#numpy.inf" title="(in NumPy v2.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.inf</span></code></a> as the path length of the vertices that
 cannot be reached. If False, the largest float64 value is returned
 instead.</p></li>
-<li><p><strong>return_series</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to return a pandas Series indexed by vertex instead of a NumPy
-array.</p></li>
+<li><p><strong>return_series</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Same as <code class="xref py py-obj docutils literal notranslate"><span class="pre">output='pandas'</span></code>.</p></li>
 <li><p><strong>detect_negative_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – Whether to look for a negative cycle once the path lengths are computed,
 and raise a ValueError if there is one. The graph is only searched if
 it has at least one negative weight.</p></li>
+<li><p><strong>output</strong> (<em>{'numpy'</em><em>, </em><em>'pandas'</em><em>, </em><em>'polars'}</em><em>, </em><em>optional</em><em> (</em><em>default='numpy'</em><em>)</em>) – Type of the result. ‘pandas’ returns a Series named ‘path_length’
+indexed by vertex (‘vertex_idx’), ‘polars’ a DataFrame with the
+columns ‘vertex_idx’ and ‘path_length’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>numpy.ndarray or pandas.Series</em> – The path lengths, as float64. The array has one element per integer
+<dd class="field-even"><p><em>numpy.ndarray, pandas.Series or polars.DataFrame</em> – The path lengths, as float64. The array has one element per integer
 between 0 and the largest vertex identifier: element i is the length of
 the shortest path from the source to vertex i (‘out’), or from vertex i
-to the target (‘in’). If <code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series</span></code> is True, the result is a
-Series named ‘path_length’ with the vertex identifiers as index.</p>
+to the target (‘in’). The Series and the DataFrame have one row per
+vertex.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If <code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_idx</span></code> is not a vertex of the graph, if a negative cycle is
-    detected, or if the graph has negative vertex identifiers and
-    <code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series</span></code> is False.</p>
+    detected, or if the graph has negative vertex identifiers and the
+    output is ‘numpy’.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="edsger.path.BellmanFord.get_path">
-<span class="sig-name descname"><span class="pre">get_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BellmanFord.get_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BellmanFord.get_path" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edsger.path.BellmanFord.get_path" title="Link to this definition">¶</a></dt>
 <dd><p>Return the shortest path between a vertex and the vertex of the last run.</p>
 <p>The last call to <a class="reference internal" href="#edsger.path.BellmanFord.run" title="edsger.path.BellmanFord.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> must have been made with <code class="xref py py-obj docutils literal notranslate"><span class="pre">path_tracking=True</span></code>.</p>
 <dl class="field-list simple">
@@ -576,7 +656,7 @@ no path was tracked.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="edsger.path.BellmanFord.get_vertices">
-<span class="sig-name descname"><span class="pre">get_vertices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BellmanFord.get_vertices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BellmanFord.get_vertices" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_vertices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#edsger.path.BellmanFord.get_vertices" title="Link to this definition">¶</a></dt>
 <dd><p>Return the vertices of the graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -682,7 +762,7 @@ starting from 0. Without it, the internal arrays have one element per
 integer between 0 and the largest vertex identifier. The arguments and
 the results of the methods use the original identifiers in both cases.
 Negative identifiers are only accepted with this option, and the results
-must then be returned as Series (<code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series=True</span></code>).</p></li>
+must then be labelled by vertex (<code class="xref py py-obj docutils literal notranslate"><span class="pre">output='pandas'</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">'polars'</span></code>).</p></li>
 <li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to print the number of parallel edges that were removed.</p></li>
 <li><p><strong>sentinel</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><em>optional</em><em> (</em><em>default=-9999</em><em>)</em>) – Value returned for the vertices without predecessor: the start vertex
 and the vertices that cannot be reached. It must be a negative int32,
@@ -702,7 +782,7 @@ different from all the vertex identifiers.</p></li>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="edsger.path.BFS.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_tracking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BFS.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BFS.run" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_tracking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BFS.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BFS.run" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the breadth-first search tree from or to a given vertex.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -711,28 +791,29 @@ different from all the vertex identifiers.</p></li>
 is ‘in’.</p></li>
 <li><p><strong>path_tracking</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to store the search tree, so that the paths can be retrieved
 with <a class="reference internal" href="#edsger.path.BFS.get_path" title="edsger.path.BFS.get_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_path</span></code></a>.</p></li>
-<li><p><strong>return_series</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to return a pandas Series indexed by vertex instead of a NumPy
-array.</p></li>
+<li><p><strong>return_series</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Same as <code class="xref py py-obj docutils literal notranslate"><span class="pre">output='pandas'</span></code>.</p></li>
+<li><p><strong>output</strong> (<em>{'numpy'</em><em>, </em><em>'pandas'</em><em>, </em><em>'polars'}</em><em>, </em><em>optional</em><em> (</em><em>default='numpy'</em><em>)</em>) – Type of the result. ‘pandas’ returns a Series named ‘predecessor’
+indexed by vertex (‘vertex_idx’), ‘polars’ a DataFrame with the
+columns ‘vertex_idx’ and ‘predecessor’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>numpy.ndarray or pandas.Series</em> – The predecessor (‘out’) or the successor (‘in’) of each vertex on a
+<dd class="field-even"><p><em>numpy.ndarray, pandas.Series or polars.DataFrame</em> – The predecessor (‘out’) or the successor (‘in’) of each vertex on a
 path with the fewest edges, as int32. The array has one element per
 integer between 0 and the largest vertex identifier. The start vertex
-and the vertices that cannot be reached have the sentinel value. If
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series</span></code> is True, the result is a Series named ‘predecessor’
-with the vertex identifiers as index.</p>
+and the vertices that cannot be reached have the sentinel value. The
+Series and the DataFrame have one row per vertex.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If <code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_idx</span></code> is not a vertex of the graph, or if the graph has
-    negative vertex identifiers and <code class="xref py py-obj docutils literal notranslate"><span class="pre">return_series</span></code> is False.</p>
+    negative vertex identifiers and the output is ‘numpy’.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="edsger.path.BFS.get_path">
-<span class="sig-name descname"><span class="pre">get_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BFS.get_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BFS.get_path" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edsger.path.BFS.get_path" title="Link to this definition">¶</a></dt>
 <dd><p>Return the shortest path between a vertex and the vertex of the last run.</p>
 <p>The last call to <a class="reference internal" href="#edsger.path.BFS.run" title="edsger.path.BFS.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> must have been made with <code class="xref py py-obj docutils literal notranslate"><span class="pre">path_tracking=True</span></code>.</p>
 <dl class="field-list simple">
@@ -753,7 +834,7 @@ no path was tracked.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="edsger.path.BFS.get_vertices">
-<span class="sig-name descname"><span class="pre">get_vertices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BFS.get_vertices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BFS.get_vertices" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_vertices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#edsger.path.BFS.get_vertices" title="Link to this definition">¶</a></dt>
 <dd><p>Return the vertices of the graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -808,6 +889,714 @@ and with the internal vertex indices if <a class="reference internal" href="#eds
 is the predecessor (‘out’) or the successor (‘in’) of each vertex. The
 vertex given to <a class="reference internal" href="#edsger.path.BFS.run" title="edsger.path.BFS.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> and the vertices that cannot be reached are linked
 to themselves.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="dfs">
+<h2>DFS<a class="headerlink" href="#dfs" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edsger.path.DFS">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">edsger.path.</span></span><span class="sig-name descname"><span class="pre">DFS</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">tail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tail'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">head</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'head'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'out'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">check_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">permute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">sentinel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-9999</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#DFS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.DFS" title="Link to this definition">¶</a></dt>
+<dd><p>Depth-first search in a directed graph.</p>
+<p>The search is iterative, so it is not limited by the depth of the call
+stack. The edge weights are not used. The graph is built once from a
+dataframe of edges. The <a class="reference internal" href="#edsger.path.DFS.run" title="edsger.path.DFS.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> method can then be called any number of times,
+from or to different vertices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>edges</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><em>pandas.DataFrame</em></a><em> or </em><em>polars.DataFrame</em>) – The edges of the graph, one row per edge. pandas dataframes can use NumPy
+or Arrow data types.
+A weight column, if there is one, is ignored.</p></li>
+<li><p><strong>tail</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='tail'</em><em>)</em>) – Name of the column with the tail (start) vertex of each edge. The vertex
+identifiers are integers, non-negative unless <a class="reference internal" href="#edsger.path.DFS.permute" title="edsger.path.DFS.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p></li>
+<li><p><strong>head</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='head'</em><em>)</em>) – Name of the column with the head (end) vertex of each edge.</p></li>
+<li><p><strong>orientation</strong> (<em>{'out'</em><em>, </em><em>'in'}</em><em>, </em><em>optional</em><em> (</em><em>default='out'</em><em>)</em>) – ‘out’ to follow the edges from one vertex (the search tree gives a path
+from this vertex to each reachable vertex), ‘in’ to follow them backward
+to one vertex (a path from each vertex that can reach it).</p></li>
+<li><p><strong>check_edges</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to check the edges before building the graph: column names,
+data types and missing values.</p></li>
+<li><p><strong>permute</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to renumber the vertices internally, with contiguous indices
+starting from 0. Without it, the internal arrays have one element per
+integer between 0 and the largest vertex identifier. The arguments and
+the results of the methods use the original identifiers in both cases.
+Negative identifiers are only accepted with this option, and the results
+must then be labelled by vertex (<code class="xref py py-obj docutils literal notranslate"><span class="pre">output='pandas'</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">'polars'</span></code>).</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to print the number of parallel edges that were removed.</p></li>
+<li><p><strong>sentinel</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><em>optional</em><em> (</em><em>default=-9999</em><em>)</em>) – Value returned for the vertices without predecessor: the start vertex
+and the vertices that cannot be reached. It must be a negative int32,
+different from all the vertex identifiers.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>When several edges have the same tail and head vertices, only one is kept.</p>
+<p>The visiting order is the one of the recursive depth-first search: from the
+current vertex, the search goes to its first neighbour that is not
+discovered yet, and backtracks when there is none. The neighbours of a
+vertex are taken in increasing order of their identifiers: the heads of its
+outgoing edges with the ‘out’ orientation, the tails of its incoming edges
+with ‘in’. This is also the order of <code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.sparse.csgraph.depth_first_order</span></code>
+on a matrix with sorted indices.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">DFS</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"tail"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">"head"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dfs</span> <span class="o">=</span> <span class="n">DFS</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dfs</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">vertex_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">array([-9999,     0,     0,     1], dtype=int32)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dfs</span><span class="o">.</span><span class="n">get_order</span><span class="p">()</span>
+<span class="go">array([0, 1, 3, 2], dtype=uint32)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.DFS.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_tracking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#DFS.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.DFS.run" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the depth-first search tree from or to a given vertex.</p>
+<p>The discovery order of the vertices is kept, see <a class="reference internal" href="#edsger.path.DFS.get_order" title="edsger.path.DFS.get_order"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_order</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vertex_idx</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The start vertex: the source vertex if the orientation is ‘out’, the
+target vertex if it is ‘in’.</p></li>
+<li><p><strong>path_tracking</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to store the search tree, so that the paths can be retrieved
+with <a class="reference internal" href="#edsger.path.DFS.get_path" title="edsger.path.DFS.get_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_path</span></code></a>.</p></li>
+<li><p><strong>return_series</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Same as <code class="xref py py-obj docutils literal notranslate"><span class="pre">output='pandas'</span></code>.</p></li>
+<li><p><strong>output</strong> (<em>{'numpy'</em><em>, </em><em>'pandas'</em><em>, </em><em>'polars'}</em><em>, </em><em>optional</em><em> (</em><em>default='numpy'</em><em>)</em>) – Type of the result. ‘pandas’ returns a Series named ‘predecessor’
+indexed by vertex (‘vertex_idx’), ‘polars’ a DataFrame with the
+columns ‘vertex_idx’ and ‘predecessor’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>numpy.ndarray, pandas.Series or polars.DataFrame</em> – The predecessor (‘out’) or the successor (‘in’) of each vertex in the
+depth-first search tree, as int32. The array has one element per
+integer between 0 and the largest vertex identifier. The start vertex
+and the vertices that cannot be reached have the sentinel value. The
+Series and the DataFrame have one row per vertex.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If <code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_idx</span></code> is not a vertex of the graph, or if the graph has
+    negative vertex identifiers and the output is ‘numpy’.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.DFS.get_order">
+<span class="sig-name descname"><span class="pre">get_order</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#DFS.get_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.DFS.get_order" title="Link to this definition">¶</a></dt>
+<dd><p>Return the vertices reached by the last run, in discovery order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>numpy.ndarray or None</em> – The vertices reached from (‘out’) or reaching (‘in’) the vertex given
+to <a class="reference internal" href="#edsger.path.DFS.run" title="edsger.path.DFS.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>, in the order in which the search discovered them (preorder),
+starting with this vertex. None is returned, with a warning, if <a class="reference internal" href="#edsger.path.DFS.run" title="edsger.path.DFS.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>
+was not called.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.DFS.get_path">
+<span class="sig-name descname"><span class="pre">get_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#DFS.get_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.DFS.get_path" title="Link to this definition">¶</a></dt>
+<dd><p>Return the path between a vertex and the vertex of the last run in the
+depth-first search tree.</p>
+<p>The last call to <a class="reference internal" href="#edsger.path.DFS.run" title="edsger.path.DFS.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> must have been made with <code class="xref py py-obj docutils literal notranslate"><span class="pre">path_tracking=True</span></code>. This
+path is generally not a shortest one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vertex_idx</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The other end of the path: the target vertex if the orientation is
+‘out’, the source vertex if it is ‘in’.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>numpy.ndarray or None</em> – The vertices of the path, starting with <code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_idx</span></code> and ending with the
+vertex given to <a class="reference internal" href="#edsger.path.DFS.run" title="edsger.path.DFS.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>: in reverse order with the ‘out’ orientation, in
+travel order with ‘in’. If there is no path, the array only contains
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_idx</span></code>. None is returned, with a warning, if no path was tracked.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.DFS.get_vertices">
+<span class="sig-name descname"><span class="pre">get_vertices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#edsger.path.DFS.get_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Return the vertices of the graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>numpy.ndarray</em> – The sorted identifiers of the vertices that are the tail or the head of
+at least one edge.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.DFS.UNREACHABLE">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">UNREACHABLE</span></span><a class="headerlink" href="#edsger.path.DFS.UNREACHABLE" title="Link to this definition">¶</a></dt>
+<dd><p>The sentinel value, returned for the vertices without predecessor.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.DFS.n_vertices">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_vertices</span></span><a class="headerlink" href="#edsger.path.DFS.n_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Number of vertices. This is the largest vertex identifier plus one, or
+the number of distinct vertices if <a class="reference internal" href="#edsger.path.DFS.permute" title="edsger.path.DFS.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.DFS.n_edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_edges</span></span><a class="headerlink" href="#edsger.path.DFS.n_edges" title="Link to this definition">¶</a></dt>
+<dd><p>Number of edges of the graph, without the parallel edges.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.DFS.edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">edges</span></span><a class="headerlink" href="#edsger.path.DFS.edges" title="Link to this definition">¶</a></dt>
+<dd><p>The edges of the graph as they are stored, without the parallel edges,
+and with the internal vertex indices if <a class="reference internal" href="#edsger.path.DFS.permute" title="edsger.path.DFS.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.DFS.orientation">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">orientation</span></span><a class="headerlink" href="#edsger.path.DFS.orientation" title="Link to this definition">¶</a></dt>
+<dd><p>Orientation of the algorithm, either ‘out’ or ‘in’.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.DFS.permute">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">permute</span></span><a class="headerlink" href="#edsger.path.DFS.permute" title="Link to this definition">¶</a></dt>
+<dd><p>Whether the vertices are renumbered internally.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.DFS.path_links">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">path_links</span></span><a class="headerlink" href="#edsger.path.DFS.path_links" title="Link to this definition">¶</a></dt>
+<dd><p>Path tree of the last run, or None if the paths were not tracked. This
+is the predecessor (‘out’) or the successor (‘in’) of each vertex. The
+vertex given to <a class="reference internal" href="#edsger.path.DFS.run" title="edsger.path.DFS.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> and the vertices that cannot be reached are linked
+to themselves.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="connectedcomponents">
+<h2>ConnectedComponents<a class="headerlink" href="#connectedcomponents" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edsger.components.ConnectedComponents">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">edsger.components.</span></span><span class="sig-name descname"><span class="pre">ConnectedComponents</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">tail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tail'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">head</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'head'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">check_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">permute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/components.html#ConnectedComponents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.components.ConnectedComponents" title="Link to this definition">¶</a></dt>
+<dd><p>Weakly or strongly connected components of a directed graph.</p>
+<p>The graph is built once from a dataframe of edges. The <a class="reference internal" href="#edsger.components.ConnectedComponents.run" title="edsger.components.ConnectedComponents.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> method then
+gives the component of each vertex, for either kind of connection.</p>
+<p>Two vertices are in the same weakly connected component if they are
+connected when the edge directions are ignored, and in the same strongly
+connected component if there is a path from each one to the other.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>edges</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><em>pandas.DataFrame</em></a><em> or </em><em>polars.DataFrame</em>) – The edges of the graph, one row per edge. pandas dataframes can use NumPy
+or Arrow data types.
+A weight column, if there is one, is ignored.</p></li>
+<li><p><strong>tail</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='tail'</em><em>)</em>) – Name of the column with the tail (start) vertex of each edge. The vertex
+identifiers are integers, non-negative unless <a class="reference internal" href="#edsger.components.ConnectedComponents.permute" title="edsger.components.ConnectedComponents.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p></li>
+<li><p><strong>head</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='head'</em><em>)</em>) – Name of the column with the head (end) vertex of each edge.</p></li>
+<li><p><strong>check_edges</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to check the edges before building the graph: column names,
+data types and missing values.</p></li>
+<li><p><strong>permute</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to renumber the vertices internally, with contiguous indices
+starting from 0. Without it, the internal arrays have one element per
+integer between 0 and the largest vertex identifier. The results are the
+same in both cases.
+Negative identifiers are only accepted with this option, and the results
+must then be labelled by vertex (<code class="xref py py-obj docutils literal notranslate"><span class="pre">output='pandas'</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">'polars'</span></code>).</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to print the number of parallel edges that were removed.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The vertices of the graph are the tails and heads of the edges. The
+components are numbered from 0 in increasing order of their smallest vertex:
+the smallest vertex is in component 0, the smallest vertex that is not in
+component 0 is in component 1, and so on. The labels do not depend on the
+order of the edges or on <a class="reference internal" href="#edsger.components.ConnectedComponents.permute" title="edsger.components.ConnectedComponents.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a>.</p>
+<p>The weakly connected components are computed with a union-find structure,
+the strongly connected components with Pearce’s variant of Tarjan’s
+algorithm, iterative: both run in linear time, and are not limited by the
+depth of the call stack.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.components</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConnectedComponents</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"tail"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s2">"head"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cc</span> <span class="o">=</span> <span class="n">ConnectedComponents</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cc</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">connection</span><span class="o">=</span><span class="s2">"weak"</span><span class="p">)</span>
+<span class="go">array([0, 0, 0, 1, 1], dtype=int32)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cc</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">connection</span><span class="o">=</span><span class="s2">"strong"</span><span class="p">)</span>
+<span class="go">array([0, 0, 1, 2, 3], dtype=int32)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cc</span><span class="o">.</span><span class="n">n_components</span>
+<span class="go">4</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.components.ConnectedComponents.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'weak'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/components.html#ConnectedComponents.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.components.ConnectedComponents.run" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the connected component of each vertex.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>connection</strong> (<em>{'weak'</em><em>, </em><em>'strong'}</em><em>, </em><em>optional</em><em> (</em><em>default='weak'</em><em>)</em>) – Kind of connection: ‘weak’ ignores the edge directions, ‘strong’
+requires a path in each direction.</p></li>
+<li><p><strong>return_series</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Same as <code class="xref py py-obj docutils literal notranslate"><span class="pre">output='pandas'</span></code>.</p></li>
+<li><p><strong>output</strong> (<em>{'numpy'</em><em>, </em><em>'pandas'</em><em>, </em><em>'polars'}</em><em>, </em><em>optional</em><em> (</em><em>default='numpy'</em><em>)</em>) – Type of the result. ‘pandas’ returns a Series named ‘component’
+indexed by vertex (‘vertex_idx’), ‘polars’ a DataFrame with the
+columns ‘vertex_idx’ and ‘component’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>numpy.ndarray, pandas.Series or polars.DataFrame</em> – The component label of each vertex, as int32, numbered from 0 in
+increasing order of the smallest vertex of each component. The array
+has one element per integer between 0 and the largest vertex
+identifier: the integers that are not vertices get -1. The Series and
+the DataFrame have one row per vertex, with the same -1 values when
+<a class="reference internal" href="#edsger.components.ConnectedComponents.permute" title="edsger.components.ConnectedComponents.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is False. The number of components is then given by
+<a class="reference internal" href="#edsger.components.ConnectedComponents.n_components" title="edsger.components.ConnectedComponents.n_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_components</span></code></a>.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If <code class="xref py py-obj docutils literal notranslate"><span class="pre">connection</span></code> is not ‘weak’ or ‘strong’, or if the graph has
+    negative vertex identifiers and the output is ‘numpy’.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.components.ConnectedComponents.get_vertices">
+<span class="sig-name descname"><span class="pre">get_vertices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#edsger.components.ConnectedComponents.get_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Return the vertices of the graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>numpy.ndarray</em> – The sorted identifiers of the vertices that are the tail or the head of
+at least one edge.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.components.ConnectedComponents.n_components">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_components</span></span><a class="headerlink" href="#edsger.components.ConnectedComponents.n_components" title="Link to this definition">¶</a></dt>
+<dd><p>Number of components found by the last run, or None before the first
+run.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.components.ConnectedComponents.n_vertices">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_vertices</span></span><a class="headerlink" href="#edsger.components.ConnectedComponents.n_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Number of vertices. This is the largest vertex identifier plus one, or
+the number of distinct vertices if <a class="reference internal" href="#edsger.components.ConnectedComponents.permute" title="edsger.components.ConnectedComponents.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.components.ConnectedComponents.n_edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_edges</span></span><a class="headerlink" href="#edsger.components.ConnectedComponents.n_edges" title="Link to this definition">¶</a></dt>
+<dd><p>Number of edges of the graph, without the parallel edges.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.components.ConnectedComponents.edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">edges</span></span><a class="headerlink" href="#edsger.components.ConnectedComponents.edges" title="Link to this definition">¶</a></dt>
+<dd><p>The edges of the graph as they are stored, without the parallel edges,
+and with the internal vertex indices if <a class="reference internal" href="#edsger.components.ConnectedComponents.permute" title="edsger.components.ConnectedComponents.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.components.ConnectedComponents.permute">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">permute</span></span><a class="headerlink" href="#edsger.components.ConnectedComponents.permute" title="Link to this definition">¶</a></dt>
+<dd><p>Whether the vertices are renumbered internally.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="astar">
+<h2>AStar<a class="headerlink" href="#astar" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edsger.path.AStar">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">edsger.path.</span></span><span class="sig-name descname"><span class="pre">AStar</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">tail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tail'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">head</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'head'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'weight'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">check_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">permute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#AStar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.AStar" title="Link to this definition">¶</a></dt>
+<dd><p>A* algorithm, for the shortest path between two vertices of a directed
+graph with non-negative edge weights.</p>
+<p>A* is Dijkstra’s algorithm guided by a heuristic: a lower bound of the path
+length from each vertex to the target. The vertices are scanned in the
+order of their path length from the source plus their heuristic, and the
+search stops as soon as the target is reached. The closer the heuristic is
+to the actual path lengths, the fewer vertices are scanned. The heuristic
+is given to <a class="reference internal" href="#edsger.path.AStar.run" title="edsger.path.AStar.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>, or computed from vertex coordinates (see
+<a class="reference internal" href="#edsger.path.AStar.set_coordinates" title="edsger.path.AStar.set_coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_coordinates</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>edges</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><em>pandas.DataFrame</em></a><em> or </em><em>polars.DataFrame</em>) – The edges of the graph, one row per edge. pandas dataframes can use NumPy
+or Arrow data types.</p></li>
+<li><p><strong>tail</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='tail'</em><em>)</em>) – Name of the column with the tail (start) vertex of each edge. The vertex
+identifiers are integers, non-negative unless <a class="reference internal" href="#edsger.path.AStar.permute" title="edsger.path.AStar.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p></li>
+<li><p><strong>head</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='head'</em><em>)</em>) – Name of the column with the head (end) vertex of each edge.</p></li>
+<li><p><strong>weight</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='weight'</em><em>)</em>) – Name of the column with the edge weights. Negative and NaN weights are
+rejected with a ValueError, whatever the value of <code class="xref py py-obj docutils literal notranslate"><span class="pre">check_edges</span></code>.</p></li>
+<li><p><strong>check_edges</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to check the edges before building the graph: column names,
+data types, missing and non-finite values.</p></li>
+<li><p><strong>permute</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to renumber the vertices internally, with contiguous indices
+starting from 0. The arguments and the results of the methods use the
+original identifiers in both cases. Negative identifiers are only
+accepted with this option, and the heuristic must then be given as a
+pandas Series.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to print the number of parallel edges that were removed.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Let d(v) be the length of the shortest path from vertex v to the target,
+and h(v) the heuristic.</p>
+<ul class="simple">
+<li><p>The heuristic is <em>admissible</em> if h(v) &lt;= d(v) for every vertex v. The
+path length returned by <a class="reference internal" href="#edsger.path.AStar.run" title="edsger.path.AStar.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> is then the shortest one.</p></li>
+<li><p>It is <em>consistent</em> if h(u) &lt;= w(u, v) + h(v) for every edge (u, v) of
+weight w(u, v), and h(target) = 0. A consistent heuristic is admissible,
+and each vertex is then scanned at most once.</p></li>
+<li><p>An admissible but inconsistent heuristic still gives the shortest path,
+but some vertices may be scanned several times, which can be slow.</p></li>
+<li><p>With a heuristic that is not admissible, the result is the length of a
+path from the source to the target, which may not be the shortest one.
+This cannot be detected, and no error is raised.</p></li>
+</ul>
+<p>The zero heuristic is consistent: A* is then Dijkstra’s algorithm stopped
+at the target. When several edges have the same tail and head vertices,
+only the one with the smallest weight is kept.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">AStar</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"tail"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">"head"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">"weight"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">astar</span> <span class="o">=</span> <span class="n">AStar</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">astar</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">heuristic</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]))</span>
+<span class="go">3.0</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.AStar.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heuristic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_tracking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_inf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#AStar.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.AStar.run" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the shortest path length from a source to a target vertex.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The source vertex.</p></li>
+<li><p><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The target vertex.</p></li>
+<li><p><strong>heuristic</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a><em> or </em><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><em>pandas.Series</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – A lower bound of the path length from each vertex to the target,
+non-negative (see the Notes of the class), infinite if the target
+cannot be reached from the vertex. A NumPy array
+has one element per integer between 0 and the largest vertex
+identifier, like the NumPy results of <a class="reference internal" href="#edsger.path.Dijkstra.run" title="edsger.path.Dijkstra.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Dijkstra.run</span></code></a>: the elements
+that are not vertices are ignored. A pandas Series is indexed by
+vertex identifier and must have a value for every vertex; it is
+required if the graph has negative vertex identifiers. If None, the
+heuristic is computed from the coordinates given to
+<a class="reference internal" href="#edsger.path.AStar.set_coordinates" title="edsger.path.AStar.set_coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_coordinates</span></code></a>, or is zero if there are none. The heuristic
+depends on the target: it must be given again for another target.</p></li>
+<li><p><strong>path_tracking</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to store the shortest path, so that it can be retrieved with
+<a class="reference internal" href="#edsger.path.AStar.get_path" title="edsger.path.AStar.get_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_path</span></code></a>.</p></li>
+<li><p><strong>return_inf</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – Whether to return <a class="reference external" href="https://numpy.org/doc/stable/reference/constants.html#numpy.inf" title="(in NumPy v2.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.inf</span></code></a> if the target cannot be reached. If
+False, the largest float64 value is returned instead.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>float</em> – The length of the shortest path from the source to the target.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If the source or the target is not a vertex of the graph, or if the
+    heuristic does not have the right length, has missing, NaN or
+    negative values.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.AStar.set_coordinates">
+<span class="sig-name descname"><span class="pre">set_coordinates</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'x'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'y'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'euclidean'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#AStar.set_coordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.AStar.set_coordinates" title="Link to this definition">¶</a></dt>
+<dd><p>Set the vertex coordinates, from which the heuristic is computed when
+<a class="reference internal" href="#edsger.path.AStar.run" title="edsger.path.AStar.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> is called without one.</p>
+<p>The heuristic of a vertex is then <code class="xref py py-obj docutils literal notranslate"><span class="pre">factor</span></code> times its distance to the
+target. It is only computed for the vertices reached by the search, so
+that a run does not cost time in proportion to the vertex count.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinates</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><em>pandas.DataFrame</em></a>) – The coordinates of the vertices, indexed by vertex identifier. Every
+vertex of the graph must have finite coordinates, the other rows are
+ignored.</p></li>
+<li><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='x'</em><em>)</em>) – Name of the column with the first coordinate: the longitude in
+degrees for the ‘haversine’ metric.</p></li>
+<li><p><strong>y</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='y'</em><em>)</em>) – Name of the column with the second coordinate: the latitude in
+degrees for the ‘haversine’ metric.</p></li>
+<li><p><strong>metric</strong> (<em>{'euclidean'</em><em>, </em><em>'haversine'}</em><em>, </em><em>optional</em><em> (</em><em>default='euclidean'</em><em>)</em>) – The distance between the vertices: Euclidean distance, or
+great-circle distance in meters on a spherical Earth.</p></li>
+<li><p><strong>factor</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – The distance is multiplied by this factor, to be compared with the
+edge weights: for example the inverse of the largest speed if the
+weights are travel times. If None, the largest factor such that
+factor * distance(u, v) &lt;= w(u, v) for every edge (u, v) is computed
+from the edges, minus a small margin for the rounding errors. This
+makes the heuristic consistent (the distance satisfies the triangle
+inequality), so the paths found are the shortest ones. A factor
+given here is used as is: if it is too large, the paths may not be
+the shortest ones.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>float</em> – The factor used.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If a vertex has no coordinates or non-finite ones, if a latitude is
+    not in [-90, 90] with the ‘haversine’ metric, or if the factor is not
+    finite and non-negative.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.AStar.get_path">
+<span class="sig-name descname"><span class="pre">get_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#edsger.path.AStar.get_path" title="Link to this definition">¶</a></dt>
+<dd><p>Return the shortest path found by the last run.</p>
+<p>The last call to <a class="reference internal" href="#edsger.path.AStar.run" title="edsger.path.AStar.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> must have been made with <code class="xref py py-obj docutils literal notranslate"><span class="pre">path_tracking=True</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>numpy.ndarray or None</em> – The vertices of the path, in travel order: from the source to the
+target, both included. None if the target cannot be reached from the
+source, and None with a warning if no path was tracked.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.AStar.get_vertices">
+<span class="sig-name descname"><span class="pre">get_vertices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#edsger.path.AStar.get_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Return the vertices of the graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>numpy.ndarray</em> – The sorted identifiers of the vertices that are the tail or the head of
+at least one edge.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.AStar.n_vertices">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_vertices</span></span><a class="headerlink" href="#edsger.path.AStar.n_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Number of vertices. This is the largest vertex identifier plus one, or
+the number of distinct vertices if <a class="reference internal" href="#edsger.path.AStar.permute" title="edsger.path.AStar.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.AStar.n_edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_edges</span></span><a class="headerlink" href="#edsger.path.AStar.n_edges" title="Link to this definition">¶</a></dt>
+<dd><p>Number of edges of the graph, without the parallel edges.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.AStar.edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">edges</span></span><a class="headerlink" href="#edsger.path.AStar.edges" title="Link to this definition">¶</a></dt>
+<dd><p>The edges of the graph as they are stored, without the parallel edges,
+and with the internal vertex indices if <a class="reference internal" href="#edsger.path.AStar.permute" title="edsger.path.AStar.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.AStar.permute">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">permute</span></span><a class="headerlink" href="#edsger.path.AStar.permute" title="Link to this definition">¶</a></dt>
+<dd><p>Whether the vertices are renumbered internally.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="bidirectionaldijkstra">
+<h2>BidirectionalDijkstra<a class="headerlink" href="#bidirectionaldijkstra" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edsger.path.BidirectionalDijkstra">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">edsger.path.</span></span><span class="sig-name descname"><span class="pre">BidirectionalDijkstra</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">tail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tail'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">head</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'head'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'weight'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">check_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">permute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BidirectionalDijkstra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BidirectionalDijkstra" title="Link to this definition">¶</a></dt>
+<dd><p>Bidirectional Dijkstra’s algorithm, for the shortest path between two
+vertices of a directed graph with non-negative edge weights.</p>
+<p>Two searches are run alternately: from the source on the outgoing edges,
+and from the target on the incoming edges. They stop as soon as no path
+through the vertices that are left to scan can be shorter than the best
+path found where the two searches meet.</p>
+<p>The graph is stored in both CSR and CSC formats, which takes about twice
+the memory of a <a class="reference internal" href="#edsger.path.Dijkstra" title="edsger.path.Dijkstra"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Dijkstra</span></code></a> instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>edges</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><em>pandas.DataFrame</em></a><em> or </em><em>polars.DataFrame</em>) – The edges of the graph, one row per edge. pandas dataframes can use NumPy
+or Arrow data types.</p></li>
+<li><p><strong>tail</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='tail'</em><em>)</em>) – Name of the column with the tail (start) vertex of each edge. The vertex
+identifiers are integers, non-negative unless <a class="reference internal" href="#edsger.path.BidirectionalDijkstra.permute" title="edsger.path.BidirectionalDijkstra.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p></li>
+<li><p><strong>head</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='head'</em><em>)</em>) – Name of the column with the head (end) vertex of each edge.</p></li>
+<li><p><strong>weight</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='weight'</em><em>)</em>) – Name of the column with the edge weights. Negative and NaN weights are
+rejected with a ValueError, whatever the value of <code class="xref py py-obj docutils literal notranslate"><span class="pre">check_edges</span></code>.</p></li>
+<li><p><strong>check_edges</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to check the edges before building the graph: column names,
+data types, missing and non-finite values.</p></li>
+<li><p><strong>permute</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to renumber the vertices internally, with contiguous indices
+starting from 0. The arguments and the results of the methods use the
+original identifiers in both cases. Negative identifiers are only
+accepted with this option.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to print the number of parallel edges that were removed.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The path length is the sum of the lengths of the two half paths, from the
+source to the meeting vertex and from the meeting vertex to the target. It
+is not summed in the same order as by <a class="reference internal" href="#edsger.path.Dijkstra.run" title="edsger.path.Dijkstra.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Dijkstra.run</span></code></a>, so the two may differ
+in the last bits with non-integer weights. When several edges have the
+same tail and head vertices, only the one with the smallest weight is kept.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">BidirectionalDijkstra</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"tail"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">"head"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">"weight"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bd</span> <span class="o">=</span> <span class="n">BidirectionalDijkstra</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bd</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">path_tracking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">3.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bd</span><span class="o">.</span><span class="n">get_path</span><span class="p">()</span>
+<span class="go">array([0, 1, 2], dtype=uint32)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.BidirectionalDijkstra.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_tracking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_inf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#BidirectionalDijkstra.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.BidirectionalDijkstra.run" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the shortest path length from a source to a target vertex.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The source vertex.</p></li>
+<li><p><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The target vertex.</p></li>
+<li><p><strong>path_tracking</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to store the shortest path, so that it can be retrieved with
+<a class="reference internal" href="#edsger.path.BidirectionalDijkstra.get_path" title="edsger.path.BidirectionalDijkstra.get_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_path</span></code></a>.</p></li>
+<li><p><strong>return_inf</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – Whether to return <a class="reference external" href="https://numpy.org/doc/stable/reference/constants.html#numpy.inf" title="(in NumPy v2.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.inf</span></code></a> if the target cannot be reached. If
+False, the largest float64 value is returned instead.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>float</em> – The length of the shortest path from the source to the target.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If the source or the target is not a vertex of the graph.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.BidirectionalDijkstra.get_path">
+<span class="sig-name descname"><span class="pre">get_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#edsger.path.BidirectionalDijkstra.get_path" title="Link to this definition">¶</a></dt>
+<dd><p>Return the shortest path found by the last run.</p>
+<p>The last call to <a class="reference internal" href="#edsger.path.BidirectionalDijkstra.run" title="edsger.path.BidirectionalDijkstra.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a> must have been made with <code class="xref py py-obj docutils literal notranslate"><span class="pre">path_tracking=True</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>numpy.ndarray or None</em> – The vertices of the path, in travel order: from the source to the
+target, both included. None if the target cannot be reached from the
+source, and None with a warning if no path was tracked.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.path.BidirectionalDijkstra.get_vertices">
+<span class="sig-name descname"><span class="pre">get_vertices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#edsger.path.BidirectionalDijkstra.get_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Return the vertices of the graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>numpy.ndarray</em> – The sorted identifiers of the vertices that are the tail or the head of
+at least one edge.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.BidirectionalDijkstra.n_vertices">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_vertices</span></span><a class="headerlink" href="#edsger.path.BidirectionalDijkstra.n_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Number of vertices. This is the largest vertex identifier plus one, or
+the number of distinct vertices if <a class="reference internal" href="#edsger.path.BidirectionalDijkstra.permute" title="edsger.path.BidirectionalDijkstra.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.BidirectionalDijkstra.n_edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_edges</span></span><a class="headerlink" href="#edsger.path.BidirectionalDijkstra.n_edges" title="Link to this definition">¶</a></dt>
+<dd><p>Number of edges of the graph, without the parallel edges.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.BidirectionalDijkstra.edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">edges</span></span><a class="headerlink" href="#edsger.path.BidirectionalDijkstra.edges" title="Link to this definition">¶</a></dt>
+<dd><p>The edges of the graph as they are stored, without the parallel edges,
+and with the internal vertex indices if <a class="reference internal" href="#edsger.path.BidirectionalDijkstra.permute" title="edsger.path.BidirectionalDijkstra.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.BidirectionalDijkstra.permute">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">permute</span></span><a class="headerlink" href="#edsger.path.BidirectionalDijkstra.permute" title="Link to this definition">¶</a></dt>
+<dd><p>Whether the vertices are renumbered internally.</p>
 </dd></dl>
 
 </dd></dl>
@@ -917,8 +1706,7 @@ model for transit networks. Transportation Research Part B 23(2), 83-102.</p>
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">origin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_inf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/path.html#HyperpathGenerating.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.path.HyperpathGenerating.run" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the optimal strategy to a destination and assign the demand.</p>
 <p>The results are stored in the object: the expected travel times in
-<a class="reference internal" href="#edsger.path.HyperpathGenerating.u_i_vec" title="edsger.path.HyperpathGenerating.u_i_vec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">u_i_vec</span></code></a>, and the edge volumes in the ‘volume’ column of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">_edges</span></code>
-dataframe.</p>
+<a class="reference internal" href="#edsger.path.HyperpathGenerating.u_i_vec" title="edsger.path.HyperpathGenerating.u_i_vec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">u_i_vec</span></code></a>, and the edge volumes in the ‘volume’ column of <a class="reference internal" href="#edsger.path.HyperpathGenerating.edges" title="edsger.path.HyperpathGenerating.edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edges</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -940,6 +1728,414 @@ as many as origins.</p></li>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.path.HyperpathGenerating.edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">edges</span></span><a class="headerlink" href="#edsger.path.HyperpathGenerating.edges" title="Link to this definition">¶</a></dt>
+<dd><p>The edges of the graph, with an ‘edge_idx’ column and, after a run,
+the resulting ‘volume’ of each edge.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="minimumspanningtree">
+<h2>MinimumSpanningTree<a class="headerlink" href="#minimumspanningtree" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edsger.spanning_tree.MinimumSpanningTree">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">edsger.spanning_tree.</span></span><span class="sig-name descname"><span class="pre">MinimumSpanningTree</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">tail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tail'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">head</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'head'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'weight'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">check_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">permute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/spanning_tree.html#MinimumSpanningTree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.spanning_tree.MinimumSpanningTree" title="Link to this definition">¶</a></dt>
+<dd><p>Minimum spanning tree of a graph seen as undirected, with Kruskal’s
+algorithm.</p>
+<p>The edge (u, v) joins the vertices u and v whatever its direction. If the
+graph is not connected, the result is a minimum spanning forest: one
+minimum spanning tree per connected component.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>edges</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><em>pandas.DataFrame</em></a><em> or </em><em>polars.DataFrame</em>) – The edges of the graph, one row per edge. pandas dataframes can use NumPy
+or Arrow data types.</p></li>
+<li><p><strong>tail</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='tail'</em><em>)</em>) – Name of the column with the tail vertex of each edge. The vertex
+identifiers are integers, non-negative unless <a class="reference internal" href="#edsger.spanning_tree.MinimumSpanningTree.permute" title="edsger.spanning_tree.MinimumSpanningTree.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p></li>
+<li><p><strong>head</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='head'</em><em>)</em>) – Name of the column with the head vertex of each edge.</p></li>
+<li><p><strong>weight</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em><em> (</em><em>default='weight'</em><em>)</em>) – Name of the column with the edge weights. The weights must be finite,
+they can be negative. With None, all the edges have a weight of 1: the
+result is a spanning forest with no particular property.</p></li>
+<li><p><strong>check_edges</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to check the edges before building the graph: column names,
+data types, missing and non-finite values.</p></li>
+<li><p><strong>permute</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to renumber the vertices internally, with contiguous indices
+starting from 0. Negative identifiers are only accepted with this
+option. The results use the original identifiers in both cases.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to print the number of parallel edges that were removed.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Parallel and antiparallel edges: the graph is undirected, so the edges
+(u, v) and (v, u) join the same pair of vertices. Of all the edges joining
+a pair of vertices, only one with the minimum weight can be in the forest.
+It is returned with its tail and head as given. Self-loops are ignored.</p>
+<p>Ties: among edges of equal weight, the one whose (tail, head) comes first
+in the order of the internal vertex indices is considered first, so the
+result is deterministic. Several minimum spanning forests may exist; they
+all have the same total weight.</p>
+<p>The vertices are the tails and heads of the edges: with <code class="xref py py-obj docutils literal notranslate"><span class="pre">permute=False</span></code>,
+the integers between 0 and the largest identifier that are not used by
+any edge are not vertices, and do not count as trees.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.spanning_tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">MinimumSpanningTree</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"tail"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"head"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"weight"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mst</span> <span class="o">=</span> <span class="n">MinimumSpanningTree</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mst</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="go">   tail  head  weight</span>
+<span class="go">0     0     1     1.0</span>
+<span class="go">1     1     2     2.0</span>
+<span class="go">2     2     3     3.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mst</span><span class="o">.</span><span class="n">total_weight</span><span class="p">,</span> <span class="n">mst</span><span class="o">.</span><span class="n">n_trees</span>
+<span class="go">(6.0, 1)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.spanning_tree.MinimumSpanningTree.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pandas'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/spanning_tree.html#MinimumSpanningTree.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.spanning_tree.MinimumSpanningTree.run" title="Link to this definition">¶</a></dt>
+<dd><p>Compute a minimum spanning forest.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>output</strong> (<em>{'pandas'</em><em>, </em><em>'polars'</em><em>, </em><em>'numpy'}</em><em>, </em><em>optional</em><em> (</em><em>default='pandas'</em><em>)</em>) – Type of the result.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>pandas.DataFrame, polars.DataFrame or tuple of numpy.ndarray</em> – The edges of the forest by increasing weight, with the original
+vertex identifiers: a dataframe with the tail, head and weight
+columns (named as in the input, no weight column if <code class="xref py py-obj docutils literal notranslate"><span class="pre">weight</span></code> is
+None), or with output=’numpy’ the tuple of arrays
+(tails, heads, weights).</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The total weight and the number of trees are then available as the
+<a class="reference internal" href="#edsger.spanning_tree.MinimumSpanningTree.total_weight" title="edsger.spanning_tree.MinimumSpanningTree.total_weight"><code class="xref py py-obj docutils literal notranslate"><span class="pre">total_weight</span></code></a> and <a class="reference internal" href="#edsger.spanning_tree.MinimumSpanningTree.n_trees" title="edsger.spanning_tree.MinimumSpanningTree.n_trees"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_trees</span></code></a> attributes.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.spanning_tree.MinimumSpanningTree.total_weight">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">total_weight</span></span><a class="headerlink" href="#edsger.spanning_tree.MinimumSpanningTree.total_weight" title="Link to this definition">¶</a></dt>
+<dd><p>Total weight of the forest computed by the last run, None before.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.spanning_tree.MinimumSpanningTree.n_trees">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_trees</span></span><a class="headerlink" href="#edsger.spanning_tree.MinimumSpanningTree.n_trees" title="Link to this definition">¶</a></dt>
+<dd><p>Number of trees of the forest computed by the last run, that is the
+number of connected components of the undirected graph, isolated
+vertices excluded since they are not vertices. None before the first
+run.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.spanning_tree.MinimumSpanningTree.get_vertices">
+<span class="sig-name descname"><span class="pre">get_vertices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#edsger.spanning_tree.MinimumSpanningTree.get_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Return the vertices of the graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>numpy.ndarray</em> – The sorted identifiers of the vertices that are the tail or the head of
+at least one edge.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.spanning_tree.MinimumSpanningTree.n_vertices">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_vertices</span></span><a class="headerlink" href="#edsger.spanning_tree.MinimumSpanningTree.n_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Number of vertices. This is the largest vertex identifier plus one, or
+the number of distinct vertices if <a class="reference internal" href="#edsger.spanning_tree.MinimumSpanningTree.permute" title="edsger.spanning_tree.MinimumSpanningTree.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.spanning_tree.MinimumSpanningTree.n_edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_edges</span></span><a class="headerlink" href="#edsger.spanning_tree.MinimumSpanningTree.n_edges" title="Link to this definition">¶</a></dt>
+<dd><p>Number of edges of the graph, without the parallel edges.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.spanning_tree.MinimumSpanningTree.edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">edges</span></span><a class="headerlink" href="#edsger.spanning_tree.MinimumSpanningTree.edges" title="Link to this definition">¶</a></dt>
+<dd><p>The edges of the graph as they are stored, without the parallel edges,
+and with the internal vertex indices if <a class="reference internal" href="#edsger.spanning_tree.MinimumSpanningTree.permute" title="edsger.spanning_tree.MinimumSpanningTree.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.spanning_tree.MinimumSpanningTree.permute">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">permute</span></span><a class="headerlink" href="#edsger.spanning_tree.MinimumSpanningTree.permute" title="Link to this definition">¶</a></dt>
+<dd><p>Whether the vertices are renumbered internally.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="centrality">
+<h2>Centrality<a class="headerlink" href="#centrality" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edsger.centrality.Centrality">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">edsger.centrality.</span></span><span class="sig-name descname"><span class="pre">Centrality</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">tail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tail'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">head</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'head'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">check_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">permute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/centrality.html#Centrality"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.centrality.Centrality" title="Link to this definition">¶</a></dt>
+<dd><p>Centrality measures of the vertices of a directed graph: PageRank, HITS
+hubs and authorities, and Katz centrality.</p>
+<p>The graph is built once from a dataframe of edges, then each measure is
+computed by power iteration, with the methods <a class="reference internal" href="#edsger.centrality.Centrality.pagerank" title="edsger.centrality.Centrality.pagerank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pagerank</span></code></a>, <a class="reference internal" href="#edsger.centrality.Centrality.hits" title="edsger.centrality.Centrality.hits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hits</span></code></a> and
+<a class="reference internal" href="#edsger.centrality.Centrality.katz" title="edsger.centrality.Centrality.katz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">katz</span></code></a>. The results follow the conventions of NetworkX (see the Notes).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>edges</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><em>pandas.DataFrame</em></a><em> or </em><em>polars.DataFrame</em>) – The edges of the graph, one row per edge. pandas dataframes can use NumPy
+or Arrow data types.</p></li>
+<li><p><strong>tail</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='tail'</em><em>)</em>) – Name of the column with the tail (start) vertex of each edge. The vertex
+identifiers are integers, non-negative unless <a class="reference internal" href="#edsger.centrality.Centrality.permute" title="edsger.centrality.Centrality.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p></li>
+<li><p><strong>head</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='head'</em><em>)</em>) – Name of the column with the head (end) vertex of each edge.</p></li>
+<li><p><strong>weight</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Name of the column with the edge weights, which must be non-negative
+and finite. With None, the graph is unweighted: all the edges have a
+weight of 1.</p></li>
+<li><p><strong>check_edges</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to check the edges before building the graph: column names,
+data types and missing values.</p></li>
+<li><p><strong>permute</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to renumber the vertices internally, with contiguous indices
+starting from 0. Negative identifiers are only accepted with this
+option, and the results must then be labelled by vertex
+(<code class="xref py py-obj docutils literal notranslate"><span class="pre">output='pandas'</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">'polars'</span></code>).</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to print the number of parallel edges that were removed.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>When several edges have the same tail and head vertices, only one is kept,
+with the minimum weight (as for the other algorithms of edsger, whereas a
+NetworkX MultiDiGraph would add up their weights).</p>
+<p>The vertices are the tails and heads of the edges. With <code class="xref py py-obj docutils literal notranslate"><span class="pre">permute=False</span></code>,
+the integers between 0 and the largest identifier that are not used by any
+edge are not vertices: they do not take part in the computations, and get
+a value of 0 in the results.</p>
+<p>Each method raises <a class="reference internal" href="#edsger.centrality.ConvergenceError" title="edsger.centrality.ConvergenceError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConvergenceError</span></code></a> if the power iterations do not
+converge within <code class="xref py py-obj docutils literal notranslate"><span class="pre">max_iter</span></code> iterations, or diverge.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edsger.centrality</span><span class="w"> </span><span class="kn">import</span> <span class="n">Centrality</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"tail"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">"head"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">Centrality</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">pagerank</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">array([0.215, 0.397, 0.388])</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.centrality.Centrality.pagerank">
+<span class="sig-name descname"><span class="pre">pagerank</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">damping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.85</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">personalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">return_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/centrality.html#Centrality.pagerank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.centrality.Centrality.pagerank" title="Link to this definition">¶</a></dt>
+<dd><p>PageRank of the vertices.</p>
+<p>The PageRank is the stationary distribution of a random walk that
+follows an outgoing edge with probability <code class="xref py py-obj docutils literal notranslate"><span class="pre">damping</span></code>, chosen in
+proportion to the edge weights, and otherwise jumps to a vertex drawn
+from the personalization distribution (uniform by default). From a
+dangling vertex, without outgoing edge (or with zero out-weight), the
+walk always jumps to a vertex drawn from the personalization
+distribution.</p>
+<p>This is <code class="xref py py-obj docutils literal notranslate"><span class="pre">networkx.pagerank</span></code> with <code class="xref py py-obj docutils literal notranslate"><span class="pre">alpha=damping</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">dangling=None</span></code>,
+except for the stopping criterion: NetworkX compares the change of the
+vector with <code class="xref py py-obj docutils literal notranslate"><span class="pre">n</span> <span class="pre">*</span> <span class="pre">tol</span></code>, a threshold that grows with the graph while the
+vector sums to 1. Here <code class="xref py py-obj docutils literal notranslate"><span class="pre">tol</span></code> does not depend on the number of vertices,
+so that the accuracy of the result does not either.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>damping</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em><em> (</em><em>default=0.85</em><em>)</em>) – Damping factor, in [0, 1] (<code class="xref py py-obj docutils literal notranslate"><span class="pre">alpha</span></code> in NetworkX).</p></li>
+<li><p><strong>personalization</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><em>dict</em></a><em> or </em><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><em>pandas.Series</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Teleportation weights of the vertices, as a mapping from vertex to a
+non-negative weight, normalized to sum 1. The vertices that are
+not given get 0. Uniform over the vertices if None.</p></li>
+<li><p><strong>tol</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em><em> (</em><em>default=1e-6</em><em>)</em>) – The iterations stop when the L1 norm of the change of the PageRank
+vector is smaller than <code class="xref py py-obj docutils literal notranslate"><span class="pre">tol</span></code>. Since the error decreases by a factor
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">damping</span></code> at each iteration, about 90 iterations are needed with the
+default values.</p></li>
+<li><p><strong>max_iter</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><em>optional</em><em> (</em><em>default=1000</em><em>)</em>) – Maximum number of iterations.</p></li>
+<li><p><strong>output</strong> (<em>{'numpy'</em><em>, </em><em>'pandas'</em><em>, </em><em>'polars'}</em><em>, </em><em>optional</em><em> (</em><em>default='numpy'</em><em>)</em>) – Type of the result. ‘pandas’ returns a Series named ‘pagerank’
+indexed by vertex (‘vertex_idx’), ‘polars’ a DataFrame with the
+columns ‘vertex_idx’ and ‘pagerank’.</p></li>
+<li><p><strong>return_series</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Same as <code class="xref py py-obj docutils literal notranslate"><span class="pre">output='pandas'</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>numpy.ndarray, pandas.Series or polars.DataFrame</em> – The PageRank of each vertex, summing to 1. The array is indexed by
+vertex identifier.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#edsger.centrality.ConvergenceError" title="edsger.centrality.ConvergenceError"><strong>ConvergenceError</strong></a> – If the iterations do not converge within <code class="xref py py-obj docutils literal notranslate"><span class="pre">max_iter</span></code> iterations.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.centrality.Centrality.hits">
+<span class="sig-name descname"><span class="pre">hits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/centrality.html#Centrality.hits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.centrality.Centrality.hits" title="Link to this definition">¶</a></dt>
+<dd><p>HITS hub and authority scores of the vertices.</p>
+<p>The authority of a vertex is the weighted sum of the hub scores of its
+predecessors, the hub score of a vertex is the weighted sum of the
+authorities of its successors: these are the principal left and right
+singular vectors of the adjacency matrix. They are computed by power
+iteration, starting from uniform hub scores.</p>
+<p>This is <code class="xref py py-obj docutils literal notranslate"><span class="pre">networkx.hits</span></code> with <code class="xref py py-obj docutils literal notranslate"><span class="pre">normalized=True</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tol</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em><em> (</em><em>default=1e-8</em><em>)</em>) – The iterations stop when the L1 norm of the change of the hub
+vector, scaled so that its largest element is 1, is smaller than
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">tol</span></code>.</p></li>
+<li><p><strong>max_iter</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><em>optional</em><em> (</em><em>default=100</em><em>)</em>) – Maximum number of iterations.</p></li>
+<li><p><strong>output</strong> (<em>{'numpy'</em><em>, </em><em>'pandas'</em><em>, </em><em>'polars'}</em><em>, </em><em>optional</em><em> (</em><em>default='numpy'</em><em>)</em>) – Type of the results. ‘pandas’ returns Series named ‘hub’ and
+‘authority’ indexed by vertex (‘vertex_idx’), ‘polars’ DataFrames
+with the columns ‘vertex_idx’ and ‘hub’ or ‘authority’.</p></li>
+<li><p><strong>return_series</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Same as <code class="xref py py-obj docutils literal notranslate"><span class="pre">output='pandas'</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>tuple</em> – The hub scores and the authority scores, each summing to 1. The
+arrays are indexed by vertex identifier.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#edsger.centrality.ConvergenceError" title="edsger.centrality.ConvergenceError"><strong>ConvergenceError</strong></a> – If the iterations do not converge within <code class="xref py py-obj docutils literal notranslate"><span class="pre">max_iter</span></code> iterations.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If the largest singular value of the adjacency matrix is not simple,
+for example with several connected components having the same one,
+the result depends on the starting vector.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.centrality.Centrality.katz">
+<span class="sig-name descname"><span class="pre">katz</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">normalized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">return_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="reference internal" href="_modules/edsger/centrality.html#Centrality.katz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.centrality.Centrality.katz" title="Link to this definition">¶</a></dt>
+<dd><p>Katz centrality of the vertices.</p>
+<p>The Katz centrality x is the solution of x = alpha A^T x + beta, where
+A is the (weighted) adjacency matrix: the centrality of a vertex is
+beta plus alpha times the weighted sum of the centralities of its
+predecessors. It is computed by power iteration starting from 0, which
+converges if alpha is smaller than the inverse of the spectral radius
+of A. Checking this is left to the user: a too large alpha is detected
+as non-convergence.</p>
+<p>This is <code class="xref py py-obj docutils literal notranslate"><span class="pre">networkx.katz_centrality</span></code> with a scalar beta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em><em> (</em><em>default=0.1</em><em>)</em>) – Attenuation factor.</p></li>
+<li><p><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em><em> (</em><em>default=1.0</em><em>)</em>) – Constant term, the same for all the vertices.</p></li>
+<li><p><strong>tol</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em><em> (</em><em>default=1e-6</em><em>)</em>) – The iterations stop when the L1 norm of the change of the
+centrality vector is smaller than <code class="xref py py-obj docutils literal notranslate"><span class="pre">n</span> <span class="pre">*</span> <span class="pre">tol</span></code>, n being the number of
+vertices.</p></li>
+<li><p><strong>max_iter</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><em>optional</em><em> (</em><em>default=1000</em><em>)</em>) – Maximum number of iterations.</p></li>
+<li><p><strong>normalized</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – Whether to divide the result by its Euclidean norm, as NetworkX.</p></li>
+<li><p><strong>output</strong> (<em>{'numpy'</em><em>, </em><em>'pandas'</em><em>, </em><em>'polars'}</em><em>, </em><em>optional</em><em> (</em><em>default='numpy'</em><em>)</em>) – Type of the result. ‘pandas’ returns a Series named ‘katz’ indexed
+by vertex (‘vertex_idx’), ‘polars’ a DataFrame with the columns
+‘vertex_idx’ and ‘katz’.</p></li>
+<li><p><strong>return_series</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Same as <code class="xref py py-obj docutils literal notranslate"><span class="pre">output='pandas'</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>numpy.ndarray, pandas.Series or polars.DataFrame</em> – The Katz centrality of each vertex. The array is indexed by vertex
+identifier.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#edsger.centrality.ConvergenceError" title="edsger.centrality.ConvergenceError"><strong>ConvergenceError</strong></a> – If the iterations do not converge within <code class="xref py py-obj docutils literal notranslate"><span class="pre">max_iter</span></code> iterations, for
+    example because alpha is too large.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edsger.centrality.Centrality.get_vertices">
+<span class="sig-name descname"><span class="pre">get_vertices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#edsger.centrality.Centrality.get_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Return the vertices of the graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>numpy.ndarray</em> – The sorted identifiers of the vertices that are the tail or the head of
+at least one edge.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.centrality.Centrality.n_vertices">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_vertices</span></span><a class="headerlink" href="#edsger.centrality.Centrality.n_vertices" title="Link to this definition">¶</a></dt>
+<dd><p>Number of vertices. This is the largest vertex identifier plus one, or
+the number of distinct vertices if <a class="reference internal" href="#edsger.centrality.Centrality.permute" title="edsger.centrality.Centrality.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.centrality.Centrality.n_edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_edges</span></span><a class="headerlink" href="#edsger.centrality.Centrality.n_edges" title="Link to this definition">¶</a></dt>
+<dd><p>Number of edges of the graph, without the parallel edges.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.centrality.Centrality.edges">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">edges</span></span><a class="headerlink" href="#edsger.centrality.Centrality.edges" title="Link to this definition">¶</a></dt>
+<dd><p>The edges of the graph as they are stored, without the parallel edges,
+and with the internal vertex indices if <a class="reference internal" href="#edsger.centrality.Centrality.permute" title="edsger.centrality.Centrality.permute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute</span></code></a> is True.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edsger.centrality.Centrality.permute">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">permute</span></span><a class="headerlink" href="#edsger.centrality.Centrality.permute" title="Link to this definition">¶</a></dt>
+<dd><p>Whether the vertices are renumbered internally.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edsger.centrality.ConvergenceError">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">edsger.centrality.</span></span><span class="sig-name descname"><span class="pre">ConvergenceError</span></span><a class="reference internal" href="_modules/edsger/centrality.html#ConvergenceError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#edsger.centrality.ConvergenceError" title="Link to this definition">¶</a></dt>
+<dd><p>The power iterations did not converge within <code class="xref py py-obj docutils literal notranslate"><span class="pre">max_iter</span></code> iterations.</p>
 </dd></dl>
 
 </section>
@@ -1035,23 +2231,23 @@ assignment literature, with 24 vertices and 76 edges.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="changelog.html">
+          <a class="next-page" href="benchmarks.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Changelog</div>
+                <div class="title">Benchmarks</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="benchmarks.html">
+          <a class="prev-page" href="examples/ranking.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Benchmarks</div>
+                <div class="title">Ranking the vertices of a network</div>
                 
               </div>
             </a>
@@ -1088,6 +2284,7 @@ assignment literature, with 24 vertices and 76 edges.</p>
 <li><a class="reference internal" href="#dijkstra">Dijkstra</a><ul>
 <li><a class="reference internal" href="#edsger.path.Dijkstra"><code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code></a><ul>
 <li><a class="reference internal" href="#edsger.path.Dijkstra.run"><code class="docutils literal notranslate"><span class="pre">Dijkstra.run()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.Dijkstra.run_many"><code class="docutils literal notranslate"><span class="pre">Dijkstra.run_many()</span></code></a></li>
 <li><a class="reference internal" href="#edsger.path.Dijkstra.get_path"><code class="docutils literal notranslate"><span class="pre">Dijkstra.get_path()</span></code></a></li>
 <li><a class="reference internal" href="#edsger.path.Dijkstra.get_vertices"><code class="docutils literal notranslate"><span class="pre">Dijkstra.get_vertices()</span></code></a></li>
 <li><a class="reference internal" href="#edsger.path.Dijkstra.n_vertices"><code class="docutils literal notranslate"><span class="pre">Dijkstra.n_vertices</span></code></a></li>
@@ -1133,14 +2330,101 @@ assignment literature, with 24 vertices and 76 edges.</p>
 </li>
 </ul>
 </li>
+<li><a class="reference internal" href="#dfs">DFS</a><ul>
+<li><a class="reference internal" href="#edsger.path.DFS"><code class="docutils literal notranslate"><span class="pre">DFS</span></code></a><ul>
+<li><a class="reference internal" href="#edsger.path.DFS.run"><code class="docutils literal notranslate"><span class="pre">DFS.run()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.DFS.get_order"><code class="docutils literal notranslate"><span class="pre">DFS.get_order()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.DFS.get_path"><code class="docutils literal notranslate"><span class="pre">DFS.get_path()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.DFS.get_vertices"><code class="docutils literal notranslate"><span class="pre">DFS.get_vertices()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.DFS.UNREACHABLE"><code class="docutils literal notranslate"><span class="pre">DFS.UNREACHABLE</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.DFS.n_vertices"><code class="docutils literal notranslate"><span class="pre">DFS.n_vertices</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.DFS.n_edges"><code class="docutils literal notranslate"><span class="pre">DFS.n_edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.DFS.edges"><code class="docutils literal notranslate"><span class="pre">DFS.edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.DFS.orientation"><code class="docutils literal notranslate"><span class="pre">DFS.orientation</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.DFS.permute"><code class="docutils literal notranslate"><span class="pre">DFS.permute</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.DFS.path_links"><code class="docutils literal notranslate"><span class="pre">DFS.path_links</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#connectedcomponents">ConnectedComponents</a><ul>
+<li><a class="reference internal" href="#edsger.components.ConnectedComponents"><code class="docutils literal notranslate"><span class="pre">ConnectedComponents</span></code></a><ul>
+<li><a class="reference internal" href="#edsger.components.ConnectedComponents.run"><code class="docutils literal notranslate"><span class="pre">ConnectedComponents.run()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.components.ConnectedComponents.get_vertices"><code class="docutils literal notranslate"><span class="pre">ConnectedComponents.get_vertices()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.components.ConnectedComponents.n_components"><code class="docutils literal notranslate"><span class="pre">ConnectedComponents.n_components</span></code></a></li>
+<li><a class="reference internal" href="#edsger.components.ConnectedComponents.n_vertices"><code class="docutils literal notranslate"><span class="pre">ConnectedComponents.n_vertices</span></code></a></li>
+<li><a class="reference internal" href="#edsger.components.ConnectedComponents.n_edges"><code class="docutils literal notranslate"><span class="pre">ConnectedComponents.n_edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.components.ConnectedComponents.edges"><code class="docutils literal notranslate"><span class="pre">ConnectedComponents.edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.components.ConnectedComponents.permute"><code class="docutils literal notranslate"><span class="pre">ConnectedComponents.permute</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#astar">AStar</a><ul>
+<li><a class="reference internal" href="#edsger.path.AStar"><code class="docutils literal notranslate"><span class="pre">AStar</span></code></a><ul>
+<li><a class="reference internal" href="#edsger.path.AStar.run"><code class="docutils literal notranslate"><span class="pre">AStar.run()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.AStar.set_coordinates"><code class="docutils literal notranslate"><span class="pre">AStar.set_coordinates()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.AStar.get_path"><code class="docutils literal notranslate"><span class="pre">AStar.get_path()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.AStar.get_vertices"><code class="docutils literal notranslate"><span class="pre">AStar.get_vertices()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.AStar.n_vertices"><code class="docutils literal notranslate"><span class="pre">AStar.n_vertices</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.AStar.n_edges"><code class="docutils literal notranslate"><span class="pre">AStar.n_edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.AStar.edges"><code class="docutils literal notranslate"><span class="pre">AStar.edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.AStar.permute"><code class="docutils literal notranslate"><span class="pre">AStar.permute</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bidirectionaldijkstra">BidirectionalDijkstra</a><ul>
+<li><a class="reference internal" href="#edsger.path.BidirectionalDijkstra"><code class="docutils literal notranslate"><span class="pre">BidirectionalDijkstra</span></code></a><ul>
+<li><a class="reference internal" href="#edsger.path.BidirectionalDijkstra.run"><code class="docutils literal notranslate"><span class="pre">BidirectionalDijkstra.run()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BidirectionalDijkstra.get_path"><code class="docutils literal notranslate"><span class="pre">BidirectionalDijkstra.get_path()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BidirectionalDijkstra.get_vertices"><code class="docutils literal notranslate"><span class="pre">BidirectionalDijkstra.get_vertices()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BidirectionalDijkstra.n_vertices"><code class="docutils literal notranslate"><span class="pre">BidirectionalDijkstra.n_vertices</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BidirectionalDijkstra.n_edges"><code class="docutils literal notranslate"><span class="pre">BidirectionalDijkstra.n_edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BidirectionalDijkstra.edges"><code class="docutils literal notranslate"><span class="pre">BidirectionalDijkstra.edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.BidirectionalDijkstra.permute"><code class="docutils literal notranslate"><span class="pre">BidirectionalDijkstra.permute</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a class="reference internal" href="#hyperpathgenerating">HyperpathGenerating</a><ul>
 <li><a class="reference internal" href="#edsger.path.HyperpathGenerating"><code class="docutils literal notranslate"><span class="pre">HyperpathGenerating</span></code></a><ul>
 <li><a class="reference internal" href="#edsger.path.HyperpathGenerating.edge_count"><code class="docutils literal notranslate"><span class="pre">HyperpathGenerating.edge_count</span></code></a></li>
 <li><a class="reference internal" href="#edsger.path.HyperpathGenerating.vertex_count"><code class="docutils literal notranslate"><span class="pre">HyperpathGenerating.vertex_count</span></code></a></li>
 <li><a class="reference internal" href="#edsger.path.HyperpathGenerating.u_i_vec"><code class="docutils literal notranslate"><span class="pre">HyperpathGenerating.u_i_vec</span></code></a></li>
 <li><a class="reference internal" href="#edsger.path.HyperpathGenerating.run"><code class="docutils literal notranslate"><span class="pre">HyperpathGenerating.run()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.path.HyperpathGenerating.edges"><code class="docutils literal notranslate"><span class="pre">HyperpathGenerating.edges</span></code></a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li><a class="reference internal" href="#minimumspanningtree">MinimumSpanningTree</a><ul>
+<li><a class="reference internal" href="#edsger.spanning_tree.MinimumSpanningTree"><code class="docutils literal notranslate"><span class="pre">MinimumSpanningTree</span></code></a><ul>
+<li><a class="reference internal" href="#edsger.spanning_tree.MinimumSpanningTree.run"><code class="docutils literal notranslate"><span class="pre">MinimumSpanningTree.run()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.spanning_tree.MinimumSpanningTree.total_weight"><code class="docutils literal notranslate"><span class="pre">MinimumSpanningTree.total_weight</span></code></a></li>
+<li><a class="reference internal" href="#edsger.spanning_tree.MinimumSpanningTree.n_trees"><code class="docutils literal notranslate"><span class="pre">MinimumSpanningTree.n_trees</span></code></a></li>
+<li><a class="reference internal" href="#edsger.spanning_tree.MinimumSpanningTree.get_vertices"><code class="docutils literal notranslate"><span class="pre">MinimumSpanningTree.get_vertices()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.spanning_tree.MinimumSpanningTree.n_vertices"><code class="docutils literal notranslate"><span class="pre">MinimumSpanningTree.n_vertices</span></code></a></li>
+<li><a class="reference internal" href="#edsger.spanning_tree.MinimumSpanningTree.n_edges"><code class="docutils literal notranslate"><span class="pre">MinimumSpanningTree.n_edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.spanning_tree.MinimumSpanningTree.edges"><code class="docutils literal notranslate"><span class="pre">MinimumSpanningTree.edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.spanning_tree.MinimumSpanningTree.permute"><code class="docutils literal notranslate"><span class="pre">MinimumSpanningTree.permute</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#centrality">Centrality</a><ul>
+<li><a class="reference internal" href="#edsger.centrality.Centrality"><code class="docutils literal notranslate"><span class="pre">Centrality</span></code></a><ul>
+<li><a class="reference internal" href="#edsger.centrality.Centrality.pagerank"><code class="docutils literal notranslate"><span class="pre">Centrality.pagerank()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.centrality.Centrality.hits"><code class="docutils literal notranslate"><span class="pre">Centrality.hits()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.centrality.Centrality.katz"><code class="docutils literal notranslate"><span class="pre">Centrality.katz()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.centrality.Centrality.get_vertices"><code class="docutils literal notranslate"><span class="pre">Centrality.get_vertices()</span></code></a></li>
+<li><a class="reference internal" href="#edsger.centrality.Centrality.n_vertices"><code class="docutils literal notranslate"><span class="pre">Centrality.n_vertices</span></code></a></li>
+<li><a class="reference internal" href="#edsger.centrality.Centrality.n_edges"><code class="docutils literal notranslate"><span class="pre">Centrality.n_edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.centrality.Centrality.edges"><code class="docutils literal notranslate"><span class="pre">Centrality.edges</span></code></a></li>
+<li><a class="reference internal" href="#edsger.centrality.Centrality.permute"><code class="docutils literal notranslate"><span class="pre">Centrality.permute</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#edsger.centrality.ConvergenceError"><code class="docutils literal notranslate"><span class="pre">ConvergenceError</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#graph-validation">Graph validation</a><ul>
@@ -1166,7 +2450,7 @@ assignment literature, with 24 vertices and 76 edges.</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=f1f9ae6c"></script>
+</div><script src="_static/documentation_options.js?v=802ce435"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

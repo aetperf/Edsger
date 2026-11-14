@@ -3,10 +3,10 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Contributing" href="contributing.html"><link rel="prev" title="API reference" href="api.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Contributing" href="contributing.html"><link rel="prev" title="Benchmarks" href="benchmarks.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>Changelog - Edsger 0.2.0</title>
+        <title>Changelog - Edsger 0.3.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -168,7 +168,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Edsger 0.2.0</div></a>
+      <a href="index.html"><div class="brand">Edsger 0.3.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -189,7 +189,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">Edsger 0.2.0</span>
+  <span class="sidebar-brand-text">Edsger 0.3.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -197,11 +197,30 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
+  <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coming_from.html">Coming from NetworkX or SciPy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="guide/shortest_paths.html">Shortest paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guide/traversal.html">Traversal and components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guide/network_analysis.html">Spanning trees and centrality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guide/transit.html">Transit assignment</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/road_routing.html">Routing on a road network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/od_matrix.html">Origin-destination matrix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/transit_assignment.html">Transit assignment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/ranking.html">Ranking the vertices of a network</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 </ul>
@@ -251,6 +270,55 @@
 <p>All notable changes to this project will be documented in this file.</p>
 <p>The format is based on <a class="reference external" href="https://keepachangelog.com/">Keep a Changelog</a>,
 and this project adheres to <a class="reference external" href="https://semver.org/">Semantic Versioning</a>.</p>
+<section id="version-0-3-0-2026-11-14">
+<span id="version-030-2026-11-14"></span><h2>Version 0.3.0 (2026-11-14)<a class="headerlink" href="#version-0-3-0-2026-11-14" title="Link to this heading">¶</a></h2>
+<section id="new-features">
+<h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Polars output: <code class="docutils literal notranslate"><span class="pre">run(...,</span> <span class="pre">output=&quot;polars&quot;)</span></code> returns a Polars DataFrame with a <code class="docutils literal notranslate"><span class="pre">vertex_idx</span></code> column and a <code class="docutils literal notranslate"><span class="pre">path_length</span></code> (<code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code>, <code class="docutils literal notranslate"><span class="pre">BellmanFord</span></code>) or <code class="docutils literal notranslate"><span class="pre">predecessor</span></code> (<code class="docutils literal notranslate"><span class="pre">BFS</span></code>) column. The new <code class="docutils literal notranslate"><span class="pre">output</span></code> argument takes <code class="docutils literal notranslate"><span class="pre">&quot;numpy&quot;</span></code> (default), <code class="docutils literal notranslate"><span class="pre">&quot;pandas&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;polars&quot;</span></code>; <code class="docutils literal notranslate"><span class="pre">return_series=True</span></code> is kept and means <code class="docutils literal notranslate"><span class="pre">output=&quot;pandas&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dijkstra.run_many(vertices,</span> <span class="pre">termination_nodes=None,</span> <span class="pre">n_jobs=None,</span> <span class="pre">...)</span></code>: runs from several vertices in parallel threads, and returns a 2D NumPy array, a pandas DataFrame or a Polars DataFrame in long format (<code class="docutils literal notranslate"><span class="pre">origin</span></code>, <code class="docutils literal notranslate"><span class="pre">destination</span></code>, <code class="docutils literal notranslate"><span class="pre">path_length</span></code>). With <code class="docutils literal notranslate"><span class="pre">termination_nodes</span></code>, this is an origin-destination matrix. 32 runs on a random graph with 1M vertices and 4M edges: 4.5s one by one, 1.3s with 8 threads</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DFS</span></code> (<code class="docutils literal notranslate"><span class="pre">edsger.path</span></code>): depth-first search tree from or to a vertex, same interface as <code class="docutils literal notranslate"><span class="pre">BFS</span></code>. Iterative, neighbours visited in increasing order of their identifiers (same order as <code class="docutils literal notranslate"><span class="pre">scipy.sparse.csgraph.depth_first_order</span></code>). <code class="docutils literal notranslate"><span class="pre">get_order()</span></code> returns the vertices in discovery order</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ConnectedComponents</span></code> (<code class="docutils literal notranslate"><span class="pre">edsger.components</span></code>): weakly (union-find) or strongly (Pearce’s algorithm, iterative) connected components, <code class="docutils literal notranslate"><span class="pre">run(connection=&quot;weak&quot;</span> <span class="pre">|</span> <span class="pre">&quot;strong&quot;,</span> <span class="pre">output=...)</span></code> returns a <code class="docutils literal notranslate"><span class="pre">component</span></code> label per vertex, numbered in order of the smallest vertex of each component, and sets <code class="docutils literal notranslate"><span class="pre">n_components</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MinimumSpanningTree</span></code> (<code class="docutils literal notranslate"><span class="pre">edsger.spanning_tree</span></code>): minimum spanning forest of the graph seen as undirected (Kruskal, union-find). <code class="docutils literal notranslate"><span class="pre">run(output=&quot;pandas&quot;)</span></code> returns the forest edges (pandas, Polars, or a tuple of NumPy arrays); <code class="docutils literal notranslate"><span class="pre">total_weight</span></code> and <code class="docutils literal notranslate"><span class="pre">n_trees</span></code> attributes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Centrality</span></code> (<code class="docutils literal notranslate"><span class="pre">edsger.centrality</span></code>): <code class="docutils literal notranslate"><span class="pre">pagerank</span></code>, <code class="docutils literal notranslate"><span class="pre">hits</span></code> and <code class="docutils literal notranslate"><span class="pre">katz</span></code> methods, power iterations on the graph built once, weighted or not, with the NetworkX normalizations (but the PageRank tolerance is not multiplied by the number of vertices, so that the accuracy does not degrade on large graphs). <code class="docutils literal notranslate"><span class="pre">ConvergenceError</span></code> when the iterations do not converge</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AStar</span></code>: A* shortest path between two vertices, <code class="docutils literal notranslate"><span class="pre">run(source,</span> <span class="pre">target,</span> <span class="pre">heuristic=None,</span> <span class="pre">path_tracking=False)</span></code>. Heuristic given as a NumPy array or a pandas Series, or computed on the fly from vertex coordinates (<code class="docutils literal notranslate"><span class="pre">set_coordinates</span></code>, Euclidean or haversine, factor derived from the edges so the heuristic is consistent)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BidirectionalDijkstra</span></code>: bidirectional Dijkstra between two vertices, <code class="docutils literal notranslate"><span class="pre">run(source,</span> <span class="pre">target,</span> <span class="pre">path_tracking=False)</span></code>. Both classes reuse their per-vertex arrays between runs: a run costs in proportion to the explored part of the graph, not to the vertex count</p></li>
+<li><p>All the classes can be imported from the package: <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">edsger</span> <span class="pre">import</span> <span class="pre">Dijkstra,</span> <span class="pre">ConnectedComponents,</span> <span class="pre">...</span></code></p></li>
+<li><p>The package is typed (PEP 561): <code class="docutils literal notranslate"><span class="pre">py.typed</span></code> and the <code class="docutils literal notranslate"><span class="pre">.pyi</span></code> stubs of the Cython modules are now installed, so type checkers and IDEs see the type hints</p></li>
+<li><p>Readable representations: <code class="docutils literal notranslate"><span class="pre">Dijkstra(n_vertices=23_947_347,</span> <span class="pre">n_edges=57_708_624,</span> <span class="pre">permute=False,</span> <span class="pre">orientation='out',</span> <span class="pre">lazy=True)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HyperpathGenerating.edges</span></code>: the edges with their assigned <code class="docutils literal notranslate"><span class="pre">volume</span></code>, which were only available as the private <code class="docutils literal notranslate"><span class="pre">_edges</span></code></p></li>
+</ul>
+</section>
+<section id="documentation">
+<h3>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Shorter quick start, and a user guide with one page per family of algorithms: shortest paths, traversal and components, spanning trees and centrality, transit assignment</p></li>
+<li><p>Examples: routing on a road network, origin-destination matrix, transit assignment (Spiess and Florian’s network), ranking the vertices of a network</p></li>
+<li><p>“Coming from NetworkX or SciPy”: their functions and the Edsger equivalents</p></li>
+</ul>
+</section>
+<section id="changes">
+<h3>Changes<a class="headerlink" href="#changes" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BellmanFord.run(...,</span> <span class="pre">return_series=True)</span></code>: the Series is now named <code class="docutils literal notranslate"><span class="pre">path_length</span></code> and its index <code class="docutils literal notranslate"><span class="pre">vertex_idx</span></code>, as for <code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dijkstra</span></code>, <code class="docutils literal notranslate"><span class="pre">BellmanFord</span></code> and <code class="docutils literal notranslate"><span class="pre">BFS</span></code> now share their graph building and their handling of the vertex labels. The vertex renumbering of <code class="docutils literal notranslate"><span class="pre">permute=True</span></code> is done with NumPy instead of pandas merges: building a permuted graph is about 35% faster (2M edges)</p></li>
+</ul>
+</section>
+<section id="tooling">
+<h3>Tooling<a class="headerlink" href="#tooling" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/astral-sh/ruff">ruff</a> replaces black (formatting) and adds linting (pyflakes, bugbear, pyupgrade, isort rules); <a class="reference external" href="https://github.com/astral-sh/ty">ty</a> replaces pyright. Both run as pre-commit hooks and in the test workflow</p></li>
+<li><p>Each wheel built by cibuildwheel is now tested before the upload (<code class="docutils literal notranslate"><span class="pre">scripts/wheel_smoke_test.py</span></code>): every compiled module is imported and each family of algorithms is run</p></li>
+</ul>
+</section>
+<section id="packaging">
+<h3>Packaging<a class="headerlink" href="#packaging" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>The runtime dependencies are now only NumPy and pandas: <code class="docutils literal notranslate"><span class="pre">setuptools</span></code>, <code class="docutils literal notranslate"><span class="pre">setuptools_scm</span></code> and <code class="docutils literal notranslate"><span class="pre">Cython</span></code> are only needed to build the package, and were installed with it</p></li>
+<li><p>New <code class="docutils literal notranslate"><span class="pre">polars</span></code> extra (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">edsger[polars]</span></code>). The <code class="docutils literal notranslate"><span class="pre">test</span></code> extra no longer pins <code class="docutils literal notranslate"><span class="pre">scipy&lt;1.11</span></code></p></li>
+</ul>
+</section>
+</section>
 <section id="version-0-2-0-2026-11-13">
 <span id="version-020-2026-11-13"></span><h2>Version 0.2.0 (2026-11-13)<a class="headerlink" href="#version-0-2-0-2026-11-13" title="Link to this heading">¶</a></h2>
 <section id="performance-improvements">
@@ -347,8 +415,8 @@ and this project adheres to <a class="reference external" href="https://semver.o
 </section>
 <section id="version-0-1-6-2025-10-12">
 <span id="version-016-2025-10-12"></span><h2>Version 0.1.6 (2025-10-12)<a class="headerlink" href="#version-0-1-6-2025-10-12" title="Link to this heading">¶</a></h2>
-<section id="new-features">
-<h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
+<section id="id3">
+<span id="new-features-1"></span><h3>New Features<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Added Breadth-First Search (BFS) algorithm</p></li>
 <li><p>BFS class with configurable sentinel value for unreachable vertices</p></li>
@@ -358,8 +426,8 @@ and this project adheres to <a class="reference external" href="https://semver.o
 </section>
 <section id="version-0-1-5-2025-08-22">
 <span id="version-015-2025-08-22"></span><h2>Version 0.1.5 (2025-08-22)<a class="headerlink" href="#version-0-1-5-2025-08-22" title="Link to this heading">¶</a></h2>
-<section id="id3">
-<span id="new-features-1"></span><h3>New Features<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<section id="id4">
+<span id="new-features-2"></span><h3>New Features<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Added Bellman-Ford algorithm with negative cycle detection</p></li>
 <li><p>Support for both CSR and CSC graph formats</p></li>
@@ -374,8 +442,8 @@ and this project adheres to <a class="reference external" href="https://semver.o
 </section>
 <section id="version-0-1-4-2025-08-05">
 <span id="version-014-2025-08-05"></span><h2>Version 0.1.4 (2025-08-05)<a class="headerlink" href="#version-0-1-4-2025-08-05" title="Link to this heading">¶</a></h2>
-<section id="id4">
-<span id="build--ci-1"></span><h3>Build &amp; CI<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<section id="id5">
+<span id="build--ci-1"></span><h3>Build &amp; CI<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Windows Server 2019 runner retired, updated CI configuration</p></li>
 <li><p>Test coverage and documentation action setup</p></li>
@@ -385,21 +453,21 @@ and this project adheres to <a class="reference external" href="https://semver.o
 </section>
 <section id="version-0-1-3-2025-06-27">
 <span id="version-013-2025-06-27"></span><h2>Version 0.1.3 (2025-06-27)<a class="headerlink" href="#version-0-1-3-2025-06-27" title="Link to this heading">¶</a></h2>
-<section id="id5">
-<span id="new-features-2"></span><h3>New Features<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<section id="id6">
+<span id="new-features-3"></span><h3>New Features<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Early termination support for Dijkstra (stop when target nodes are reached)</p></li>
 <li><p>Returns path length only for termination nodes in early termination case</p></li>
 </ul>
 </section>
-<section id="id6">
-<span id="performance-improvements-2"></span><h3>Performance Improvements<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<section id="id7">
+<span id="performance-improvements-2"></span><h3>Performance Improvements<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Added prefetching for single-source shortest path</p></li>
 </ul>
 </section>
-<section id="documentation">
-<h3>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">¶</a></h3>
+<section id="id8">
+<span id="documentation-1"></span><h3>Documentation<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Added early termination section to documentation</p></li>
 <li><p>Improved small example in README</p></li>
@@ -408,15 +476,15 @@ and this project adheres to <a class="reference external" href="https://semver.o
 </section>
 <section id="version-0-1-2-2025-06-22">
 <span id="version-012-2025-06-22"></span><h2>Version 0.1.2 (2025-06-22)<a class="headerlink" href="#version-0-1-2-2025-06-22" title="Link to this heading">¶</a></h2>
-<section id="id7">
-<span id="performance-improvements-3"></span><h3>Performance Improvements<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
+<section id="id9">
+<span id="performance-improvements-3"></span><h3>Performance Improvements<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Cross-platform prefetching compatibility header using SSE intrinsics on x86/x64, ARM intrinsics on ARM64</p></li>
 <li><p>Applied prefetching to Dijkstra algorithm</p></li>
 </ul>
 </section>
-<section id="id8">
-<span id="build--ci-2"></span><h3>Build &amp; CI<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
+<section id="id10">
+<span id="build--ci-2"></span><h3>Build &amp; CI<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Fixed PyPI wheel publishing artifact naming</p></li>
 <li><p>Added Codecov coverage reporting and badge</p></li>
@@ -425,8 +493,8 @@ and this project adheres to <a class="reference external" href="https://semver.o
 </section>
 <section id="version-0-1-1-2025-06-22">
 <span id="version-011-2025-06-22"></span><h2>Version 0.1.1 (2025-06-22)<a class="headerlink" href="#version-0-1-1-2025-06-22" title="Link to this heading">¶</a></h2>
-<section id="id9">
-<span id="performance-improvements-4"></span><h3>Performance Improvements<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h3>
+<section id="id11">
+<span id="performance-improvements-4"></span><h3>Performance Improvements<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Added memory prefetching headers and functions</p></li>
 <li><p>Prefetch hints in edge iteration loops for <code class="docutils literal notranslate"><span class="pre">compute_sssp</span></code> and <code class="docutils literal notranslate"><span class="pre">compute_sssp_w_path</span></code></p></li>
@@ -434,8 +502,8 @@ and this project adheres to <a class="reference external" href="https://semver.o
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">noexcept</span></code> declarations to priority queue function signatures</p></li>
 </ul>
 </section>
-<section id="id10">
-<span id="build--ci-3"></span><h3>Build &amp; CI<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h3>
+<section id="id12">
+<span id="build--ci-3"></span><h3>Build &amp; CI<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Added support for Python 3.9-3.13</p></li>
 <li><p>Skip i686 architecture builds</p></li>
@@ -486,14 +554,14 @@ and this project adheres to <a class="reference external" href="https://semver.o
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="api.html">
+          <a class="prev-page" href="benchmarks.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">API reference</div>
+                <div class="title">Benchmarks</div>
                 
               </div>
             </a>
@@ -527,6 +595,14 @@ and this project adheres to <a class="reference external" href="https://semver.o
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
+<li><a class="reference internal" href="#version-0-3-0-2026-11-14">Version 0.3.0 (2026-11-14)</a><ul>
+<li><a class="reference internal" href="#new-features">New Features</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+<li><a class="reference internal" href="#changes">Changes</a></li>
+<li><a class="reference internal" href="#tooling">Tooling</a></li>
+<li><a class="reference internal" href="#packaging">Packaging</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#version-0-2-0-2026-11-13">Version 0.2.0 (2026-11-13)</a><ul>
 <li><a class="reference internal" href="#performance-improvements">Performance Improvements</a></li>
 <li><a class="reference internal" href="#bug-fixes">Bug Fixes</a></li>
@@ -543,32 +619,32 @@ and this project adheres to <a class="reference external" href="https://semver.o
 </ul>
 </li>
 <li><a class="reference internal" href="#version-0-1-6-2025-10-12">Version 0.1.6 (2025-10-12)</a><ul>
-<li><a class="reference internal" href="#new-features">New Features</a></li>
+<li><a class="reference internal" href="#id3">New Features</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#version-0-1-5-2025-08-22">Version 0.1.5 (2025-08-22)</a><ul>
-<li><a class="reference internal" href="#id3">New Features</a></li>
+<li><a class="reference internal" href="#id4">New Features</a></li>
 <li><a class="reference internal" href="#technical-improvements">Technical Improvements</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#version-0-1-4-2025-08-05">Version 0.1.4 (2025-08-05)</a><ul>
-<li><a class="reference internal" href="#id4">Build &amp; CI</a></li>
+<li><a class="reference internal" href="#id5">Build &amp; CI</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#version-0-1-3-2025-06-27">Version 0.1.3 (2025-06-27)</a><ul>
-<li><a class="reference internal" href="#id5">New Features</a></li>
-<li><a class="reference internal" href="#id6">Performance Improvements</a></li>
-<li><a class="reference internal" href="#documentation">Documentation</a></li>
+<li><a class="reference internal" href="#id6">New Features</a></li>
+<li><a class="reference internal" href="#id7">Performance Improvements</a></li>
+<li><a class="reference internal" href="#id8">Documentation</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#version-0-1-2-2025-06-22">Version 0.1.2 (2025-06-22)</a><ul>
-<li><a class="reference internal" href="#id7">Performance Improvements</a></li>
-<li><a class="reference internal" href="#id8">Build &amp; CI</a></li>
+<li><a class="reference internal" href="#id9">Performance Improvements</a></li>
+<li><a class="reference internal" href="#id10">Build &amp; CI</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#version-0-1-1-2025-06-22">Version 0.1.1 (2025-06-22)</a><ul>
-<li><a class="reference internal" href="#id9">Performance Improvements</a></li>
-<li><a class="reference internal" href="#id10">Build &amp; CI</a></li>
+<li><a class="reference internal" href="#id11">Performance Improvements</a></li>
+<li><a class="reference internal" href="#id12">Build &amp; CI</a></li>
 <li><a class="reference internal" href="#code-quality">Code Quality</a></li>
 </ul>
 </li>
@@ -585,7 +661,7 @@ and this project adheres to <a class="reference external" href="https://semver.o
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=f1f9ae6c"></script>
+</div><script src="_static/documentation_options.js?v=802ce435"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

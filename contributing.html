@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="Changelog" href="changelog.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>Contributing - Edsger 0.2.0</title>
+        <title>Contributing - Edsger 0.3.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -168,7 +168,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Edsger 0.2.0</div></a>
+      <a href="index.html"><div class="brand">Edsger 0.3.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -189,7 +189,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">Edsger 0.2.0</span>
+  <span class="sidebar-brand-text">Edsger 0.3.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -197,11 +197,30 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
+  <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coming_from.html">Coming from NetworkX or SciPy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="guide/shortest_paths.html">Shortest paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guide/traversal.html">Traversal and components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guide/network_analysis.html">Spanning trees and centrality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guide/transit.html">Transit assignment</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/road_routing.html">Routing on a road network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/od_matrix.html">Origin-destination matrix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/transit_assignment.html">Transit assignment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/ranking.html">Ranking the vertices of a network</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Contributing</a></li>
 </ul>
@@ -269,7 +288,7 @@ pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </s
 </section>
 <section id="code-style">
 <h2>Code style<a class="headerlink" href="#code-style" title="Link to this heading">¶</a></h2>
-<p>Python code is formatted with <a class="reference external" href="https://github.com/psf/black">black</a>, Cython code is checked with <a class="reference external" href="https://github.com/MarcoGorelli/cython-lint">cython-lint</a>, and the type hints with <a class="reference external" href="https://github.com/microsoft/pyright">pyright</a>. The three tools run as <a class="reference external" href="https://pre-commit.com/">pre-commit</a> hooks.</p>
+<p>Python code is linted and formatted with <a class="reference external" href="https://github.com/astral-sh/ruff">ruff</a>, Cython code is checked with <a class="reference external" href="https://github.com/MarcoGorelli/cython-lint">cython-lint</a>, and the type hints with <a class="reference external" href="https://github.com/astral-sh/ty">ty</a>. The three tools run as <a class="reference external" href="https://pre-commit.com/">pre-commit</a> hooks.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pre-commit
 pre-commit<span class="w"> </span>install
 </pre></div>
@@ -284,6 +303,11 @@ make<span class="w"> </span>html
 </pre></div>
 </div>
 <p>The pages are written to <code class="docutils literal notranslate"><span class="pre">docs/build/html</span></code>. User-visible changes are listed in <code class="docutils literal notranslate"><span class="pre">CHANGELOG.md</span></code>.</p>
+<p>The outputs shown after the code examples of the quick start, the user guide, the examples and the NetworkX/SciPy page are generated: each code block followed by a <code class="docutils literal notranslate"><span class="pre">%</span> <span class="pre">output</span></code> (or <code class="docutils literal notranslate"><span class="pre">%</span> <span class="pre">error</span></code>) comment line is executed, and its output is written up to the <code class="docutils literal notranslate"><span class="pre">%</span> <span class="pre">/output</span></code> line. After a change that affects them, regenerate them from the repository root:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>docs/update_outputs.py<span class="w"> </span>docs/source/quickstart.md<span class="w"> </span>docs/source/guide/*.md<span class="w"> </span>docs/source/examples/*.md<span class="w"> </span>docs/source/coming_from.md
+</pre></div>
+</div>
+<p>The script fails if a code block raises an unexpected exception, so it also checks that the examples still run.</p>
 </section>
 </section>
 
@@ -349,7 +373,7 @@ make<span class="w"> </span>html
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=f1f9ae6c"></script>
+</div><script src="_static/documentation_options.js?v=802ce435"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
