@@ -101,6 +101,11 @@ python-version = "3.10"
 [tool.cibuildwheel]
 # Skip 32-bit i686 architectures (outdated, rarely needed)
 skip = "*_i686"
+# Smoke test of each wheel, in a fresh environment: every compiled module is
+# imported, and a few algorithms are run. It catches the wheels that cannot be
+# imported (missing symbols, illegal instructions). The full test suite is not
+# run: one test depends on the FMA instructions of native builds.
+test-command = "python {project}/scripts/wheel_smoke_test.py"
 
 [tool.cibuildwheel.linux]
 # The Linux wheels are built with Clang: its code for the Dijkstra kernel is

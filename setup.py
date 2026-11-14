@@ -175,6 +175,17 @@ def get_compiler_flags():
 # Get platform-specific compiler flags
 extra_compile_args, extra_link_args, platform_macros = get_compiler_flags()
 
+# -Ofast implies -ffinite-math-only, with which the glibc headers of the
+# manylinux images (2.28) redirect the math functions to their *_finite
+# variants, e.g. asin to __asin_finite, which recent glibc versions do not
+# export anymore: the A* module, which calls asin for the haversine distance,
+# then fails to import. MSVC does not use these flags.
+no_finite_math_only = (
+    ["-fno-finite-math-only"]
+    if any(flag in ("-Ofast", "-ffast-math") for flag in extra_compile_args)
+    else []
+)
+
 # Combine numpy macros with platform-specific macros
 # Large Pages / THP support is always enabled
 define_macros = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")] + platform_macros
@@ -280,7 +291,7 @@ extensions = [
     Extension(
         "edsger.astar",
         ["src/edsger/astar.pyx"],
-        extra_compile_args=extra_compile_args,
+        extra_compile_args=extra_compile_args + no_finite_math_only,
         extra_link_args=extra_link_args,
         define_macros=define_macros_with_thp,
         libraries=thp_libraries,
