@@ -7,17 +7,17 @@ classes:
     Kruskal's algorithm, with a union-find structure.
 """
 
-from typing import Any, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
 from edsger.graph_importer import standardize_graph_dataframe
 from edsger.kruskal import kruskal  # pylint: disable=no-name-in-module
-from edsger.path import OUTPUT_TYPES, _import_polars, _Graph
+from edsger.path import OUTPUT_TYPES, _Graph, _import_polars
 
 # numpy output of MinimumSpanningTree.run: (tails, heads, weights)
-ForestArrays = Tuple[np.ndarray, np.ndarray, np.ndarray]
+ForestArrays = tuple[np.ndarray, np.ndarray, np.ndarray]
 
 
 class MinimumSpanningTree(_Graph):
@@ -94,7 +94,7 @@ class MinimumSpanningTree(_Graph):
         edges: pd.DataFrame,
         tail: str = "tail",
         head: str = "head",
-        weight: Optional[str] = "weight",
+        weight: str | None = "weight",
         check_edges: bool = False,
         permute: bool = False,
         verbose: bool = False,
@@ -110,23 +110,23 @@ class MinimumSpanningTree(_Graph):
             raise ValueError(f"edges['{weight}'] should be finite")
         self._weight_name = weight
         self._build_graph(edges, tail, head, weight, "out", permute, verbose)
-        self._total_weight: Optional[float] = None
-        self._n_trees: Optional[int] = None
+        self._total_weight: float | None = None
+        self._n_trees: int | None = None
 
     @property
-    def total_weight(self) -> Optional[float]:
+    def total_weight(self) -> float | None:
         """Total weight of the forest computed by the last run, None before."""
         return self._total_weight
 
     @property
-    def n_trees(self) -> Optional[int]:
+    def n_trees(self) -> int | None:
         """Number of trees of the forest computed by the last run, that is the
         number of connected components of the undirected graph, isolated
         vertices excluded since they are not vertices. None before the first
         run."""
         return self._n_trees
 
-    def run(self, output: str = "pandas") -> Union[pd.DataFrame, ForestArrays, Any]:
+    def run(self, output: str = "pandas") -> pd.DataFrame | ForestArrays | Any:
         """Compute a minimum spanning forest.
 
         Parameters

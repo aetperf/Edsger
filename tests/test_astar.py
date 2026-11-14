@@ -1,7 +1,7 @@
 """Tests of the A* algorithm: AStar class and edsger.astar module."""
 
-from concurrent.futures import ThreadPoolExecutor
 import warnings
+from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 import pandas as pd
@@ -47,7 +47,7 @@ def check_path(edges, path, source, target, length, exact=True):
     assert path[-1] == target
     weights = edges.groupby(["tail", "head"])["weight"].min()
     total = 0.0
-    for u, v in zip(path[:-1], path[1:]):
+    for u, v in zip(path[:-1], path[1:], strict=True):
         total += weights.loc[(int(u), int(v))]
     if exact:
         assert total == length

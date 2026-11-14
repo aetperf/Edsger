@@ -16,7 +16,7 @@ Fixes #(issue number)
 
 ## Checklist
 
-- [ ] My code follows the project's style guidelines (black, cython-lint)
+- [ ] My code follows the project's style guidelines (ruff, cython-lint)
 - [ ] I have run `pre-commit` and fixed any issues
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes (`pytest`)

@@ -36,7 +36,7 @@ def check_path(edges, path, source, target, length):
     assert path[-1] == target
     weights = edges.groupby(["tail", "head"])["weight"].min()
     total = 0.0
-    for u, v in zip(path[:-1], path[1:]):
+    for u, v in zip(path[:-1], path[1:], strict=True):
         total += weights.loc[(int(u), int(v))]
     assert total == pytest.approx(length, rel=1e-12, abs=0.0)
 

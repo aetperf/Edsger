@@ -11,13 +11,14 @@ classes:
 
 import math
 import numbers
-from typing import Any, Mapping, Optional, Tuple
+from collections.abc import Mapping
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
 from edsger.graph_importer import standardize_graph_dataframe
-from edsger.path import VertexResult, _resolve_output, _Graph
+from edsger.path import VertexResult, _Graph, _resolve_output
 from edsger.power_iteration import (  # pylint: disable=no-name-in-module
     hits_csr_csc,
     katz_csc,
@@ -110,7 +111,7 @@ class Centrality(_Graph):
         edges: pd.DataFrame,
         tail: str = "tail",
         head: str = "head",
-        weight: Optional[str] = None,
+        weight: str | None = None,
         check_edges: bool = False,
         permute: bool = False,
         verbose: bool = False,
@@ -138,7 +139,7 @@ class Centrality(_Graph):
             self._is_vertex = np.diff(self._indptr) > 0
             self._is_vertex[preds] = True
         self._n_actual = int(np.count_nonzero(self._is_vertex))
-        self._data = (
+        self._data: np.ndarray = (
             self._edge_weights
             if self._edge_weights is not None
             else np.empty(0, dtype=np.float64)
@@ -150,7 +151,7 @@ class Centrality(_Graph):
         positive = out_weight > 0.0
         self._inv_out_weight[positive] = 1.0 / out_weight[positive]
         # CSR format, for HITS only: built on first use
-        self._csr: Optional[Tuple[np.ndarray, np.ndarray, np.ndarray]] = None
+        self._csr: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None
 
     # ------------------------------------------------------------ helpers
 
@@ -190,7 +191,7 @@ class Centrality(_Graph):
         vector[internal] = vals
         return vector
 
-    def _get_csr(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def _get_csr(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """The graph in CSR format, from the CSC format."""
         if self._csr is None:
             n = self._n_vertices
@@ -205,7 +206,7 @@ class Centrality(_Graph):
         return self._csr
 
     def _result(
-        self, values: np.ndarray, name: str, output: Optional[str], return_series: bool
+        self, values: np.ndarray, name: str, output: str | None, return_series: bool
     ) -> VertexResult:
         output = _resolve_output(output, return_series)
         self._check_output(output)
@@ -220,10 +221,10 @@ class Centrality(_Graph):
     def pagerank(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self,
         damping: float = 0.85,
-        personalization: Optional[Mapping] = None,
+        personalization: Mapping | None = None,
         tol: float = 1.0e-6,
         max_iter: int = 1000,
-        output: Optional[str] = None,
+        output: str | None = None,
         return_series: bool = False,
     ) -> VertexResult:
         """PageRank of the vertices.
@@ -316,9 +317,9 @@ class Centrality(_Graph):
         self,
         tol: float = 1.0e-8,
         max_iter: int = 100,
-        output: Optional[str] = None,
+        output: str | None = None,
         return_series: bool = False,
-    ) -> Tuple[VertexResult, VertexResult]:
+    ) -> tuple[VertexResult, VertexResult]:
         """HITS hub and authority scores of the vertices.
 
         The authority of a vertex is the weighted sum of the hub scores of its
@@ -404,7 +405,7 @@ class Centrality(_Graph):
         tol: float = 1.0e-6,
         max_iter: int = 1000,
         normalized: bool = True,
-        output: Optional[str] = None,
+        output: str | None = None,
         return_series: bool = False,
     ) -> VertexResult:
         """Katz centrality of the vertices.

@@ -1,8 +1,8 @@
 """Test support for pandas DataFrames with Arrow backend using new GraphImporter architecture."""
 
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
 
 try:
     import pyarrow as pa
@@ -11,8 +11,8 @@ try:
 except ImportError:
     PYARROW_AVAILABLE = False
 
-from edsger.path import Dijkstra, BellmanFord, HyperpathGenerating
 from edsger.graph_importer import GraphImporter
+from edsger.path import BellmanFord, Dijkstra, HyperpathGenerating
 
 
 def create_test_graph_numpy():

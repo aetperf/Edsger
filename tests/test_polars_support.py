@@ -1,8 +1,8 @@
 """Test Polars DataFrame support in graph algorithms."""
 
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
 
 try:
     import polars as pl
@@ -81,7 +81,7 @@ class TestPolarsSupport:
             if i % 10 == 0 and i + 10 < n:
                 edges.append((i, i + 10, 8.0))  # Shortcuts
 
-        tail, head, weight = zip(*edges)
+        tail, head, weight = zip(*edges, strict=True)
         df = pl.DataFrame({"tail": tail, "head": head, "weight": weight})
 
         dijkstra = Dijkstra(df)
@@ -174,9 +174,7 @@ class TestPolarsAdvancedFeatures:
         # Create lazy frame
         df_lazy = pl.LazyFrame(
             {"tail": [0, 0, 1, 2], "head": [1, 2, 2, 3], "weight": [1.0, 4.0, 2.0, 1.0]}
-        ).filter(
-            pl.col("weight") < 5.0
-        )  # Should include all rows
+        ).filter(pl.col("weight") < 5.0)  # Should include all rows
 
         # Collect to DataFrame
         df = df_lazy.collect()
@@ -293,9 +291,7 @@ class TestPolarsErrorHandling:
 
         # Should raise error for non-existent columns
         # Polars raises ColumnNotFoundError which we should catch
-        with pytest.raises(
-            Exception
-        ):  # Could be KeyError or polars.ColumnNotFoundError
+        with pytest.raises((KeyError, pl.exceptions.ColumnNotFoundError)):
             Dijkstra(df, tail="nonexistent_column")
 
     def test_polars_empty_dataframe(self):

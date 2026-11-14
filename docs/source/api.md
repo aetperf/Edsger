@@ -80,6 +80,12 @@ The algorithms are classes of the `edsger.path` module, except `ConnectedCompone
    .. automethod:: run
    .. automethod:: get_vertices
    .. autoproperty:: n_components
+   .. autoproperty:: n_vertices
+   .. autoproperty:: n_edges
+   .. autoproperty:: edges
+   .. autoproperty:: permute
+```
+
 ## AStar
 
 ```{eval-rst}

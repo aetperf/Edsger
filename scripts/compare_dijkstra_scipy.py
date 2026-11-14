@@ -236,8 +236,8 @@ def compare_dijkstra_implementations(
     if verbose:
         print("\n" + "-" * 40)
         print("Performance Comparison:")
-        print(f"  Edsger average: {avg_edsger_time*1000:.3f} ms")
-        print(f"  SciPy average:  {avg_scipy_time*1000:.3f} ms")
+        print(f"  Edsger average: {avg_edsger_time * 1000:.3f} ms")
+        print(f"  SciPy average:  {avg_scipy_time * 1000:.3f} ms")
         print(f"  Speedup factor: {speedup:.2f}x")
         print()
 

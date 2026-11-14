@@ -287,7 +287,7 @@ def compare_bellman_ford_implementations(
         print(f"Graph: {n_vertices} vertices, {n_edges} edges")
         print(f"Weight range: [{weight_range[0]:.2f}, {weight_range[1]:.2f}]")
         if allow_negative_weights:
-            print(f"Negative weights: {negative_weight_ratio*100:.1f}% of edges")
+            print(f"Negative weights: {negative_weight_ratio * 100:.1f}% of edges")
         else:
             print("Negative weights: disabled")
         print(f"Testing from {n_sources} random source vertices...")
@@ -381,8 +381,8 @@ def compare_bellman_ford_implementations(
     if verbose:
         print("\n" + "-" * 40)
         print("Performance Comparison:")
-        print(f"  Edsger average: {avg_edsger_time*1000:.3f} ms")
-        print(f"  SciPy average:  {avg_scipy_time*1000:.3f} ms")
+        print(f"  Edsger average: {avg_edsger_time * 1000:.3f} ms")
+        print(f"  SciPy average:  {avg_scipy_time * 1000:.3f} ms")
         print(f"  Speedup factor: {speedup:.2f}x")
         if n_negative_cycles > 0:
             print(

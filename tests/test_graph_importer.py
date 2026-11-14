@@ -1,8 +1,8 @@
 """Test GraphImporter functionality."""
 
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
 
 try:
     import pyarrow as pa
@@ -20,8 +20,8 @@ except ImportError:
 
 from edsger.graph_importer import (
     GraphImporter,
-    PandasNumpyImporter,
     PandasArrowImporter,
+    PandasNumpyImporter,
     PolarsImporter,
     standardize_graph_dataframe,
 )
@@ -349,9 +349,9 @@ class TestEdgeCases:
 
         # Check that all arrays are C-contiguous
         for col in result.columns:
-            assert result[col].values.flags[
-                "C_CONTIGUOUS"
-            ], f"Column {col} is not C-contiguous"
+            assert result[col].values.flags["C_CONTIGUOUS"], (
+                f"Column {col} is not C-contiguous"
+            )
 
 
 class TestPerformanceAndMemory:

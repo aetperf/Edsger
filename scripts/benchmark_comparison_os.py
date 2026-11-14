@@ -6,15 +6,16 @@ Runs dijkstra_dimacs.py for Edsger, NetworKit, Graph-tool, and SciPy,
 then saves results to OS-specific JSON files for later comparison.
 """
 
-import os
-import sys
-import subprocess
-import time
-import platform
-import numpy as np
-from datetime import datetime
 import json
+import os
+import platform
+import subprocess
+import sys
+import time
 from argparse import ArgumentParser
+from datetime import datetime
+
+import numpy as np
 
 
 def get_cpu_model():

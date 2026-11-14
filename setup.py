@@ -117,7 +117,7 @@ def get_compiler_flags():
             archflags = os.environ.get("ARCHFLAGS", "")
             host_platform = os.environ.get("_PYTHON_HOST_PLATFORM", "")
 
-            print(f"macOS build detection:")
+            print("macOS build detection:")
             print(f"  sysconfig.get_platform(): {platform_str}")
             print(f"  ARCHFLAGS: {archflags if archflags else '(not set)'}")
             print(
@@ -127,17 +127,17 @@ def get_compiler_flags():
             # Check sysconfig.get_platform() (most reliable for pip builds)
             if "universal2" in platform_str:
                 is_universal_build = True
-                print(f"  -> Universal binary detected via sysconfig.get_platform()")
+                print("  -> Universal binary detected via sysconfig.get_platform()")
             # Check ARCHFLAGS environment variable (used by pip/setuptools)
             elif archflags.count("-arch") > 1 or "universal2" in archflags:
                 is_universal_build = True
-                print(f"  -> Universal binary detected via ARCHFLAGS")
+                print("  -> Universal binary detected via ARCHFLAGS")
             # Also check _PYTHON_HOST_PLATFORM for cibuildwheel
             elif "universal2" in host_platform:
                 is_universal_build = True
-                print(f"  -> Universal binary detected via _PYTHON_HOST_PLATFORM")
+                print("  -> Universal binary detected via _PYTHON_HOST_PLATFORM")
             else:
-                print(f"  -> Native build (not universal binary)")
+                print("  -> Native build (not universal binary)")
 
         if is_universal_build:
             print(

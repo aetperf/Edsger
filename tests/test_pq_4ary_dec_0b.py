@@ -4,14 +4,14 @@ py.test tests/test_pq_4ary_dec_0b.py
 """
 
 from edsger.pq_4ary_dec_0b import (  # type: ignore
+    decrease_key_01,
+    extract_min_01,
     init_01,
     insert_01,
     insert_02,
     insert_03,
-    peek_01,
-    extract_min_01,
     is_empty_01,
-    decrease_key_01,
+    peek_01,
     sort_01,
 )
 

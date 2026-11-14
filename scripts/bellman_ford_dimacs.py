@@ -9,8 +9,8 @@ Example :
 """
 
 import os
-import sys
 import platform
+import sys
 from argparse import ArgumentParser
 from time import perf_counter
 
@@ -228,7 +228,7 @@ if lib == "E":
             negative_cycle_detected = False  # pylint: disable=invalid-name
         except ValueError as e:
             if "negative cycle" in str(e).lower():
-                logger.warning(f"Negative cycle detected in trial {i+1}")
+                logger.warning(f"Negative cycle detected in trial {i + 1}")
                 negative_cycle_detected = True  # pylint: disable=invalid-name
                 dist_matrix = None  # pylint: disable=invalid-name
             else:
@@ -237,7 +237,7 @@ if lib == "E":
         end = perf_counter()
         elapsed_time = end - start
         logger.info(
-            f"Edsger Bellman-Ford {i+1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
+            f"Edsger Bellman-Ford {i + 1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
         )
 
         d = {
@@ -297,7 +297,7 @@ elif lib == "GT":
             negative_cycle_detected = False  # pylint: disable=invalid-name
         except (RuntimeError, ValueError) as e:
             if "negative" in str(e).lower() and "cycle" in str(e).lower():
-                logger.warning(f"Negative cycle detected in trial {i+1}")
+                logger.warning(f"Negative cycle detected in trial {i + 1}")
                 negative_cycle_detected = True  # pylint: disable=invalid-name
                 dist_matrix = None  # pylint: disable=invalid-name
             else:
@@ -306,7 +306,7 @@ elif lib == "GT":
         end = perf_counter()
         elapsed_time = end - start
         logger.info(
-            f"graph-tool Bellman-Ford {i+1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
+            f"graph-tool Bellman-Ford {i + 1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
         )
 
         d = {

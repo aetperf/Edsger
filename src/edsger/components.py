@@ -2,17 +2,15 @@
 Connected components of a directed graph.
 """
 
-from typing import Optional
-
 import numpy as np
 import pandas as pd
 
-from edsger.graph_importer import standardize_graph_dataframe
-from edsger.path import VertexResult, _resolve_output, _Graph
 from edsger.components_core import (  # pylint: disable=no-name-in-module
     strong_components_csr,
     weak_components_csr,
 )
+from edsger.graph_importer import standardize_graph_dataframe
+from edsger.path import VertexResult, _Graph, _resolve_output
 
 CONNECTION_TYPES = ("weak", "strong")
 
@@ -94,10 +92,10 @@ class ConnectedComponents(_Graph):
         # Convert to standardized NumPy-backed pandas DataFrame, without weights
         edges = standardize_graph_dataframe(edges, tail, head)
         self._build_graph(edges, tail, head, None, "out", permute, verbose)
-        self._n_components: Optional[int] = None
+        self._n_components: int | None = None
 
     @property
-    def n_components(self) -> Optional[int]:
+    def n_components(self) -> int | None:
         """Number of components found by the last run, or None before the first
         run."""
         return self._n_components
@@ -106,7 +104,7 @@ class ConnectedComponents(_Graph):
         self,
         connection: str = "weak",
         return_series: bool = False,
-        output: Optional[str] = None,
+        output: str | None = None,
     ) -> VertexResult:
         """Compute the connected component of each vertex.
 

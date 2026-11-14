@@ -8,11 +8,12 @@ import tracemalloc
 import numpy as np
 import pandas as pd
 import pytest  # type: ignore
-from edsger.commons import DTYPE_INF_PY  # A_VERY_SMALL_TIME_INTERVAL_PY unused
-from edsger.networks import create_sf_network
-from edsger.path import BellmanFord, BFS, Dijkstra, HyperpathGenerating
 from scipy.sparse import coo_array  # type: ignore  # csr_matrix unused
 from scipy.sparse.csgraph import breadth_first_order, dijkstra  # type: ignore
+
+from edsger.commons import DTYPE_INF_PY  # A_VERY_SMALL_TIME_INTERVAL_PY unused
+from edsger.networks import create_sf_network
+from edsger.path import BFS, BellmanFord, Dijkstra, HyperpathGenerating
 
 try:
     import pyarrow as pa
@@ -965,16 +966,16 @@ def test_bfs_scipy_comparison(random_seed=124, n=1000):
     # Compare predecessors for all reachable nodes
     # scipy's node_array contains the reachable vertices
     for node in node_array_ref:
-        assert (
-            predecessors[node] == predecessors_ref[node]
-        ), f"Predecessor mismatch at node {node}: {predecessors[node]} != {predecessors_ref[node]}"
+        assert predecessors[node] == predecessors_ref[node], (
+            f"Predecessor mismatch at node {node}: {predecessors[node]} != {predecessors_ref[node]}"
+        )
 
     # Check that unreachable nodes have sentinel value
     unreachable_nodes = set(range(vertex_count)) - set(node_array_ref)
     for node in unreachable_nodes:
-        assert (
-            predecessors[node] == bfs.UNREACHABLE
-        ), f"Unreachable node {node} should have sentinel value"
+        assert predecessors[node] == bfs.UNREACHABLE, (
+            f"Unreachable node {node} should have sentinel value"
+        )
 
     # Test with permute=True
     bfs_permute = BFS(edges, orientation="out", check_edges=False, permute=True)
@@ -982,9 +983,9 @@ def test_bfs_scipy_comparison(random_seed=124, n=1000):
 
     # Compare results with permute=True
     for node in node_array_ref:
-        assert (
-            predecessors_permute[node] == predecessors_ref[node]
-        ), f"Permute: Predecessor mismatch at node {node}"
+        assert predecessors_permute[node] == predecessors_ref[node], (
+            f"Permute: Predecessor mismatch at node {node}"
+        )
 
 
 # ============================================================================ #
@@ -1007,7 +1008,7 @@ class TestDataFrameBackendCompatibility:
             df_arrow = pd.DataFrame(data)
             # Convert to Arrow backend
             arrow_dtypes = {}
-            for col, values in data.items():
+            for col, _values in data.items():
                 if col in ["tail", "head"]:
                     arrow_dtypes[col] = pd.ArrowDtype(pa.int64())
                 else:
@@ -1168,28 +1169,28 @@ class TestDataFrameBackendCompatibility:
             dijkstra = Dijkstra(df)
 
             # All backends should use optimal internal dtypes for weights
-            assert (
-                dijkstra._edges["weight"].dtype == np.float64
-            ), f"{backend_name} weight dtype"
+            assert dijkstra._edges["weight"].dtype == np.float64, (
+                f"{backend_name} weight dtype"
+            )
 
             # Memory should be contiguous for all backends
-            assert dijkstra._edges["tail"].values.flags[
-                "C_CONTIGUOUS"
-            ], f"{backend_name} tail not contiguous"
-            assert dijkstra._edges["head"].values.flags[
-                "C_CONTIGUOUS"
-            ], f"{backend_name} head not contiguous"
-            assert dijkstra._edges["weight"].values.flags[
-                "C_CONTIGUOUS"
-            ], f"{backend_name} weight not contiguous"
+            assert dijkstra._edges["tail"].values.flags["C_CONTIGUOUS"], (
+                f"{backend_name} tail not contiguous"
+            )
+            assert dijkstra._edges["head"].values.flags["C_CONTIGUOUS"], (
+                f"{backend_name} head not contiguous"
+            )
+            assert dijkstra._edges["weight"].values.flags["C_CONTIGUOUS"], (
+                f"{backend_name} weight not contiguous"
+            )
 
             # For vertex indices, different backends may use different dtypes but should be integer types
-            assert np.issubdtype(
-                dijkstra._edges["tail"].dtype, np.integer
-            ), f"{backend_name} tail should be integer"
-            assert np.issubdtype(
-                dijkstra._edges["head"].dtype, np.integer
-            ), f"{backend_name} head should be integer"
+            assert np.issubdtype(dijkstra._edges["tail"].dtype, np.integer), (
+                f"{backend_name} tail should be integer"
+            )
+            assert np.issubdtype(dijkstra._edges["head"].dtype, np.integer), (
+                f"{backend_name} head should be integer"
+            )
 
     def test_permutation_backend_consistency(self):
         """Test vertex permutation works consistently across backends."""

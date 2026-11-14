@@ -1,10 +1,11 @@
 """Cross-library DataFrame integration tests for Edsger graph algorithms."""
 
-import pytest
+import time
+from typing import Any
+
 import numpy as np
 import pandas as pd
-import time
-from typing import Dict, Any
+import pytest
 
 try:
     import pyarrow as pa
@@ -20,7 +21,7 @@ try:
 except ImportError:
     POLARS_AVAILABLE = False
 
-from edsger.path import Dijkstra, BellmanFord, HyperpathGenerating
+from edsger.path import BellmanFord, Dijkstra, HyperpathGenerating
 
 
 class TestCrossLibraryConsistency:
@@ -34,7 +35,7 @@ class TestCrossLibraryConsistency:
             "weight": [1.0, 4.0, 2.0, 5.0, 1.0, 3.0, 2.0],
         }
 
-    def create_dataframes(self, data: Dict[str, Any]):
+    def create_dataframes(self, data: dict[str, Any]):
         """Create DataFrames in all available formats."""
         dataframes = {}
 
@@ -225,9 +226,9 @@ class TestPerformanceComparison:
 
         # All should complete in reasonable time (< 1 second for this size)
         for lib_name, time_taken in init_times.items():
-            assert (
-                time_taken < 1.0
-            ), f"{lib_name} initialization too slow: {time_taken:.4f}s"
+            assert time_taken < 1.0, (
+                f"{lib_name} initialization too slow: {time_taken:.4f}s"
+            )
 
     @pytest.mark.performance
     def test_memory_usage_comparison(self):
@@ -255,26 +256,26 @@ class TestPerformanceComparison:
         # Check that all use consistent internal dtypes (optimal memory usage)
         for lib_name, algorithm in algorithms.items():
             # All should use integer types for vertex indices
-            assert np.issubdtype(
-                algorithm._edges["tail"].dtype, np.integer
-            ), f"{lib_name} tail should be integer"
-            assert np.issubdtype(
-                algorithm._edges["head"].dtype, np.integer
-            ), f"{lib_name} head should be integer"
-            assert (
-                algorithm._edges["weight"].dtype == np.float64
-            ), f"{lib_name} weight dtype incorrect"
+            assert np.issubdtype(algorithm._edges["tail"].dtype, np.integer), (
+                f"{lib_name} tail should be integer"
+            )
+            assert np.issubdtype(algorithm._edges["head"].dtype, np.integer), (
+                f"{lib_name} head should be integer"
+            )
+            assert algorithm._edges["weight"].dtype == np.float64, (
+                f"{lib_name} weight dtype incorrect"
+            )
 
             # Check memory is contiguous
-            assert algorithm._edges["tail"].values.flags[
-                "C_CONTIGUOUS"
-            ], f"{lib_name} tail not contiguous"
-            assert algorithm._edges["head"].values.flags[
-                "C_CONTIGUOUS"
-            ], f"{lib_name} head not contiguous"
-            assert algorithm._edges["weight"].values.flags[
-                "C_CONTIGUOUS"
-            ], f"{lib_name} weight not contiguous"
+            assert algorithm._edges["tail"].values.flags["C_CONTIGUOUS"], (
+                f"{lib_name} tail not contiguous"
+            )
+            assert algorithm._edges["head"].values.flags["C_CONTIGUOUS"], (
+                f"{lib_name} head not contiguous"
+            )
+            assert algorithm._edges["weight"].values.flags["C_CONTIGUOUS"], (
+                f"{lib_name} weight not contiguous"
+            )
 
 
 class TestRealWorldScenarios:
@@ -332,7 +333,7 @@ class TestRealWorldScenarios:
 
         # All results should be identical
         reference_result = list(results.values())[0]
-        for lib_name, result in results.items():
+        for _lib_name, result in results.items():
             np.testing.assert_array_equal(reference_result, result)
 
     def test_transit_network_analysis(self):

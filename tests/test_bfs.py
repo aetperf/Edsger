@@ -6,6 +6,7 @@ py.test tests/test_bfs.py -v
 import numpy as np
 import pandas as pd
 import pytest
+
 from edsger.path import BFS
 
 try:

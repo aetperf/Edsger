@@ -2,25 +2,23 @@
 Path-related methods.
 """
 
-from concurrent.futures import ThreadPoolExecutor
-from contextlib import contextmanager
 import numbers
 import os
 import threading
-from typing import TYPE_CHECKING, Optional, Union, List, Any, cast
 import warnings
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
+from typing import TYPE_CHECKING, Any, Union, cast
 
 import numpy as np
 import pandas as pd
 
-from edsger.graph_importer import standardize_graph_dataframe
-from edsger.commons import (
-    A_VERY_SMALL_TIME_INTERVAL_PY,
-    DTYPE_INF_PY,
-    DTYPE_PY,
-    INF_FREQ_PY,
-    MIN_FREQ_PY,
-)
+from edsger import astar as astar_core  # pylint: disable=no-name-in-module
+from edsger import (
+    bidirectional_dijkstra as bidir_core,
+)  # pylint: disable=no-name-in-module
+from edsger import dijkstra as dijkstra_dec
+from edsger import dijkstra_nodec as dijkstra_lazy
 from edsger.bellman_ford import (
     compute_bf_sssp,
     compute_bf_sssp_w_path,
@@ -29,8 +27,16 @@ from edsger.bellman_ford import (
     detect_negative_cycle,
     detect_negative_cycle_csc,
 )
-from edsger import dijkstra as dijkstra_dec
-from edsger import dijkstra_nodec as dijkstra_lazy
+from edsger.bfs import bfs_csc, bfs_csr  # pylint: disable=no-name-in-module
+from edsger.commons import (
+    A_VERY_SMALL_TIME_INTERVAL_PY,
+    DTYPE_INF_PY,
+    DTYPE_PY,
+    INF_FREQ_PY,
+    MIN_FREQ_PY,
+)
+from edsger.dfs import dfs_csc, dfs_csr  # pylint: disable=no-name-in-module
+from edsger.graph_importer import standardize_graph_dataframe
 from edsger.path_tracking import compute_path
 from edsger.spiess_florian import compute_SF_in
 from edsger.star import (
@@ -39,12 +45,6 @@ from edsger.star import (
     convert_graph_to_csr_float64,
     convert_graph_to_csr_uint32,
 )
-from edsger.bfs import bfs_csr, bfs_csc  # pylint: disable=no-name-in-module
-from edsger.dfs import dfs_csr, dfs_csc  # pylint: disable=no-name-in-module
-from edsger import astar as astar_core  # pylint: disable=no-name-in-module
-from edsger import (
-    bidirectional_dijkstra as bidir_core,
-)  # pylint: disable=no-name-in-module
 
 if TYPE_CHECKING:
     import polars
@@ -55,7 +55,7 @@ VertexResult = Union[np.ndarray, pd.Series, "polars.DataFrame"]
 OUTPUT_TYPES = ("numpy", "pandas", "polars")
 
 
-def _resolve_output(output: Optional[str], return_series: bool) -> str:
+def _resolve_output(output: str | None, return_series: bool) -> str:
     """Return the output type of a method, from its `output` and `return_series`
     arguments: `return_series=True` is the same as `output='pandas'`."""
     if output is None:
@@ -140,13 +140,13 @@ class _Graph:
     _n_vertices_init: int
     _orientation: str
     _permute: bool
-    _labels: Optional[np.ndarray]
+    _labels: np.ndarray | None
     _negative_labels: bool
     _indptr: np.ndarray
     _indices: np.ndarray
-    _edge_weights: Optional[np.ndarray]
-    _path_links: Optional[np.ndarray]
-    _path_links_permuted: Optional[np.ndarray]
+    _edge_weights: np.ndarray | None
+    _path_links: np.ndarray | None
+    _path_links_permuted: np.ndarray | None
     _verbose: bool
 
     # ------------------------------------------------------------ graph building
@@ -156,7 +156,7 @@ class _Graph:
         edges,
         tail: str,
         head: str,
-        weight: Optional[str],
+        weight: str | None,
         orientation: str,
         permute: bool,
         verbose: bool,
@@ -226,7 +226,7 @@ class _Graph:
         original_count = len(self._edges)
         grouped = self._edges.groupby([tail, head], as_index=False)
         if weight is None:
-            self._edges = cast(pd.DataFrame, grouped.first())
+            self._edges = grouped.first()
         else:
             self._edges = cast(pd.DataFrame, grouped[weight].min())
         self._n_edges = len(self._edges)
@@ -405,7 +405,7 @@ class _VertexGraph(_Graph):
         return self._orientation
 
     @property
-    def path_links(self) -> Optional[np.ndarray]:
+    def path_links(self) -> np.ndarray | None:
         """Path tree of the last run, or None if the paths were not tracked. This
         is the predecessor ('out') or the successor ('in') of each vertex. The
         vertex given to `run` and the vertices that cannot be reached are linked
@@ -415,7 +415,7 @@ class _VertexGraph(_Graph):
 
     # ------------------------------------------------------------ path tree
 
-    def _set_path_links(self, path_links: Optional[np.ndarray], output: str) -> None:
+    def _set_path_links(self, path_links: np.ndarray | None, output: str) -> None:
         """Store the path tree computed on the internal indices."""
         if path_links is None:
             self._path_links = None
@@ -436,7 +436,7 @@ class _VertexGraph(_Graph):
 
     # ------------------------------------------------------------ public methods
 
-    def get_path(self, vertex_idx: int) -> Optional[np.ndarray]:
+    def get_path(self, vertex_idx: int) -> np.ndarray | None:
         """Return the shortest path between a vertex and the vertex of the last run.
 
         The last call to `run` must have been made with `path_tracking=True`.
@@ -463,6 +463,7 @@ class _VertexGraph(_Graph):
                 "make sure path_tracking is set to True, and run the "
                 f"{self._algorithm_name}",
                 UserWarning,
+                stacklevel=2,
             )
             return None
         if self._labels is not None:
@@ -582,7 +583,7 @@ class Dijkstra(_VertexGraph):
             )
         return int(np.rint(heap_length_ratio * self._n_vertices))
 
-    def _termination_nodes(self, termination_nodes) -> Optional[np.ndarray]:
+    def _termination_nodes(self, termination_nodes) -> np.ndarray | None:
         """Check the termination nodes and return their internal indices."""
         if termination_nodes is None:
             return None
@@ -601,13 +602,13 @@ class Dijkstra(_VertexGraph):
     def _compute(
         self,
         vertex: int,
-        path_links: Optional[np.ndarray],
-        termination: Optional[np.ndarray],
+        path_links: np.ndarray | None,
+        termination: np.ndarray | None,
         heap_length: int,
     ) -> np.ndarray:
         """Run the Cython routine matching the orientation and the options."""
         name = "compute_" + ("sssp" if self._orientation == "out" else "stsp")
-        args: List[Any] = [self._indptr, self._indices, self._edge_weights]
+        args: list[Any] = [self._indptr, self._indices, self._edge_weights]
         if path_links is not None:
             name += "_w_path"
             args.append(path_links)
@@ -624,8 +625,8 @@ class Dijkstra(_VertexGraph):
         return_inf: bool = True,
         return_series: bool = False,
         heap_length_ratio: float = 1.0,
-        termination_nodes: Optional[List[int]] = None,
-        output: Optional[str] = None,
+        termination_nodes: list[int] | None = None,
+        output: str | None = None,
     ) -> VertexResult:
         """Compute the shortest path lengths from or to a given vertex.
 
@@ -703,11 +704,11 @@ class Dijkstra(_VertexGraph):
 
     def run_many(  # pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
         self,
-        vertices: List[int],
-        termination_nodes: Optional[List[int]] = None,
+        vertices: list[int],
+        termination_nodes: list[int] | None = None,
         return_inf: bool = True,
-        output: Optional[str] = None,
-        n_jobs: Optional[int] = None,
+        output: str | None = None,
+        n_jobs: int | None = None,
         heap_length_ratio: float = 1.0,
     ) -> Union[np.ndarray, pd.DataFrame, "polars.DataFrame"]:
         """Compute the shortest path lengths from or to several vertices, in parallel.
@@ -924,7 +925,7 @@ class BellmanFord(_VertexGraph):
         return_inf: bool = True,
         return_series: bool = False,
         detect_negative_cycles: bool = True,
-        output: Optional[str] = None,
+        output: str | None = None,
     ) -> VertexResult:
         """Compute the shortest path lengths from or to a given vertex.
 
@@ -1167,9 +1168,9 @@ class HyperpathGenerating:
 
     def run(
         self,
-        origin: Union[int, List[int]],
+        origin: int | list[int],
         destination: int,
-        volume: Union[float, List[float]],
+        volume: float | list[float],
         return_inf: bool = False,
     ) -> None:
         """Compute the optimal strategy to a destination and assign the demand.
@@ -1368,9 +1369,7 @@ class BFS(_VertexGraph):
         sentinel: int = -9999,
     ) -> None:
         # Validate sentinel value (runtime check for callers without type checking)
-        if not isinstance(
-            sentinel, int
-        ):  # pyright: ignore[reportUnnecessaryIsInstance]
+        if not isinstance(sentinel, int):  # pyright: ignore[reportUnnecessaryIsInstance]
             raise TypeError(
                 f"sentinel must be an integer, got {type(sentinel).__name__}"
             )
@@ -1405,7 +1404,7 @@ class BFS(_VertexGraph):
         vertex_idx: int,
         path_tracking: bool = False,
         return_series: bool = False,
-        output: Optional[str] = None,
+        output: str | None = None,
     ) -> VertexResult:
         """Compute the breadth-first search tree from or to a given vertex.
 
@@ -1561,7 +1560,7 @@ class DFS(_VertexGraph):
     ) -> None:
         _check_sentinel(sentinel)
         self._sentinel = sentinel
-        self._order: Optional[np.ndarray] = None
+        self._order: np.ndarray | None = None
 
         if check_edges:
             self._check_edges(edges, tail, head)
@@ -1585,7 +1584,7 @@ class DFS(_VertexGraph):
         vertex_idx: int,
         path_tracking: bool = False,
         return_series: bool = False,
-        output: Optional[str] = None,
+        output: str | None = None,
     ) -> VertexResult:
         """Compute the depth-first search tree from or to a given vertex.
 
@@ -1651,7 +1650,7 @@ class DFS(_VertexGraph):
             )
         return self._vertex_result(predecessors, "predecessor", self._sentinel, output)
 
-    def get_path(self, vertex_idx: int) -> Optional[np.ndarray]:
+    def get_path(self, vertex_idx: int) -> np.ndarray | None:
         """Return the path between a vertex and the vertex of the last run in the
         depth-first search tree.
 
@@ -1674,7 +1673,7 @@ class DFS(_VertexGraph):
         """
         return super().get_path(vertex_idx)
 
-    def get_order(self) -> Optional[np.ndarray]:
+    def get_order(self) -> np.ndarray | None:
         """Return the vertices reached by the last run, in discovery order.
 
         Returns
@@ -1690,6 +1689,7 @@ class DFS(_VertexGraph):
                 f"Current {type(self).__name__} instance has no discovery order: "
                 f"run the {self._algorithm_name} first",
                 UserWarning,
+                stacklevel=2,
             )
             return None
         if self._labels is None:
@@ -1740,11 +1740,11 @@ class _PairGraph(_Graph):
 
     _algorithm_name = "shortest path algorithm"
     _weight_name: str
-    _path: Optional[np.ndarray]
+    _path: np.ndarray | None
     _path_tracked: bool
     _workspace: Any
     _workspace_lock: Any
-    _layout: Optional[tuple]
+    _layout: tuple | None
 
     def _init_pair(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self, edges, tail, head, weight, check_edges, permute, verbose
@@ -1810,7 +1810,7 @@ class _PairGraph(_Graph):
         result[vertices] = values
         return result
 
-    def _set_pair_path(self, path: Optional[np.ndarray], tracked: bool) -> None:
+    def _set_pair_path(self, path: np.ndarray | None, tracked: bool) -> None:
         """Store the path of the last run, given with the internal indices."""
         self._path_tracked = tracked
         if path is None:
@@ -1828,7 +1828,7 @@ class _PairGraph(_Graph):
             return float(np.inf)
         return float(length)
 
-    def get_path(self) -> Optional[np.ndarray]:
+    def get_path(self) -> np.ndarray | None:
         """Return the shortest path found by the last run.
 
         The last call to `run` must have been made with `path_tracking=True`.
@@ -1846,6 +1846,7 @@ class _PairGraph(_Graph):
                 "make sure path_tracking is set to True, and run the "
                 f"{self._algorithm_name}",
                 UserWarning,
+                stacklevel=2,
             )
             return None
         return None if self._path is None else self._path.copy()
@@ -1921,7 +1922,7 @@ class AStar(_PairGraph):
     3.0
     """
 
-    _coordinates: Optional[tuple]
+    _coordinates: tuple | None
 
     def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self,
@@ -1945,7 +1946,7 @@ class AStar(_PairGraph):
         x: str = "x",
         y: str = "y",
         metric: str = "euclidean",
-        factor: Optional[float] = None,
+        factor: float | None = None,
     ) -> float:
         """Set the vertex coordinates, from which the heuristic is computed when
         `run` is called without one.
@@ -2094,7 +2095,7 @@ class AStar(_PairGraph):
         self,
         source: int,
         target: int,
-        heuristic: Union[np.ndarray, pd.Series, None] = None,
+        heuristic: np.ndarray | pd.Series | None = None,
         path_tracking: bool = False,
         return_inf: bool = True,
     ) -> float:

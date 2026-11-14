@@ -82,7 +82,7 @@ def load_benchmark_results():
 
     for json_file in json_files:
         try:
-            with open(json_file, "r") as f:
+            with open(json_file) as f:
                 data = json.load(f)
                 os_name = data["os"]
                 results[os_name] = data

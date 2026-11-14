@@ -54,7 +54,7 @@ def undirected_components(edges, n_vertices):
 
 def check_forest(edges, forest, weight="weight"):
     """The forest edges are input edges, and they form no cycle."""
-    keys = set(zip(edges["tail"], edges["head"], edges[weight]))
+    keys = set(zip(edges["tail"], edges["head"], edges[weight], strict=True))
     parent = {}
 
     def find(x):
@@ -62,7 +62,7 @@ def check_forest(edges, forest, weight="weight"):
             x = parent[x]
         return x
 
-    for t, h, w in zip(forest["tail"], forest["head"], forest[weight]):
+    for t, h, w in zip(forest["tail"], forest["head"], forest[weight], strict=True):
         assert (t, h, w) in keys
         rt, rh = find(t), find(h)
         assert rt != rh, "cycle in the forest"
@@ -101,7 +101,7 @@ def test_antiparallel_and_parallel_edges():
     )
     mst = MinimumSpanningTree(edges)
     forest = mst.run()
-    assert list(zip(forest["tail"], forest["head"], forest["weight"])) == [
+    assert list(zip(forest["tail"], forest["head"], forest["weight"], strict=True)) == [
         (1, 0, 2.0),
         (1, 2, 3.0),
     ]
@@ -236,7 +236,7 @@ def test_ties_deterministic():
         {"tail": [2, 0, 1], "head": [0, 1, 2], "weight": [1.0, 1.0, 1.0]}
     )
     forest = MinimumSpanningTree(edges).run()
-    assert list(zip(forest["tail"], forest["head"])) == [(0, 1), (1, 2)]
+    assert list(zip(forest["tail"], forest["head"], strict=True)) == [(0, 1), (1, 2)]
 
 
 def test_empty_graph():

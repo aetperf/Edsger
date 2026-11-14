@@ -13,12 +13,10 @@ polars
 
 # Linting/Tooling
 cython-lint
-# Same version as the pre-commit hook (.pre-commit-config.yaml)
-black==24.10.0
-pyright
+ruff
+ty
 
 # Type stubs
-types-setuptools
 pandas-stubs
 
 # Documentation

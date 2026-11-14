@@ -1,10 +1,10 @@
 repos:
-  - repo: https://github.com/psf/black
-    rev: 24.10.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.5
     hooks:
-      - id: black
-        files: '\.(py)$'
-        exclude: 'src/edsger/.*\.pyx$'
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
 
   - repo: https://github.com/MarcoGorelli/cython-lint
     rev: v0.16.2
@@ -15,9 +15,9 @@ repos:
 
   - repo: local
     hooks:
-      - id: pyright
-        name: pyright
-        entry: pyright
+      - id: ty
+        name: ty
+        entry: ty check
         language: system
         types: [python]
         pass_filenames: false

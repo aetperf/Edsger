@@ -71,10 +71,10 @@ def to_networkx(nx, edges, weighted):
     graph = nx.DiGraph()
     if weighted:
         graph.add_weighted_edges_from(
-            zip(reduced["tail"], reduced["head"], reduced["weight"])
+            zip(reduced["tail"], reduced["head"], reduced["weight"], strict=True)
         )
     else:
-        graph.add_edges_from(zip(reduced["tail"], reduced["head"]))
+        graph.add_edges_from(zip(reduced["tail"], reduced["head"], strict=True))
     return graph
 
 
@@ -120,7 +120,7 @@ def test_pagerank_personalization():
     expected = pagerank_reference(a, 0.85, p)
     c = Centrality(edges, weight="weight")
     for personalization in (
-        dict(zip(chosen.tolist(), values.tolist())),
+        dict(zip(chosen.tolist(), values.tolist(), strict=True)),
         pd.Series(values, index=chosen),
     ):
         result = c.pagerank(

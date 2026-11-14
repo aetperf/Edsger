@@ -6,17 +6,18 @@ Example :
 """
 
 import os
-import sys
 import platform
+import sys
 from argparse import ArgumentParser
 from time import perf_counter
 
 import numpy as np
 import pandas as pd
-from edsger.path import Dijkstra
 from loguru import logger
 from scipy.sparse import coo_array
 from scipy.sparse.csgraph import dijkstra
+
+from edsger.path import Dijkstra
 
 logger.remove()
 fmt = (
@@ -216,7 +217,7 @@ if lib == "E":
         end = perf_counter()
         elapsed_time = end - start
         logger.info(
-            f"Edsger Dijkstra {i+1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
+            f"Edsger Dijkstra {i + 1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
         )
 
         d = {
@@ -274,7 +275,7 @@ elif lib == "GT":
         end = perf_counter()
         elapsed_time = end - start
         logger.info(
-            f"graph-tool Dijkstra {i+1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
+            f"graph-tool Dijkstra {i + 1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
         )
 
         d = {
@@ -330,7 +331,7 @@ elif lib == "NK":
         end = perf_counter()
         elapsed_time = end - start
         logger.info(
-            f"NetworKit Dijkstra {i+1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
+            f"NetworKit Dijkstra {i + 1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
         )
 
         d = {
@@ -374,7 +375,7 @@ elif lib == "S":
         end = perf_counter()
         elapsed_time = end - start
         logger.info(
-            f"SciPy Dijkstra {i+1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
+            f"SciPy Dijkstra {i + 1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
         )
 
         d = {

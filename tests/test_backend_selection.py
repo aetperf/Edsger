@@ -1,8 +1,9 @@
 """Test the GraphImporter factory method and backend selection logic."""
 
-import pytest
+from unittest.mock import MagicMock, patch
+
 import pandas as pd
-from unittest.mock import patch, MagicMock
+import pytest
 
 try:
     import pyarrow as pa
@@ -20,8 +21,8 @@ except ImportError:
 
 from edsger.graph_importer import (
     GraphImporter,
-    PandasNumpyImporter,
     PandasArrowImporter,
+    PandasNumpyImporter,
     PolarsImporter,
     standardize_graph_dataframe,
 )

@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `BellmanFord.run(..., return_series=True)`: the Series is now named `path_length` and its index `vertex_idx`, as for `Dijkstra`
 - `Dijkstra`, `BellmanFord` and `BFS` now share their graph building and their handling of the vertex labels. The vertex renumbering of `permute=True` is done with NumPy instead of pandas merges: building a permuted graph is about 35% faster (2M edges)
 
+### Tooling
+- [ruff](https://github.com/astral-sh/ruff) replaces black (formatting) and adds linting (pyflakes, bugbear, pyupgrade, isort rules); [ty](https://github.com/astral-sh/ty) replaces pyright. Both run as pre-commit hooks and in the test workflow
+
 ### Packaging
 - The runtime dependencies are now only NumPy and pandas: `setuptools`, `setuptools_scm` and `Cython` are only needed to build the package, and were installed with it
 - New `polars` extra (`pip install edsger[polars]`). The `test` extra no longer pins `scipy<1.11`

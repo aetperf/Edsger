@@ -122,7 +122,7 @@ conda activate edsger
 
    to record your changes in git.
 
-   Please make sure to see the validation messages from `pre-commit` and fix any eventual issues. This should automatically use [black](https://pypi.org/project/black/) to check/fix the code style and [cython-lint](https://github.com/MarcoGorelli/cython-lint) for Cython files.
+   Please make sure to see the validation messages from `pre-commit` and fix any eventual issues. This should automatically use [ruff](https://github.com/astral-sh/ruff) to check/fix the code style and [cython-lint](https://github.com/MarcoGorelli/cython-lint) for Cython files.
 
    > **Important:** Don't forget to add unit tests and documentation in case your contribution adds an additional feature and is not just a bugfix.
    >

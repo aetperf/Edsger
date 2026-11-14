@@ -40,7 +40,8 @@ polars = [
 ]
 # Dev dependencies.
 dev = [
-    "black==24.10.0"
+    "ruff",
+    "ty"
 ]
 # Test dependencies. 
 # pip install .'[test]' on Linux
@@ -75,13 +76,23 @@ markers = [
     "performance: marks tests as performance benchmarks (deselect with '-m \"not performance\"')",
 ]
 
-[tool.black]
-extend-exclude = '''
-/(
-    old
-    | notebooks
-)/
-'''
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+extend-exclude = ["old", "notebooks", "edsger-env", "build"]
+
+[tool.ruff.lint]
+# pyflakes, the error subset of pycodestyle, bugbear, pyupgrade, isort
+select = ["E4", "E7", "E9", "F", "B", "UP", "I"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["edsger"]
+
+[tool.ty.src]
+include = ["src"]
+
+[tool.ty.environment]
+python-version = "3.10"
 
 [tool.cibuildwheel]
 # Skip 32-bit i686 architectures (outdated, rarely needed)

@@ -5,6 +5,7 @@ py.test tests/test_path_tracking.py
 
 import numpy as np
 import pytest
+
 from edsger.path_tracking import compute_path
 
 

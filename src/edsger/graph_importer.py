@@ -6,9 +6,8 @@ This module provides a unified interface for importing graph data from different
 standardized NumPy-backed pandas DataFrame format that is optimal for the graph algorithms.
 """
 
-from abc import ABC, abstractmethod
-from typing import Optional, List
 import warnings
+from abc import ABC, abstractmethod
 
 import numpy as np
 import pandas as pd
@@ -38,9 +37,9 @@ class GraphImporter(ABC):
         edges,
         tail: str = "tail",
         head: str = "head",
-        weight: Optional[str] = None,
-        trav_time: Optional[str] = None,
-        freq: Optional[str] = None,
+        weight: str | None = None,
+        trav_time: str | None = None,
+        freq: str | None = None,
     ) -> "GraphImporter":
         """
         Factory method to create the appropriate importer based on DataFrame type.
@@ -97,11 +96,12 @@ class GraphImporter(ABC):
         warnings.warn(
             f"Unknown DataFrame type {type(edges)}. Attempting to convert to pandas.",
             UserWarning,
+            stacklevel=2,
         )
         return PandasNumpyImporter(pd.DataFrame(edges))
 
     @abstractmethod
-    def to_numpy_edges(self, columns: List[str]) -> pd.DataFrame:
+    def to_numpy_edges(self, columns: list[str]) -> pd.DataFrame:
         """
         Convert the DataFrame to a NumPy-backed pandas DataFrame.
 
@@ -142,7 +142,7 @@ class PandasNumpyImporter(GraphImporter):
     This is the most efficient case as it requires minimal conversion.
     """
 
-    def to_numpy_edges(self, columns: List[str]) -> pd.DataFrame:
+    def to_numpy_edges(self, columns: list[str]) -> pd.DataFrame:
         """
         Extract columns and ensure they are NumPy-backed.
 
@@ -168,7 +168,7 @@ class PandasArrowImporter(GraphImporter):
     Converts Arrow-backed columns to NumPy arrays with proper data types.
     """
 
-    def to_numpy_edges(self, columns: List[str]) -> pd.DataFrame:
+    def to_numpy_edges(self, columns: list[str]) -> pd.DataFrame:
         """
         Convert Arrow-backed columns to NumPy arrays.
 
@@ -215,9 +215,7 @@ class PolarsImporter(GraphImporter):
     Converts Polars DataFrames to NumPy-backed pandas DataFrames.
     """
 
-    def to_numpy_edges(
-        self, columns: List[str]
-    ) -> pd.DataFrame:  # pylint: disable=too-many-branches
+    def to_numpy_edges(self, columns: list[str]) -> pd.DataFrame:  # pylint: disable=too-many-branches
         """
         Convert Polars DataFrame to NumPy-backed pandas DataFrame.
 
@@ -310,9 +308,9 @@ def standardize_graph_dataframe(  # pylint: disable=too-many-arguments,too-many-
     edges,
     tail: str = "tail",
     head: str = "head",
-    weight: Optional[str] = None,
-    trav_time: Optional[str] = None,
-    freq: Optional[str] = None,
+    weight: str | None = None,
+    trav_time: str | None = None,
+    freq: str | None = None,
 ) -> pd.DataFrame:
     """
     Convenience function to standardize any DataFrame format to NumPy-backed pandas.

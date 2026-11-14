@@ -25,7 +25,7 @@ The results of the shortest path algorithms are compared with those of SciPy, wh
 
 ## Code style
 
-Python code is formatted with [black](https://github.com/psf/black), Cython code is checked with [cython-lint](https://github.com/MarcoGorelli/cython-lint), and the type hints with [pyright](https://github.com/microsoft/pyright). The three tools run as [pre-commit](https://pre-commit.com/) hooks.
+Python code is linted and formatted with [ruff](https://github.com/astral-sh/ruff), Cython code is checked with [cython-lint](https://github.com/MarcoGorelli/cython-lint), and the type hints with [ty](https://github.com/astral-sh/ty). The three tools run as [pre-commit](https://pre-commit.com/) hooks.
 
 ```bash
 pip install pre-commit

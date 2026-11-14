@@ -707,7 +707,7 @@ class TestBellmanFordDataFrameBackends:
             df_arrow = pd.DataFrame(data)
             # Convert to Arrow backend
             arrow_dtypes = {}
-            for col, values in data.items():
+            for col, _values in data.items():
                 if col in ["tail", "head"]:
                     arrow_dtypes[col] = pd.ArrowDtype(pa.int64())
                 else:
@@ -811,7 +811,7 @@ class TestBellmanFordDataFrameBackends:
         dataframes = self.create_test_dataframes(data)
 
         # All backends should detect the negative cycle
-        for backend_name, df in dataframes.items():
+        for _backend_name, df in dataframes.items():
             bf = BellmanFord(df)
             with pytest.raises(ValueError, match="Negative cycle detected"):
                 bf.run(vertex_idx=0, detect_negative_cycles=True)
@@ -881,28 +881,28 @@ class TestBellmanFordDataFrameBackends:
             bf = BellmanFord(df)
 
             # All backends should use optimal internal dtypes for weights
-            assert (
-                bf._edges["weight"].dtype == np.float64
-            ), f"{backend_name} weight dtype"
+            assert bf._edges["weight"].dtype == np.float64, (
+                f"{backend_name} weight dtype"
+            )
 
             # Memory should be contiguous for all backends
-            assert bf._edges["tail"].values.flags[
-                "C_CONTIGUOUS"
-            ], f"{backend_name} tail not contiguous"
-            assert bf._edges["head"].values.flags[
-                "C_CONTIGUOUS"
-            ], f"{backend_name} head not contiguous"
-            assert bf._edges["weight"].values.flags[
-                "C_CONTIGUOUS"
-            ], f"{backend_name} weight not contiguous"
+            assert bf._edges["tail"].values.flags["C_CONTIGUOUS"], (
+                f"{backend_name} tail not contiguous"
+            )
+            assert bf._edges["head"].values.flags["C_CONTIGUOUS"], (
+                f"{backend_name} head not contiguous"
+            )
+            assert bf._edges["weight"].values.flags["C_CONTIGUOUS"], (
+                f"{backend_name} weight not contiguous"
+            )
 
             # For vertex indices, different backends may use different dtypes but should be integer types
-            assert np.issubdtype(
-                bf._edges["tail"].dtype, np.integer
-            ), f"{backend_name} tail should be integer"
-            assert np.issubdtype(
-                bf._edges["head"].dtype, np.integer
-            ), f"{backend_name} head should be integer"
+            assert np.issubdtype(bf._edges["tail"].dtype, np.integer), (
+                f"{backend_name} tail should be integer"
+            )
+            assert np.issubdtype(bf._edges["head"].dtype, np.integer), (
+                f"{backend_name} head should be integer"
+            )
 
     def test_bellmanford_custom_columns_backend_consistency(self):
         """Test custom column names across DataFrame backends."""
@@ -958,7 +958,7 @@ class TestBellmanFordDataFrameBackends:
             except AssertionError as e:
                 raise AssertionError(
                     f"BellmanFord return_series results differ for {backend_name}: {e}"
-                )
+                ) from e
 
     def test_bellmanford_large_graph_backend_consistency(self):
         """Test consistency with larger graphs across DataFrame backends."""
@@ -996,9 +996,9 @@ class TestBellmanFordDataFrameBackends:
         if isinstance(reference_result, str):  # Error case
             # All should have similar errors
             for backend_name, result in results.items():
-                assert isinstance(
-                    result, str
-                ), f"Inconsistent error handling for {backend_name}"
+                assert isinstance(result, str), (
+                    f"Inconsistent error handling for {backend_name}"
+                )
         else:  # Success case
             for backend_name, result in results.items():
                 np.testing.assert_array_equal(
