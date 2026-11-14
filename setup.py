@@ -251,9 +251,6 @@ extensions = [
     ),
 ]
 
-with open("requirements.txt", encoding="utf-8") as fp:
-    install_requires = fp.read().strip().split("\n")
-
 
 def setup_package():
     """Configure and run the package setup with Cython extensions."""
@@ -266,7 +263,6 @@ def setup_package():
             extensions,
             include_path=["src/edsger/"],
         ),
-        install_requires=install_requires,
         include_dirs=[np.get_include()],
     )
 

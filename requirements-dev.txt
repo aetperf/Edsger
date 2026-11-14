@@ -9,6 +9,7 @@ pytest-cov
 # Scripts
 loguru
 pyarrow
+polars
 
 # Linting/Tooling
 cython-lint

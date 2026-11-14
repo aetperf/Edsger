@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Packaging
+- The runtime dependencies are now only NumPy and pandas: `setuptools`, `setuptools_scm` and `Cython` are only needed to build the package, and were installed with it
+- New `polars` extra (`pip install edsger[polars]`). The `test` extra no longer pins `scipy<1.11`
+
 ## Version 0.2.0 (2026-11-13)
 
 ### Performance Improvements

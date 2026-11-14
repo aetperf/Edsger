@@ -29,14 +29,15 @@ classifiers = [
     "Topic :: Scientific/Engineering"
 ]
 dependencies = [
-  "setuptools",
-  "setuptools_scm",
   "numpy>=1.26",
-  "Cython>=3",
   "pandas",
 ]
 
 [project.optional-dependencies]
+# Polars dataframes, as input or output (output="polars").
+polars = [
+    "polars"
+]
 # Dev dependencies.
 dev = [
     "black==24.10.0"
@@ -45,7 +46,9 @@ dev = [
 # pip install .'[test]' on Linux
 test = [
     "pytest",
-    "scipy<1.11"
+    "scipy",
+    "polars",
+    "pyarrow"
 ]
 # Doc dependencies.
 doc = [
