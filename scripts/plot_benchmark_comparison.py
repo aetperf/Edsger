@@ -32,6 +32,26 @@ def clean_version(version_str):
     return version_str
 
 
+def library_version(system_info, library):
+    """Version of a library shown in the figures.
+
+    For Edsger, the release given by the 'edsger_release' field of the results,
+    if any. A benchmark run on a development build records the setuptools_scm
+    version of the build, such as 0.1.7.post1.dev22+g00f6618d5, which only says
+    "after 0.1.7": 'edsger_release' then gives the release with the same code.
+    """
+    key = library.lower()
+    if key == "edsger" and system_info.get("edsger_release"):
+        return system_info["edsger_release"]
+    version = system_info.get(f"{key}_version", "?")
+    if key == "edsger" and ".dev" in version:
+        print(
+            f"[WARNING] Edsger development version {version}: add an "
+            "'edsger_release' field to the system_info of the results"
+        )
+    return version
+
+
 def extract_processor_model(system_info):
     """Short processor name for the legend, from the benchmark results.
 
@@ -131,8 +151,8 @@ def create_comparison_plot(
                         "std_time": bench_result["std_time"],
                         "max_time": slowest_run(bench_result),
                         "n_runs": len(bench_result.get("times", [])),
-                        "version": results["system_info"].get(
-                            f"{library_names[lib].lower()}_version", "?"
+                        "version": library_version(
+                            results["system_info"], library_names[lib]
                         ),
                     }
 
@@ -360,7 +380,7 @@ def create_single_os_plot(results, os_name, output_file=None):
 
     # Library names with versions
     library_names = {
-        "E": f"Edsger {system_info.get('edsger_version', '?')}",
+        "E": f"Edsger {library_version(system_info, 'Edsger')}",
         "NK": f"NetworKit {system_info.get('networkit_version', '?')}",
         "GT": f"Graph-tool {clean_version(system_info.get('graph-tool_version', '?'))}",
         "SciPy": f"SciPy {system_info.get('scipy_version', '?')}",

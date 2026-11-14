@@ -10,6 +10,7 @@
     "os_name": "Windows",
     "conda_version": "conda 25.5.1",
     "edsger_version": "0.1.7.post1.dev21+g524d2ac56.d20261112",
+    "edsger_release": "0.3.0",
     "networkit_version": "11.3",
     "graph-tool_version": "Not available on Windows",
     "scipy_version": "1.18.1",

@@ -64,6 +64,6 @@ python benchmark_comparison_os.py -d /path/to/DIMACS_road_networks -n USA -r 5
 python plot_benchmark_comparison.py
 ```
 
-The first script reads the network from the Parquet file `USA/USA-road-t.USA.gr.parquet` of the data directory, runs the four libraries and writes the timings to a JSON file. The second one draws the figure from the JSON files that it finds.
+The first script reads the network from the Parquet file `USA/USA-road-t.USA.gr.parquet` of the data directory, runs the four libraries and writes the timings to a JSON file. The second one draws the figure from the JSON files that it finds. When Edsger was measured from a development build, its recorded version (`edsger_version`, such as `0.1.7.post1.dev22+g00f6618d5`) is not a release: the `edsger_release` field of `system_info` gives the release with the same code, which is the version shown in the figure.
 
 The download of the DIMACS networks and their conversion to Parquet files are described in a [blog post](https://architecture-performance.fr/en/blog/download-some-benchmark-road-networks-for-shortest-paths-algorithms).

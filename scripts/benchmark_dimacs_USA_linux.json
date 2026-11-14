@@ -10,6 +10,7 @@
     "os_name": "Linux",
     "conda_version": "conda 26.1.1",
     "edsger_version": "0.1.7.post1.dev22+g00f6618d5.d20261112",
+    "edsger_release": "0.3.0",
     "networkit_version": "11.3",
     "graph-tool_version": "3.9",
     "scipy_version": "1.18.1",
