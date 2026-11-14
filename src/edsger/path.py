@@ -1727,7 +1727,7 @@ def _distances(x0, y0, x1, y1, metric):
     return 2.0 * astar_core.EARTH_RADIUS * np.arcsin(np.sqrt(np.minimum(a, 1.0)))
 
 
-class _PairGraph(_VertexGraph):
+class _PairGraph(_Graph):
     """Common part of the shortest path algorithms between two vertices:
     `AStar` and `BidirectionalDijkstra`.
 
@@ -1828,9 +1828,7 @@ class _PairGraph(_VertexGraph):
             return float(np.inf)
         return float(length)
 
-    def get_path(  # type: ignore[override]  # pylint: disable=arguments-differ
-        self,
-    ) -> Optional[np.ndarray]:  # pyright: ignore[reportIncompatibleMethodOverride]
+    def get_path(self) -> Optional[np.ndarray]:
         """Return the shortest path found by the last run.
 
         The last call to `run` must have been made with `path_tracking=True`.
