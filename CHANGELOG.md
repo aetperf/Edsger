@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### New Features
 - Polars output: `run(..., output="polars")` returns a Polars DataFrame with a `vertex_idx` column and a `path_length` (`Dijkstra`, `BellmanFord`) or `predecessor` (`BFS`) column. The new `output` argument takes `"numpy"` (default), `"pandas"` or `"polars"`; `return_series=True` is kept and means `output="pandas"`
 - `Dijkstra.run_many(vertices, termination_nodes=None, n_jobs=None, ...)`: runs from several vertices in parallel threads, and returns a 2D NumPy array, a pandas DataFrame or a Polars DataFrame in long format (`origin`, `destination`, `path_length`). With `termination_nodes`, this is an origin-destination matrix. 32 runs on a random graph with 1M vertices and 4M edges: 4.5s one by one, 1.3s with 8 threads
+- `DFS` (`edsger.path`): depth-first search tree from or to a vertex, same interface as `BFS`. Iterative, neighbours visited in increasing order of their identifiers (same order as `scipy.sparse.csgraph.depth_first_order`). `get_order()` returns the vertices in discovery order
+- `ConnectedComponents` (`edsger.components`): weakly (union-find) or strongly (Pearce's algorithm, iterative) connected components, `run(connection="weak" | "strong", output=...)` returns a `component` label per vertex, numbered in order of the smallest vertex of each component, and sets `n_components`
 
 ### Changes
 - `BellmanFord.run(..., return_series=True)`: the Series is now named `path_length` and its index `vertex_idx`, as for `Dijkstra`
