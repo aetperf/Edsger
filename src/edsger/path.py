@@ -3,7 +3,7 @@ Path-related methods.
 """
 
 import numbers
-from typing import Optional, Union, List, Any, cast
+from typing import TYPE_CHECKING, Optional, Union, List, Any, cast
 import warnings
 
 import numpy as np
@@ -37,39 +37,53 @@ from edsger.star import (
 )
 from edsger.bfs import bfs_csr, bfs_csc  # pylint: disable=no-name-in-module
 
+if TYPE_CHECKING:
+    import polars
 
-def _compute_path_with_permutation(path_links, permutation, vertex_idx):
-    """
-    Compute a path on a graph whose vertices have been re-indexed.
+# Result of the methods returning one value per vertex
+VertexResult = Union[np.ndarray, pd.Series, "polars.DataFrame"]
 
-    The path is followed on the contiguous vertex indices and returned with the original
-    vertex labels: neither the time nor the memory depends on the values of the labels,
-    which may be negative.
+OUTPUT_TYPES = ("numpy", "pandas", "polars")
 
-    Parameters
-    ----------
-    path_links : numpy.ndarray
-        Predecessors or successors, for the re-indexed vertices.
-    permutation : pandas.DataFrame
-        Permutation of the vertices, sorted by new vertex index.
-    vertex_idx : int
-        Original label of the source or target vertex.
 
-    Returns
-    -------
-    path_vertices : numpy.ndarray
-        Original labels of the vertices of the path, of np.uint32 type unless some labels
-        are negative.
-    """
-    # the new indices are the ranks of the sorted labels
-    labels = permutation["vert_idx_old"].to_numpy()
-    position = int(np.searchsorted(labels, vertex_idx))
-    if position == len(labels) or labels[position] != vertex_idx:
-        raise ValueError(f"vertex {vertex_idx} not found in graph")
-    path_vertices = labels[compute_path(path_links, position)]
-    if labels[0] >= 0:
-        path_vertices = path_vertices.astype(np.uint32)
-    return path_vertices
+def _resolve_output(output: Optional[str], return_series: bool) -> str:
+    """Return the output type of a method, from its `output` and `return_series`
+    arguments: `return_series=True` is the same as `output='pandas'`."""
+    if output is None:
+        return "pandas" if return_series else "numpy"
+    if output not in OUTPUT_TYPES:
+        raise ValueError(
+            f"argument 'output' should be one of {OUTPUT_TYPES}, got {output!r}"
+        )
+    if return_series and output != "pandas":
+        raise ValueError(
+            f"return_series=True means output='pandas', it conflicts with "
+            f"output={output!r}"
+        )
+    return output
+
+
+def _import_polars():
+    """Import Polars, which is an optional dependency."""
+    try:
+        import polars as pl  # pylint: disable=import-outside-toplevel
+    except ImportError as exc:  # pragma: no cover - depends on the environment
+        raise ImportError(
+            "output='polars' requires Polars: pip install polars"
+        ) from exc
+    return pl
+
+
+def _labelled_result(index, values: np.ndarray, name: str, output: str) -> Any:
+    """Return values labelled by vertex: a pandas Series indexed by vertex, or a
+    Polars DataFrame with a 'vertex_idx' column."""
+    if output == "pandas":
+        if not isinstance(index, pd.Index):
+            index = pd.Index(index)
+        index.name = "vertex_idx"
+        return pd.Series(values, index=index, name=name)
+    pl = _import_polars()
+    return pl.DataFrame({"vertex_idx": np.asarray(index), name: values})
 
 
 def _edges_as_pandas(edges, columns):
@@ -87,146 +101,181 @@ def _edges_as_pandas(edges, columns):
     raise TypeError("edges should be a pandas DataFrame or a Polars DataFrame")
 
 
-class Dijkstra:
-    """Dijkstra's algorithm, for the shortest paths in a directed graph with
-    non-negative edge weights.
+def _check_orientation(orientation):
+    """Checks the orientation argument."""
+    if orientation not in ["in", "out"]:
+        raise ValueError("orientation should be either 'in' or 'out'")
 
-    The graph is built once from a dataframe of edges. The `run` method can then
-    be called any number of times, from or to different vertices.
 
-    Parameters
-    ----------
-    edges : pandas.DataFrame or polars.DataFrame
-        The edges of the graph, one row per edge. pandas dataframes can use NumPy
-        or Arrow data types.
-    tail : str, optional (default='tail')
-        Name of the column with the tail (start) vertex of each edge. The vertex
-        identifiers are integers, non-negative unless `permute` is True.
-    head : str, optional (default='head')
-        Name of the column with the head (end) vertex of each edge.
-    weight : str, optional (default='weight')
-        Name of the column with the edge weights. Negative and NaN weights are
-        rejected with a ValueError, whatever the value of `check_edges`.
-    orientation : {'out', 'in'}, optional (default='out')
-        'out' for the paths from one vertex to all the others (single source),
-        'in' for the paths from all the vertices to one vertex (single target).
-    check_edges : bool, optional (default=False)
-        Whether to check the edges before building the graph: column names,
-        data types, missing and non-finite values.
-    permute : bool, optional (default=False)
-        Whether to renumber the vertices internally, with contiguous indices
-        starting from 0. Without it, the internal arrays have one element per
-        integer between 0 and the largest vertex identifier. The arguments and
-        the results of the methods use the original identifiers in both cases.
-        Negative identifiers are only accepted with this option, and the results
-        must then be returned as Series (`return_series=True`).
-    verbose : bool, optional (default=False)
-        Whether to print the number of parallel edges that were removed.
-    lazy : bool, optional (default=True)
-        Whether to use the variant of the algorithm without decrease-key
-        operation, in which a vertex can be inserted several times in the
-        priority queue. Both variants return the same path lengths.
+class _VertexGraph:
+    """Common part of the algorithms run from or to one vertex of a graph built
+    from a dataframe of edges: `Dijkstra`, `BellmanFord` and `BFS`.
 
-    Notes
-    -----
-    When several edges have the same tail and head vertices, only the one with
-    the smallest weight is kept.
+    It builds the graph in compressed format (CSR for the 'out' orientation, CSC
+    for 'in'), renumbers the vertices if asked to, and translates the vertices
+    and the results between the original labels and the internal indices.
 
-    Examples
-    --------
-    >>> import pandas as pd
-    >>> from edsger.path import Dijkstra
-    >>> edges = pd.DataFrame(
-    ...     {"tail": [0, 0, 1], "head": [1, 2, 2], "weight": [1.0, 4.0, 2.0]}
-    ... )
-    >>> Dijkstra(edges).run(vertex_idx=0)
-    array([0., 1., 3.])
+    With `permute=True`, `_labels` is the sorted array of the original vertex
+    labels: the internal index of a vertex is the position of its label in this
+    array. Otherwise `_labels` is None and the internal indices are the labels.
     """
 
-    def __init__(
-        self,
-        edges: pd.DataFrame,
-        tail: str = "tail",
-        head: str = "head",
-        weight: str = "weight",
-        orientation: str = "out",
-        check_edges: bool = False,
-        permute: bool = False,
-        verbose: bool = False,
-        lazy: bool = True,
-    ) -> None:
-        # Select the dijkstra module based on the lazy parameter
-        self._dijkstra = dijkstra_lazy if lazy else dijkstra_dec
-        self._lazy = lazy
+    _algorithm_name = "algorithm"
 
-        # load the edges
-        if check_edges:
-            self._check_edges(edges, tail, head, weight)
-        # Convert to standardized NumPy-backed pandas DataFrame
-        self._edges = standardize_graph_dataframe(edges, tail, head, weight)
+    # set by _build_graph
+    _edges: pd.DataFrame
+    _tail_name: str
+    _head_name: str
+    _n_edges: int
+    _n_vertices: int
+    _n_vertices_init: int
+    _orientation: str
+    _permute: bool
+    _labels: Optional[np.ndarray]
+    _negative_labels: bool
+    _indptr: np.ndarray
+    _indices: np.ndarray
+    _edge_weights: Optional[np.ndarray]
+    _path_links: Optional[np.ndarray]
+    _path_links_permuted: Optional[np.ndarray]
+    _verbose: bool
+
+    # ------------------------------------------------------------ graph building
+
+    def _build_graph(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+        self,
+        edges,
+        tail: str,
+        head: str,
+        weight: Optional[str],
+        orientation: str,
+        permute: bool,
+        verbose: bool,
+    ) -> None:
+        """Build the graph from standardized edges (NumPy-backed pandas DataFrame).
+
+        `weight` is None for an unweighted graph.
+        """
+        self._edges = edges
         self._tail_name = tail
         self._head_name = head
-        self._n_edges = len(self._edges)
-        # Dijkstra's algorithm is not valid with negative weights: they are
-        # rejected whatever the value of check_edges, and so are NaN weights
-        # (the min is NaN if any weight is)
-        if self._n_edges > 0 and not np.asarray(self._edges[weight]).min() >= 0.0:
-            raise ValueError(f"edges['{weight}'] should be nonnegative")
         self._verbose = verbose
-
-        # preprocess edges to handle parallel edges
-        self._preprocess_edges(tail, head, weight)
+        self._remove_parallel_edges(tail, head, weight)
 
         # reindex the vertices
         self._permute = permute
+        self._labels = None
         # negative vertex labels are only possible with permute=True
         self._negative_labels = False
-        if len(self._edges) == 0:
-            # Handle empty graphs
-            self._permutation = None
+        if self._n_edges == 0:
             self._n_vertices = 0
-            self.__n_vertices_init = 0
-        elif self._permute:
-            self._negative_labels = bool(
-                self._edges[[tail, head]].min(axis=0).min() < 0
-            )
-            self.__n_vertices_init = self._edges[[tail, head]].max(axis=0).max() + 1
-            self._permutation = self._permute_graph(tail, head)
-            self._n_vertices = len(self._permutation)
+            self._n_vertices_init = 0
+        elif permute:
+            self._renumber_vertices(tail, head, weight)
+            assert self._labels is not None
+            self._negative_labels = bool(self._labels[0] < 0)
+            self._n_vertices = len(self._labels)
+            self._n_vertices_init = int(self._labels[-1]) + 1
         else:
-            self._permutation = None
-            self._n_vertices = self._edges[[tail, head]].max(axis=0).max() + 1
-            self.__n_vertices_init = self._n_vertices
+            self._n_vertices = int(
+                max(
+                    np.asarray(self._edges[tail]).max(),
+                    np.asarray(self._edges[head]).max(),
+                )
+                + 1
+            )
+            self._n_vertices_init = self._n_vertices
 
-        # convert to CSR/CSC:
-        # __indices: numpy.ndarray
-        #     1D array containing the indices of the indices of the forward or reverse star of
-        #     the graph in compressed format.
-        # __indptr: numpy.ndarray
-        #     1D array containing the indices of the pointer of the forward or reverse star of
-        #     the graph in compressed format.
-        # __edge_weights: numpy.ndarray
-        #     1D array containing the weights of the edges in the graph.
-
-        self._check_orientation(orientation)
+        # convert to CSR ('out') or CSC ('in')
+        _check_orientation(orientation)
         self._orientation = orientation
-        if self._orientation == "out":
-            fs_indptr, fs_indices, fs_data = convert_graph_to_csr_float64(
-                self._edges, tail, head, weight, self._n_vertices
-            )
-            self.__indices = fs_indices.astype(np.uint32)
-            self.__indptr = fs_indptr.astype(np.uint32)
-            self.__edge_weights = fs_data.astype(DTYPE_PY)
+        convert = (
+            convert_graph_to_csr_float64
+            if orientation == "out"
+            else convert_graph_to_csc_float64
+        )
+        if weight is None:
+            # the conversion needs a data column, unused for an unweighted graph
+            weight_col = "_dummy_weight"
+            edges_tmp = self._edges.assign(**{weight_col: 1.0})
         else:
-            rs_indptr, rs_indices, rs_data = convert_graph_to_csc_float64(
-                self._edges, tail, head, weight, self._n_vertices
-            )
-            self.__indices = rs_indices.astype(np.uint32)
-            self.__indptr = rs_indptr.astype(np.uint32)
-            self.__edge_weights = rs_data.astype(DTYPE_PY)
+            weight_col = weight
+            edges_tmp = self._edges
+        indptr, indices, data = convert(
+            edges_tmp, tail, head, weight_col, self._n_vertices
+        )
+        self._indptr = indptr.astype(np.uint32)
+        self._indices = indices.astype(np.uint32)
+        self._edge_weights = None if weight is None else data.astype(DTYPE_PY)
 
         self._path_links = None
         self._path_links_permuted = None
+
+    def _remove_parallel_edges(self, tail, head, weight):
+        """Keep one edge per pair of vertices: the one with the smallest weight, or
+        any of them for an unweighted graph."""
+        original_count = len(self._edges)
+        grouped = self._edges.groupby([tail, head], as_index=False)
+        if weight is None:
+            self._edges = cast(pd.DataFrame, grouped.first())
+        else:
+            self._edges = cast(pd.DataFrame, grouped[weight].min())
+        self._n_edges = len(self._edges)
+
+        removed = original_count - self._n_edges
+        if removed > 0 and self._verbose:
+            kept = (
+                "All the edges count for one."
+                if weight is None
+                else "For each pair of vertices, kept the edge with minimum weight."
+            )
+            print(f"Automatically removed {removed} parallel edge(s). {kept}")
+
+    def _renumber_vertices(self, tail, head, weight):
+        """Renumber the vertices with contiguous indices starting from 0, in the
+        order of their labels."""
+        tails = np.asarray(self._edges[tail])
+        heads = np.asarray(self._edges[head])
+        labels, inverse = np.unique(np.concatenate((tails, heads)), return_inverse=True)
+        inverse = inverse.reshape(-1)
+        data = {tail: inverse[: len(tails)], head: inverse[len(tails) :]}
+        if weight is not None:
+            data[weight] = np.asarray(self._edges[weight])
+        self._edges = pd.DataFrame(data)
+        self._labels = labels
+
+    def _check_edges(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+        self, edges, tail, head, weight=None, nonnegative=False
+    ):
+        """Checks if the edges DataFrame is well-formed. If not, raises an
+        appropriate error."""
+        columns = [tail, head] + ([] if weight is None else [weight])
+        edges = _edges_as_pandas(edges, columns)
+
+        for role, col in (("tail", tail), ("head", head), ("weight", weight)):
+            if col is not None and col not in edges:
+                raise KeyError(
+                    f"edge {role} column '{col}' not found in graph edges dataframe"
+                )
+
+        if edges[columns].isnull().to_numpy().any():
+            raise ValueError(
+                f"edges[[{', '.join(columns)}]] should not have any missing value"
+            )
+
+        for col in [tail, head]:
+            if not pd.api.types.is_integer_dtype(edges[col].dtype):
+                raise TypeError(f"edges['{col}'] should be of integer type")
+
+        if weight is not None:
+            if not pd.api.types.is_numeric_dtype(edges[weight].dtype):
+                raise TypeError(f"edges['{weight}'] should be of numeric type")
+            if nonnegative and edges[weight].min() < 0.0:
+                raise ValueError(f"edges['{weight}'] should be nonnegative")
+            if not np.isfinite(edges[weight]).all():
+                raise ValueError(f"edges['{weight}'] should be finite")
+
+    # ------------------------------------------------------------ properties
 
     @property
     def edges(self) -> Any:
@@ -258,11 +307,6 @@ class Dijkstra:
         return self._permute
 
     @property
-    def lazy(self) -> bool:
-        """Whether the variant without decrease-key operation is used."""
-        return self._lazy
-
-    @property
     def path_links(self) -> Optional[np.ndarray]:
         """Path tree of the last run, or None if the paths were not tracked. This
         is the predecessor ('out') or the successor ('in') of each vertex. The
@@ -271,439 +315,89 @@ class Dijkstra:
         """
         return self._path_links
 
-    def _preprocess_edges(self, tail, head, weight):
-        """
-        Preprocess edges to handle parallel edges by keeping only the minimum weight edge
-        between any pair of vertices.
+    # ------------------------------------------------------------ vertex labels
 
-        Parameters
-        ----------
-        tail : str
-            The column name for tail vertices
-        head : str
-            The column name for head vertices
-        weight : str
-            The column name for edge weights
-        """
-        original_count = len(self._edges)
-        self._edges = self._edges.groupby([tail, head], as_index=False)[weight].min()
-        final_count = len(self._edges)
-
-        if original_count > final_count:
-            parallel_edges_removed = original_count - final_count
-            if self._verbose:
-                print(
-                    f"Automatically removed {parallel_edges_removed} parallel edge(s). "
-                    f"For each pair of vertices, kept the edge with minimum weight."
-                )
-
-        self._n_edges = len(self._edges)
-
-    def _check_edges(self, edges, tail, head, weight):
-        """Checks if the edges DataFrame is well-formed. If not, raises an appropriate error."""
-        edges = _edges_as_pandas(edges, [tail, head, weight])
-
-        if tail not in edges:
-            raise KeyError(
-                f"edge tail column '{tail}' not found in graph edges dataframe"
-            )
-
-        if head not in edges:
-            raise KeyError(
-                f"edge head column '{head}' not found in graph edges dataframe"
-            )
-
-        if weight not in edges:
-            raise KeyError(
-                f"edge weight column '{weight}' not found in graph edges dataframe"
-            )
-
-        if edges[[tail, head, weight]].isnull().to_numpy().any():
-            raise ValueError(
-                " ".join(
-                    [
-                        f"edges[[{tail}, {head}, {weight}]] ",
-                        "should not have any missing value",
-                    ]
-                )
-            )
-
-        for col in [tail, head]:
-            if not pd.api.types.is_integer_dtype(edges[col].dtype):
-                raise TypeError(f"edges['{col}'] should be of integer type")
-
-        if not pd.api.types.is_numeric_dtype(edges[weight].dtype):
-            raise TypeError(f"edges['{weight}'] should be of numeric type")
-
-        if edges[weight].min() < 0.0:
-            raise ValueError(f"edges['{weight}'] should be nonnegative")
-
-        if not np.isfinite(edges[weight]).all():
-            raise ValueError(f"edges['{weight}'] should be finite")
-
-    def _permute_graph(self, tail, head):
-        """Permute the IDs of the nodes to start from 0 and be contiguous.
-        Returns a DataFrame with the permuted IDs."""
-
-        permutation = pd.DataFrame(
-            data={
-                "vert_idx": np.union1d(
-                    np.asarray(self._edges[tail]), np.asarray(self._edges[head])
-                )
-            }
-        )
-        permutation["vert_idx_new"] = permutation.index
-        permutation.index.name = "index"
-
-        self._edges = pd.merge(
-            self._edges,
-            permutation[["vert_idx", "vert_idx_new"]],
-            left_on=tail,
-            right_on="vert_idx",
-            how="left",
-        )
-        self._edges = self._edges.drop([tail, "vert_idx"], axis=1)
-        self._edges = self._edges.rename(columns={"vert_idx_new": tail})
-
-        self._edges = pd.merge(
-            self._edges,
-            permutation[["vert_idx", "vert_idx_new"]],
-            left_on=head,
-            right_on="vert_idx",
-            how="left",
-        )
-        self._edges = self._edges.drop([head, "vert_idx"], axis=1)
-        self._edges = self._edges.rename(columns={"vert_idx_new": head})
-
-        permutation = permutation.rename(columns={"vert_idx": "vert_idx_old"})
-        permutation = permutation.reset_index(drop=True)
-        permutation = permutation.sort_values(by="vert_idx_new")
-
-        permutation.index.name = "index"
-        self._edges.index.name = "index"
-
-        return permutation
-
-    def _check_orientation(self, orientation):
-        """Checks the orientation attribute."""
-        if orientation not in ["in", "out"]:
-            raise ValueError("orientation should be either 'in' or 'out'")
-
-    def run(
-        self,
-        vertex_idx: int,
-        path_tracking: bool = False,
-        return_inf: bool = True,
-        return_series: bool = False,
-        heap_length_ratio: float = 1.0,
-        termination_nodes: Optional[List[int]] = None,
-    ) -> Union[np.ndarray, pd.Series]:
-        """Compute the shortest path lengths from or to a given vertex.
-
-        Parameters
-        ----------
-        vertex_idx : int
-            The source vertex if the orientation is 'out', the target vertex if it
-            is 'in'.
-        path_tracking : bool, optional (default=False)
-            Whether to store the shortest path tree, so that the paths can be
-            retrieved with `get_path`.
-        return_inf : bool, optional (default=True)
-            Whether to return `numpy.inf` as the path length of the vertices that
-            cannot be reached. If False, the largest float64 value is returned
-            instead.
-        return_series : bool, optional (default=False)
-            Whether to return a pandas Series indexed by vertex instead of a NumPy
-            array.
-        heap_length_ratio : float, optional (default=1.0)
-            Initial capacity of the priority queue, as a fraction of the number of
-            vertices, in (0, 1]. The queue grows when it is full, so this only
-            changes the size of the first memory allocation.
-        termination_nodes : array-like of int, optional (default=None)
-            Vertices at which to stop. The algorithm ends as soon as the path
-            lengths of all these vertices are known, and only their path lengths
-            are returned, in the given order.
-
-        Returns
-        -------
-        numpy.ndarray or pandas.Series
-            The path lengths, as float64. Without `termination_nodes`, the array
-            has one element per integer between 0 and the largest vertex
-            identifier: element i is the length of the shortest path from the
-            source to vertex i ('out'), or from vertex i to the target ('in').
-            With `termination_nodes`, it has one element per termination node. If
-            `return_series` is True, the result is a Series named 'path_length'
-            with the vertex identifiers as index.
-
-        Raises
-        ------
-        ValueError
-            If `vertex_idx` or a termination node is not a vertex of the graph, or
-            if the graph has negative vertex identifiers and `return_series` is
-            False.
-        """
-        # validate the input arguments - type checking handled by static typing
-        if self._negative_labels and not return_series:
+    def _check_output(self, output: str) -> None:
+        """An array indexed by vertex cannot hold negative vertex labels."""
+        if self._negative_labels and output == "numpy":
             raise ValueError(
                 "the graph has negative vertex labels: the result cannot be an "
-                "array indexed by vertex, use return_series=True"
+                "array indexed by vertex, use output='pandas' "
+                "(return_series=True) or output='polars'"
             )
-        if self._permute and self._permutation is not None:
-            if vertex_idx not in self._permutation.vert_idx_old.values:
+
+    def _internal_vertex(self, vertex_idx: int) -> int:
+        """Return the internal index of a vertex given by its label."""
+        if self._labels is not None:
+            position = int(np.searchsorted(self._labels, vertex_idx))
+            if position == len(self._labels) or self._labels[position] != vertex_idx:
                 raise ValueError(f"vertex {vertex_idx} not found in graph")
-            vertex_new = self._permutation.loc[
-                self._permutation.vert_idx_old == vertex_idx, "vert_idx_new"
-            ].iloc[0]
+            return position
+        if vertex_idx < 0:
+            raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be non-negative")
+        if vertex_idx >= self._n_vertices:
+            raise ValueError(f"vertex {vertex_idx} not found in graph")
+        return int(vertex_idx)
+
+    def _internal_vertices(self, vertices: np.ndarray, what: str) -> np.ndarray:
+        """Return the internal indices of an array of vertex labels, as uint32."""
+        if self._labels is not None:
+            positions = np.searchsorted(self._labels, vertices)
+            found = positions < len(self._labels)
+            found[found] = self._labels[positions[found]] == vertices[found]
+            if not found.all():
+                raise ValueError(f"{what} {vertices[~found][0]} not found in graph")
+            return positions.astype(np.uint32)
+        if np.any(vertices >= self._n_vertices) or np.any(vertices < 0):
+            raise ValueError(f"{what}s contain invalid vertex indices")
+        return vertices.astype(np.uint32)
+
+    def _vertex_result(
+        self, values: np.ndarray, name: str, fill, output: str
+    ) -> VertexResult:
+        """Return a result given for each internal vertex, in the output type.
+
+        A NumPy result is indexed by vertex label, from 0 to the largest label:
+        the integers that are not vertices get the `fill` value.
+        """
+        if output == "numpy":
+            if self._labels is None:
+                return values
+            dense = np.full(self._n_vertices_init, fill, dtype=values.dtype)
+            dense[self._labels] = values
+            return dense
+        if self._labels is None:
+            index = pd.RangeIndex(self._n_vertices)
         else:
-            if vertex_idx < 0:
-                raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be positive")
-            if vertex_idx >= self._n_vertices:
-                raise ValueError(f"vertex {vertex_idx} not found in graph")
-            vertex_new = vertex_idx
-        # Type checking is now handled by static typing
-        if not isinstance(heap_length_ratio, float):
-            raise TypeError(
-                f"argument 'heap_length_ratio=f{heap_length_ratio}' must be of float type"
-            )
+            index = self._labels
+        return _labelled_result(index, values, name, output)
 
-        heap_length_ratio = np.amin([heap_length_ratio, 1.0])
-        if heap_length_ratio <= 0.0:
-            raise ValueError(
-                f"argument 'heap_length_ratio={heap_length_ratio}' must be strictly positive "
-            )
-        heap_length = int(np.rint(heap_length_ratio * self._n_vertices))
+    def _labels_of(self, internal: np.ndarray) -> np.ndarray:
+        """Return the labels of internal vertex indices."""
+        if self._labels is None:
+            return internal
+        return self._labels[internal]
 
-        # validate and process termination_nodes
-        termination_nodes_array = None
-        if termination_nodes is not None:
-            try:
-                termination_nodes_array = np.array(termination_nodes, dtype=np.int64)
-            except (ValueError, TypeError, OverflowError) as exc:
-                raise TypeError(
-                    "argument 'termination_nodes' must be array-like of integers"
-                ) from exc
-
-            if termination_nodes_array.ndim != 1:
-                raise ValueError("argument 'termination_nodes' must be 1-dimensional")
-
-            if len(termination_nodes_array) == 0:
-                raise ValueError("argument 'termination_nodes' must not be empty")
-
-            # handle vertex permutation if needed
-            if self._permute and self._permutation is not None:
-                termination_nodes_permuted = []
-                for termination_node in termination_nodes_array:
-                    if termination_node not in self._permutation.vert_idx_old.values:
-                        raise ValueError(
-                            f"termination node {termination_node} not found in graph"
-                        )
-                    termination_node_new = self._permutation.loc[
-                        self._permutation.vert_idx_old == termination_node,
-                        "vert_idx_new",
-                    ].iloc[0]
-                    termination_nodes_permuted.append(termination_node_new)
-                termination_nodes_array = np.array(
-                    termination_nodes_permuted, dtype=np.uint32
-                )
-            else:
-                # validate that termination nodes exist
-                if np.any(termination_nodes_array >= self._n_vertices) or np.any(
-                    termination_nodes_array < 0
-                ):
-                    raise ValueError(
-                        "termination_nodes contains invalid vertex indices"
-                    )
-                termination_nodes_array = termination_nodes_array.astype(np.uint32)
-
-        # compute path length
-        if not path_tracking:
+    def _set_path_links(self, path_links: Optional[np.ndarray], output: str) -> None:
+        """Store the path tree computed on the internal indices."""
+        if path_links is None:
             self._path_links = None
-            if termination_nodes_array is not None:
-                # use early termination algorithms
-                if self._orientation == "in":
-                    path_length_values = self._dijkstra.compute_stsp_early_termination(
-                        self.__indptr,
-                        self.__indices,
-                        self.__edge_weights,
-                        termination_nodes_array,
-                        vertex_new,
-                        self._n_vertices,
-                        heap_length,
-                    )
-                else:
-                    path_length_values = self._dijkstra.compute_sssp_early_termination(
-                        self.__indptr,
-                        self.__indices,
-                        self.__edge_weights,
-                        termination_nodes_array,
-                        vertex_new,
-                        self._n_vertices,
-                        heap_length,
-                    )
-            else:
-                # use standard algorithms
-                if self._orientation == "in":
-                    path_length_values = self._dijkstra.compute_stsp(
-                        self.__indptr,
-                        self.__indices,
-                        self.__edge_weights,
-                        vertex_new,
-                        self._n_vertices,
-                        heap_length,
-                    )
-                else:
-                    path_length_values = self._dijkstra.compute_sssp(
-                        self.__indptr,
-                        self.__indices,
-                        self.__edge_weights,
-                        vertex_new,
-                        self._n_vertices,
-                        heap_length,
-                    )
+            return
+        if self._labels is None:
+            self._path_links = path_links
+            return
+        # kept for get_path, which follows the path on the internal indices
+        self._path_links_permuted = path_links
+        linked_labels = self._labels[path_links]
+        if output == "numpy":
+            # indexed by vertex label
+            self._path_links = np.arange(self._n_vertices_init, dtype=np.uint32)
+            self._path_links[self._labels] = linked_labels
         else:
-            self._path_links = np.arange(0, self._n_vertices, dtype=np.uint32)
-            if termination_nodes_array is not None:
-                # use early termination algorithms with path tracking
-                if self._orientation == "in":
-                    path_length_values = (
-                        self._dijkstra.compute_stsp_w_path_early_termination(
-                            self.__indptr,
-                            self.__indices,
-                            self.__edge_weights,
-                            self._path_links,
-                            termination_nodes_array,
-                            vertex_new,
-                            self._n_vertices,
-                            heap_length,
-                        )
-                    )
-                else:
-                    path_length_values = (
-                        self._dijkstra.compute_sssp_w_path_early_termination(
-                            self.__indptr,
-                            self.__indices,
-                            self.__edge_weights,
-                            self._path_links,
-                            termination_nodes_array,
-                            vertex_new,
-                            self._n_vertices,
-                            heap_length,
-                        )
-                    )
-            else:
-                # use standard algorithms with path tracking
-                if self._orientation == "in":
-                    path_length_values = self._dijkstra.compute_stsp_w_path(
-                        self.__indptr,
-                        self.__indices,
-                        self.__edge_weights,
-                        self._path_links,
-                        vertex_new,
-                        self._n_vertices,
-                        heap_length,
-                    )
-                else:
-                    path_length_values = self._dijkstra.compute_sssp_w_path(
-                        self.__indptr,
-                        self.__indices,
-                        self.__edge_weights,
-                        self._path_links,
-                        vertex_new,
-                        self._n_vertices,
-                        heap_length,
-                    )
+            # in the order of the vertex labels, like the Series or DataFrame
+            self._path_links = linked_labels.astype(np.uint32)
 
-            if self._permute and self._permutation is not None:
-                # permute back the path vertex indices
-                self._path_links_permuted = self._path_links
-                path_df = pd.DataFrame(
-                    data={
-                        "vertex_idx": np.arange(self._n_vertices),
-                        "associated_idx": self._path_links,
-                    }
-                )
-                path_df = pd.merge(
-                    path_df,
-                    self._permutation,
-                    left_on="vertex_idx",
-                    right_on="vert_idx_new",
-                    how="left",
-                )
-                path_df = path_df.drop(["vertex_idx", "vert_idx_new"], axis=1)
-                path_df = path_df.rename(columns={"vert_idx_old": "vertex_idx"})
-                path_df = pd.merge(
-                    path_df,
-                    self._permutation,
-                    left_on="associated_idx",
-                    right_on="vert_idx_new",
-                    how="left",
-                )
-                path_df = path_df.drop(["associated_idx", "vert_idx_new"], axis=1)
-                path_df = path_df.rename(columns={"vert_idx_old": "associated_idx"})
-
-                if return_series:
-                    path_df = path_df.set_index("vertex_idx")
-                    self._path_links = path_df.associated_idx.astype(
-                        np.uint32
-                    ).to_numpy()
-                else:
-                    self._path_links = np.arange(
-                        self.__n_vertices_init, dtype=np.uint32
-                    )
-                    self._path_links[path_df.vertex_idx.values] = (
-                        path_df.associated_idx.values
-                    )
-
-        # deal with infinity, in place: the array has just been allocated by the
-        # Dijkstra routine, and a copy of it is costly on large graphs
-        if return_inf:
-            path_length_values[path_length_values == DTYPE_INF_PY] = np.inf
-
-        # reorder path lengths
-        if return_series:
-            if (
-                self._permute
-                and termination_nodes_array is None
-                and self._permutation is not None
-            ):
-                self._permutation["path_length"] = path_length_values
-                path_lengths_df = cast(
-                    pd.DataFrame,
-                    self._permutation[["vert_idx_old", "path_length"]].copy(),
-                )
-                path_lengths_df = path_lengths_df.sort_values(by="vert_idx_old")
-                path_lengths_df = path_lengths_df.set_index("vert_idx_old", drop=True)
-                path_lengths_df.index.name = "vertex_idx"
-                path_lengths_series = path_lengths_df.path_length
-            else:
-                path_lengths_series = pd.Series(path_length_values)
-                if termination_nodes is not None:
-                    # early termination: one path length per termination node,
-                    # in the given order
-                    path_lengths_series = path_lengths_series.set_axis(
-                        np.asarray(termination_nodes)
-                    )
-                path_lengths_series.index.name = "vertex_idx"
-                path_lengths_series.name = "path_length"
-
-            return path_lengths_series
-
-        # For early termination, return results directly (already in correct order)
-        if termination_nodes_array is not None:
-            return path_length_values
-
-        if self._permute and self._permutation is not None:
-            self._permutation["path_length"] = path_length_values
-            if return_inf:
-                path_length_values = np.inf * np.ones(self.__n_vertices_init)
-            else:
-                path_length_values = DTYPE_INF_PY * np.ones(self.__n_vertices_init)
-            assert self._permutation is not None  # guaranteed by condition above
-            path_length_values[self._permutation.vert_idx_old.values] = (
-                self._permutation.path_length.values
-            )
-
-        return path_length_values
+    # ------------------------------------------------------------ public methods
 
     def get_vertices(self) -> Any:
         """Return the vertices of the graph.
@@ -714,8 +408,8 @@ class Dijkstra:
             The sorted identifiers of the vertices that are the tail or the head of
             at least one edge.
         """
-        if self._permute and self._permutation is not None:
-            return np.asarray(self._permutation.vert_idx_old)
+        if self._labels is not None:
+            return self._labels.copy()
         return np.union1d(
             np.asarray(self._edges[self._tail_name]),
             np.asarray(self._edges[self._head_name]),
@@ -744,20 +438,250 @@ class Dijkstra:
         """
         if self._path_links is None:
             warnings.warn(
-                "Current Dijkstra instance has not path attribute : \
-                make sure path_tracking is set to True, and run the \
-                shortest path algorithm",
+                f"Current {type(self).__name__} instance has no path attribute: "
+                "make sure path_tracking is set to True, and run the "
+                f"{self._algorithm_name}",
                 UserWarning,
             )
             return None
-        if self._permute and self._permutation is not None:
-            return _compute_path_with_permutation(
-                self._path_links_permuted, self._permutation, vertex_idx
-            )
+        if self._labels is not None:
+            assert self._path_links_permuted is not None
+            position = self._internal_vertex(vertex_idx)
+            path_vertices = self._labels[
+                compute_path(self._path_links_permuted, position)
+            ]
+            if self._labels[0] >= 0:
+                path_vertices = path_vertices.astype(np.uint32)
+            return path_vertices
         return compute_path(self._path_links, vertex_idx)
 
 
-class BellmanFord:
+class Dijkstra(_VertexGraph):
+    """Dijkstra's algorithm, for the shortest paths in a directed graph with
+    non-negative edge weights.
+
+    The graph is built once from a dataframe of edges. The `run` method can then
+    be called any number of times, from or to different vertices.
+
+    Parameters
+    ----------
+    edges : pandas.DataFrame or polars.DataFrame
+        The edges of the graph, one row per edge. pandas dataframes can use NumPy
+        or Arrow data types.
+    tail : str, optional (default='tail')
+        Name of the column with the tail (start) vertex of each edge. The vertex
+        identifiers are integers, non-negative unless `permute` is True.
+    head : str, optional (default='head')
+        Name of the column with the head (end) vertex of each edge.
+    weight : str, optional (default='weight')
+        Name of the column with the edge weights. Negative and NaN weights are
+        rejected with a ValueError, whatever the value of `check_edges`.
+    orientation : {'out', 'in'}, optional (default='out')
+        'out' for the paths from one vertex to all the others (single source),
+        'in' for the paths from all the vertices to one vertex (single target).
+    check_edges : bool, optional (default=False)
+        Whether to check the edges before building the graph: column names,
+        data types, missing and non-finite values.
+    permute : bool, optional (default=False)
+        Whether to renumber the vertices internally, with contiguous indices
+        starting from 0. Without it, the internal arrays have one element per
+        integer between 0 and the largest vertex identifier. The arguments and
+        the results of the methods use the original identifiers in both cases.
+        Negative identifiers are only accepted with this option, and the results
+        must then be labelled by vertex (`output='pandas'` or `'polars'`).
+    verbose : bool, optional (default=False)
+        Whether to print the number of parallel edges that were removed.
+    lazy : bool, optional (default=True)
+        Whether to use the variant of the algorithm without decrease-key
+        operation, in which a vertex can be inserted several times in the
+        priority queue. Both variants return the same path lengths.
+
+    Notes
+    -----
+    When several edges have the same tail and head vertices, only the one with
+    the smallest weight is kept.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from edsger.path import Dijkstra
+    >>> edges = pd.DataFrame(
+    ...     {"tail": [0, 0, 1], "head": [1, 2, 2], "weight": [1.0, 4.0, 2.0]}
+    ... )
+    >>> Dijkstra(edges).run(vertex_idx=0)
+    array([0., 1., 3.])
+    """
+
+    _algorithm_name = "shortest path algorithm"
+
+    def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+        self,
+        edges: pd.DataFrame,
+        tail: str = "tail",
+        head: str = "head",
+        weight: str = "weight",
+        orientation: str = "out",
+        check_edges: bool = False,
+        permute: bool = False,
+        verbose: bool = False,
+        lazy: bool = True,
+    ) -> None:
+        # Select the dijkstra module based on the lazy parameter
+        self._dijkstra = dijkstra_lazy if lazy else dijkstra_dec
+        self._lazy = lazy
+
+        if check_edges:
+            self._check_edges(edges, tail, head, weight, nonnegative=True)
+        # Convert to standardized NumPy-backed pandas DataFrame
+        edges = standardize_graph_dataframe(edges, tail, head, weight)
+        # Dijkstra's algorithm is not valid with negative weights: they are
+        # rejected whatever the value of check_edges, and so are NaN weights
+        # (the min is NaN if any weight is)
+        if len(edges) > 0 and not np.asarray(edges[weight]).min() >= 0.0:
+            raise ValueError(f"edges['{weight}'] should be nonnegative")
+
+        self._build_graph(edges, tail, head, weight, orientation, permute, verbose)
+
+    @property
+    def lazy(self) -> bool:
+        """Whether the variant without decrease-key operation is used."""
+        return self._lazy
+
+    def _heap_length(self, heap_length_ratio: float) -> int:
+        """Initial capacity of the priority queue."""
+        if not isinstance(heap_length_ratio, float):
+            raise TypeError(
+                f"argument 'heap_length_ratio={heap_length_ratio}' must be of float type"
+            )
+        heap_length_ratio = min(heap_length_ratio, 1.0)
+        if heap_length_ratio <= 0.0:
+            raise ValueError(
+                f"argument 'heap_length_ratio={heap_length_ratio}' must be strictly "
+                "positive"
+            )
+        return int(np.rint(heap_length_ratio * self._n_vertices))
+
+    def _termination_nodes(self, termination_nodes) -> Optional[np.ndarray]:
+        """Check the termination nodes and return their internal indices."""
+        if termination_nodes is None:
+            return None
+        try:
+            nodes = np.array(termination_nodes, dtype=np.int64)
+        except (ValueError, TypeError, OverflowError) as exc:
+            raise TypeError(
+                "argument 'termination_nodes' must be array-like of integers"
+            ) from exc
+        if nodes.ndim != 1:
+            raise ValueError("argument 'termination_nodes' must be 1-dimensional")
+        if len(nodes) == 0:
+            raise ValueError("argument 'termination_nodes' must not be empty")
+        return self._internal_vertices(nodes, "termination node")
+
+    def _compute(
+        self,
+        vertex: int,
+        path_links: Optional[np.ndarray],
+        termination: Optional[np.ndarray],
+        heap_length: int,
+    ) -> np.ndarray:
+        """Run the Cython routine matching the orientation and the options."""
+        name = "compute_" + ("sssp" if self._orientation == "out" else "stsp")
+        args: List[Any] = [self._indptr, self._indices, self._edge_weights]
+        if path_links is not None:
+            name += "_w_path"
+            args.append(path_links)
+        if termination is not None:
+            name += "_early_termination"
+            args.append(termination)
+        args += [vertex, self._n_vertices, heap_length]
+        return getattr(self._dijkstra, name)(*args)
+
+    def run(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+        self,
+        vertex_idx: int,
+        path_tracking: bool = False,
+        return_inf: bool = True,
+        return_series: bool = False,
+        heap_length_ratio: float = 1.0,
+        termination_nodes: Optional[List[int]] = None,
+        output: Optional[str] = None,
+    ) -> VertexResult:
+        """Compute the shortest path lengths from or to a given vertex.
+
+        Parameters
+        ----------
+        vertex_idx : int
+            The source vertex if the orientation is 'out', the target vertex if it
+            is 'in'.
+        path_tracking : bool, optional (default=False)
+            Whether to store the shortest path tree, so that the paths can be
+            retrieved with `get_path`.
+        return_inf : bool, optional (default=True)
+            Whether to return `numpy.inf` as the path length of the vertices that
+            cannot be reached. If False, the largest float64 value is returned
+            instead.
+        return_series : bool, optional (default=False)
+            Same as `output='pandas'`.
+        heap_length_ratio : float, optional (default=1.0)
+            Initial capacity of the priority queue, as a fraction of the number of
+            vertices, in (0, 1]. The queue grows when it is full, so this only
+            changes the size of the first memory allocation.
+        termination_nodes : array-like of int, optional (default=None)
+            Vertices at which to stop. The algorithm ends as soon as the path
+            lengths of all these vertices are known, and only their path lengths
+            are returned, in the given order.
+        output : {'numpy', 'pandas', 'polars'}, optional (default='numpy')
+            Type of the result. 'pandas' returns a Series named 'path_length'
+            indexed by vertex ('vertex_idx'), 'polars' a DataFrame with the
+            columns 'vertex_idx' and 'path_length'.
+
+        Returns
+        -------
+        numpy.ndarray, pandas.Series or polars.DataFrame
+            The path lengths, as float64. Without `termination_nodes`, the array
+            has one element per integer between 0 and the largest vertex
+            identifier: element i is the length of the shortest path from the
+            source to vertex i ('out'), or from vertex i to the target ('in').
+            The Series and the DataFrame have one row per vertex. With
+            `termination_nodes`, there is one element per termination node.
+
+        Raises
+        ------
+        ValueError
+            If `vertex_idx` or a termination node is not a vertex of the graph, or
+            if the graph has negative vertex identifiers and the output is
+            'numpy'.
+        """
+        output = _resolve_output(output, return_series)
+        self._check_output(output)
+        vertex_new = self._internal_vertex(vertex_idx)
+        heap_length = self._heap_length(heap_length_ratio)
+        termination = self._termination_nodes(termination_nodes)
+
+        path_links = (
+            np.arange(self._n_vertices, dtype=np.uint32) if path_tracking else None
+        )
+        path_lengths = self._compute(vertex_new, path_links, termination, heap_length)
+        self._set_path_links(path_links, output)
+
+        # deal with infinity, in place: the array has just been allocated by the
+        # Dijkstra routine, and a copy of it is costly on large graphs
+        if return_inf:
+            path_lengths[path_lengths == DTYPE_INF_PY] = np.inf
+
+        if termination is not None:
+            # one path length per termination node, in the given order
+            if output == "numpy":
+                return path_lengths
+            return _labelled_result(
+                np.asarray(termination_nodes), path_lengths, "path_length", output
+            )
+
+        fill = np.inf if return_inf else DTYPE_INF_PY
+        return self._vertex_result(path_lengths, "path_length", fill, output)
+
+
+class BellmanFord(_VertexGraph):
     """Bellman-Ford algorithm, for the shortest paths in a directed graph whose
     edge weights can be negative.
 
@@ -790,7 +714,7 @@ class BellmanFord:
         integer between 0 and the largest vertex identifier. The arguments and
         the results of the methods use the original identifiers in both cases.
         Negative identifiers are only accepted with this option, and the results
-        must then be returned as Series (`return_series=True`).
+        must then be labelled by vertex (`output='pandas'` or `'polars'`).
     verbose : bool, optional (default=False)
         Whether to print the number of parallel edges that were removed.
 
@@ -810,7 +734,9 @@ class BellmanFord:
     array([ 0.,  1., -1.])
     """
 
-    def __init__(
+    _algorithm_name = "shortest path algorithm"
+
+    def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self,
         edges: pd.DataFrame,
         tail: str = "tail",
@@ -821,227 +747,26 @@ class BellmanFord:
         permute: bool = False,
         verbose: bool = False,
     ) -> None:
-        # load the edges
         if check_edges:
             self._check_edges(edges, tail, head, weight)
         # Convert to standardized NumPy-backed pandas DataFrame
-        self._edges = standardize_graph_dataframe(edges, tail, head, weight)
-        self._tail_name = tail
-        self._head_name = head
-        self._n_edges = len(self._edges)
-        self._verbose = verbose
+        edges = standardize_graph_dataframe(edges, tail, head, weight)
+        self._build_graph(edges, tail, head, weight, orientation, permute, verbose)
 
-        # preprocess edges to handle parallel edges
-        self._preprocess_edges(tail, head, weight)
-
-        # reindex the vertices
-        self._permute = permute
-        # negative vertex labels are only possible with permute=True
-        self._negative_labels = False
-        if len(self._edges) == 0:
-            # Handle empty graphs
-            self._permutation = None
-            self._n_vertices = 0
-            self.__n_vertices_init = 0
-        elif self._permute:
-            self._negative_labels = bool(
-                self._edges[[tail, head]].min(axis=0).min() < 0
-            )
-            self.__n_vertices_init = self._edges[[tail, head]].max(axis=0).max() + 1
-            self._permutation = self._permute_graph(tail, head)
-            self._n_vertices = len(self._permutation)
-        else:
-            self._permutation = None
-            self._n_vertices = self._edges[[tail, head]].max(axis=0).max() + 1
-            self.__n_vertices_init = self._n_vertices
-
-        # convert to CSR/CSC:
-        self._check_orientation(orientation)
-        self._orientation = orientation
-        if self._orientation == "out":
-            fs_indptr, fs_indices, fs_data = convert_graph_to_csr_float64(
-                self._edges, tail, head, weight, self._n_vertices
-            )
-            self.__indices = fs_indices.astype(np.uint32)
-            self.__indptr = fs_indptr.astype(np.uint32)
-            self.__edge_weights = fs_data.astype(DTYPE_PY)
-        else:
-            rs_indptr, rs_indices, rs_data = convert_graph_to_csc_float64(
-                self._edges, tail, head, weight, self._n_vertices
-            )
-            self.__indices = rs_indices.astype(np.uint32)
-            self.__indptr = rs_indptr.astype(np.uint32)
-            self.__edge_weights = rs_data.astype(DTYPE_PY)
-
-        # Check if graph has any negative weights (for optimization)
-        self._has_negative_weights = np.any(self.__edge_weights < 0)
-
-        self._path_links = None
-        self._path_links_permuted = None
+        # the negative cycles are only searched for if there is a negative weight
+        assert self._edge_weights is not None
+        self._has_negative_weights = bool(np.any(self._edge_weights < 0))
         self._has_negative_cycle = False
 
-    @property
-    def edges(self) -> Any:
-        """The edges of the graph as they are stored, without the parallel edges,
-        and with the internal vertex indices if `permute` is True.
-        """
-        return self._edges
-
-    @property
-    def n_edges(self) -> int:
-        """Number of edges of the graph, without the parallel edges."""
-        return self._n_edges
-
-    @property
-    def n_vertices(self) -> int:
-        """Number of vertices. This is the largest vertex identifier plus one, or
-        the number of distinct vertices if `permute` is True.
-        """
-        return self._n_vertices
-
-    @property
-    def orientation(self) -> str:
-        """Orientation of the algorithm, either 'out' or 'in'."""
-        return self._orientation
-
-    @property
-    def permute(self) -> bool:
-        """Whether the vertices are renumbered internally."""
-        return self._permute
-
-    @property
-    def path_links(self) -> Optional[np.ndarray]:
-        """Path tree of the last run, or None if the paths were not tracked. This
-        is the predecessor ('out') or the successor ('in') of each vertex. The
-        vertex given to `run` and the vertices that cannot be reached are linked
-        to themselves.
-        """
-        return self._path_links
-
-    def _preprocess_edges(self, tail, head, weight):
-        """
-        Preprocess edges to handle parallel edges by keeping only the minimum weight edge
-        between any pair of vertices.
-
-        Parameters
-        ----------
-        tail : str
-            The column name for tail vertices
-        head : str
-            The column name for head vertices
-        weight : str
-            The column name for edge weights
-        """
-        original_count = len(self._edges)
-        self._edges = self._edges.groupby([tail, head], as_index=False)[weight].min()
-        final_count = len(self._edges)
-
-        if original_count > final_count:
-            parallel_edges_removed = original_count - final_count
-            if self._verbose:
-                print(
-                    f"Automatically removed {parallel_edges_removed} parallel edge(s). "
-                    f"For each pair of vertices, kept the edge with minimum weight."
-                )
-
-        self._n_edges = len(self._edges)
-
-    def _check_edges(self, edges, tail, head, weight):
-        """Checks if the edges DataFrame is well-formed. If not, raises an appropriate error."""
-        edges = _edges_as_pandas(edges, [tail, head, weight])
-
-        if tail not in edges:
-            raise KeyError(
-                f"edge tail column '{tail}' not found in graph edges dataframe"
-            )
-
-        if head not in edges:
-            raise KeyError(
-                f"edge head column '{head}' not found in graph edges dataframe"
-            )
-
-        if weight not in edges:
-            raise KeyError(
-                f"edge weight column '{weight}' not found in graph edges dataframe"
-            )
-
-        if edges[[tail, head, weight]].isnull().to_numpy().any():
-            raise ValueError(
-                " ".join(
-                    [
-                        f"edges[[{tail}, {head}, {weight}]] ",
-                        "should not have any missing value",
-                    ]
-                )
-            )
-
-        for col in [tail, head]:
-            if not pd.api.types.is_integer_dtype(edges[col].dtype):
-                raise TypeError(f"edges['{col}'] should be of integer type")
-
-        if not pd.api.types.is_numeric_dtype(edges[weight].dtype):
-            raise TypeError(f"edges['{weight}'] should be of numeric type")
-
-        # Note: Unlike Dijkstra, we allow negative weights for Bellman-Ford
-        if not np.isfinite(edges[weight]).all():
-            raise ValueError(f"edges['{weight}'] should be finite")
-
-    def _permute_graph(self, tail, head):
-        """Permute the IDs of the nodes to start from 0 and be contiguous.
-        Returns a DataFrame with the permuted IDs."""
-
-        permutation = pd.DataFrame(
-            data={
-                "vert_idx": np.union1d(
-                    np.asarray(self._edges[tail]), np.asarray(self._edges[head])
-                )
-            }
-        )
-        permutation["vert_idx_new"] = permutation.index
-        permutation.index.name = "index"
-
-        self._edges = pd.merge(
-            self._edges,
-            permutation[["vert_idx", "vert_idx_new"]],
-            left_on=tail,
-            right_on="vert_idx",
-            how="left",
-        )
-        self._edges = self._edges.drop([tail, "vert_idx"], axis=1)
-        self._edges = self._edges.rename(columns={"vert_idx_new": tail})
-
-        self._edges = pd.merge(
-            self._edges,
-            permutation[["vert_idx", "vert_idx_new"]],
-            left_on=head,
-            right_on="vert_idx",
-            how="left",
-        )
-        self._edges = self._edges.drop([head, "vert_idx"], axis=1)
-        self._edges = self._edges.rename(columns={"vert_idx_new": head})
-
-        permutation = permutation.rename(columns={"vert_idx": "vert_idx_old"})
-        permutation = permutation.reset_index(drop=True)
-        permutation = permutation.sort_values(by="vert_idx_new")
-
-        permutation.index.name = "index"
-        self._edges.index.name = "index"
-
-        return permutation
-
-    def _check_orientation(self, orientation):
-        """Checks the orientation attribute."""
-        if orientation not in ["in", "out"]:
-            raise ValueError("orientation should be either 'in' or 'out'")
-
-    def run(
+    def run(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self,
         vertex_idx: int,
         path_tracking: bool = False,
         return_inf: bool = True,
         return_series: bool = False,
         detect_negative_cycles: bool = True,
-    ) -> Union[np.ndarray, pd.Series]:
+        output: Optional[str] = None,
+    ) -> VertexResult:
         """Compute the shortest path lengths from or to a given vertex.
 
         Parameters
@@ -1057,258 +782,81 @@ class BellmanFord:
             cannot be reached. If False, the largest float64 value is returned
             instead.
         return_series : bool, optional (default=False)
-            Whether to return a pandas Series indexed by vertex instead of a NumPy
-            array.
+            Same as `output='pandas'`.
         detect_negative_cycles : bool, optional (default=True)
             Whether to look for a negative cycle once the path lengths are computed,
             and raise a ValueError if there is one. The graph is only searched if
             it has at least one negative weight.
+        output : {'numpy', 'pandas', 'polars'}, optional (default='numpy')
+            Type of the result. 'pandas' returns a Series named 'path_length'
+            indexed by vertex ('vertex_idx'), 'polars' a DataFrame with the
+            columns 'vertex_idx' and 'path_length'.
 
         Returns
         -------
-        numpy.ndarray or pandas.Series
+        numpy.ndarray, pandas.Series or polars.DataFrame
             The path lengths, as float64. The array has one element per integer
             between 0 and the largest vertex identifier: element i is the length of
             the shortest path from the source to vertex i ('out'), or from vertex i
-            to the target ('in'). If `return_series` is True, the result is a
-            Series named 'path_length' with the vertex identifiers as index.
+            to the target ('in'). The Series and the DataFrame have one row per
+            vertex.
 
         Raises
         ------
         ValueError
             If `vertex_idx` is not a vertex of the graph, if a negative cycle is
-            detected, or if the graph has negative vertex identifiers and
-            `return_series` is False.
+            detected, or if the graph has negative vertex identifiers and the
+            output is 'numpy'.
         """
-        # validate the input arguments - type checking handled by static typing
-        if self._negative_labels and not return_series:
-            raise ValueError(
-                "the graph has negative vertex labels: the result cannot be an "
-                "array indexed by vertex, use return_series=True"
+        output = _resolve_output(output, return_series)
+        self._check_output(output)
+        vertex_new = self._internal_vertex(vertex_idx)
+
+        out = self._orientation == "out"
+        weights = self._edge_weights
+        assert weights is not None
+        if path_tracking:
+            path_links = np.arange(self._n_vertices, dtype=np.uint32)
+            compute = compute_bf_sssp_w_path if out else compute_bf_stsp_w_path
+            path_lengths = compute(
+                self._indptr,
+                self._indices,
+                weights,
+                path_links,
+                vertex_new,
+                self._n_vertices,
             )
-        if self._permute and self._permutation is not None:
-            if vertex_idx not in self._permutation.vert_idx_old.values:
-                raise ValueError(f"vertex {vertex_idx} not found in graph")
-            vertex_new = self._permutation.loc[
-                self._permutation.vert_idx_old == vertex_idx, "vert_idx_new"
-            ].iloc[0]
         else:
-            if vertex_idx < 0:
-                raise ValueError(f"argument 'vertex_idx={vertex_idx}' must be positive")
-            if vertex_idx >= self._n_vertices:
-                raise ValueError(f"vertex {vertex_idx} not found in graph")
-            vertex_new = vertex_idx
-        # Type checking is now handled by static typing
-
-        # compute path length
-        if not path_tracking:
-            self._path_links = None
-            if self._orientation == "in":
-                path_length_values = compute_bf_stsp(
-                    self.__indptr,
-                    self.__indices,
-                    self.__edge_weights,
-                    vertex_new,
-                    self._n_vertices,
-                )
-            else:
-                path_length_values = compute_bf_sssp(
-                    self.__indptr,
-                    self.__indices,
-                    self.__edge_weights,
-                    vertex_new,
-                    self._n_vertices,
-                )
-        else:
-            self._path_links = np.arange(0, self._n_vertices, dtype=np.uint32)
-            if self._orientation == "in":
-                path_length_values = compute_bf_stsp_w_path(
-                    self.__indptr,
-                    self.__indices,
-                    self.__edge_weights,
-                    self._path_links,
-                    vertex_new,
-                    self._n_vertices,
-                )
-            else:
-                path_length_values = compute_bf_sssp_w_path(
-                    self.__indptr,
-                    self.__indices,
-                    self.__edge_weights,
-                    self._path_links,
-                    vertex_new,
-                    self._n_vertices,
-                )
-
-            if self._permute and self._permutation is not None:
-                # permute back the path vertex indices
-                self._path_links_permuted = self._path_links
-                path_df = pd.DataFrame(
-                    data={
-                        "vertex_idx": np.arange(self._n_vertices),
-                        "associated_idx": self._path_links,
-                    }
-                )
-                path_df = pd.merge(
-                    path_df,
-                    self._permutation,
-                    left_on="vertex_idx",
-                    right_on="vert_idx_new",
-                    how="left",
-                )
-                path_df = path_df.drop(["vertex_idx", "vert_idx_new"], axis=1)
-                path_df = path_df.rename(columns={"vert_idx_old": "vertex_idx"})
-                path_df = pd.merge(
-                    path_df,
-                    self._permutation,
-                    left_on="associated_idx",
-                    right_on="vert_idx_new",
-                    how="left",
-                )
-                path_df = path_df.drop(["associated_idx", "vert_idx_new"], axis=1)
-                path_df = path_df.rename(columns={"vert_idx_old": "associated_idx"})
-
-                if return_series:
-                    path_df = path_df.set_index("vertex_idx")
-                    self._path_links = path_df.associated_idx.astype(
-                        np.uint32
-                    ).to_numpy()
-                else:
-                    self._path_links = np.arange(
-                        self.__n_vertices_init, dtype=np.uint32
-                    )
-                    self._path_links[path_df.vertex_idx.values] = (
-                        path_df.associated_idx.values
-                    )
+            path_links = None
+            compute = compute_bf_sssp if out else compute_bf_stsp
+            path_lengths = compute(
+                self._indptr,
+                self._indices,
+                weights,
+                vertex_new,
+                self._n_vertices,
+            )
+        self._set_path_links(path_links, output)
 
         # detect negative cycles if requested (only if negative weights exist)
         if detect_negative_cycles and self._has_negative_weights:
-            if self._orientation == "out":
-                # CSR format - can use detect_negative_cycle directly
-                self._has_negative_cycle = detect_negative_cycle(
-                    self.__indptr,
-                    self.__indices,
-                    self.__edge_weights,
-                    path_length_values,
-                    self._n_vertices,
-                )
-            else:
-                # CSC format - use CSC-specific negative cycle detection
-                # Much more efficient than converting CSC→CSR
-                self._has_negative_cycle = detect_negative_cycle_csc(
-                    self.__indptr,
-                    self.__indices,
-                    self.__edge_weights,
-                    path_length_values,
-                    self._n_vertices,
-                )
-
+            detect = detect_negative_cycle if out else detect_negative_cycle_csc
+            self._has_negative_cycle = detect(
+                self._indptr,
+                self._indices,
+                weights,
+                path_lengths,
+                self._n_vertices,
+            )
             if self._has_negative_cycle:
                 raise ValueError("Negative cycle detected in the graph")
 
-        # deal with infinity
+        # deal with infinity, in place: the array has just been allocated
         if return_inf:
-            path_length_values = np.where(
-                path_length_values == DTYPE_INF_PY, np.inf, path_length_values
-            )
+            path_lengths[path_lengths == DTYPE_INF_PY] = np.inf
 
-        # reorder path lengths
-        if return_series:
-            if self._permute and self._permutation is not None:
-                path_df = pd.DataFrame(
-                    data={"path_length": path_length_values[: self._n_vertices]}
-                )
-                path_df["vert_idx_new"] = path_df.index
-                path_df = pd.merge(
-                    path_df,
-                    self._permutation,
-                    left_on="vert_idx_new",
-                    right_on="vert_idx_new",
-                    how="left",
-                )
-                path_df = path_df.drop(["vert_idx_new"], axis=1)
-                path_df = path_df.set_index("vert_idx_old")
-                path_lengths_series = path_df.path_length.astype(DTYPE_PY)
-            else:
-                path_lengths_series = pd.Series(
-                    data=path_length_values[: self._n_vertices], dtype=DTYPE_PY
-                )
-                path_lengths_series.index = np.arange(self._n_vertices)
-            path_lengths_series.index.name = None
-            return path_lengths_series
-
-        # No else needed - de-indent the code
-        if self._permute and self._permutation is not None:
-            path_df = pd.DataFrame(
-                data={"path_length": path_length_values[: self._n_vertices]}
-            )
-            path_df["vert_idx_new"] = path_df.index
-            path_df = pd.merge(
-                path_df,
-                self._permutation,
-                left_on="vert_idx_new",
-                right_on="vert_idx_new",
-                how="left",
-            )
-            path_df = path_df.drop(["vert_idx_new"], axis=1)
-            path_length_values = np.full(self.__n_vertices_init, DTYPE_INF_PY)
-            path_length_values[path_df.vert_idx_old.values] = path_df.path_length.values
-            if return_inf:
-                path_length_values = np.where(
-                    path_length_values == DTYPE_INF_PY, np.inf, path_length_values
-                )
-        return path_length_values
-
-    def get_vertices(self) -> Any:
-        """Return the vertices of the graph.
-
-        Returns
-        -------
-        numpy.ndarray
-            The sorted identifiers of the vertices that are the tail or the head of
-            at least one edge.
-        """
-        if self._permute and self._permutation is not None:
-            return np.asarray(self._permutation.vert_idx_old)
-        return np.union1d(
-            np.asarray(self._edges[self._tail_name]),
-            np.asarray(self._edges[self._head_name]),
-        )
-
-    def get_path(self, vertex_idx: int) -> Optional[np.ndarray]:
-        """Return the shortest path between a vertex and the vertex of the last run.
-
-        The last call to `run` must have been made with `path_tracking=True`.
-
-        Parameters
-        ----------
-        vertex_idx : int
-            The other end of the path: the target vertex if the orientation is
-            'out', the source vertex if it is 'in'.
-
-        Returns
-        -------
-        numpy.ndarray or None
-            The vertices of the path, starting with `vertex_idx` and ending with the
-            vertex given to `run`. With the 'out' orientation, this is the path in
-            reverse order, from the target back to the source. With the 'in'
-            orientation, it is the path in travel order. If there is no path, the
-            array only contains `vertex_idx`. None is returned, with a warning, if
-            no path was tracked.
-        """
-        if self._path_links is None:
-            warnings.warn(
-                "Current BellmanFord instance has not path attribute : \
-                make sure path_tracking is set to True, and run the \
-                shortest path algorithm",
-                UserWarning,
-            )
-            return None
-        if self._permute and self._permutation is not None:
-            return _compute_path_with_permutation(
-                self._path_links_permuted, self._permutation, vertex_idx
-            )
-        return compute_path(self._path_links, vertex_idx)
+        fill = np.inf if return_inf else DTYPE_INF_PY
+        return self._vertex_result(path_lengths, "path_length", fill, output)
 
     def has_negative_cycle(self):
         """Tell whether a negative cycle was found.
@@ -1595,7 +1143,7 @@ class HyperpathGenerating:
                 raise ValueError(f"column '{col}' should be nonnegative")
 
 
-class BFS:
+class BFS(_VertexGraph):
     """Breadth-first search, for the paths with the fewest edges in a directed
     graph.
 
@@ -1626,7 +1174,7 @@ class BFS:
         integer between 0 and the largest vertex identifier. The arguments and
         the results of the methods use the original identifiers in both cases.
         Negative identifiers are only accepted with this option, and the results
-        must then be returned as Series (`return_series=True`).
+        must then be labelled by vertex (`output='pandas'` or `'polars'`).
     verbose : bool, optional (default=False)
         Whether to print the number of parallel edges that were removed.
     sentinel : int, optional (default=-9999)
@@ -1647,7 +1195,9 @@ class BFS:
     array([-9999,     0,     0,     1], dtype=int32)
     """
 
-    def __init__(
+    _algorithm_name = "BFS algorithm"
+
+    def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self,
         edges: pd.DataFrame,
         tail: str = "tail",
@@ -1674,224 +1224,30 @@ class BFS:
             )
         self._sentinel = sentinel
 
-        # load the edges
         if check_edges:
             self._check_edges(edges, tail, head)
-        # Convert to standardized NumPy-backed pandas DataFrame
-        # Note: BFS doesn't need weights, but standardize_graph_dataframe handles that
-        self._edges = standardize_graph_dataframe(edges, tail, head)
-        self._tail_name = tail
-        self._head_name = head
-        self._n_edges = len(self._edges)
-        self._verbose = verbose
+        # Convert to standardized NumPy-backed pandas DataFrame, without weights
+        edges = standardize_graph_dataframe(edges, tail, head)
+        self._build_graph(edges, tail, head, None, orientation, permute, verbose)
 
-        # preprocess edges to handle parallel edges
-        self._preprocess_edges(tail, head)
-
-        # reindex the vertices
-        self._permute = permute
-        # negative vertex labels are only possible with permute=True
-        self._negative_labels = False
-        if len(self._edges) == 0:
-            # Handle empty graphs
-            self._permutation = None
-            self._n_vertices = 0
-            self.__n_vertices_init = 0
-        elif self._permute:
-            self._negative_labels = bool(
-                self._edges[[tail, head]].min(axis=0).min() < 0
+        if self._labels is not None and np.any(self._labels == self._sentinel):
+            raise ValueError(
+                f"sentinel {self._sentinel} is also a vertex label: "
+                "use another sentinel value"
             )
-            self.__n_vertices_init = self._edges[[tail, head]].max(axis=0).max() + 1
-            self._permutation = self._permute_graph(tail, head)
-            if (
-                self._negative_labels
-                and (self._permutation.vert_idx_old == self._sentinel).any()
-            ):
-                raise ValueError(
-                    f"sentinel {self._sentinel} is also a vertex label: "
-                    "use another sentinel value"
-                )
-            self._n_vertices = len(self._permutation)
-        else:
-            self._permutation = None
-            self._n_vertices = self._edges[[tail, head]].max(axis=0).max() + 1
-            self.__n_vertices_init = self._n_vertices
-
-        # convert to CSR/CSC
-        self._check_orientation(orientation)
-        self._orientation = orientation
-        if self._orientation == "out":
-            # Use dummy weight column for conversion (BFS doesn't use weights)
-            self._edges["_bfs_dummy_weight"] = 1.0
-            fs_indptr, fs_indices, _ = convert_graph_to_csr_float64(
-                self._edges, tail, head, "_bfs_dummy_weight", self._n_vertices
-            )
-            self._edges = self._edges.drop("_bfs_dummy_weight", axis=1)
-            self.__indices = fs_indices.astype(np.uint32)
-            self.__indptr = fs_indptr.astype(np.uint32)
-        else:
-            self._edges["_bfs_dummy_weight"] = 1.0
-            rs_indptr, rs_indices, _ = convert_graph_to_csc_float64(
-                self._edges, tail, head, "_bfs_dummy_weight", self._n_vertices
-            )
-            self._edges = self._edges.drop("_bfs_dummy_weight", axis=1)
-            self.__indices = rs_indices.astype(np.uint32)
-            self.__indptr = rs_indptr.astype(np.uint32)
-
-        self._path_links = None
-        self._path_links_permuted = None
 
     @property
-    def UNREACHABLE(self) -> int:
+    def UNREACHABLE(self) -> int:  # pylint: disable=invalid-name
         """The sentinel value, returned for the vertices without predecessor."""
         return self._sentinel
-
-    @property
-    def edges(self) -> Any:
-        """The edges of the graph as they are stored, without the parallel edges,
-        and with the internal vertex indices if `permute` is True.
-        """
-        return self._edges
-
-    @property
-    def n_edges(self) -> int:
-        """Number of edges of the graph, without the parallel edges."""
-        return self._n_edges
-
-    @property
-    def n_vertices(self) -> int:
-        """Number of vertices. This is the largest vertex identifier plus one, or
-        the number of distinct vertices if `permute` is True.
-        """
-        return self._n_vertices
-
-    @property
-    def orientation(self) -> str:
-        """Orientation of the algorithm, either 'out' or 'in'."""
-        return self._orientation
-
-    @property
-    def permute(self) -> bool:
-        """Whether the vertices are renumbered internally."""
-        return self._permute
-
-    @property
-    def path_links(self) -> Optional[np.ndarray]:
-        """Path tree of the last run, or None if the paths were not tracked. This
-        is the predecessor ('out') or the successor ('in') of each vertex. The
-        vertex given to `run` and the vertices that cannot be reached are linked
-        to themselves.
-        """
-        return self._path_links
-
-    def _preprocess_edges(self, tail, head):
-        """
-        Preprocess edges to handle parallel edges by keeping only one edge
-        between any pair of vertices (BFS doesn't use weights).
-
-        Parameters
-        ----------
-        tail : str
-            The column name for tail vertices
-        head : str
-            The column name for head vertices
-        """
-        original_count = len(self._edges)
-        self._edges = self._edges.groupby([tail, head], as_index=False).first()
-        final_count = len(self._edges)
-
-        if original_count > final_count:
-            parallel_edges_removed = original_count - final_count
-            if self._verbose:
-                print(
-                    f"Automatically removed {parallel_edges_removed} parallel edge(s). "
-                    f"BFS treats all edges equally."
-                )
-
-        self._n_edges = len(self._edges)
-
-    def _check_edges(self, edges, tail, head):
-        """Checks if the edges DataFrame is well-formed. If not, raises an appropriate error."""
-        edges = _edges_as_pandas(edges, [tail, head])
-
-        if tail not in edges:
-            raise KeyError(
-                f"edge tail column '{tail}' not found in graph edges dataframe"
-            )
-
-        if head not in edges:
-            raise KeyError(
-                f"edge head column '{head}' not found in graph edges dataframe"
-            )
-
-        if edges[[tail, head]].isnull().to_numpy().any():
-            raise ValueError(
-                " ".join(
-                    [
-                        f"edges[[{tail}, {head}]] ",
-                        "should not have any missing value",
-                    ]
-                )
-            )
-
-        for col in [tail, head]:
-            if not pd.api.types.is_integer_dtype(edges[col].dtype):
-                raise TypeError(f"edges['{col}'] should be of integer type")
-
-    def _permute_graph(self, tail, head):
-        """Permute the IDs of the nodes to start from 0 and be contiguous.
-        Returns a DataFrame with the permuted IDs."""
-
-        permutation = pd.DataFrame(
-            data={
-                "vert_idx": np.union1d(
-                    np.asarray(self._edges[tail]), np.asarray(self._edges[head])
-                )
-            }
-        )
-        permutation["vert_idx_new"] = permutation.index
-        permutation.index.name = "index"
-
-        self._edges = pd.merge(
-            self._edges,
-            permutation[["vert_idx", "vert_idx_new"]],
-            left_on=tail,
-            right_on="vert_idx",
-            how="left",
-        )
-        self._edges = self._edges.drop([tail, "vert_idx"], axis=1)
-        self._edges = self._edges.rename(columns={"vert_idx_new": tail})
-
-        self._edges = pd.merge(
-            self._edges,
-            permutation[["vert_idx", "vert_idx_new"]],
-            left_on=head,
-            right_on="vert_idx",
-            how="left",
-        )
-        self._edges = self._edges.drop([head, "vert_idx"], axis=1)
-        self._edges = self._edges.rename(columns={"vert_idx_new": head})
-
-        permutation = permutation.rename(columns={"vert_idx": "vert_idx_old"})
-        permutation = permutation.reset_index(drop=True)
-        permutation = permutation.sort_values(by="vert_idx_new")
-
-        permutation.index.name = "index"
-        self._edges.index.name = "index"
-
-        return permutation
-
-    def _check_orientation(self, orientation):
-        """Checks the orientation attribute."""
-        if orientation not in ["in", "out"]:
-            raise ValueError("orientation should be either 'in' or 'out'")
 
     def run(
         self,
         vertex_idx: int,
         path_tracking: bool = False,
         return_series: bool = False,
-    ) -> Union[np.ndarray, pd.Series]:
+        output: Optional[str] = None,
+    ) -> VertexResult:
         """Compute the breadth-first search tree from or to a given vertex.
 
         Parameters
@@ -1903,245 +1259,55 @@ class BFS:
             Whether to store the search tree, so that the paths can be retrieved
             with `get_path`.
         return_series : bool, optional (default=False)
-            Whether to return a pandas Series indexed by vertex instead of a NumPy
-            array.
+            Same as `output='pandas'`.
+        output : {'numpy', 'pandas', 'polars'}, optional (default='numpy')
+            Type of the result. 'pandas' returns a Series named 'predecessor'
+            indexed by vertex ('vertex_idx'), 'polars' a DataFrame with the
+            columns 'vertex_idx' and 'predecessor'.
 
         Returns
         -------
-        numpy.ndarray or pandas.Series
+        numpy.ndarray, pandas.Series or polars.DataFrame
             The predecessor ('out') or the successor ('in') of each vertex on a
             path with the fewest edges, as int32. The array has one element per
             integer between 0 and the largest vertex identifier. The start vertex
-            and the vertices that cannot be reached have the sentinel value. If
-            `return_series` is True, the result is a Series named 'predecessor'
-            with the vertex identifiers as index.
+            and the vertices that cannot be reached have the sentinel value. The
+            Series and the DataFrame have one row per vertex.
 
         Raises
         ------
         ValueError
             If `vertex_idx` is not a vertex of the graph, or if the graph has
-            negative vertex identifiers and `return_series` is False.
+            negative vertex identifiers and the output is 'numpy'.
         """
-        # validate the input arguments
-        if self._negative_labels and not return_series:
-            raise ValueError(
-                "the graph has negative vertex labels: the result cannot be an "
-                "array indexed by vertex, use return_series=True"
-            )
-        if self._permute and self._permutation is not None:
-            if vertex_idx not in self._permutation.vert_idx_old.values:
-                raise ValueError(f"vertex {vertex_idx} not found in graph")
-            vertex_new = self._permutation.loc[
-                self._permutation.vert_idx_old == vertex_idx, "vert_idx_new"
-            ].iloc[0]
-        else:
-            if vertex_idx < 0:
-                raise ValueError(
-                    f"argument 'vertex_idx={vertex_idx}' must be non-negative"
-                )
-            if vertex_idx >= self._n_vertices:
-                raise ValueError(f"vertex {vertex_idx} not found in graph")
-            vertex_new = vertex_idx
+        output = _resolve_output(output, return_series)
+        self._check_output(output)
+        vertex_new = self._internal_vertex(vertex_idx)
 
-        # compute BFS predecessors
-        if self._orientation == "out":
-            predecessors = bfs_csr(
-                self.__indptr,
-                self.__indices,
-                vertex_new,
-                self._n_vertices,
-                self._sentinel,
-            )
-        else:
-            predecessors = bfs_csc(
-                self.__indptr,
-                self.__indices,
-                vertex_new,
-                self._n_vertices,
-                self._sentinel,
-            )
-
-        # store path links if tracking is enabled
-        if path_tracking:
-            # Convert predecessors to path_links format (uint32)
-            # Replace sentinel value with vertex's own index (like Dijkstra does)
-            self._path_links = np.arange(self._n_vertices, dtype=np.uint32)
-            reachable_mask = predecessors != self._sentinel
-            self._path_links[reachable_mask] = predecessors[reachable_mask].astype(
-                np.uint32
-            )
-
-            if self._permute and self._permutation is not None:
-                # permute back the path vertex indices (same approach as Dijkstra)
-                self._path_links_permuted = self._path_links
-                path_df = pd.DataFrame(
-                    data={
-                        "vertex_idx": np.arange(self._n_vertices),
-                        "associated_idx": self._path_links,
-                    }
-                )
-                path_df = pd.merge(
-                    path_df,
-                    self._permutation,
-                    left_on="vertex_idx",
-                    right_on="vert_idx_new",
-                    how="left",
-                )
-                path_df = path_df.drop(["vertex_idx", "vert_idx_new"], axis=1)
-                path_df = path_df.rename(columns={"vert_idx_old": "vertex_idx"})
-                path_df = pd.merge(
-                    path_df,
-                    self._permutation,
-                    left_on="associated_idx",
-                    right_on="vert_idx_new",
-                    how="left",
-                )
-                path_df = path_df.drop(["associated_idx", "vert_idx_new"], axis=1)
-                path_df = path_df.rename(columns={"vert_idx_old": "associated_idx"})
-
-                if return_series:
-                    path_df = path_df.set_index("vertex_idx")
-                    self._path_links = path_df.associated_idx.astype(
-                        np.uint32
-                    ).to_numpy()
-                else:
-                    self._path_links = np.arange(
-                        self.__n_vertices_init, dtype=np.uint32
-                    )
-                    self._path_links[path_df.vertex_idx.values] = (
-                        path_df.associated_idx.values
-                    )
-        else:
-            self._path_links = None
-
-        # reorder predecessors for permuted graphs
-        if return_series:
-            if self._permute and self._permutation is not None:
-                pred_df = pd.DataFrame(data={"predecessor": predecessors})
-                pred_df["vert_idx_new"] = pred_df.index
-                pred_df = pd.merge(
-                    pred_df,
-                    self._permutation,
-                    left_on="vert_idx_new",
-                    right_on="vert_idx_new",
-                    how="left",
-                )
-
-                # Map predecessor values back to original IDs
-                valid_mask = pred_df["predecessor"] != self._sentinel
-                if valid_mask.any():
-                    pred_df_valid = pred_df[valid_mask].copy()
-                    pred_df_valid = pd.merge(
-                        pred_df_valid,
-                        self._permutation,
-                        left_on="predecessor",
-                        right_on="vert_idx_new",
-                        how="left",
-                        suffixes=("", "_pred"),
-                    )
-                    pred_df.loc[valid_mask, "predecessor"] = pred_df_valid[
-                        "vert_idx_old_pred"
-                    ].values.astype(np.int32)
-
-                pred_df = pred_df.set_index("vert_idx_old")
-                predecessors_series = pred_df.predecessor.astype(np.int32)
-                predecessors_series.index.name = "vertex_idx"
-                predecessors_series.name = "predecessor"
-            else:
-                predecessors_series = pd.Series(predecessors, dtype=np.int32)
-                predecessors_series.index.name = "vertex_idx"
-                predecessors_series.name = "predecessor"
-
-            return predecessors_series
-
-        # For array output with permutation
-        if self._permute and self._permutation is not None:
-            pred_df = pd.DataFrame(data={"predecessor": predecessors})
-            pred_df["vert_idx_new"] = pred_df.index
-            pred_df = pd.merge(
-                pred_df,
-                self._permutation,
-                left_on="vert_idx_new",
-                right_on="vert_idx_new",
-                how="left",
-            )
-
-            # Map predecessor values back to original IDs
-            valid_mask = pred_df["predecessor"] != self._sentinel
-            if valid_mask.any():
-                pred_df_valid = pred_df[valid_mask].copy()
-                pred_df_valid = pd.merge(
-                    pred_df_valid,
-                    self._permutation,
-                    left_on="predecessor",
-                    right_on="vert_idx_new",
-                    how="left",
-                    suffixes=("", "_pred"),
-                )
-                pred_df.loc[valid_mask, "predecessor"] = pred_df_valid[
-                    "vert_idx_old_pred"
-                ].values.astype(np.int32)
-
-            predecessors_array = np.full(
-                self.__n_vertices_init, self._sentinel, dtype=np.int32
-            )
-            predecessors_array[pred_df.vert_idx_old.values] = (
-                pred_df.predecessor.values.astype(np.int32)
-            )
-            return predecessors_array
-
-        return predecessors
-
-    def get_vertices(self) -> Any:
-        """Return the vertices of the graph.
-
-        Returns
-        -------
-        numpy.ndarray
-            The sorted identifiers of the vertices that are the tail or the head of
-            at least one edge.
-        """
-        if self._permute and self._permutation is not None:
-            return np.asarray(self._permutation.vert_idx_old)
-        return np.union1d(
-            np.asarray(self._edges[self._tail_name]),
-            np.asarray(self._edges[self._head_name]),
+        bfs = bfs_csr if self._orientation == "out" else bfs_csc
+        predecessors = bfs(
+            self._indptr,
+            self._indices,
+            vertex_new,
+            self._n_vertices,
+            self._sentinel,
         )
+        reachable = predecessors != self._sentinel
 
-    def get_path(self, vertex_idx: int) -> Optional[np.ndarray]:
-        """Return the shortest path between a vertex and the vertex of the last run.
+        if path_tracking:
+            # the vertices without predecessor are linked to themselves
+            path_links = np.arange(self._n_vertices, dtype=np.uint32)
+            path_links[reachable] = predecessors[reachable].astype(np.uint32)
+        else:
+            path_links = None
+        self._set_path_links(path_links, output)
 
-        The last call to `run` must have been made with `path_tracking=True`.
-
-        Parameters
-        ----------
-        vertex_idx : int
-            The other end of the path: the target vertex if the orientation is
-            'out', the source vertex if it is 'in'.
-
-        Returns
-        -------
-        numpy.ndarray or None
-            The vertices of the path, starting with `vertex_idx` and ending with the
-            vertex given to `run`. With the 'out' orientation, this is the path in
-            reverse order, from the target back to the source. With the 'in'
-            orientation, it is the path in travel order. If there is no path, the
-            array only contains `vertex_idx`. None is returned, with a warning, if
-            no path was tracked.
-        """
-        if self._path_links is None:
-            warnings.warn(
-                "Current BFS instance has no path attribute: "
-                "make sure path_tracking is set to True, and run the "
-                "BFS algorithm",
-                UserWarning,
+        if self._labels is not None:
+            # predecessors with their original labels
+            predecessors[reachable] = self._labels[predecessors[reachable]].astype(
+                np.int32
             )
-            return None
-        if self._permute and self._permutation is not None:
-            return _compute_path_with_permutation(
-                self._path_links_permuted, self._permutation, vertex_idx
-            )
-        return compute_path(self._path_links, vertex_idx)
+        return self._vertex_result(predecessors, "predecessor", self._sentinel, output)
 
 
 # author : Francois Pacull

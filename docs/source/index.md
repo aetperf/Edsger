@@ -2,7 +2,7 @@
 
 *Graph algorithms in Cython*
 
-Edsger is a Python library of path algorithms for directed graphs, written in [Cython](https://cython.org/). A graph is given as a dataframe of edges, from [pandas](https://pandas.pydata.org/) or [Polars](https://pola.rs/), and the results come back as [NumPy](https://numpy.org/) arrays or pandas Series. The library is named after Edsger W. Dijkstra.
+Edsger is a Python library of path algorithms for directed graphs, written in [Cython](https://cython.org/). A graph is given as a dataframe of edges, from [pandas](https://pandas.pydata.org/) or [Polars](https://pola.rs/), and the results come back as [NumPy](https://numpy.org/) arrays, pandas Series or Polars DataFrames. The library is named after Edsger W. Dijkstra.
 
 | Algorithm | Class | Problem |
 |---|---|---|

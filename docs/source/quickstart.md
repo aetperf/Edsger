@@ -105,7 +105,7 @@ Without any option, a graph whose largest vertex identifier is 1004 is handled a
 shifted = edges.assign(tail=edges["tail"] + 1000, head=edges["head"] + 1000)
 
 dijkstra_p = Dijkstra(shifted, permute=True)
-dijkstra_p.run(vertex_idx=1000, return_series=True)
+dijkstra_p.run(vertex_idx=1000, output="pandas")
 ```
 
     vertex_idx
@@ -116,9 +116,9 @@ dijkstra_p.run(vertex_idx=1000, return_series=True)
     1004    5.5
     Name: path_length, dtype: float64
 
-`return_series=True` returns a pandas Series indexed by vertex, here with the 5 vertices of the graph only. The default NumPy array would still have 1005 elements.
+`output="pandas"` returns a pandas Series indexed by vertex, here with the 5 vertices of the graph only. The default NumPy array would still have 1005 elements. `output="polars"` returns a Polars DataFrame with a `vertex_idx` and a `path_length` column. `return_series=True`, from the earlier versions, is the same as `output="pandas"`.
 
-Negative identifiers are also accepted with `permute=True`. An array indexed by vertex cannot hold them, so `return_series=True` is then required.
+Negative identifiers are also accepted with `permute=True`. An array indexed by vertex cannot hold them, so the output must then be `"pandas"` or `"polars"`.
 
 ### Unreachable vertices
 
