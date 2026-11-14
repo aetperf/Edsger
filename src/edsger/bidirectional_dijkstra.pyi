@@ -1,7 +1,5 @@
 """Type stubs for edsger.bidirectional_dijkstra Cython module."""
 
-from typing import Optional, Tuple
-
 import numpy as np
 import numpy.typing as npt
 
@@ -10,7 +8,7 @@ class Workspace:
     def __init__(self, vertex_count: int) -> None: ...
     def get_path_links(
         self,
-    ) -> Optional[Tuple[npt.NDArray[np.uint32], npt.NDArray[np.uint32]]]: ...
+    ) -> tuple[npt.NDArray[np.uint32], npt.NDArray[np.uint32]] | None: ...
 
 def compute_bidirectional(
     csr_indptr: npt.NDArray[np.uint32],
@@ -23,6 +21,6 @@ def compute_bidirectional(
     target_vert_idx: int,
     vertex_count: int,
     path_tracking: bool = False,
-    workspace: Optional[Workspace] = None,
+    workspace: Workspace | None = None,
     heap_length: int = 1024,
-) -> Tuple[float, int]: ...
+) -> tuple[float, int]: ...
