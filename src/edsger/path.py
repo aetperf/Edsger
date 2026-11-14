@@ -1251,7 +1251,7 @@ class HyperpathGenerating:
     def _check_volume(self, v):
         if isinstance(v, bool) or not isinstance(v, numbers.Real):
             raise TypeError(f"volume should be a number, got {type(v).__name__}")
-        if not v >= 0.0:
+        if not float(v) >= 0.0:
             raise ValueError(f"volume should be non-negative, got {v}")
 
     def _check_edges(self, edges, tail, head, trav_time, freq):
