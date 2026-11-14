@@ -122,9 +122,9 @@ class Centrality(_Graph):
         if weight is not None and len(edges) > 0:
             weights = np.asarray(edges[weight], dtype=np.float64)
             # rejects the NaN weights too
-            if not weights.min() >= 0.0:
+            if not np.min(weights) >= 0.0:
                 raise ValueError(f"edges['{weight}'] should be nonnegative")
-            if not np.isfinite(weights.max()):
+            if not np.isfinite(np.max(weights)):
                 raise ValueError(f"edges['{weight}'] should be finite")
         # CSC format: the iterations pull the values of the predecessors
         self._build_graph(edges, tail, head, weight, "in", permute, verbose)
