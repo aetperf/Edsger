@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `DFS` (`edsger.path`): depth-first search tree from or to a vertex, same interface as `BFS`. Iterative, neighbours visited in increasing order of their identifiers (same order as `scipy.sparse.csgraph.depth_first_order`). `get_order()` returns the vertices in discovery order
 - `ConnectedComponents` (`edsger.components`): weakly (union-find) or strongly (Pearce's algorithm, iterative) connected components, `run(connection="weak" | "strong", output=...)` returns a `component` label per vertex, numbered in order of the smallest vertex of each component, and sets `n_components`
 - `MinimumSpanningTree` (`edsger.spanning_tree`): minimum spanning forest of the graph seen as undirected (Kruskal, union-find). `run(output="pandas")` returns the forest edges (pandas, Polars, or a tuple of NumPy arrays); `total_weight` and `n_trees` attributes
-- `Centrality` (`edsger.centrality`): `pagerank`, `hits` and `katz` methods, power iterations on the graph built once, weighted or not, with the NetworkX normalizations. `ConvergenceError` when the iterations do not converge
+- `Centrality` (`edsger.centrality`): `pagerank`, `hits` and `katz` methods, power iterations on the graph built once, weighted or not, with the NetworkX normalizations (but the PageRank tolerance is not multiplied by the number of vertices, so that the accuracy does not degrade on large graphs). `ConvergenceError` when the iterations do not converge
 
 ### Changes
 - `BellmanFord.run(..., return_series=True)`: the Series is now named `path_length` and its index `vertex_idx`, as for `Dijkstra`

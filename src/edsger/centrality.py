@@ -222,7 +222,7 @@ class Centrality(_VertexGraph):
         damping: float = 0.85,
         personalization: Optional[Mapping] = None,
         tol: float = 1.0e-6,
-        max_iter: int = 100,
+        max_iter: int = 1000,
         output: Optional[str] = None,
         return_series: bool = False,
     ) -> VertexResult:
@@ -236,7 +236,11 @@ class Centrality(_VertexGraph):
         walk always jumps to a vertex drawn from the personalization
         distribution.
 
-        This is `networkx.pagerank` with `alpha=damping` and `dangling=None`.
+        This is `networkx.pagerank` with `alpha=damping` and `dangling=None`,
+        except for the stopping criterion: NetworkX compares the change of the
+        vector with `n * tol`, a threshold that grows with the graph while the
+        vector sums to 1. Here `tol` does not depend on the number of vertices,
+        so that the accuracy of the result does not either.
 
         Parameters
         ----------
@@ -248,8 +252,10 @@ class Centrality(_VertexGraph):
             not given get 0. Uniform over the vertices if None.
         tol : float, optional (default=1e-6)
             The iterations stop when the L1 norm of the change of the PageRank
-            vector is smaller than `n * tol`, n being the number of vertices.
-        max_iter : int, optional (default=100)
+            vector is smaller than `tol`. Since the error decreases by a factor
+            `damping` at each iteration, about 90 iterations are needed with the
+            default values.
+        max_iter : int, optional (default=1000)
             Maximum number of iterations.
         output : {'numpy', 'pandas', 'polars'}, optional (default='numpy')
             Type of the result. 'pandas' returns a Series named 'pagerank'
@@ -295,7 +301,7 @@ class Centrality(_VertexGraph):
             teleport,
             self._uniform(),
             damping,
-            self._n_actual * float(tol),
+            float(tol),
             int(max_iter),
         )
         self._check_result(

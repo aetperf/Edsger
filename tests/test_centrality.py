@@ -149,7 +149,11 @@ def test_pagerank_networkx():
     for weighted in (False, True):
         edges = random_edges(300, 1200, 11)
         graph = to_networkx(nx, edges, weighted)
-        expected = nx.pagerank(graph, weight="weight" if weighted else None)
+        # NetworkX stops when the change is below n * tol: a tight tol makes
+        # its result an accurate reference
+        expected = nx.pagerank(
+            graph, weight="weight" if weighted else None, tol=1e-13, max_iter=1000
+        )
         c = Centrality(edges, weight="weight" if weighted else None)
         result = c.pagerank(output="pandas")
         nodes = np.array(list(expected))
@@ -159,7 +163,11 @@ def test_pagerank_networkx():
         # personalization
         perso = {int(nodes[0]): 1.0, int(nodes[5]): 2.0}
         expected = nx.pagerank(
-            graph, personalization=perso, weight="weight" if weighted else None
+            graph,
+            personalization=perso,
+            weight="weight" if weighted else None,
+            tol=1e-13,
+            max_iter=1000,
         )
         result = c.pagerank(personalization=perso, output="pandas")
         np.testing.assert_allclose(
