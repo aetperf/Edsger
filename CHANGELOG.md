@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## Version 0.3.0 (2026-11-14)
 
 ### New Features
 - Polars output: `run(..., output="polars")` returns a Polars DataFrame with a `vertex_idx` column and a `path_length` (`Dijkstra`, `BellmanFord`) or `predecessor` (`BFS`) column. The new `output` argument takes `"numpy"` (default), `"pandas"` or `"polars"`; `return_series=True` is kept and means `output="pandas"`
@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Tooling
 - [ruff](https://github.com/astral-sh/ruff) replaces black (formatting) and adds linting (pyflakes, bugbear, pyupgrade, isort rules); [ty](https://github.com/astral-sh/ty) replaces pyright. Both run as pre-commit hooks and in the test workflow
+- Each wheel built by cibuildwheel is now tested before the upload (`scripts/wheel_smoke_test.py`): every compiled module is imported and each family of algorithms is run
 
 ### Packaging
 - The runtime dependencies are now only NumPy and pandas: `setuptools`, `setuptools_scm` and `Cython` are only needed to build the package, and were installed with it
