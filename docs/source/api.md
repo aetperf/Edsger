@@ -1,6 +1,6 @@
 # API reference
 
-The four algorithms are classes of the `edsger.path` module. This page is generated from the docstrings.
+The algorithms are classes of the `edsger.path` module. This page is generated from the docstrings.
 
 ## Dijkstra
 
@@ -52,6 +52,35 @@ The four algorithms are classes of the `edsger.path` module. This page is genera
    .. autoproperty:: orientation
    .. autoproperty:: permute
    .. autoproperty:: path_links
+```
+
+## AStar
+
+```{eval-rst}
+.. autoclass:: edsger.path.AStar
+
+   .. automethod:: run
+   .. automethod:: set_coordinates
+   .. automethod:: get_path
+   .. automethod:: get_vertices
+   .. autoproperty:: n_vertices
+   .. autoproperty:: n_edges
+   .. autoproperty:: edges
+   .. autoproperty:: permute
+```
+
+## BidirectionalDijkstra
+
+```{eval-rst}
+.. autoclass:: edsger.path.BidirectionalDijkstra
+
+   .. automethod:: run
+   .. automethod:: get_path
+   .. automethod:: get_vertices
+   .. autoproperty:: n_vertices
+   .. autoproperty:: n_edges
+   .. autoproperty:: edges
+   .. autoproperty:: permute
 ```
 
 ## HyperpathGenerating
