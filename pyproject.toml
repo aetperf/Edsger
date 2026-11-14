@@ -63,6 +63,10 @@ doc = [
 Repository = "https://github.com/aetperf/Edsger"
 Documentation = "https://edsger.readthedocs.io"
 
+[tool.setuptools.package-data]
+# PEP 561: the package is typed, the Cython modules through their stubs
+edsger = ["py.typed", "*.pyi"]
+
 [tool.setuptools_scm]
 version_scheme = "no-guess-dev"
 write_to = "src/edsger/_version.py"

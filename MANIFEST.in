@@ -1,3 +1,5 @@
 include src/edsger/*.pyx
 include src/edsger/*.pxd
 include src/edsger/*.pxi
+include src/edsger/*.pyi
+include src/edsger/py.typed

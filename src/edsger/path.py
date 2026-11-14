@@ -284,6 +284,19 @@ class _Graph:
             if not np.isfinite(edges[weight]).all():
                 raise ValueError(f"edges['{weight}'] should be finite")
 
+    # ------------------------------------------------------------ representation
+
+    def _repr_items(self) -> list[str]:
+        """The `name=value` items of the representation of the instance."""
+        return [
+            f"n_vertices={self._n_vertices:_}",
+            f"n_edges={self._n_edges:_}",
+            f"permute={self._permute}",
+        ]
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({', '.join(self._repr_items())})"
+
     # ------------------------------------------------------------ properties
 
     @property
@@ -398,6 +411,9 @@ class _VertexGraph(_Graph):
     """Common part of the algorithms run from or to one vertex, with an
     orientation and an optional path tree: `Dijkstra`, `BellmanFord`, `BFS`,
     `DFS`."""
+
+    def _repr_items(self) -> list[str]:
+        return super()._repr_items() + [f"orientation={self._orientation!r}"]
 
     @property
     def orientation(self) -> str:
@@ -563,6 +579,9 @@ class Dijkstra(_VertexGraph):
             raise ValueError(f"edges['{weight}'] should be nonnegative")
 
         self._build_graph(edges, tail, head, weight, orientation, permute, verbose)
+
+    def _repr_items(self) -> list[str]:
+        return super()._repr_items() + [f"lazy={self._lazy}"]
 
     @property
     def lazy(self) -> bool:
@@ -1165,6 +1184,12 @@ class HyperpathGenerating:
 
         # node attribute
         self.u_i_vec = None
+
+    def __repr__(self) -> str:
+        return (
+            f"HyperpathGenerating(vertex_count={int(self.vertex_count):_}, "
+            f"edge_count={self.edge_count:_}, orientation={self._orientation!r})"
+        )
 
     def run(
         self,

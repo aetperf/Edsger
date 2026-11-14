@@ -155,6 +155,9 @@ class Centrality(_Graph):
 
     # ------------------------------------------------------------ helpers
 
+    def _repr_items(self) -> list[str]:
+        return super()._repr_items() + [f"weighted={self._weighted}"]
+
     def _uniform(self) -> np.ndarray:
         """Uniform distribution over the vertices."""
         return self._is_vertex / float(self._n_actual)
