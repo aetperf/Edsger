@@ -14,13 +14,13 @@ import pandas as pd
 
 from edsger.graph_importer import standardize_graph_dataframe
 from edsger.kruskal import kruskal  # pylint: disable=no-name-in-module
-from edsger.path import OUTPUT_TYPES, _import_polars, _VertexGraph
+from edsger.path import OUTPUT_TYPES, _import_polars, _Graph
 
 # numpy output of MinimumSpanningTree.run: (tails, heads, weights)
 ForestArrays = Tuple[np.ndarray, np.ndarray, np.ndarray]
 
 
-class MinimumSpanningTree(_VertexGraph):
+class MinimumSpanningTree(_Graph):
     """Minimum spanning tree of a graph seen as undirected, with Kruskal's
     algorithm.
 

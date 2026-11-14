@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from edsger.graph_importer import standardize_graph_dataframe
-from edsger.path import VertexResult, _resolve_output, _VertexGraph
+from edsger.path import VertexResult, _resolve_output, _Graph
 from edsger.components_core import (  # pylint: disable=no-name-in-module
     strong_components_csr,
     weak_components_csr,
@@ -17,7 +17,7 @@ from edsger.components_core import (  # pylint: disable=no-name-in-module
 CONNECTION_TYPES = ("weak", "strong")
 
 
-class ConnectedComponents(_VertexGraph):
+class ConnectedComponents(_Graph):
     """Weakly or strongly connected components of a directed graph.
 
     The graph is built once from a dataframe of edges. The `run` method then

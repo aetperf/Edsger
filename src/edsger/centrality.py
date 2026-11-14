@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 
 from edsger.graph_importer import standardize_graph_dataframe
-from edsger.path import VertexResult, _resolve_output, _VertexGraph
+from edsger.path import VertexResult, _resolve_output, _Graph
 from edsger.power_iteration import (  # pylint: disable=no-name-in-module
     hits_csr_csc,
     katz_csc,
@@ -46,7 +46,7 @@ def _check_real(value: Any, name: str) -> float:
     return float(value)
 
 
-class Centrality(_VertexGraph):
+class Centrality(_Graph):
     """Centrality measures of the vertices of a directed graph: PageRank, HITS
     hubs and authorities, and Katz centrality.
 

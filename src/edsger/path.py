@@ -110,9 +110,9 @@ def _check_orientation(orientation):
         raise ValueError("orientation should be either 'in' or 'out'")
 
 
-class _VertexGraph:
-    """Common part of the algorithms run from or to one vertex of a graph built
-    from a dataframe of edges: `Dijkstra`, `BellmanFord` and `BFS`.
+class _Graph:
+    """Common part of the classes working on a graph built from a dataframe of
+    edges.
 
     It builds the graph in compressed format (CSR for the 'out' orientation, CSC
     for 'in'), renumbers the vertices if asked to, and translates the vertices
@@ -300,23 +300,9 @@ class _VertexGraph:
         return self._n_vertices
 
     @property
-    def orientation(self) -> str:
-        """Orientation of the algorithm, either 'out' or 'in'."""
-        return self._orientation
-
-    @property
     def permute(self) -> bool:
         """Whether the vertices are renumbered internally."""
         return self._permute
-
-    @property
-    def path_links(self) -> Optional[np.ndarray]:
-        """Path tree of the last run, or None if the paths were not tracked. This
-        is the predecessor ('out') or the successor ('in') of each vertex. The
-        vertex given to `run` and the vertices that cannot be reached are linked
-        to themselves.
-        """
-        return self._path_links
 
     # ------------------------------------------------------------ vertex labels
 
@@ -383,6 +369,46 @@ class _VertexGraph:
             return internal
         return self._labels[internal]
 
+    # ------------------------------------------------------------ public methods
+
+    def get_vertices(self) -> Any:
+        """Return the vertices of the graph.
+
+        Returns
+        -------
+        numpy.ndarray
+            The sorted identifiers of the vertices that are the tail or the head of
+            at least one edge.
+        """
+        if self._labels is not None:
+            return self._labels.copy()
+        return np.union1d(
+            np.asarray(self._edges[self._tail_name]),
+            np.asarray(self._edges[self._head_name]),
+        )
+
+
+class _VertexGraph(_Graph):
+    """Common part of the algorithms run from or to one vertex, with an
+    orientation and an optional path tree: `Dijkstra`, `BellmanFord`, `BFS`,
+    `DFS`."""
+
+    @property
+    def orientation(self) -> str:
+        """Orientation of the algorithm, either 'out' or 'in'."""
+        return self._orientation
+
+    @property
+    def path_links(self) -> Optional[np.ndarray]:
+        """Path tree of the last run, or None if the paths were not tracked. This
+        is the predecessor ('out') or the successor ('in') of each vertex. The
+        vertex given to `run` and the vertices that cannot be reached are linked
+        to themselves.
+        """
+        return self._path_links
+
+    # ------------------------------------------------------------ path tree
+
     def _set_path_links(self, path_links: Optional[np.ndarray], output: str) -> None:
         """Store the path tree computed on the internal indices."""
         if path_links is None:
@@ -403,22 +429,6 @@ class _VertexGraph:
             self._path_links = linked_labels.astype(np.uint32)
 
     # ------------------------------------------------------------ public methods
-
-    def get_vertices(self) -> Any:
-        """Return the vertices of the graph.
-
-        Returns
-        -------
-        numpy.ndarray
-            The sorted identifiers of the vertices that are the tail or the head of
-            at least one edge.
-        """
-        if self._labels is not None:
-            return self._labels.copy()
-        return np.union1d(
-            np.asarray(self._edges[self._tail_name]),
-            np.asarray(self._edges[self._head_name]),
-        )
 
     def get_path(self, vertex_idx: int) -> Optional[np.ndarray]:
         """Return the shortest path between a vertex and the vertex of the last run.
