@@ -31,7 +31,7 @@ jobs:
         black --check --diff .
     - name: Lint Cython code
       run: |
-        cython-lint src/edsger/commons.pyx src/edsger/dijkstra.pyx src/edsger/dijkstra_core.pxi src/edsger/path_tracking.pyx src/edsger/pq_4ary_dec_0b.pyx src/edsger/spiess_florian.pyx src/edsger/star.pyx src/edsger/commons.pxd src/edsger/pq_4ary_dec_0b.pxd
+        cython-lint src/edsger/commons.pyx src/edsger/dijkstra.pyx src/edsger/dijkstra_core.pxi src/edsger/path_tracking.pyx src/edsger/pq_4ary_dec_0b.pyx src/edsger/spiess_florian.pyx src/edsger/star.pyx src/edsger/commons.pxd src/edsger/pq_4ary_dec_0b.pxd src/edsger/dfs.pyx src/edsger/components_core.pyx
     - name: Run tests with coverage
       if: matrix.os == 'ubuntu-24.04' && matrix.python-version == '3.10'
       run: |
