@@ -232,6 +232,61 @@ def test_permute_numpy_heuristic():
         assert result == pytest.approx(expected, rel=1e-12)
 
 
+def test_infinite_heuristic():
+    """Infinite values (the target cannot be reached from the vertex) and the
+    largest float64 value are accepted: Dijkstra's path lengths to the target
+    can be given as they are."""
+    edges = random_edges(seed=9, n=300, m=900)
+    astar = AStar(edges)
+    sp = Dijkstra(edges)
+    sp_in = Dijkstra(edges, orientation="in")
+    for source, target in random_pairs(astar.get_vertices(), 30, 9):
+        expected = sp.run(int(source))[target]
+        for return_inf in (True, False):
+            h = sp_in.run(int(target), return_inf=return_inf)
+            result = astar.run(int(source), int(target), heuristic=h)
+            if np.isinf(expected):
+                assert np.isinf(result)
+            else:
+                assert result == pytest.approx(expected, rel=1e-12)
+
+
+@pytest.mark.parametrize("kind", ["numpy", "series"])
+def test_heuristic_vertex_gaps(kind):
+    """permute=False with gaps between the vertex identifiers: the integers that
+    are not vertices are ignored in an array, and not needed in a Series."""
+    edges = random_edges(seed=10, scale=3)
+    astar = AStar(edges)
+    sp = Dijkstra(edges)
+    vertices = astar.get_vertices()
+    assert len(vertices) < astar.n_vertices
+    for source, target in random_pairs(vertices, 20, 10):
+        h = Dijkstra(edges, orientation="in").run(int(target))
+        assert np.isinf(h[1])  # not a vertex
+        if kind == "numpy":
+            h[1] = np.nan
+        else:
+            h = pd.Series(h[vertices], index=vertices)
+        expected = sp.run(int(source))[target]
+        result = astar.run(int(source), int(target), heuristic=h)
+        if np.isinf(expected):
+            assert np.isinf(result)
+        else:
+            assert result == pytest.approx(expected, rel=1e-12)
+
+
+def test_heuristic_not_contiguous():
+    edges = random_edges(seed=11)
+    astar = AStar(edges)
+    target = int(edges["head"].iloc[0])
+    h = np.repeat(exact_heuristic(edges, target), 2)[::2]
+    assert not h.flags.c_contiguous
+    source = int(edges["tail"].iloc[0])
+    assert astar.run(source, target, heuristic=h) == astar.run(
+        source, target, heuristic=np.ascontiguousarray(h)
+    )
+
+
 def test_series_heuristic_with_extra_vertices():
     edges = random_edges(seed=6)
     astar = AStar(edges)
@@ -319,6 +374,20 @@ def test_coordinates_permute():
         assert astar.run(int(source), int(target)) == expected
 
 
+def test_coordinates_vertex_gaps():
+    """permute=False with gaps between the vertex identifiers: only the
+    vertices need coordinates."""
+    edges, coords = coordinate_graph(2, "euclidean")
+    edges[["tail", "head"]] = edges[["tail", "head"]] * 4
+    coords.index = coords.index * 4
+    astar = AStar(edges)
+    assert len(astar.get_vertices()) < astar.n_vertices
+    astar.set_coordinates(coords)
+    sp = Dijkstra(edges)
+    for source, target in random_pairs(astar.get_vertices(), 30, 2):
+        assert astar.run(int(source), int(target)) == sp.run(int(source))[target]
+
+
 def test_coordinates_given_factor():
     edges, coords = coordinate_graph(1, "euclidean")
     astar = AStar(edges)
@@ -394,7 +463,7 @@ def test_invalid_heuristic():
         astar.run(0, 1, heuristic=np.zeros((n, 1)))
     with pytest.raises(TypeError):
         astar.run(0, 1, heuristic=np.array(["a"] * n))
-    for value, match in ((np.nan, "NaN"), (-1.0, "non-negative"), (np.inf, "finite")):
+    for value, match in ((np.nan, "NaN"), (-1.0, "non-negative")):
         h = np.zeros(n)
         h[3] = value
         with pytest.raises(ValueError, match=match):

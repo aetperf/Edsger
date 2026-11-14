@@ -1466,6 +1466,12 @@ _PAIR_HEAP_LENGTH = 1024
 # from the edges, so that the rounding errors cannot make it overestimate
 _HEURISTIC_FACTOR_MARGIN = 1.0e-9
 
+# The heuristic values are clipped to this value: an infinite value (the target
+# cannot be reached from the vertex) or one close to the largest float64 would
+# make the keys overflow. Lowering a heuristic keeps it admissible and
+# consistent.
+_HEURISTIC_MAX = 1.0e300
+
 
 def _distances(x0, y0, x1, y1, metric):
     """Distances between points, with the same formulas as the A* routine: the
@@ -1496,6 +1502,7 @@ class _PairGraph(_VertexGraph):
     _path_tracked: bool
     _workspace: Any
     _workspace_lock: Any
+    _layout: Optional[tuple]
 
     def _init_pair(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self, edges, tail, head, weight, check_edges, permute, verbose
@@ -1514,6 +1521,7 @@ class _PairGraph(_VertexGraph):
         self._path_tracked = False
         self._workspace = None
         self._workspace_lock = threading.Lock()
+        self._layout = None
 
     def _new_workspace(self) -> Any:
         """Return a new workspace for the Cython routine."""
@@ -1535,6 +1543,30 @@ class _PairGraph(_VertexGraph):
     def _pair_vertices(self, source: int, target: int):
         """Internal indices of the source and the target vertices."""
         return self._internal_vertex(source), self._internal_vertex(target)
+
+    def _vertex_layout(self):
+        """The vertex labels (`get_vertices`), and, if some internal indices are
+        not vertices (`permute=False` and gaps between the labels), a boolean
+        mask of these indices, None otherwise. Computed once."""
+        if self._layout is None:
+            vertices = self.get_vertices()
+            non_vertices = None
+            if self._labels is None and len(vertices) < self._n_vertices:
+                non_vertices = np.ones(self._n_vertices, dtype=bool)
+                non_vertices[vertices] = False
+            self._layout = (vertices, non_vertices)
+        return self._layout
+
+    def _scatter(self, values: np.ndarray) -> np.ndarray:
+        """Return values given in the order of `get_vertices`, for each internal
+        index: the indices that are not vertices get a zero."""
+        vertices, non_vertices = self._vertex_layout()
+        if non_vertices is None:
+            # the internal indices are the positions in get_vertices
+            return np.ascontiguousarray(values)
+        result = np.zeros((self._n_vertices,) + values.shape[1:], dtype=values.dtype)
+        result[vertices] = values
+        return result
 
     def _set_pair_path(self, path: Optional[np.ndarray], tracked: bool) -> None:
         """Store the path of the last run, given with the internal indices."""
@@ -1732,7 +1764,7 @@ class AStar(_PairGraph):
         if not coordinates.index.is_unique:
             raise ValueError("the index of the coordinates should be unique")
 
-        vertices = self.get_vertices()
+        vertices, _ = self._vertex_layout()
         xy = coordinates[[x, y]].reindex(vertices).to_numpy(dtype=DTYPE_PY)
         if not np.isfinite(xy).all():
             raise ValueError("every vertex of the graph should have finite coordinates")
@@ -1740,6 +1772,7 @@ class AStar(_PairGraph):
             if np.abs(xy[:, 1]).max(initial=0.0) > 90.0:
                 raise ValueError("the latitudes should be in [-90, 90] degrees")
             xy = np.radians(xy)
+        xy = self._scatter(xy)
         x_int = np.ascontiguousarray(xy[:, 0])
         y_int = np.ascontiguousarray(xy[:, 1])
 
@@ -1776,16 +1809,13 @@ class AStar(_PairGraph):
         if isinstance(heuristic, pd.Series):
             if not heuristic.index.is_unique:
                 raise ValueError("the index of the heuristic should be unique")
-            index = (
-                self._labels
-                if self._labels is not None
-                else np.arange(self._n_vertices)
-            )
-            values = heuristic.reindex(index).to_numpy(dtype=DTYPE_PY)
+            vertices, _ = self._vertex_layout()
+            values = heuristic.reindex(vertices).to_numpy(dtype=DTYPE_PY)
             if np.isnan(values).any():
                 raise ValueError(
                     "the heuristic should have a value, not NaN, for every vertex"
                 )
+            values = self._scatter(values)
         else:
             values = np.asarray(heuristic)
             if not np.issubdtype(values.dtype, np.number):
@@ -1804,6 +1834,11 @@ class AStar(_PairGraph):
             values = values.astype(DTYPE_PY, copy=False)
             if self._labels is not None:
                 values = values[self._labels]
+            else:
+                _, non_vertices = self._vertex_layout()
+                if non_vertices is not None:
+                    # the integers that are not vertices are ignored
+                    values = np.where(non_vertices, 0.0, values)
             values = np.ascontiguousarray(values)
         # NaN values make the min NaN: compared as Python floats
         value_min = float(values.min())
@@ -1811,8 +1846,8 @@ class AStar(_PairGraph):
             if value_min != value_min:
                 raise ValueError("the heuristic should not contain NaN values")
             raise ValueError("the heuristic should be non-negative")
-        if not float(values.max()) < np.inf:
-            raise ValueError("the heuristic should be finite")
+        if float(values.max()) > _HEURISTIC_MAX:
+            values = np.minimum(values, _HEURISTIC_MAX)
         return values
 
     def run(  # pylint: disable=too-many-arguments,too-many-positional-arguments
@@ -1833,7 +1868,8 @@ class AStar(_PairGraph):
             The target vertex.
         heuristic : numpy.ndarray or pandas.Series, optional (default=None)
             A lower bound of the path length from each vertex to the target,
-            finite and non-negative (see the Notes of the class). A NumPy array
+            non-negative (see the Notes of the class), infinite if the target
+            cannot be reached from the vertex. A NumPy array
             has one element per integer between 0 and the largest vertex
             identifier, like the NumPy results of `Dijkstra.run`: the elements
             that are not vertices are ignored. A pandas Series is indexed by
@@ -1858,8 +1894,8 @@ class AStar(_PairGraph):
         ------
         ValueError
             If the source or the target is not a vertex of the graph, or if the
-            heuristic does not have the right length, has missing, NaN, negative
-            or infinite values.
+            heuristic does not have the right length, has missing, NaN or
+            negative values.
         """
         source_new, target_new = self._pair_vertices(source, target)
         values = None if heuristic is None else self._internal_heuristic(heuristic)
