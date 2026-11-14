@@ -249,6 +249,22 @@ extensions = [
         extra_link_args=extra_link_args,
         define_macros=define_macros,
     ),
+    Extension(
+        "edsger.astar",
+        ["src/edsger/astar.pyx"],
+        extra_compile_args=extra_compile_args,
+        extra_link_args=extra_link_args,
+        define_macros=define_macros_with_thp,
+        libraries=thp_libraries,
+    ),
+    Extension(
+        "edsger.bidirectional_dijkstra",
+        ["src/edsger/bidirectional_dijkstra.pyx"],
+        extra_compile_args=extra_compile_args,
+        extra_link_args=extra_link_args,
+        define_macros=define_macros_with_thp,
+        libraries=thp_libraries,
+    ),
 ]
 
 
