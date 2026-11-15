@@ -353,6 +353,141 @@ def create_comparison_plot(
     return output_file
 
 
+MEMORY_BARS = [
+    # (phase, key, label, color)
+    ("graph", "retained_mb", "Graph (kept after the build)", "#4477AA"),
+    ("graph", "peak_mb", "Graph build (peak)", "#88CCEE"),
+    ("run", "peak_mb", "Dijkstra run (peak)", "#EE6677"),
+]
+
+
+def create_memory_plot(all_results, output_file="dijkstra_memory_comparison.png"):
+    """Memory of the graph and of a Dijkstra run, per library: one panel per
+    system with memory measurements."""
+    libraries = ["E", "NK", "GT", "SciPy"]
+    library_names = {
+        "E": "Edsger",
+        "NK": "NetworKit",
+        "GT": "Graph-tool",
+        "SciPy": "SciPy",
+    }
+    systems = {}
+    for os_name, results in sorted(all_results.items()):
+        by_library = {
+            r["library"]: r["memory"]
+            for r in results["benchmark_results"]
+            if r.get("memory", {}).get("graph") and r["memory"].get("run")
+        }
+        if by_library:
+            systems[os_name] = (results, by_library)
+    if not systems:
+        print("[INFO] No memory measurements: no memory plot")
+        return None
+
+    plt.style.use("default")
+    fig, axes = plt.subplots(
+        1, len(systems), figsize=(12 * len(systems), 8), squeeze=False
+    )
+    for ax, (os_name, (results, by_library)) in zip(
+        axes[0], systems.items(), strict=True
+    ):
+        libs = [lib for lib in libraries if lib in by_library]
+        x = np.arange(len(libs))
+        width = 0.8 / len(MEMORY_BARS)
+        y_max = 0.0
+        for i, (phase, key, label, color) in enumerate(MEMORY_BARS):
+            values = np.array([by_library[lib][phase][key] / 1024 for lib in libs])
+            y_max = max(y_max, values.max())
+            positions = x + (i - len(MEMORY_BARS) / 2 + 0.5) * width
+            bars = ax.bar(
+                positions,
+                values,
+                width,
+                label=label,
+                color=color,
+                alpha=0.9,
+                edgecolor="white",
+                linewidth=2,
+            )
+            for bar, value in zip(bars, values, strict=True):
+                ax.text(
+                    bar.get_x() + bar.get_width() / 2.0,
+                    value + 0.02 * y_max if y_max else value,
+                    f"{value:.2f}",
+                    ha="center",
+                    va="bottom",
+                    fontweight="bold",
+                    fontsize=10,
+                )
+
+        tick_labels = [
+            "\n".join(
+                [
+                    library_names[lib],
+                    clean_version(
+                        library_version(results["system_info"], library_names[lib])
+                    ),
+                ]
+            )
+            for lib in libs
+        ]
+        ax.set_xticks(x)
+        ax.set_xticklabels(tick_labels, fontsize=12)
+        ax.set_xlabel("Library", fontsize=14, fontweight="bold")
+        ax.set_ylabel("Memory (GiB)", fontsize=14, fontweight="bold")
+        processor = extract_processor_model(results["system_info"])
+        system = os_name.capitalize() + (f" ({processor})" if processor else "")
+        ax.set_title(
+            "Dijkstra Memory Usage on USA Road Network\n"
+            f"(23.9M vertices, 57.7M edges) - {system}",
+            fontsize=16,
+            fontweight="bold",
+            pad=20,
+        )
+        ax.set_ylim(0, y_max * 1.25)
+        ax.grid(True, axis="y", alpha=0.3, linestyle="--")
+        ax.set_axisbelow(True)
+        ax.legend(loc="upper right", fontsize=12, framealpha=0.9)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        methods = {m.get("method", "?") for m in by_library.values()}
+        method = methods.pop() if len(methods) == 1 else "mixed"
+        how = (
+            "exact peak (VmHWM reset before each phase)"
+            if method == "VmHWM"
+            else "peak sampled every ms"
+        )
+        ax.text(
+            0.02,
+            0.98,
+            f"Measured on {benchmark_date(results)}\n"
+            "Resident memory (RSS) increase over the loaded edge list,\n"
+            f"{how}; run: largest peak of the runs",
+            transform=ax.transAxes,
+            verticalalignment="top",
+            fontsize=10,
+            alpha=0.7,
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="lightgray", alpha=0.5),
+        )
+
+    plt.tight_layout()
+    plt.savefig(
+        output_file, dpi=300, bbox_inches="tight", facecolor="white", edgecolor="none"
+    )
+    print(f"\n[PLOT] Saved memory plot to: {output_file}")
+    if os.path.exists("../docs/source/assets/"):
+        docs_output = f"../docs/source/assets/{os.path.basename(output_file)}"
+        plt.savefig(
+            docs_output,
+            dpi=300,
+            bbox_inches="tight",
+            facecolor="white",
+            edgecolor="none",
+        )
+        print(f"[PLOT] Also saved to docs assets: {docs_output}")
+    return output_file
+
+
 def create_single_os_plot(results, os_name, output_file=None):
     """Create a plot for a single OS (similar to original benchmark_comparison.py)."""
 
@@ -497,6 +632,7 @@ def main():
     # Always create comparison plot, even for single OS
     print("\n[INFO] Creating comparison plot...")
     create_comparison_plot(all_results)
+    create_memory_plot(all_results)
 
     print("\n" + "=" * 80)
     print("PLOTTING COMPLETED")

@@ -41,6 +41,24 @@ The Linux and Windows columns come from two different machines, so they do not c
 | NumPy, pandas | 2.5.4, 3.1.1 | 2.5.4, 3.1.1 |
 | Edsger build | From source, Clang 14, `-march=native` | From source |
 
+## Memory
+
+The memory is measured on Linux, as the increase of the resident memory of the process over the loaded edge list: the memory kept by the graph once built, the peak during its build, and the peak during a Dijkstra run, the array of path lengths included. The peaks are exact: the peak resident memory of the process is reset before each phase. Measured on 2026-11-15, on the same machine as the Linux timings.
+
+```{image} assets/dijkstra_memory_comparison.png
+:alt: Memory of the graph and of a Dijkstra run on the USA road network, for Edsger, NetworKit, graph-tool and SciPy
+:width: 700px
+```
+
+| Library | Graph, kept (GiB) | Graph build, peak (GiB) | Dijkstra run, peak (GiB) |
+|---|---:|---:|---:|
+| Edsger | 1.60 | 5.77 | 0.20 |
+| SciPy | 0.73 | 1.16 | 0.18 |
+| graph-tool | 3.54 | 3.54 | 0.54 |
+| NetworKit | 5.15 | 6.50 | 0.74 |
+
+The compressed graph of Edsger has the size of SciPy's: 0.73 GiB, for the offsets, the heads (32-bit integers) and the weights (64-bit floats). Edsger also keeps the edges dataframe, after the removal of parallel edges, for the `edges` attribute and the results with vertex labels: 0.86 GiB. The build peak comes mostly from this removal, a pandas group-by on the tail and head columns. After version 0.3.0, this removal is done with NumPy, which cuts the build peak by more than half, and keeps sorted edges without parallel edges as they are. A run needs little more than its result, an array of 23.9 million 64-bit floats (0.18 GiB). The NetworKit graph is read from its binary file format.
+
 ## Compilers
 
 On Linux, the compiler has a visible effect on the Dijkstra code. The following timings were taken on the same i9-12900H with the same source code and the same graph, the process being pinned to one core, best of 7 runs.

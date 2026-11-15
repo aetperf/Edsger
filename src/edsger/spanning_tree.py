@@ -108,7 +108,6 @@ class MinimumSpanningTree(_Graph):
             and not np.isfinite(np.asarray(edges[weight], dtype=np.float64)).all()
         ):
             raise ValueError(f"edges['{weight}'] should be finite")
-        self._weight_name = weight
         self._build_graph(edges, tail, head, weight, "out", permute, verbose)
         self._total_weight: float | None = None
         self._n_trees: int | None = None

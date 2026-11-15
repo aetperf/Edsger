@@ -8,7 +8,7 @@ import threading
 import warnings
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Union, cast
+from typing import TYPE_CHECKING, Any, Union
 
 import numpy as np
 import pandas as pd
@@ -19,6 +19,7 @@ from edsger import (
 )  # pylint: disable=no-name-in-module
 from edsger import dijkstra as dijkstra_dec
 from edsger import dijkstra_nodec as dijkstra_lazy
+from edsger._version import __version__
 from edsger.bellman_ford import (
     compute_bf_sssp,
     compute_bf_sssp_w_path,
@@ -110,13 +111,143 @@ def _edges_as_pandas(edges, columns):
     raise TypeError("edges should be a pandas DataFrame or a Polars DataFrame")
 
 
+def _path_edge_result(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    tails: np.ndarray,
+    heads: np.ndarray,
+    weights: np.ndarray | None,
+    tail_name: str,
+    head_name: str,
+    weight_name: str | None,
+    output: str,
+) -> Any:
+    """Return the edges of a path in the output type of `get_path_edges`."""
+    if output not in OUTPUT_TYPES:
+        raise ValueError(
+            f"argument 'output' should be one of {OUTPUT_TYPES}, got {output!r}"
+        )
+    if output == "numpy":
+        if weights is None:
+            weights = np.ones(len(tails), dtype=DTYPE_PY)
+        return tails, heads, weights
+    data = {tail_name: tails, head_name: heads}
+    if weights is not None and weight_name is not None:
+        data[weight_name] = weights
+    if output == "pandas":
+        return pd.DataFrame(data)
+    return _import_polars().DataFrame(data)
+
+
+def _is_sorted_unique(tails: np.ndarray, heads: np.ndarray) -> bool:
+    """Whether the (tail, head) pairs are strictly increasing, in lexicographic
+    order: sorted, with no parallel edge."""
+    if len(tails) < 2:
+        return True
+    t0, t1 = tails[:-1], tails[1:]
+    increasing = t1 > t0
+    if not np.all(increasing | (t1 == t0)):
+        return False
+    return bool(np.all(increasing | (heads[1:] > heads[:-1])))
+
+
+def _dedup_sorted_edges(edges: pd.DataFrame, tail, head, weight) -> pd.DataFrame:
+    """The edges sorted by (tail, head), with one edge per pair of vertices: the
+    one with the smallest weight, or the first one if `weight` is None. Same
+    result as a pandas groupby on (tail, head), with min or first."""
+    tails = edges[tail].to_numpy()
+    heads = edges[head].to_numpy()
+    n = len(tails)
+    if _is_sorted_unique(tails, heads):
+        if isinstance(edges.index, pd.RangeIndex) and edges.index.start == 0:
+            return edges
+        return edges.reset_index(drop=True)
+
+    # sort by (tail, head): a single int64 key when it fits, faster than lexsort
+    t_min, t_max = int(tails.min()), int(tails.max())
+    h_min, h_max = int(heads.min()), int(heads.max())
+    span = h_max - h_min + 1
+    int64_max = np.iinfo(np.int64).max
+    if max(t_max, h_max) <= int64_max and (t_max - t_min + 1) * span <= int64_max:
+        key = tails.astype(np.int64) - t_min
+        key *= span
+        key += heads.astype(np.int64, copy=False)
+        key -= h_min
+        # stable for the unweighted graph, which keeps the first edge of a pair
+        order = np.argsort(key, kind="stable" if weight is None else None)
+        key = key[order]
+        first = np.empty(n, dtype=bool)
+        first[0] = True
+        np.not_equal(key[1:], key[:-1], out=first[1:])
+        del key
+    else:
+        order = np.lexsort((heads, tails))
+        sorted_tails, sorted_heads = tails[order], heads[order]
+        first = np.empty(n, dtype=bool)
+        first[0] = True
+        first[1:] = (sorted_tails[1:] != sorted_tails[:-1]) | (
+            sorted_heads[1:] != sorted_heads[:-1]
+        )
+        del sorted_tails, sorted_heads
+
+    if first.all():  # no parallel edge, only the order changes
+        del first
+        keep = order
+        starts = None
+    else:
+        starts = np.flatnonzero(first)
+        del first
+        keep = order[starts]
+
+    columns = {}
+    for col in edges.columns:
+        if col == weight and starts is not None:
+            # smallest weight of each pair
+            columns[col] = np.minimum.reduceat(edges[col].to_numpy()[order], starts)
+        else:
+            columns[col] = edges[col].to_numpy()[keep]
+    return pd.DataFrame(columns)
+
+
+class _Picklable:
+    """Pickling with a check of the Edsger version.
+
+    The internal attributes may change between versions: unpickling an instance
+    saved by another version warns that it may not work, and that rebuilding it
+    from the edges is safe.
+    """
+
+    # attributes that are not pickled; __setstate__ restores them
+    _transient: tuple[str, ...] = ()
+
+    def __getstate__(self) -> dict:
+        state = {k: v for k, v in self.__dict__.items() if k not in self._transient}
+        state["_edsger_version"] = __version__
+        return state
+
+    def __setstate__(self, state: dict) -> None:
+        state = dict(state)
+        version = state.pop("_edsger_version", None)
+        if version != __version__:
+            warnings.warn(
+                f"this {type(self).__name__} instance was pickled with edsger "
+                f"{version} and is loaded with edsger {__version__}: it may not "
+                "work, rebuild it from the edges if needed",
+                UserWarning,
+                stacklevel=2,
+            )
+        self.__dict__.update(state)
+        self._restore_transient()
+
+    def _restore_transient(self) -> None:
+        """Set the attributes that are not pickled."""
+
+
 def _check_orientation(orientation):
     """Checks the orientation argument."""
     if orientation not in ["in", "out"]:
         raise ValueError("orientation should be either 'in' or 'out'")
 
 
-class _Graph:
+class _Graph(_Picklable):
     """Common part of the classes working on a graph built from a dataframe of
     edges.
 
@@ -135,6 +266,7 @@ class _Graph:
     _edges: pd.DataFrame
     _tail_name: str
     _head_name: str
+    _weight_name: str | None
     _n_edges: int
     _n_vertices: int
     _n_vertices_init: int
@@ -168,6 +300,7 @@ class _Graph:
         self._edges = edges
         self._tail_name = tail
         self._head_name = head
+        self._weight_name = weight
         self._verbose = verbose
         self._remove_parallel_edges(tail, head, weight)
 
@@ -213,22 +346,26 @@ class _Graph:
         indptr, indices, data = convert(
             edges_tmp, tail, head, weight_col, self._n_vertices
         )
-        self._indptr = indptr.astype(np.uint32)
-        self._indices = indices.astype(np.uint32)
-        self._edge_weights = None if weight is None else data.astype(DTYPE_PY)
+        self._indptr = indptr.astype(np.uint32, copy=False)
+        self._indices = indices.astype(np.uint32, copy=False)
+        self._edge_weights = (
+            None if weight is None else data.astype(DTYPE_PY, copy=False)
+        )
 
         self._path_links = None
         self._path_links_permuted = None
 
     def _remove_parallel_edges(self, tail, head, weight):
         """Keep one edge per pair of vertices: the one with the smallest weight, or
-        any of them for an unweighted graph."""
+        the first one for an unweighted graph. The edges are sorted by (tail, head),
+        with a new RangeIndex.
+
+        Edges already sorted with no parallel edge, as often, are kept as they are:
+        no copy. Otherwise the edges are sorted with NumPy, much faster and with a
+        smaller peak memory than a pandas groupby.
+        """
         original_count = len(self._edges)
-        grouped = self._edges.groupby([tail, head], as_index=False)
-        if weight is None:
-            self._edges = grouped.first()
-        else:
-            self._edges = cast(pd.DataFrame, grouped[weight].min())
+        self._edges = _dedup_sorted_edges(self._edges, tail, head, weight)
         self._n_edges = len(self._edges)
 
         removed = original_count - self._n_edges
@@ -388,6 +525,52 @@ class _Graph:
             return internal
         return self._labels[internal]
 
+    def _path_labels(self, internal: np.ndarray) -> np.ndarray:
+        """Return the labels of the vertices of a path: uint32 unless some labels
+        are negative."""
+        labels = self._labels_of(internal)
+        if self._labels is not None and not self._negative_labels:
+            labels = labels.astype(np.uint32)
+        return labels
+
+    def _edge_positions(self, rows: np.ndarray, cols: np.ndarray) -> np.ndarray:
+        """Positions in the compressed graph of the edges from the vertices `rows`
+        to the vertices `cols` (internal indices; tails and heads with the CSR
+        format, heads and tails with CSC). Each edge must exist."""
+        rows = rows.astype(np.int64)
+        starts = self._indptr[rows].astype(np.int64)
+        counts = self._indptr[rows + 1].astype(np.int64) - starts
+        # all the edges leaving the given rows, and the pair each one belongs to
+        first = np.repeat(np.cumsum(counts) - counts, counts)
+        candidates = np.repeat(starts, counts) + (np.arange(counts.sum()) - first)
+        owners = np.repeat(np.arange(len(rows)), counts)
+        match = self._indices[candidates] == np.repeat(cols, counts)
+        # one match per pair: the parallel edges have been removed
+        positions = np.full(len(rows), -1, dtype=np.int64)
+        positions[owners[match]] = candidates[match]
+        if np.any(positions < 0):
+            raise RuntimeError("a path goes through an edge that is not in the graph")
+        return positions
+
+    def _path_edges(self, path: np.ndarray, output: str) -> Any:
+        """Return the edges along a path, given by its vertices (internal indices)
+        in travel order."""
+        tails, heads = path[:-1], path[1:]
+        if self._orientation == "out":
+            positions = self._edge_positions(tails, heads)
+        else:
+            positions = self._edge_positions(heads, tails)
+        weights = None if self._edge_weights is None else self._edge_weights[positions]
+        return _path_edge_result(
+            self._path_labels(tails),
+            self._path_labels(heads),
+            weights,
+            self._tail_name,
+            self._head_name,
+            self._weight_name,
+            output,
+        )
+
     # ------------------------------------------------------------ public methods
 
     def get_vertices(self) -> Any:
@@ -473,25 +656,68 @@ class _VertexGraph(_Graph):
             array only contains `vertex_idx`. None is returned, with a warning, if
             no path was tracked.
         """
+        path = self._internal_path(vertex_idx)
+        if path is None:
+            return None
+        return self._path_labels(path)
+
+    def _internal_path(self, vertex_idx: int) -> np.ndarray | None:
+        """The path of `get_path`, with the internal indices, or None with a
+        warning if no path was tracked."""
         if self._path_links is None:
             warnings.warn(
                 f"Current {type(self).__name__} instance has no path attribute: "
                 "make sure path_tracking is set to True, and run the "
                 f"{self._algorithm_name}",
                 UserWarning,
-                stacklevel=2,
+                stacklevel=3,
             )
             return None
         if self._labels is not None:
             assert self._path_links_permuted is not None
             position = self._internal_vertex(vertex_idx)
-            path_vertices = self._labels[
-                compute_path(self._path_links_permuted, position)
-            ]
-            if self._labels[0] >= 0:
-                path_vertices = path_vertices.astype(np.uint32)
-            return path_vertices
+            return compute_path(self._path_links_permuted, position)
         return compute_path(self._path_links, vertex_idx)
+
+    def get_path_edges(self, vertex_idx: int, output: str = "pandas") -> Any:
+        """Return the edges of the path between a vertex and the vertex of the
+        last run.
+
+        The last call to `run` must have been made with `path_tracking=True`.
+        This is the path of `get_path`, as a list of edges in travel order.
+
+        Parameters
+        ----------
+        vertex_idx : int
+            The other end of the path: the target vertex if the orientation is
+            'out', the source vertex if it is 'in'.
+        output : {'pandas', 'polars', 'numpy'}, optional (default='pandas')
+            Type of the result.
+
+        Returns
+        -------
+        pandas.DataFrame, polars.DataFrame, tuple of numpy.ndarray or None
+            One row per edge, in travel order, with the tail, head and weight
+            columns named as in the input (no weight column for an unweighted
+            graph), or with output='numpy' the tuple of arrays
+            (tails, heads, weights), the weights being 1 for an unweighted graph.
+            When parallel edges were given, the weight is the smallest one, the
+            weight of the edge kept in the graph. There is no row if `vertex_idx`
+            is the vertex of the run or cannot be reached. None is returned, with
+            a warning, if no path was tracked.
+
+        Notes
+        -----
+        The rows can be joined with the input dataframe on the tail and head
+        columns, e.g. to get other attributes of the edges.
+        """
+        path = self._internal_path(vertex_idx)
+        if path is None:
+            return None
+        if self._orientation == "out":
+            # from the vertex of the run to vertex_idx
+            path = path[::-1]
+        return self._path_edges(path, output)
 
 
 class Dijkstra(_VertexGraph):
@@ -564,8 +790,6 @@ class Dijkstra(_VertexGraph):
         verbose: bool = False,
         lazy: bool = True,
     ) -> None:
-        # Select the dijkstra module based on the lazy parameter
-        self._dijkstra = dijkstra_lazy if lazy else dijkstra_dec
         self._lazy = lazy
 
         if check_edges:
@@ -582,6 +806,11 @@ class Dijkstra(_VertexGraph):
 
     def _repr_items(self) -> list[str]:
         return super()._repr_items() + [f"lazy={self._lazy}"]
+
+    @property
+    def _dijkstra(self):
+        """The Cython module of the Dijkstra variant."""
+        return dijkstra_lazy if self._lazy else dijkstra_dec
 
     @property
     def lazy(self) -> bool:
@@ -1048,7 +1277,7 @@ class BellmanFord(_VertexGraph):
         return self._has_negative_cycle
 
 
-class HyperpathGenerating:
+class HyperpathGenerating(_Picklable):
     """Spiess and Florian's algorithm, for the optimal strategies (hyperpaths)
     in a frequency-based transit network.
 
@@ -1769,8 +1998,10 @@ class _PairGraph(_Graph):
     """
 
     _algorithm_name = "shortest path algorithm"
-    _weight_name: str
+    # the workspace is rebuilt by the first run after unpickling
+    _transient = ("_workspace", "_workspace_lock")
     _path: np.ndarray | None
+    _path_internal: np.ndarray | None
     _path_tracked: bool
     _workspace: Any
     _workspace_lock: Any
@@ -1787,13 +2018,16 @@ class _PairGraph(_Graph):
         # check_edges (the min is NaN if any weight is)
         if len(edges) > 0 and not np.asarray(edges[weight]).min() >= 0.0:
             raise ValueError(f"edges['{weight}'] should be nonnegative")
-        self._weight_name = weight
         self._build_graph(edges, tail, head, weight, "out", permute, verbose)
         self._path = None
+        self._path_internal = None
         self._path_tracked = False
+        self._layout = None
+        self._restore_transient()
+
+    def _restore_transient(self) -> None:
         self._workspace = None
         self._workspace_lock = threading.Lock()
-        self._layout = None
 
     def _new_workspace(self) -> Any:
         """Return a new workspace for the Cython routine."""
@@ -1843,13 +2077,8 @@ class _PairGraph(_Graph):
     def _set_pair_path(self, path: np.ndarray | None, tracked: bool) -> None:
         """Store the path of the last run, given with the internal indices."""
         self._path_tracked = tracked
-        if path is None:
-            self._path = None
-            return
-        labels = self._labels_of(path)
-        if self._labels is not None and not self._negative_labels:
-            labels = labels.astype(np.uint32)
-        self._path = labels
+        self._path_internal = path
+        self._path = None if path is None else self._path_labels(path)
 
     @staticmethod
     def _pair_length(length: float, return_inf: bool) -> float:
@@ -1880,6 +2109,40 @@ class _PairGraph(_Graph):
             )
             return None
         return None if self._path is None else self._path.copy()
+
+    def get_path_edges(self, output: str = "pandas") -> Any:
+        """Return the edges of the shortest path found by the last run.
+
+        The last call to `run` must have been made with `path_tracking=True`.
+
+        Parameters
+        ----------
+        output : {'pandas', 'polars', 'numpy'}, optional (default='pandas')
+            Type of the result.
+
+        Returns
+        -------
+        pandas.DataFrame, polars.DataFrame, tuple of numpy.ndarray or None
+            One row per edge, in travel order, with the tail, head and weight
+            columns named as in the input, or with output='numpy' the tuple of
+            arrays (tails, heads, weights). When parallel edges were given, the
+            weight is the smallest one, the weight of the edge kept in the
+            graph. There is no row if the source is the target. None if the
+            target cannot be reached from the source, and None with a warning if
+            no path was tracked.
+        """
+        if not self._path_tracked:
+            warnings.warn(
+                f"Current {type(self).__name__} instance has no path attribute: "
+                "make sure path_tracking is set to True, and run the "
+                f"{self._algorithm_name}",
+                UserWarning,
+                stacklevel=2,
+            )
+            return None
+        if self._path_internal is None:
+            return None
+        return self._path_edges(self._path_internal, output)
 
 
 class AStar(_PairGraph):

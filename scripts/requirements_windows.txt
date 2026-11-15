@@ -10,3 +10,4 @@ networkit==11.3
 pyarrow==26.0.1
 tol-colors==2.2.0
 matplotlib==3.11.2
+psutil==7.2.2  # memory measurements (the peak RSS cannot be reset on Windows)

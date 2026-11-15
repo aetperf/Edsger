@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### New Features
+- `get_path_edges`: the edges of a tracked path, in travel order, with their weights (pandas, Polars, or a tuple of NumPy arrays), for `Dijkstra`, `BellmanFord`, `BFS`, `DFS` (`get_path_edges(vertex_idx)`) and `AStar`, `BidirectionalDijkstra` (`get_path_edges()`). The columns have the names of the input, so the result can be joined with the input dataframe
+- All the classes can be pickled, to save a built graph to disk: `Dijkstra`, `AStar` and `BidirectionalDijkstra` could not be. Loading a pickle saved by another Edsger version gives a warning
+
+### Performance
+- The parallel edges are removed with NumPy instead of a pandas group-by, when building a graph. Edges already sorted by tail and head with no parallel edge, as often, are kept without a copy. USA road network (58M edges), `Dijkstra` build: 18 s → 0.7 s with sorted edges, 40 s → 10 s with shuffled edges; build peak memory 7.6 → 2.9 GiB (sorted) or 4.3 GiB (shuffled). The result is unchanged: the edges sorted by (tail, head), with the smallest weight of each pair (the first edge for an unweighted graph)
+
+### Benchmarks
+- The USA benchmark measures the memory: retained by the graph and peak of its build, and peak of a Dijkstra run, for each library (`scripts/memory_usage.py`). On Linux the peak is exact (the peak RSS is reset before each phase), elsewhere it is sampled with psutil
+- `benchmark_comparison_os.py --edsger-release X.Y.Z` records the release shown in the figure for a development build
+
 ## Version 0.3.0 (2026-11-14)
 
 ### New Features

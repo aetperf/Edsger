@@ -14,6 +14,8 @@ from time import perf_counter
 import numpy as np
 import pandas as pd
 from loguru import logger
+from memory_usage import MB, measure, nbytes
+from memory_usage import METHOD as MEMORY_METHOD
 from scipy.sparse import coo_array
 from scipy.sparse.csgraph import dijkstra
 
@@ -116,6 +118,27 @@ parser.add_argument(
     default=1.0,
 )
 args = parser.parse_args()
+
+
+def log_memory(name, phase, memories):
+    """Log the memory of a phase: the memory retained by the first one (e.g. the
+    result of the first run), and the largest peak."""
+    retained = memories[0].retained_mb
+    peak = max(m.peak_mb for m in memories)
+    logger.info(
+        f"{name} memory - {phase}: retained {retained:9.1f} MB, peak {peak:9.1f} MB"
+    )
+
+
+def build_scipy_graph(edges, vertex_count):
+    """SciPy CSR graph; the temporary COO graph is not kept."""
+    data = edges["weight"].values
+    row = edges["tail"].values.astype(np.int32)
+    col = edges["head"].values.astype(np.int32)
+    graph_coo = coo_array((data, (row, col)), shape=(vertex_count, vertex_count))
+    return graph_coo.tocsr()
+
+
 data_dir = args.data_dir
 data_dir = os.path.abspath(data_dir)
 reg = args.network_name
@@ -192,6 +215,7 @@ edges = edges.rename(columns={"source": "tail", "target": "head", "tt": "weight"
 edge_count = len(edges)
 vertex_count = edges[["tail", "head"]].max().max() + 1
 logger.info(f"{edge_count} edges and {vertex_count} vertices")
+logger.info(f"memory measurement : {MEMORY_METHOD}")
 
 if lib == "E":
     # Edsger
@@ -199,22 +223,36 @@ if lib == "E":
 
     logger.info("Edsger init")
     edges[["tail", "head"]] = edges[["tail", "head"]].astype(np.uint32)
-    sp = Dijkstra(edges, orientation="out", check_edges=False)
+    with measure() as graph_memory:
+        sp = Dijkstra(edges, orientation="out", check_edges=False)
+    log_memory("Edsger", "graph", [graph_memory])
+    logger.info(
+        "Edsger graph data - "
+        f"edges: {nbytes(sp._edges) / MB:.1f} MB, "
+        f"indptr: {nbytes(sp._indptr) / MB:.1f} MB, "
+        f"indices: {nbytes(sp._indices) / MB:.1f} MB, "
+        f"weights: {nbytes(sp._edge_weights) / MB:.1f} MB"
+    )
 
     # SSSP
 
     results = []
+    run_memories = []
     logger.info("Edsger run")
     for i in range(repeat):
         d = {}
 
-        start = perf_counter()
+        with measure() as run_memory:
+            start = perf_counter()
 
-        dist_matrix = sp.run(
-            vertex_idx=idx_from, return_inf=True, heap_length_ratio=heap_length_ratio
-        )
+            dist_matrix = sp.run(
+                vertex_idx=idx_from,
+                return_inf=True,
+                heap_length_ratio=heap_length_ratio,
+            )
 
-        end = perf_counter()
+            end = perf_counter()
+        run_memories.append(run_memory)
         elapsed_time = end - start
         logger.info(
             f"Edsger Dijkstra {i + 1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
@@ -230,6 +268,7 @@ if lib == "E":
 
     df = pd.DataFrame.from_records(results)
     logger.info(f"Edsger min elapsed time : {df.elapsed_time.min():8.4f} s")
+    log_memory("Edsger", "run", run_memories)
 
 elif lib == "GT":
     # graph-tool
@@ -240,39 +279,45 @@ elif lib == "GT":
     import graph_tool as gt
     from graph_tool import topology as gt_topology
 
-    # create the graph
-    g = gt.Graph(directed=True)
+    with measure() as graph_memory:
+        # create the graph
+        g = gt.Graph(directed=True)
 
-    # create the vertices
-    g.add_vertex(vertex_count)
+        # create the vertices
+        g.add_vertex(vertex_count)
 
-    # create the edges
-    g.add_edge_list(edges[["tail", "head"]].values)
+        # create the edges
+        g.add_edge_list(edges[["tail", "head"]].values)
 
-    # edge property for the travel time
-    eprop_t = g.new_edge_property("float")
-    g.edge_properties["t"] = eprop_t  # internal property
-    g.edge_properties["t"].a = edges["weight"].values
+        # edge property for the travel time
+        eprop_t = g.new_edge_property("float")
+        g.edge_properties["t"] = eprop_t  # internal property
+        g.edge_properties["t"].a = edges["weight"].values
+        del eprop_t
+    log_memory("graph-tool", "graph", [graph_memory])
 
     # SSSP
 
     results = []
+    run_memories = []
     logger.info("graph-tool Run")
     for i in range(repeat):
         d = {}
 
-        start = perf_counter()
+        with measure() as run_memory:
+            start = perf_counter()
 
-        dist = gt_topology.shortest_distance(
-            g,
-            source=g.vertex(idx_from),
-            weights=g.ep.t,
-            negative_weights=False,
-            directed=True,
-        )
-        dist_matrix = dist.a
+            dist = gt_topology.shortest_distance(
+                g,
+                source=g.vertex(idx_from),
+                weights=g.ep.t,
+                negative_weights=False,
+                directed=True,
+            )
+            dist_matrix = dist.a
 
-        end = perf_counter()
+            end = perf_counter()
+        run_memories.append(run_memory)
         elapsed_time = end - start
         logger.info(
             f"graph-tool Dijkstra {i + 1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
@@ -288,6 +333,7 @@ elif lib == "GT":
 
     df = pd.DataFrame.from_records(results)
     logger.info(f"graph-tool min elapsed time : {df.elapsed_time.min():8.4f} s")
+    log_memory("graph-tool", "run", run_memories)
 
 elif lib == "NK":
     # NetworKit
@@ -300,35 +346,46 @@ elif lib == "NK":
         data_dir, f"{reg}/USA-road-t.{reg}.gr.NetworkitBinary"
     )
 
-    if os.path.exists(networkit_file_path):
-        g = nk.graphio.readGraph(networkit_file_path, nk_file_format)
+    with measure() as graph_memory:
+        if os.path.exists(networkit_file_path):
+            g = nk.graphio.readGraph(networkit_file_path, nk_file_format)
 
-    else:
-        g = nk.Graph(n=vertex_count, weighted=True, directed=True, edgesIndexed=False)
+        else:
+            g = nk.Graph(
+                n=vertex_count, weighted=True, directed=True, edgesIndexed=False
+            )
 
-        for row in edges.itertuples():
-            g.addEdge(row.tail, row.head, w=row.weight)
+            for row in edges.itertuples():
+                g.addEdge(row.tail, row.head, w=row.weight)
 
-        nk.graphio.writeGraph(g, networkit_file_path, nk_file_format)
+            nk.graphio.writeGraph(g, networkit_file_path, nk_file_format)
+    log_memory("NetworKit", "graph", [graph_memory])
 
-    nk_dijkstra = nk.distance.Dijkstra(
-        g, idx_from, storePaths=False, storeNodesSortedByDistance=False
-    )
+    # the memory of the algorithm object counts for the run
+    with measure() as init_memory:
+        nk_dijkstra = nk.distance.Dijkstra(
+            g, idx_from, storePaths=False, storeNodesSortedByDistance=False
+        )
 
     # SSSP
 
     results = []
+    run_memories = []
     logger.info("NetworKit Run")
     for i in range(repeat):
         d = {}
 
-        start = perf_counter()
+        with measure() as run_memory:
+            start = perf_counter()
 
-        nk_dijkstra.run()
-        dist_matrix = np.asarray(nk_dijkstra.getDistances(asarray=True))
-        dist_matrix = np.where(dist_matrix >= 1.79769313e308, np.inf, dist_matrix)
+            nk_dijkstra.run()
+            dist_matrix = np.asarray(nk_dijkstra.getDistances(asarray=True))
+            dist_matrix = np.where(dist_matrix >= 1.79769313e308, np.inf, dist_matrix)
 
-        end = perf_counter()
+            end = perf_counter()
+        run_memory.retained += init_memory.retained
+        run_memory.peak += init_memory.retained
+        run_memories.append(run_memory)
         elapsed_time = end - start
         logger.info(
             f"NetworKit Dijkstra {i + 1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
@@ -344,35 +401,37 @@ elif lib == "NK":
 
     df = pd.DataFrame.from_records(results)
     logger.info(f"NetworKit min elapsed time : {df.elapsed_time.min():8.4f} s")
+    log_memory("NetworKit", "run", run_memories)
 
 elif lib == "S":
     # SciPy
     # -----
 
     logger.info("SciPy init")
-    data = edges["weight"].values
-    row = edges["tail"].values.astype(np.int32)
-    col = edges["head"].values.astype(np.int32)
-    graph_coo = coo_array((data, (row, col)), shape=(vertex_count, vertex_count))
-    graph_csr = graph_coo.tocsr()
+    with measure() as graph_memory:
+        graph_csr = build_scipy_graph(edges, vertex_count)
+    log_memory("SciPy", "graph", [graph_memory])
 
     # SSSP
 
     results = []
+    run_memories = []
     logger.info("SciPy run")
     for i in range(repeat):
         d = {}
 
-        start = perf_counter()
+        with measure() as run_memory:
+            start = perf_counter()
 
-        dist_matrix = dijkstra(
-            csgraph=graph_csr,
-            directed=True,
-            indices=idx_from,
-            return_predecessors=False,
-        )
+            dist_matrix = dijkstra(
+                csgraph=graph_csr,
+                directed=True,
+                indices=idx_from,
+                return_predecessors=False,
+            )
 
-        end = perf_counter()
+            end = perf_counter()
+        run_memories.append(run_memory)
         elapsed_time = end - start
         logger.info(
             f"SciPy Dijkstra {i + 1}/{repeat} - Elapsed time: {elapsed_time:8.4f} s"
@@ -388,6 +447,7 @@ elif lib == "S":
 
     df = pd.DataFrame.from_records(results)
     logger.info(f"SciPy min elapsed time : {df.elapsed_time.min():8.4f} s")
+    log_memory("SciPy", "run", run_memories)
 
 
 if check_result and lib != "S":
@@ -395,22 +455,22 @@ if check_result and lib != "S":
 
     # SciPy
     logger.info("SciPy init")
-    data = edges["weight"].values
-    row = edges["tail"].values.astype(np.int32)
-    col = edges["head"].values.astype(np.int32)
-    graph_coo = coo_array((data, (row, col)), shape=(vertex_count, vertex_count))
-    graph_csr = graph_coo.tocsr()
+    with measure() as graph_memory:
+        graph_csr = build_scipy_graph(edges, vertex_count)
+    log_memory("SciPy", "graph", [graph_memory])
 
     logger.info("SciPy run")
-    start = perf_counter()
-    dist_matrix_ref = dijkstra(
-        csgraph=graph_csr,
-        directed=True,
-        indices=idx_from,
-        return_predecessors=False,
-    )
-    end = perf_counter()
+    with measure() as run_memory:
+        start = perf_counter()
+        dist_matrix_ref = dijkstra(
+            csgraph=graph_csr,
+            directed=True,
+            indices=idx_from,
+            return_predecessors=False,
+        )
+        end = perf_counter()
     elapsed_time = end - start
+    log_memory("SciPy", "run", [run_memory])
 
     logger.info(f"SciPy Dijkstra - Elapsed time: {elapsed_time:8.4f} s")
     logger.info(f"isinf : {np.isinf(dist_matrix_ref).any()}")

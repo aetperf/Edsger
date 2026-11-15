@@ -9,6 +9,7 @@ then saves results to OS-specific JSON files for later comparison.
 import json
 import os
 import platform
+import re
 import subprocess
 import sys
 import time
@@ -125,6 +126,38 @@ def get_system_info():
     return info
 
 
+MEMORY_LINE = re.compile(
+    r"(?P<name>[\w-]+) memory - (?P<phase>\w+): "
+    r"retained\s+(?P<retained>-?[\d.]+) MB, peak\s+(?P<peak>-?[\d.]+) MB"
+)
+GRAPH_DATA_LINE = re.compile(r"Edsger graph data - (?P<items>.*)")
+METHOD_LINE = re.compile(r"memory measurement : (?P<method>\w+)")
+
+
+def parse_memory(lines, name, memory):
+    """Update `memory` with the memory lines of a library: per phase, the
+    retained memory of the first measure and the largest peak (MB)."""
+    for line in lines:
+        match = METHOD_LINE.search(line)
+        if match:
+            memory["method"] = match["method"]
+            continue
+        match = MEMORY_LINE.search(line)
+        if match and match["name"] == name:
+            phase = memory.setdefault(match["phase"], {})
+            phase.setdefault("retained_mb", float(match["retained"]))
+            phase["peak_mb"] = max(phase.get("peak_mb", 0.0), float(match["peak"]))
+            continue
+        match = GRAPH_DATA_LINE.search(line)
+        if match and name == "Edsger":
+            memory["graph_data_mb"] = {
+                key.strip(): float(value.split()[0])
+                for key, value in (
+                    item.split(":") for item in match["items"].split(",")
+                )
+            }
+
+
 def run_benchmark(library, repeat=5, data_dir=None, network_name="USA"):
     """Run dijkstra_dimacs.py for a specific library."""
     print(f"\n[BENCHMARK] Running {library} benchmark ({repeat} iterations)...")
@@ -173,6 +206,7 @@ def run_benchmark(library, repeat=5, data_dir=None, network_name="USA"):
         print(f"[DEBUG] Project root: {project_root}")
 
         times = []
+        memory = {}
         total_start_time = time.time()
 
         # For SciPy, we need to run the command multiple times since SciPy only runs once per call
@@ -211,6 +245,7 @@ def run_benchmark(library, repeat=5, data_dir=None, network_name="USA"):
             }
 
             expected_name = library_names.get(library, library)
+            parse_memory(lines, expected_name, memory)
 
             for line in lines:
                 if library == "SciPy":
@@ -257,6 +292,13 @@ def run_benchmark(library, repeat=5, data_dir=None, network_name="USA"):
         print(
             f"[BENCHMARK] {library} completed: min={min_time:.4f}s, avg={avg_time:.4f}s, std={std_time:.4f}s"
         )
+        for phase in ("graph", "run"):
+            if phase in memory:
+                print(
+                    f"[MEMORY] {library} {phase}: "
+                    f"retained {memory[phase]['retained_mb']:.1f} MB, "
+                    f"peak {memory[phase]['peak_mb']:.1f} MB"
+                )
 
         return {
             "library": library,
@@ -265,6 +307,7 @@ def run_benchmark(library, repeat=5, data_dir=None, network_name="USA"):
             "avg_time": avg_time,
             "std_time": std_time,
             "total_duration": total_end_time - total_start_time,
+            "memory": memory,
         }
 
     except subprocess.TimeoutExpired:
@@ -353,6 +396,17 @@ def main():
         required=False,
         default=5,
     )
+    parser.add_argument(
+        "--edsger-release",
+        dest="edsger_release",
+        help="Edsger release with the same code as the measured development "
+        "build, shown in the figure instead of the development version "
+        "(e.g. 0.3.0)",
+        metavar="TXT",
+        type=str,
+        required=False,
+        default=None,
+    )
 
     args = parser.parse_args()
 
@@ -374,6 +428,8 @@ def main():
     # Collect system information
     print("\n[INFO] Collecting system and package information...")
     system_info = get_system_info()
+    if args.edsger_release:
+        system_info["edsger_release"] = args.edsger_release
 
     print(f"[INFO] Python: {system_info['python_version']}")
     print(f"[INFO] Platform: {system_info['platform']}")

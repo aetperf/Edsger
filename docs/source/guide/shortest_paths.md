@@ -65,6 +65,22 @@ dijkstra_in.get_path(vertex_idx=0)
 
 The tree itself is the `path_links` attribute: the predecessor (`"out"`) or successor (`"in"`) of each vertex.
 
+`get_path_edges` returns the edges of the same path, in travel order, as a dataframe with the columns of the input (`output="polars"` for a Polars DataFrame, `output="numpy"` for a tuple of arrays). When there are parallel edges, the weight is the one of the edge kept in the graph, the smallest. A join with the input dataframe on the tail and head columns brings back the other attributes of the edges.
+
+```python
+dijkstra_in.get_path_edges(vertex_idx=0)
+```
+
+% output
+
+       tail  head  weight
+    0     0     1     1.0
+    1     1     2     2.0
+    2     2     3     1.5
+    3     3     4     1.0
+
+% /output
+
 ### Early termination
 
 When only a few path lengths are needed, `termination_nodes` stops the algorithm as soon as these vertices are settled. The result then has one element per termination node, in the given order.
@@ -267,6 +283,22 @@ bidir.get_path()
 % output
 
     array([0, 1, 2, 3, 4], dtype=uint32)
+
+% /output
+
+and `get_path_edges` its edges:
+
+```python
+bidir.get_path_edges()
+```
+
+% output
+
+       tail  head  weight
+    0     0     1     1.0
+    1     1     2     2.0
+    2     2     3     1.5
+    3     3     4     1.0
 
 % /output
 

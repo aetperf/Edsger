@@ -45,6 +45,7 @@ Some differences with NetworkX and SciPy:
 |---|---|---|
 | `nx.single_source_dijkstra_path_length(G, s)` | `dijkstra(A, indices=s)` | `Dijkstra(edges).run(s)` |
 | `nx.single_source_dijkstra(G, s)` (with paths) | `dijkstra(A, indices=s, return_predecessors=True)` | `run(s, path_tracking=True)`, then `get_path(t)` or `path_links` |
+| `[G.edges[u, v] for u, v in nx.utils.pairwise(path)]` | | `get_path_edges(t)`: the edges of the path, with their weights |
 | `nx.single_source_dijkstra_path_length(G.reverse(), t)` | `dijkstra(A.T, indices=t)` | `Dijkstra(edges, orientation="in").run(t)` |
 | `nx.dijkstra_path_length(G, s, t)` | | `BidirectionalDijkstra(edges).run(s, t)`, or `Dijkstra.run(s, termination_nodes=[t])` |
 | `nx.astar_path_length(G, s, t, heuristic)` | | `AStar(edges).run(s, t, heuristic=h)` |

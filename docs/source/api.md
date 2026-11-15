@@ -2,6 +2,8 @@
 
 All the classes can be imported from the package, as in `from edsger import Dijkstra`. They are defined in the `edsger.path` module, except `ConnectedComponents` (`edsger.components`), `MinimumSpanningTree` (`edsger.spanning_tree`) and `Centrality` (`edsger.centrality`). This page is generated from the docstrings.
 
+The instances can be pickled, to save a built graph to disk and load it in another session (see the [quick start](quickstart.md#saving-a-built-graph)).
+
 ## Dijkstra
 
 ```{eval-rst}
@@ -10,6 +12,7 @@ All the classes can be imported from the package, as in `from edsger import Dijk
    .. automethod:: run
    .. automethod:: run_many
    .. automethod:: get_path
+   .. automethod:: get_path_edges
    .. automethod:: get_vertices
    .. autoproperty:: n_vertices
    .. autoproperty:: n_edges
@@ -27,6 +30,7 @@ All the classes can be imported from the package, as in `from edsger import Dijk
 
    .. automethod:: run
    .. automethod:: get_path
+   .. automethod:: get_path_edges
    .. automethod:: get_vertices
    .. automethod:: has_negative_cycle
    .. autoproperty:: n_vertices
@@ -44,6 +48,7 @@ All the classes can be imported from the package, as in `from edsger import Dijk
 
    .. automethod:: run
    .. automethod:: get_path
+   .. automethod:: get_path_edges
    .. automethod:: get_vertices
    .. autoproperty:: UNREACHABLE
    .. autoproperty:: n_vertices
@@ -62,6 +67,7 @@ All the classes can be imported from the package, as in `from edsger import Dijk
    .. automethod:: run
    .. automethod:: get_order
    .. automethod:: get_path
+   .. automethod:: get_path_edges
    .. automethod:: get_vertices
    .. autoproperty:: UNREACHABLE
    .. autoproperty:: n_vertices
@@ -94,6 +100,7 @@ All the classes can be imported from the package, as in `from edsger import Dijk
    .. automethod:: run
    .. automethod:: set_coordinates
    .. automethod:: get_path
+   .. automethod:: get_path_edges
    .. automethod:: get_vertices
    .. autoproperty:: n_vertices
    .. autoproperty:: n_edges
@@ -108,6 +115,7 @@ All the classes can be imported from the package, as in `from edsger import Dijk
 
    .. automethod:: run
    .. automethod:: get_path
+   .. automethod:: get_path_edges
    .. automethod:: get_vertices
    .. autoproperty:: n_vertices
    .. autoproperty:: n_edges

@@ -101,6 +101,29 @@ dijkstra.run_many([0, 1], termination_nodes=[3, 4], output="pandas")
 
 % /output
 
+## Saving a built graph
+
+The instances can be pickled: a graph built once is saved, then loaded ready to run. On the USA road network (24 million vertices, 58 million edges), `Dijkstra` loads in 0.5 s from a 1.6 GB pickle file in the disk cache. It builds in about 1 s when the edges are already sorted by tail and head, and in about 10 s when they are in random order, as the build sorts them.
+
+```python
+import pickle
+
+with open("graph.pickle", "wb") as f:
+    pickle.dump(dijkstra, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+with open("graph.pickle", "rb") as f:
+    loaded = pickle.load(f)
+loaded.run(vertex_idx=0)
+```
+
+% output
+
+    array([0. , 1. , 3. , 4.5, 5.5])
+
+% /output
+
+The pickle holds the edges, the compressed graph and the results of the last run. It is meant for the same Edsger version: loading it with another version gives a warning, and rebuilding from the edges is then the safe option. As with any pickle, only load files from a trusted source.
+
 ## Next steps
 
 - The user guide has one page per family of algorithms: [shortest paths](guide/shortest_paths.md), [traversal and components](guide/traversal.md), [spanning trees and centrality](guide/network_analysis.md) and [transit assignment](guide/transit.md).
