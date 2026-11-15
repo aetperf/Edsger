@@ -58,6 +58,20 @@ intersphinx_mapping = {
 # -- HTML output -------------------------------------------------------------
 
 html_theme = "furo"
+templates_path = ["_templates"]
+# Furo's sidebar, with a link to the GitHub repository below the search box
+html_sidebars = {
+    "**": [
+        "sidebar/brand.html",
+        "sidebar/search.html",
+        "sidebar/github.html",
+        "sidebar/scroll-start.html",
+        "sidebar/navigation.html",
+        "sidebar/ethical-ads.html",
+        "sidebar/scroll-end.html",
+        "sidebar/variant-selector.html",
+    ]
+}
 html_title = f"Edsger {version}"
 html_show_sphinx = False
 html_copy_source = False
