@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## Version 0.3.1 (2026-11-15)
 
 ### New Features
 - `get_path_edges`: the edges of a tracked path, in travel order, with their weights (pandas, Polars, or a tuple of NumPy arrays), for `Dijkstra`, `BellmanFord`, `BFS`, `DFS` (`get_path_edges(vertex_idx)`) and `AStar`, `BidirectionalDijkstra` (`get_path_edges()`). The columns have the names of the input, so the result can be joined with the input dataframe
